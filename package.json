@@ -1,17 +1,21 @@
 {
   "name": "node",
   "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "description": "my node.js playground",
   "main": "index.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "PATH=$PATH:./bin nodeunit-watcher library/"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/zootella/node.git"
+  },
+  "dependencies": {
+    "nodeunit": "0.7.4",
+    "nodeunit-watcher": "0.0.2"
   },
   "author": "",
   "license": "GPL",
