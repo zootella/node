@@ -1,0 +1,10 @@
+diff --git a/library/something.js b/library/something.js
+index 22443e2..d1bf9e0 100755
+--- a/library/something.js
++++ b/library/something.js
+@@ -16,3 +16,5 @@ exports.testSomethingElse = function(test) {
+ */
+ 
+ //added on different computer
++
++//save to run tests, let's see if it works
