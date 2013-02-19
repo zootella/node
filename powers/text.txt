@@ -1,0 +1,6 @@
+here are the contents of the text file
+and some more text on a second line
+and the third line, well, this is interesting
+the fourth line is the last one
+
+and now you can edit it without restarting the webserver

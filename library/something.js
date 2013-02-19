@@ -2,10 +2,14 @@
 
 //here is an example file to get some tests working in
 
+function(test);
+
 exports.testSomething = function(test) {
 	test.expect(1);
 	test.ok(true, "this assertion should pass");
 	test.done();
+
+	console.log("hello from a test");
 };
 
 /*
