@@ -4,8 +4,10 @@
 var http = require('http');
 var fs = require('fs');
 
+var counter;
+
 function writeNumbers(res) {
-	var counter = 0;
+	counter = 0;
 
 	for (var i = 0; i < 100; i++) { //loop to delay the application, like blocking through a computationally intensive process
 		counter++;
