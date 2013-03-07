@@ -1,5 +1,5 @@
 
-// access the doubled component in the neighboring lib folder
+// access the doubled module in the neighboring lib folder
 var doubled = require('../lib/doubled');
 
 // test the doubled.calculate() method
