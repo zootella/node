@@ -21,7 +21,7 @@ var convertBufferToString = function(buffer) {
 
 
 
-var newData = function(add) {
+var newData = function(d) {
 
 	if (!add) {
 
@@ -136,6 +136,12 @@ exports.testSomething = function(test) {
 
 
 
+//fundamental types for data
 
+//boolean, true and false become "t" and "f"
+//byte, use an int 0x00 0 through 0xff 255, this is nice
+//int, text numerals like "786"
+//string, from javascript, UTF8 through node buffer
+//buffer, from node (and then something that can be converted into a buffer)
 
 
