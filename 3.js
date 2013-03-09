@@ -1,22 +1,5 @@
 
-
 var log = console.log;
-
-
-//types data needs to eat
-
-
-
-//fundamental types for data
-
-//boolean, true and false become "t" and "f"
-//byte, use an int 0x00 0 through 0xff 255, this is nice (use a separate intToByte() byteToInt() that goes through buffer)
-//int, text numerals like "786"
-//string, from javascript, UTF8 through node buffer
-//buffer, from node (and then something that can be converted into a buffer)
-//object, anything that has a toBuffer() method on it
-
-//your job is to turn each of these into a node buffer, from there turning it into a data will be easy
 
 
 

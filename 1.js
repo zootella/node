@@ -1,6 +1,10 @@
 
 var log = console.log;
 
+exports.testSomething = function(test) {
+	test.ok(true);
+	test.done();
+};
 
 
 //use node Buffer to make Data, Bay, Bin, and Convert
@@ -21,39 +25,8 @@ var convertBufferToString = function(buffer) {
 
 
 
-var newData = function(d) {
-
-	if (!add) {
-
-	} else if (typeof add == "string") {
-
-	}
-
-
-
-	function toBuffer() {
-	}
-
-
-	return {};
-}
-
-
-var newObject = function() {
-
-	return {};
-};
-
-
-
-
-
-
-var bay = newBay();
-
 
 //make sure you understand how buffer.copy works
-
 exports.testBufferCopy = function(test) {
 
 	var source = new Buffer(8);
@@ -126,11 +99,6 @@ exports.testStringToBufferLength = function(test) {
 
 
 
-
-exports.testSomething = function(test) {
-	test.equal(5, 5, "you can write a note here");
-	test.done();
-};
 
 
 
