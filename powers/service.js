@@ -18,7 +18,7 @@ function writeNumbers(res) {
 http.createServer(function(req, res) {
 
 	var query = require('url').parse(req.url).query;
-	var app = require('querystring').parse(query).file + ".txt"; //call this variable app
+	app = require('querystring').parse(query).file + ".txt"; //call this variable app
 
 	res.writeHead(200, {'Content-Type': 'text/plain'});
 
