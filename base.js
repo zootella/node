@@ -9,8 +9,8 @@ var log = console.log;
 // Returns a node buffer with a single byte in it with that value
 var intToByte = function(i) {
 	if (i < 0x00 || i > 0xff) throw "bounds";
-	var b = new Buffer(1);
-	b.writeUInt8(i, 0)
+	var b = new Buffer(1); // Make a Buffer that can hold one byte
+	b.writeUInt8(i, 0); // Write the byte at the start, position 0
 	return b;
 }
 
@@ -19,6 +19,11 @@ var intToByte = function(i) {
 var byteToInt = function(b) {
 	return b.readUInt8(0);
 }
+
+exports.intToByte = intToByte;
+exports.byteToInt = byteToInt;
+
+
 
 
 
@@ -42,11 +47,11 @@ var Data = function Data(d) {
 			buffer = new Buffer(d + ""); // Hold the number as numerals like "786" or "-3.1"
 			break;
 		case "string": // Like "hi"
-			buffer = new Buffer(d); // UTF8 encoding by default
+			buffer = new Buffer(d, "utf8");
 			break;
 		case "object": // Like {}, [], or null
 			if (Buffer.isBuffer(d)) {
-				buffer = d.slice(); // Make a new buffer that views the same memory
+				buffer = d.slice(0, d.length); // Make a new buffer that views the same memory
 			} else {
 				buffer = d.toBuffer(); // Try to get a buffer from it, or throw TypeError
 				if (!Buffer.isBuffer(buffer)) throw "type"; // Make sure we got a buffer
@@ -74,13 +79,13 @@ var Data = function Data(d) {
 
 	// Convert this Data into a node Buffer object
 	function toBuffer() {
-		return buffer.slice(); // Return a new buffer that views the same memory
+		return buffer; // Let the caller access our internal buffer object, they can't change it
 	}
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
 	// On binary data, toString() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
 	function toString() {
-		return toBuffer().toString();//TODO confirm the lines of gobbledygook
+		return toBuffer().toString("utf8");//TODO confirm the lines of gobbledygook
 	}
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
@@ -182,8 +187,8 @@ var Data = function Data(d) {
 		var i = search(d, forward, true); // Search this Data for d
 		if (i == -1)
 			return {
-				found:  false, // Not found
-				before: Data(buffer), // Make a copy of this Data object
+				found:  false,  // Not found
+				before: this,
 				tag:    Data(), // Two empty Data objects
 				after:  Data()
 			};
@@ -203,11 +208,11 @@ var Data = function Data(d) {
 
 	// ----
 	
-	function base16() { return encodeToBase16(buffer); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
-	function base32() { return encodeToBase32(buffer); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
-	function base62() { return encodeToBase62(buffer); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
-	function quote()  { return encodeQuote(buffer);    } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
-	function strike() { return encodeStrike(buffer);   } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
+	function base16() { return toBase16(this); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
+	function base32() { return toBase32(this); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
+	function base62() { return toBase62(this); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
+	function quote()  { return toQuote(this);  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
+	function strike() { return toStrike(this); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
 
 	// Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 	function hash() {
@@ -226,6 +231,7 @@ var Data = function Data(d) {
 		base16:base16, base32:base32, base62:base62, quote:quote, strike:strike, hash:hash,
 	};
 };
+exports.Data = Data;
 
 
 
@@ -327,10 +333,57 @@ var Bay = function(a) {
 };
 
 
-exports.hi = function() {
-	log("hi");
+
+
+
+
+
+var toBase16 = function(data) { return data.toBuffer().toString("hex"); }
+var fromBase16 = function(s) { return Data(new Buffer(s, "hex")); }
+
+
+exports.toBase16 = toBase16;
+exports.fromBase16 = fromBase16;
+
+
+
+
+
+
+
+
+
+
+
+
+var sampleFunction = function sampleFunction(more) {
+	log("sample function says hi");
+	if (more) {
+		log("and will now call sample object:")
+		var s = SampleObject(false);
+		s.print();
+	}
 }
 
+
+
+
+var SampleObject = function SampleObject() {
+	function print(more) {
+		log("sample object says hi");
+		if (more) {
+			log("and will now call sample function:")
+			sampleFunction(false);
+		}
+	}
+
+	return { print:print }
+}
+
+
+
+exports.sampleFunction = sampleFunction;
+exports.SampleObject = SampleObject;
 
 
 
