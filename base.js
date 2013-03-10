@@ -188,7 +188,7 @@ var Data = function Data(d) {
 		if (i == -1)
 			return {
 				found:  false,  // Not found
-				before: this,
+				before: Data(buffer), // Copy this Data object
 				tag:    Data(), // Two empty Data objects
 				after:  Data()
 			};
@@ -203,8 +203,7 @@ var Data = function Data(d) {
 
 	// ----
 
-	function compare(d) { throw "todo"; }
-	function same(d) { throw "todo"; }
+	function compare(d) { throw "todo"; }//should the data be sorted before or after, or 0 for same
 
 	// ----
 	
@@ -227,7 +226,7 @@ var Data = function Data(d) {
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		split:split, splitLast:splitLast,
-		compare:compare, same:same,
+		compare:compare,
 		base16:base16, base32:base32, base62:base62, quote:quote, strike:strike, hash:hash,
 	};
 };
