@@ -302,6 +302,22 @@ exports.testEncode = function(test) {
 	test.done();
 };
 
+exports.testStringBuffer = function(test) {
+
+	//here's how you do a string buffer in javascript
+	var b = [];
+	for (var i = 0; i < 100; i++) {
+		b.push("" + i);
+	}
+	var s = b.join("");
+	log(s);
+	//so that's simple enough
+
+
+
+	test.done();
+}
+
 
 
 
