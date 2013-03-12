@@ -7,7 +7,14 @@ var log = console.log;
 var base = require('./base');//functions
 var Data = require("./base").Data;//objects
 
-var hex = base.fromBase16;
+var base16 = base.base16;
+var toByte = base.toByte;
+
+/*
+var o = {};
+require('./base').includeAll(o);//this works when it's o, but not when it's this
+o.sampleFunction();
+*/
 
 //ok, now let's write some tests!
 
@@ -30,7 +37,7 @@ exports.testData = function(test) {
 	test.ok(d.toString() == "f");
 
 	//byte
-	d = new Data(base.intToByte(0x01));//javascript can't tell the difference between numbers and bytes, so you have to use inToByte(), which returns a node buffer
+	d = new toByte(0x01);//javascript can't tell the difference between numbers and bytes, so you have to use toByte(), which returns a Data object
 	test.ok(d.base16() == "01");
 
 	//number
@@ -70,7 +77,7 @@ exports.testCopy = function(test) {
 exports.testOut = function(test) {
 
 	//buffer
-	var d = hex("0d0a");
+	var d = base16("0d0a");
 	var b = d.toBuffer();
 	test.ok(b.readUInt8(0) == 0x0d);
 	test.ok(b.readUInt8(1) == 0x0a);
@@ -119,7 +126,7 @@ exports.testSize = function(test) {
 exports.testClip = function(test) {
 
 	//make 6 test bytes
-	var d = hex("aabbccddeeff");
+	var d = base16("aabbccddeeff");
 	test.ok(d.size() == 6);
 	var c;
 
@@ -164,81 +171,142 @@ exports.testClip = function(test) {
 
 exports.testFind = function(test) {
 
-	var d = hex("aabbccddeeff");
+	var d = base16("aabbccddeeff");
 
 	//find single byte
-	test.ok(d.find(hex("aa")) == 0);//first
-	test.ok(d.find(hex("bb")) == 1);//second
-	test.ok(d.find(hex("ff")) == 5);//last
-	test.ok(d.find(hex("00")) == -1);//not found
+	test.ok(d.find(base16("aa")) == 0);//first
+	test.ok(d.find(base16("bb")) == 1);//second
+	test.ok(d.find(base16("ff")) == 5);//last
+	test.ok(d.find(base16("00")) == -1);//not found
 
 	//more bytes
-	test.ok(d.find(hex("aabb")) == 0);//start
-	test.ok(d.find(hex("bbccdd")) == 1);//inside
-	test.ok(d.find(hex("eeff")) == 4);//end
-	test.ok(d.find(hex("0011")) == -1);//not there at all
-	test.ok(d.find(hex("ff00")) == -1);//off end
+	test.ok(d.find(base16("aabb")) == 0);//start
+	test.ok(d.find(base16("bbccdd")) == 1);//inside
+	test.ok(d.find(base16("eeff")) == 4);//end
+	test.ok(d.find(base16("0011")) == -1);//not there at all
+	test.ok(d.find(base16("ff00")) == -1);//off end
 
 	//same
-	test.ok(d.same(hex("aabbccddeeff")));//same
-	test.ok(!d.same(hex("aab0ccddeeff")));//different
-	test.ok(!d.same(hex("aabbccddeeff00")));//too long
-	test.ok(!d.same(hex("aabbccddee")));//too short
+	test.ok(d.same(base16("aabbccddeeff")));//same
+	test.ok(!d.same(base16("aab0ccddeeff")));//different
+	test.ok(!d.same(base16("aabbccddeeff00")));//too long
+	test.ok(!d.same(base16("aabbccddee")));//too short
 
 	//starts
-	test.ok(d.starts(hex("aabb")));//starts
-	test.ok(!d.starts(hex("aa00")));//not found
-	test.ok(!d.starts(hex("bbcc")));//has, but not at the start
+	test.ok(d.starts(base16("aabb")));//starts
+	test.ok(!d.starts(base16("aa00")));//not found
+	test.ok(!d.starts(base16("bbcc")));//has, but not at the start
 
 	//ends
-	test.ok(d.ends(hex("eeff")));//ends
-	test.ok(!d.ends(hex("aa00")));//not found
-	test.ok(!d.ends(hex("ddee")));//has, but not at the end
+	test.ok(d.ends(base16("eeff")));//ends
+	test.ok(!d.ends(base16("aa00")));//not found
+	test.ok(!d.ends(base16("ddee")));//has, but not at the end
 
 	//has
-	test.ok(d.has(hex("aabb")));//start
-	test.ok(d.has(hex("bbcc")));//middle
-	test.ok(d.has(hex("eeff")));//end
-	test.ok(!d.has(hex("0011")));//different
-	test.ok(!d.has(hex("ff00")));//off end
+	test.ok(d.has(base16("aabb")));//start
+	test.ok(d.has(base16("bbcc")));//middle
+	test.ok(d.has(base16("eeff")));//end
+	test.ok(!d.has(base16("0011")));//different
+	test.ok(!d.has(base16("ff00")));//off end
 
 	//find first and last
-	d = hex("aa010203aaaaaaaa010203aa");
-	test.ok(d.find(hex("010203")) == 1);//first instance
-	test.ok(d.last(hex("010203")) == 8);//last instance
+	d = base16("aa010203aaaaaaaa010203aa");
+	test.ok(d.find(base16("010203")) == 1);//first instance
+	test.ok(d.last(base16("010203")) == 8);//last instance
 
 	test.done();
 }
 
 exports.testFind = function(test) {
 
-	var d = hex("01aabbcc05060708aabbcc12");
+	var d = base16("01aabbcc05060708aabbcc12");
 
 	//first
-	var s = d.split(hex("aabbcc"));
+	var s = d.split(base16("aabbcc"));
 	test.ok(s.found);
-	test.ok(s.before.same(hex("01")));
-	test.ok(s.tag.same(hex("aabbcc")));
-	test.ok(s.after.same(hex("05060708aabbcc12")));
+	test.ok(s.before.same(base16("01")));
+	test.ok(s.tag.same(base16("aabbcc")));
+	test.ok(s.after.same(base16("05060708aabbcc12")));
 
 	//last
-	var s = d.splitLast(hex("aabbcc"));
+	var s = d.splitLast(base16("aabbcc"));
 	test.ok(s.found);
-	test.ok(s.before.same(hex("01aabbcc05060708")));
-	test.ok(s.tag.same(hex("aabbcc")));
-	test.ok(s.after.same(hex("12")));
+	test.ok(s.before.same(base16("01aabbcc05060708")));
+	test.ok(s.tag.same(base16("aabbcc")));
+	test.ok(s.after.same(base16("12")));
 
 	//not found
-	var s = d.splitLast(hex("0507"));
+	var s = d.splitLast(base16("0507"));
 	test.ok(!s.found);//not found
-	test.ok(s.before.same(hex("01aabbcc05060708aabbcc12")));//all before
-	test.ok(s.tag.same(hex("")));
-	test.ok(s.after.same(hex("")));
+	test.ok(s.before.same(base16("01aabbcc05060708aabbcc12")));//all before
+	test.ok(s.tag.same(base16("")));
+	test.ok(s.after.same(base16("")));
 
 	test.done();
 }
 
 
+
+exports.testByte = function(test) {
+
+	var d;
+
+	d = toByte(0x00);//smallest value
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "00");
+	d = toByte(0);
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "00");
+
+	d = toByte(0x05);//an example value
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "05");
+	d = toByte(5);
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "05");
+
+	d = toByte(0xff);//largest value
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "ff");
+	d = toByte(255);
+	test.ok(d.size() == 1);
+	test.ok(d.base16() == "ff");
+
+	try { d = toByte(-1); test.fail(); } catch (e) {}//too small
+	try { d = toByte(256); test.fail(); } catch (e) {}//too big
+
+	test.done();
+}
+
+exports.testEncode = function(test) {
+
+	var d;
+
+	//""valid
+	//"0"invalid
+	//"00"valid
+	//"000"invalid
+
+	//test
+	//even and odd numbers
+	//upper and lower case
+	//characters outside 0-9a-f, like P
+
+
+	try {
+		d = base16("0");
+		test.fail();
+	} catch (e) {}
+
+
+	test.done();
+};
+
+
+
+
+
+
 //you still need to test base16, 32, quote, and strike
-//confirm that fromBase16 throws on odd characters or anything in there not 0-f
+//confirm that base16 throws on odd characters or anything in there not 0-f
 

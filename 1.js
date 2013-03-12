@@ -97,24 +97,6 @@ exports.testStringToBufferLength = function(test) {
 
 
 
-//here are all the functions you need to write
-//to data
-//data byte(n)
-//data base16(s)
-//data base32(s) //node provides
-//data base62(s)
-//data base64(s) //node provides
-
-//here are all the methods you need to write
-//from data
-//number d.get(i), data d.clip(i, 1)
-//string d.base16();
-//string d.bsae32(); //node provides
-//string d.bsae62();
-//string d.base64(); //node provides
-
-
-
 
 
 
