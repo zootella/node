@@ -187,6 +187,7 @@ var Data = function Data(d) {
 	function base16() { return toBase16(Data(buffer)); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
 	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
 	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
+	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
 
 	function quote()  { return toQuote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
 	function strike() { return toStrike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
@@ -205,7 +206,7 @@ var Data = function Data(d) {
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		split:split, splitLast:splitLast,
 		compare:compare,
-		base16:base16, base32:base32, base62:base62, quote:quote, strike:strike, hash:hash,
+		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, hash:hash,
 	};
 };
 exports.Data = Data;
@@ -357,26 +358,24 @@ var toBase32 = function(d) {
 	// Loop through the memory, encoding its bits into letters and numbers
 	var byteIndex, bitIndex;                    // The bit index i as a distance in bytes followed by a distance in bits
 	var pair, mask, code;                       // Use the data bytes a pair at a time, with a mask of five 1s, to read a code 0 through 31
-	var s = [];                                 // Empty target array for base 32 characters to return as a string
+	var s = [];                                 // Empty target array for text characters to return as a string
 	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
 		byteIndex = Math.floor(i / 8); // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = i % 8; // The bit index within that byte is the remainder
+		bitIndex  =            i % 8;  // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
 		if (byteIndex + 1 < d.size()) pair |= (d.get(byteIndex + 1) & 0xff); // On the last byte, leave the right byte in pair all 0s
 		
 		// Read the 5 bits at i as a number, called code, which will be 0 through 31
-		mask = 31 << (11 - bitIndex);   // Start the mask 11111 31 shifted into position      0011111000000000
-		code = pair & mask;             // Use the mask to clip out just that portion of pair --10101---------
+		mask = 31 << (11 - bitIndex);    // Start the mask 11111 31 shifted into position      0011111000000000
+		code = pair & mask;              // Use the mask to clip out just that portion of pair --10101---------
 		code = code >>> (11 - bitIndex); // Shift it to the right to read it as a number       -----------10101
 		
 		// Describe the 5 bits with a numeral or letter
 		s.push(alphabet.charAt(code));
-
-		log(byteIndex + ", " + bitIndex);
 	}
 	return s.join(""); // Combine the characters in the array into a string
 }
@@ -420,38 +419,34 @@ var fromBase32 = function(s) {
 // Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
 var toBase62 = function(d) {
 
-	/*
-	public static void toBase62(StringBuffer b, Data d) {
-		
 	// Use 0-9, a-z and A-Z, 62 different characters, to describe the data
-	String alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	var alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
 	// Loop through the memory, encoding its bits into letters and numbers
-	int i = 0;                 // The index in bits, from 0 through all the bits in the given data
-	int byteIndex, bitIndex;   // The same index as a distance in bytes followed by a distance in bits
-	int pair, mask, code;      // Use the data bytes a pair at a time, with a mask of six 1s, to read a code 0 through 63
+	var i = 0;                 // The index in bits, from 0 through all the bits in the given data
+	var byteIndex, bitIndex;   // The same index as a distance in bytes followed by a distance in bits
+	var pair, mask, code;      // Use the data bytes a pair at a time, with a mask of six 1s, to read a code 0 through 63
+	var s = [];                // Empty target array for text characters to return as a string
 	while (i < d.size() * 8) { // When the bit index moves beyond the memory, we're done
 		
 		// Calculate the byte and bit to move to from the bit index
-		byteIndex = i / 8; // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = i % 8; // The bit index within that byte is the remainder
+		byteIndex = Math.floor(i / 8); // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  =            i % 8;  // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
 		if (byteIndex + 1 < d.size()) pair |= (d.get(byteIndex + 1) & 0xff); // On the last byte, leave the right byte in pair all 0s
 		
 		// Read the 6 bits at i as a number, called code, which will be 0 through 63
-		mask = 63 << (10 - bitIndex);   // Start the mask 111111 63 shifted into position     0011111100000000
-		code = pair & mask;             // Use the mask to clip out just that portion of pair --101101--------
+		mask = 63 << (10 - bitIndex);    // Start the mask 111111 63 shifted into position     0011111100000000
+		code = pair & mask;              // Use the mask to clip out just that portion of pair --101101--------
 		code = code >>> (10 - bitIndex); // Shift it to the right to read it as a number       ----------101101
 		
 		// Describe the 6 bits with a numeral or letter, 111100 is 60 and Y, if more than that use Z and move forward 4, not 6
-		if (code < 61) { b.append(alphabet.charAt(code)); i += 6; } // 000000  0 '0' through 111100 60 'Y'
-		else           { b.append(alphabet.charAt(61));   i += 4; } // 111101 61, 111110 62, and 111111 63 are 'Z', move past the four 1s
+		if (code < 61) { s.push(alphabet.charAt(code)); i += 6; } // 000000  0 '0' through 111100 60 'Y'
+		else           { s.push(alphabet.charAt(61));   i += 4; } // 111101 61, 111110 62, and 111111 63 are 'Z', move past the four 1s
 	}
-	}
-	*/
-
+	return s.join(""); // Combine the characters in the array into a string
 }
 
 // Turn base 62-encoded text back into the data it was made from
