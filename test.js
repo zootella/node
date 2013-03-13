@@ -138,7 +138,7 @@ exports.testClip = function(test) {
 	c = d.clip(2, 3); test.ok(c.base16() ==     "ccddee"  );
 
 	//clip nothing
-	c = d.clip(0, 0); test.ok(c.base16() == "");
+	c = d.clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
 	c = d.clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
 	try { d.clip(6, 1); test.fail(); } catch (e) {}//clipping 1 from the end is not
 	try { d.clip(7, 0); test.fail(); } catch (e) {}//clipping 0 from beyond the end is not
@@ -217,7 +217,7 @@ exports.testFind = function(test) {
 	test.done();
 }
 
-exports.testFind = function(test) {
+exports.testSplit = function(test) {
 
 	var d = base16("01aabbcc05060708aabbcc12");
 
@@ -293,6 +293,12 @@ exports.testEncode = function(test) {
 	//characters outside 0-9a-f, like P
 
 
+	d = base16("666f6f");
+	log(d.size());
+	log(d.toBuffer());
+	log(d.base32());
+
+
 	try {
 		d = base16("0");
 		test.fail();
@@ -302,21 +308,8 @@ exports.testEncode = function(test) {
 	test.done();
 };
 
-exports.testStringBuffer = function(test) {
-
-	//here's how you do a string buffer in javascript
-	var b = [];
-	for (var i = 0; i < 100; i++) {
-		b.push("" + i);
-	}
-	var s = b.join("");
-	log(s);
-	//so that's simple enough
 
 
-
-	test.done();
-}
 
 
 

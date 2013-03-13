@@ -164,9 +164,9 @@ var Data = function Data(d) {
 		var i = search(d, forward, true); // Search this Data for d
 		if (i == -1)
 			return {
-				found:  false,  // Not found
+				found:  false,        // Not found
 				before: Data(buffer), // Copy this Data object
-				tag:    Data(), // Two empty Data objects
+				tag:    Data(),       // Two empty Data objects
 				after:  Data()
 			};
 		else
@@ -184,11 +184,12 @@ var Data = function Data(d) {
 
 	// ----
 	
-	function base16() { return toBase16(this); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
-	function base32() { return toBase32(this); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
-	function base62() { return toBase62(this); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
-	function quote()  { return toQuote(this);  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
-	function strike() { return toStrike(this); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
+	function base16() { return toBase16(Data(buffer)); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
+	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
+	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
+
+	function quote()  { return toQuote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
+	function strike() { return toStrike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
 
 	// Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 	function hash() {
@@ -344,25 +345,23 @@ var toByte = function(i) {
 	return Data(b);
 }
 
-var toBase16 = function(d) { return d.toBuffer().toString("hex"); }
-var fromBase16 = function(s) { return Data(new Buffer(s, "hex")); }
+var toBase16 = function(d) { return d.toBuffer().toString("hex"); } // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
+var fromBase16 = function(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
 
+// Turn data into text using base 32, each 5 bits will become a character a-z and 2-7
 var toBase32 = function(d) {
 
-	/*
-	/** Turn data into text using base 32, each 5 bits will become a character a-z and 2-7. *
-	public static void toBase32(StringBuffer b, Data d) {
-
 	// Use a-z and 2-7, 32 different characters, to describe the data
-	String alphabet = "abcdefghijklmnopqrstuvwxyz234567"; // Base 32 encoding omits 0 and 1 because they look like uppercase o and lowercase L
+	var alphabet = "abcdefghijklmnopqrstuvwxyz234567"; // Base 32 encoding omits 0 and 1 because they look like uppercase o and lowercase L
 	
 	// Loop through the memory, encoding its bits into letters and numbers
-	int byteIndex, bitIndex;                    // The bit index i as a distance in bytes followed by a distance in bits
-	int pair, mask, code;                       // Use the data bytes a pair at a time, with a mask of five 1s, to read a code 0 through 31
-	for (int i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
+	var byteIndex, bitIndex;                    // The bit index i as a distance in bytes followed by a distance in bits
+	var pair, mask, code;                       // Use the data bytes a pair at a time, with a mask of five 1s, to read a code 0 through 31
+	var s = [];                                 // Empty target array for base 32 characters to return as a string
+	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
-		byteIndex = i / 8; // Divide by 8 and chop off the remainder to get the byte index
+		byteIndex = Math.floor(i / 8); // Divide by 8 and chop off the remainder to get the byte index
 		bitIndex  = i % 8; // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
@@ -372,20 +371,20 @@ var toBase32 = function(d) {
 		// Read the 5 bits at i as a number, called code, which will be 0 through 31
 		mask = 31 << (11 - bitIndex);   // Start the mask 11111 31 shifted into position      0011111000000000
 		code = pair & mask;             // Use the mask to clip out just that portion of pair --10101---------
-		code = code >> (11 - bitIndex); // Shift it to the right to read it as a number       -----------10101
+		code = code >>> (11 - bitIndex); // Shift it to the right to read it as a number       -----------10101
 		
 		// Describe the 5 bits with a numeral or letter
-		b.append(alphabet.charAt(code));
-	}
-	}
-	*/
+		s.push(alphabet.charAt(code));
 
+		log(byteIndex + ", " + bitIndex);
+	}
+	return s.join(""); // Combine the characters in the array into a string
 }
 
+// Turn base 32-encoded text back into the data it was made from
 var fromBase32 = function(s) {
 
 	/*
-	/** Turn base 32-encoded text back into the data it was made from. *
 	public static void fromBase32(Bay bay, String s) {
 
 	// Loop for each character in the text
@@ -399,7 +398,7 @@ var fromBase32 = function(s) {
 		c = Character.toUpperCase(s.charAt(i));             // Accept uppercase and lowercase letters
 		if      (c >= 'A' && c <= 'Z') code = c - 'A';      // 'A'  0 00000 through 'Z' 25 11001
 		else if (c >= '2' && c <= '7') code = c - '2' + 26; // '2' 26 11010 through '7' 31 11111
-		else throw new DataException();                  // Invalid character
+		else throw new DataException();                     // Invalid character
 
 		// Insert the bits from code into hold
 		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
@@ -409,7 +408,7 @@ var fromBase32 = function(s) {
 		if (bits >= 8) {
 
 			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add((byte)(hold >> (bits - 8)));
+			bay.add((byte)(hold >>> (bits - 8)));
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
@@ -418,10 +417,10 @@ var fromBase32 = function(s) {
 
 }
 
+// Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
 var toBase62 = function(d) {
 
 	/*
-	/** Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z. *
 	public static void toBase62(StringBuffer b, Data d) {
 		
 	// Use 0-9, a-z and A-Z, 62 different characters, to describe the data
@@ -444,7 +443,7 @@ var toBase62 = function(d) {
 		// Read the 6 bits at i as a number, called code, which will be 0 through 63
 		mask = 63 << (10 - bitIndex);   // Start the mask 111111 63 shifted into position     0011111100000000
 		code = pair & mask;             // Use the mask to clip out just that portion of pair --101101--------
-		code = code >> (10 - bitIndex); // Shift it to the right to read it as a number       ----------101101
+		code = code >>> (10 - bitIndex); // Shift it to the right to read it as a number       ----------101101
 		
 		// Describe the 6 bits with a numeral or letter, 111100 is 60 and Y, if more than that use Z and move forward 4, not 6
 		if (code < 61) { b.append(alphabet.charAt(code)); i += 6; } // 000000  0 '0' through 111100 60 'Y'
@@ -455,10 +454,10 @@ var toBase62 = function(d) {
 
 }
 
+// Turn base 62-encoded text back into the data it was made from
 var fromBase62 = function(s) {
 
 	/*
-	/** Turn base 62-encoded text back into the data it was made from. *
 	public static void fromBase62(Bay bay, String s) {
 
 	// Loop for each character in the text
@@ -484,7 +483,7 @@ var fromBase62 = function(s) {
 		if (bits >= 8) {
 
 			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add((byte)(hold >> (bits - 8)));
+			bay.add((byte)(hold >>> (bits - 8)));
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
@@ -545,7 +544,7 @@ exports.sampleFunction = sampleFunction;
 exports.SampleObject = SampleObject;
 
 
-
+/*
 exports.includeAll = function includeAll(o) {
 	//a more advanced version of this should throw if it would overwrite something
 	//also, write it so that you can call something like this after each group of functions:
@@ -555,6 +554,7 @@ exports.includeAll = function includeAll(o) {
 	o.SampleObject = SampleObject;
 	log('done adding stuff');
 }
+*/
 
 
 
