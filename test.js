@@ -1,12 +1,13 @@
 
 
+
+
+
+
 var log = console.log;
 
-
-
 var base = require('./base');//functions
-var Data = require("./base").Data;//objects
-
+var Data = base.Data;
 var toByte = base.toByte;
 var base16 = base.base16;
 var base32 = base.base32;
@@ -26,7 +27,7 @@ o.sampleFunction();
 //and then say, you can make a data object from anything that has binary data inside it
 
 
-exports.testData = function(test) {
+exports.testDataMake = function(test) {
 
 	//make an empty data
 	var d;
@@ -63,7 +64,7 @@ exports.testData = function(test) {
 	test.done();
 };
 
-exports.testCopy = function(test) {
+exports.testDataCopy = function(test) {
 
 	var buffer = new Buffer("00aa0000", "hex");//make a buffer that has aa in it
 	var looking = new Data(buffer);//make a data that looks at it
@@ -77,7 +78,7 @@ exports.testCopy = function(test) {
 	test.done();
 };
 
-exports.testOut = function(test) {
+exports.testDataOut = function(test) {
 
 	//buffer
 	var d = base16("0d0a");
@@ -103,7 +104,7 @@ exports.testOut = function(test) {
 	test.done();
 };
 
-exports.testSize = function(test) {
+exports.testDataSize = function(test) {
 
 	//empty
 	var d = new Data();
@@ -126,7 +127,7 @@ exports.testSize = function(test) {
 	test.done();
 };
 
-exports.testClip = function(test) {
+exports.testDataClip = function(test) {
 
 	//make 6 test bytes
 	var d = base16("aabbccddeeff");
@@ -172,7 +173,7 @@ exports.testClip = function(test) {
 	test.done();
 }
 
-exports.testFind = function(test) {
+exports.testDataFind = function(test) {
 
 	var d = base16("aabbccddeeff");
 
@@ -220,7 +221,7 @@ exports.testFind = function(test) {
 	test.done();
 }
 
-exports.testSplit = function(test) {
+exports.testDataSplit = function(test) {
 
 	var d = base16("01aabbcc05060708aabbcc12");
 
@@ -250,7 +251,7 @@ exports.testSplit = function(test) {
 
 
 
-exports.testByte = function(test) {
+exports.testEncodeByte = function(test) {
 
 	var d;
 

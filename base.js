@@ -317,26 +317,6 @@ var Bay = function(a) {
 
 
 
-//here are all the functions you need to write
-//to data
-
-//data toByte(n)
-//data base16(s)
-//data base32(s) //node provides
-//data base62(s)
-//data base64(s) //node provides
-
-//here are all the methods you need to write
-//from data
-
-//number d.get(i), data d.clip(i, 1)
-//string d.base16();
-//string d.bsae32(); //node provides
-//string d.bsae62();
-//string d.base64(); //node provides
-
-
-
 // Takes an integer 0 through 255, 0x00 through 0xff, or throws bounds
 // Returns a Data object with a single byte in it with that value
 var toByte = function(i) {
@@ -347,7 +327,9 @@ var toByte = function(i) {
 }
 
 var toBase16 = function(d) { return d.toBuffer().toString("hex"); } // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
-var fromBase16 = function(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
+var toBase64 = function(d) { return d.toBuffer().toString("base64"); }
+var base16 = function(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
+var base64 = function(s) { return Data(new Buffer(s, "base64")); }
 
 // Turn data into text using base 32, each 5 bits will become a character a-z and 2-7
 var toBase32 = function(d) {
@@ -381,7 +363,7 @@ var toBase32 = function(d) {
 }
 
 // Turn base 32-encoded text back into the data it was made from
-var fromBase32 = function(s) {
+var base32 = function(s) {
 
 	/*
 	public static void fromBase32(Bay bay, String s) {
@@ -450,7 +432,7 @@ var toBase62 = function(d) {
 }
 
 // Turn base 62-encoded text back into the data it was made from
-var fromBase62 = function(s) {
+var base62 = function(s) {
 
 	/*
 	public static void fromBase62(Bay bay, String s) {
@@ -487,16 +469,13 @@ var fromBase62 = function(s) {
 
 }
 
-var toBase64 = function(d) { return d.toBuffer().toString("base64"); }
-var fromBase64 = function(s) { return Data(new Buffer(s, "base64")); }
-
 
 
 exports.toByte = toByte;
-exports.base16 = fromBase16;
-exports.base32 = fromBase32;
-exports.base62 = fromBase62;
-exports.base64 = fromBase64;
+exports.base16 = base16;
+exports.base32 = base32;
+exports.base62 = base62;
+exports.base64 = base64;
 
 
 
