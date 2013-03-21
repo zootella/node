@@ -27,6 +27,15 @@ o.sampleFunction();
 //and then say, you can make a data object from anything that has binary data inside it
 
 
+exports.testBay = function(test) {
+
+
+	test.done();
+}
+
+
+
+
 exports.testDataMake = function(test) {
 
 	//make an empty data
