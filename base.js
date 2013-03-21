@@ -6,7 +6,7 @@ var log = console.log;
 
 
 // Make a Data to look at the bytes of some binary data
-var Data = function Data(d) {
+function Data(d) {
 
 	var buffer; // Our node buffer which views some binary data
 
@@ -218,7 +218,7 @@ exports.Data = Data;
 
 
 // A Bay holds data, and grows to hold more you add to it
-var Bay = function(a) {
+function Bay(a) {
 
 	var buffer = null; // Our node buffer which has an allocated block of memory
 	var capacity = 0;  // The size of the memory block, the maximum amount of data we can hold
@@ -319,20 +319,20 @@ var Bay = function(a) {
 
 // Takes an integer 0 through 255, 0x00 through 0xff, or throws bounds
 // Returns a Data object with a single byte in it with that value
-var toByte = function(i) {
+function toByte(i) {
 	if (i < 0x00 || i > 0xff) throw "bounds";
 	var b = new Buffer(1); // Make a Buffer that can hold one byte
 	b.writeUInt8(i, 0); // Write the byte at the start, position 0
 	return Data(b);
 }
 
-var toBase16 = function(d) { return d.toBuffer().toString("hex"); } // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
-var toBase64 = function(d) { return d.toBuffer().toString("base64"); }
-var base16 = function(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
-var base64 = function(s) { return Data(new Buffer(s, "base64")); }
+function toBase16(d) { return d.toBuffer().toString("hex"); } // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
+function toBase64(d) { return d.toBuffer().toString("base64"); }
+function base16(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
+function base64(s) { return Data(new Buffer(s, "base64")); }
 
 // Turn data into text using base 32, each 5 bits will become a character a-z and 2-7
-var toBase32 = function(d) {
+function toBase32(d) {
 
 	// Use a-z and 2-7, 32 different characters, to describe the data
 	var alphabet = "abcdefghijklmnopqrstuvwxyz234567"; // Base 32 encoding omits 0 and 1 because they look like uppercase o and lowercase L
@@ -363,7 +363,7 @@ var toBase32 = function(d) {
 }
 
 // Turn base 32-encoded text back into the data it was made from
-var base32 = function(s) {
+function base32(s) {
 
 	/*
 	public static void fromBase32(Bay bay, String s) {
@@ -399,7 +399,7 @@ var base32 = function(s) {
 }
 
 // Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
-var toBase62 = function(d) {
+function toBase62(d) {
 
 	// Use 0-9, a-z and A-Z, 62 different characters, to describe the data
 	var alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -432,7 +432,7 @@ var toBase62 = function(d) {
 }
 
 // Turn base 62-encoded text back into the data it was made from
-var base62 = function(s) {
+function base62(s) {
 
 	/*
 	public static void fromBase62(Bay bay, String s) {
@@ -488,7 +488,7 @@ exports.base64 = base64;
 
 
 
-var sampleFunction = function sampleFunction(more) {
+function sampleFunction(more) {
 	log("sample function says hi");
 	if (more) {
 		log("and will now call sample object:")
@@ -500,7 +500,7 @@ var sampleFunction = function sampleFunction(more) {
 
 
 
-var SampleObject = function SampleObject() {
+function SampleObject() {
 	function print(more) {
 		log("sample object says hi");
 		if (more) {
