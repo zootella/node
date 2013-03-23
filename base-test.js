@@ -335,7 +335,6 @@ exports.testBayPrepare = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
-
 exports.testEncodeByte = function(test) {
 
 	var d;
@@ -367,7 +366,37 @@ exports.testEncodeByte = function(test) {
 	test.done();
 }
 
+exports.testEncodeCycle = function(test) {
 
+	function cycle16(s) {//take some base16 encoded text
+		var d = base16(s);//turn it into data
+		var s2 = d.base16();//turn that data back into text
+		test.ok(s == s2);//confirm that decoding it and encoding it doesn't change the text
+		cycleData(d);//run additional tests with the data
+	}
+	function cycle32(s) { var d = base32(s); var s2 = d.base32(); test.ok(s == s2); cycleData(d); }
+	function cycle62(s) { var d = base62(s); var s2 = d.base62(); test.ok(s == s2); cycleData(d); }
+	function cycle64(s) { var d = base64(s); var s2 = d.base64(); test.ok(s == s2); cycleData(d); }
+
+	function cycleData(d) {
+		test.ok(d.same(base16(d.base16())));
+		/*
+		test.ok(d.same(base32(d.base32())));
+		test.ok(d.same(base62(d.base62())));
+		test.ok(d.same(base64(d.base64())));
+		*/
+	}
+
+	cycle16("");
+	cycle16("00");
+	cycle16("01");
+	cycle16("ff");
+	cycle16("00ff");
+	cycle16("f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0");
+
+
+	test.done();
+}
 
 
 
@@ -399,16 +428,16 @@ exports.testEncodeInvalid = function(test) {
 
 exports.testEncodeExpect = function(test) {
 
-	var expect16 = function(a, s) {//takes some ascii text, and the string it should encode into
+	function expect16(a, s) {//takes some ascii text, and the string it should encode into
 		var d = Data(a);//read the ascii text as utf8 bytes
 		var s2 = d.base16();//encode those bytes into text
 		var d2 = base16(s2);//decode that text back into more bytes
 		test.ok(s == s2);// make sure a encoded into s correctly
 		test.ok(d.same(d2));// make sure 
 	}
-	var expect32 = function(a, s) { var d = Data(a); var s2 = d.base32(); var d2 = base32(s2); test.ok(s == s2); test.ok(d.same(d2)); }
-	var expect62 = function(a, s) { var d = Data(a); var s2 = d.base62(); var d2 = base62(s2); test.ok(s == s2); test.ok(d.same(d2)); }
-	var expect64 = function(a, s) { var d = Data(a); var s2 = d.base64(); var d2 = base64(s2); test.ok(s == s2); test.ok(d.same(d2)); }
+	function expect32(a, s) { var d = Data(a); var s2 = d.base32(); var d2 = base32(s2); test.ok(s == s2); test.ok(d.same(d2)); }
+	function expect62(a, s) { var d = Data(a); var s2 = d.base62(); var d2 = base62(s2); test.ok(s == s2); test.ok(d.same(d2)); }
+	function expect64(a, s) { var d = Data(a); var s2 = d.base64(); var d2 = base64(s2); test.ok(s == s2); test.ok(d.same(d2)); }
 
 	expect16("", "");//these test vectors are from rfc 4648
 	expect16("f", "66");
@@ -444,36 +473,6 @@ exports.testEncodeExpect = function(test) {
 	expect64("foob", "Zm9vYg==");
 	expect64("fooba", "Zm9vYmE=");
 	expect64("foobar", "Zm9vYmFy");
-
-	test.done();
-}
-
-exports.testEncodeCycle = function(test) {
-
-	var cycle16 = function(s) {//takes some encoded text
-		var d = base16(s);
-		var s2 = d.base16();
-		test.ok(s == s2);//confirm that decoding it and encoding it doesn't change the text
-		cycleData(d);//run additional tests with the data
-	}
-	var cycle32 = function(s) { var d = base32(s); var s2 = d.base32(); test.ok(s == s2); cycleData(d); }
-	var cycle62 = function(s) { var d = base62(s); var s2 = d.base62(); test.ok(s == s2); cycleData(d); }
-	var cycle64 = function(s) { var d = base64(s); var s2 = d.base64(); test.ok(s == s2); cycleData(d); }
-
-	var cycleData = function(d) {
-		test.ok(d.same(base16(d.base16())));
-		/*
-		test.ok(d.same(base32(d.base32())));
-		test.ok(d.same(base62(d.base62())));
-		test.ok(d.same(base64(d.base64())));
-		*/
-	}
-
-	cycle16("");
-	cycle16("00");
-	cycle16("01");
-	cycle16("ff");
-	cycle16("00ff");
 
 	test.done();
 }
