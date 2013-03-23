@@ -1,9 +1,4 @@
 
-
-
-
-
-
 var log = console.log;
 
 var base = require('./base');//functions
@@ -15,96 +10,19 @@ var base62 = base.base62;
 var base64 = base.base64;
 var Bay = base.Bay;
 
-/*
-var o = {};
-require('./base').includeAll(o);//this works when it's o, but not when it's this
-o.sampleFunction();
-*/
 
 //ok, now let's write some tests!
-
 //write these tests like a kids story that shows how easy it is to do powerful stuff with your library
 //for instance, start out in data by saying, what a data object is, why you might want to make one
 //and then say, you can make a data object from anything that has binary data inside it
 
-exports.testBayExample = function(test) {
 
-	var b = Bay();//simple common use
-	b.add("a");
-	b.add("b");
-	b.add("c");
-	test.ok(b.data().same(Data("abc")));
-
-	b = Bay(base16("00aa00ff"));//larger use
-	for (var i = 0; i < 100; i++)
-		b.add(base16("2222222222222222"));
-	b.add(base16("11bb11ee"));
-	test.ok(b.size() == 808);
-	test.ok(b.data().start(6).same(base16("00aa00ff2222")));
-	test.ok(b.data().end(6).same(base16("222211bb11ee")));
-
-	test.done();
-}
-
-exports.testBayPrepare = function(test) {
-
-	var dataA = "aaaaaaaaaa";//10 bytes of ascii characters
-	var dataB = "BBBBBBBBBB";
-	var dataC = "cccccccccc";
-	var dataD = "DDDDDDDDDD";
-	var dataE = "eeeeeeeeee";
-	var dataF = "FFFFFFFFFF";
-	var dataG = "gggggggggg";
-	var dataH = "HHHHHHHHHH";
-
-	//inside prepare(), cover the four cases of make, enlarge, shift, and fill
-	var b = Bay();
-	test.ok(!b.size());//starts out empty
-	test.ok(!b.hasData());
-
-	b.add(dataA); test.ok(b.size() == 10);//prepare make, capacity is 10, the buffer fits its first contents perfectly
-	test.ok(b.hasData());
-	b.add(dataB); test.ok(b.size() == 20);//prepare enlarge, now the capacity is 64 bytes, with data in the first 20
-	b.add(dataC); test.ok(b.size() == 30);//prepare fill
-	b.add(dataD); test.ok(b.size() == 40);//prepare fill
-
-	b.keep(17);//remove
-	test.ok(b.size() == 17);
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDD")));
-
-	b.add(dataE);//prepare fill
-	test.ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
-	b.add(dataF);//prepare fill
-	test.ok(b.size() == 37);//now there are just 4 bytes of space at the end
-
-	b.add(dataG);//prepare shift
-	test.ok(b.size() == 47);
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
-
-	b.add(dataH);//prepare fill
-	test.ok(b.size() == 57);
-
-	b.add(dataA);//prepare enlarge
-	test.ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
-	test.ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
-	test.ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
-
-	b.keep(15);
-	test.ok(b.size() == 15);
-	test.ok(b.data().same(Data("HHHHHaaaaaaaaaa")));
-
-	b.clear();
-	test.ok(!b.size());
-	test.ok(!b.hasData());
-	test.ok(b.data().same(Data()));
-
-	test.done();
-}
-
-
-
-
+//   ____        _        
+//  |  _ \  __ _| |_ __ _ 
+//  | | | |/ _` | __/ _` |
+//  | |_| | (_| | || (_| |
+//  |____/ \__,_|\__\__,_|
+//                        
 
 exports.testDataMake = function(test) {
 
@@ -328,6 +246,94 @@ exports.testDataSplit = function(test) {
 	test.done();
 }
 
+//   ____              
+//  | __ )  __ _ _   _ 
+//  |  _ \ / _` | | | |
+//  | |_) | (_| | |_| |
+//  |____/ \__,_|\__, |
+//               |___/ 
+
+exports.testBayExample = function(test) {
+
+	var b = Bay();//simple common use
+	b.add("a");
+	b.add("b");
+	b.add("c");
+	test.ok(b.data().same(Data("abc")));
+
+	b = Bay(base16("00aa00ff"));//larger use
+	for (var i = 0; i < 100; i++)
+		b.add(base16("2222222222222222"));
+	b.add(base16("11bb11ee"));
+	test.ok(b.size() == 808);
+	test.ok(b.data().start(6).same(base16("00aa00ff2222")));
+	test.ok(b.data().end(6).same(base16("222211bb11ee")));
+
+	test.done();
+}
+
+exports.testBayPrepare = function(test) {
+
+	var dataA = "aaaaaaaaaa";//10 bytes of ascii characters
+	var dataB = "BBBBBBBBBB";
+	var dataC = "cccccccccc";
+	var dataD = "DDDDDDDDDD";
+	var dataE = "eeeeeeeeee";
+	var dataF = "FFFFFFFFFF";
+	var dataG = "gggggggggg";
+	var dataH = "HHHHHHHHHH";
+
+	//inside prepare(), cover the four cases of make, enlarge, shift, and fill
+	var b = Bay();
+	test.ok(!b.size());//starts out empty
+	test.ok(!b.hasData());
+
+	b.add(dataA); test.ok(b.size() == 10);//prepare make, capacity is 10, the buffer fits its first contents perfectly
+	test.ok(b.hasData());
+	b.add(dataB); test.ok(b.size() == 20);//prepare enlarge, now the capacity is 64 bytes, with data in the first 20
+	b.add(dataC); test.ok(b.size() == 30);//prepare fill
+	b.add(dataD); test.ok(b.size() == 40);//prepare fill
+
+	b.keep(17);//remove
+	test.ok(b.size() == 17);
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDD")));
+
+	b.add(dataE);//prepare fill
+	test.ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
+	b.add(dataF);//prepare fill
+	test.ok(b.size() == 37);//now there are just 4 bytes of space at the end
+
+	b.add(dataG);//prepare shift
+	test.ok(b.size() == 47);
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
+
+	b.add(dataH);//prepare fill
+	test.ok(b.size() == 57);
+
+	b.add(dataA);//prepare enlarge
+	test.ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
+	test.ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
+	test.ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
+
+	b.keep(15);
+	test.ok(b.size() == 15);
+	test.ok(b.data().same(Data("HHHHHaaaaaaaaaa")));
+
+	b.clear();
+	test.ok(!b.size());
+	test.ok(!b.hasData());
+	test.ok(b.data().same(Data()));
+
+	test.done();
+}
+
+//   _____                     _      
+//  | ____|_ __   ___ ___   __| | ___ 
+//  |  _| | '_ \ / __/ _ \ / _` |/ _ \
+//  | |___| | | | (_| (_) | (_| |  __/
+//  |_____|_| |_|\___\___/ \__,_|\___|
+//                                    
 
 
 exports.testEncodeByte = function(test) {
@@ -471,12 +477,6 @@ exports.testEncodeCycle = function(test) {
 
 	test.done();
 }
-
-
-
-
-
-
 
 //you still need to test base16, 32, quote, and strike
 //confirm that base16 throws on odd characters or anything in there not 0-f

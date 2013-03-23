@@ -1,9 +1,12 @@
 
 var log = console.log;
 
-
-
-
+//   ____        _        
+//  |  _ \  __ _| |_ __ _ 
+//  | | | |/ _` | __/ _` |
+//  | |_| | (_| | || (_| |
+//  |____/ \__,_|\__\__,_|
+//                        
 
 // Make a Data to look at the bytes of some binary data
 function Data(d) {
@@ -209,13 +212,14 @@ function Data(d) {
 		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, hash:hash,
 	};
 };
-exports.Data = Data;
+exports.Data = Data; 
 
-
-
-
-
-
+//   ____              
+//  | __ )  __ _ _   _ 
+//  |  _ \ / _` | | | |
+//  | |_) | (_| | |_| |
+//  |____/ \__,_|\__, |
+//               |___/ 
 
 // A Bay holds data, and grows to hold more you add to it
 function Bay(a) {
@@ -310,14 +314,14 @@ function Bay(a) {
 		data:data
 	};
 };
-exports.Bay = Bay;
+exports.Bay = Bay; 
 
-
-
-
-
-
-
+//   _____                     _      
+//  | ____|_ __   ___ ___   __| | ___ 
+//  |  _| | '_ \ / __/ _ \ / _` |/ _ \
+//  | |___| | | | (_| (_) | (_| |  __/
+//  |_____|_| |_|\___\___/ \__,_|\___|
+//                                    
 
 // Takes an integer 0 through 255, 0x00 through 0xff, or throws bounds
 // Returns a Data object with a single byte in it with that value
@@ -471,8 +475,6 @@ function base62(s) {
 
 }
 
-
-
 exports.toByte = toByte;
 exports.base16 = base16;
 exports.base32 = base32;
@@ -482,55 +484,6 @@ exports.base64 = base64;
 
 
 
-
-
-
-
-
-
-
-
-function sampleFunction(more) {
-	log("sample function says hi");
-	if (more) {
-		log("and will now call sample object:")
-		var s = SampleObject(false);
-		s.print();
-	}
-}
-
-
-
-
-function SampleObject() {
-	function print(more) {
-		log("sample object says hi");
-		if (more) {
-			log("and will now call sample function:")
-			sampleFunction(false);
-		}
-	}
-
-	return { print:print }
-}
-
-
-
-exports.sampleFunction = sampleFunction;
-exports.SampleObject = SampleObject;
-
-
-/*
-exports.includeAll = function includeAll(o) {
-	//a more advanced version of this should throw if it would overwrite something
-	//also, write it so that you can call something like this after each group of functions:
-	//export(Object, functionA, functionB);
-	//then it calls down here, and adds those to the hash
-	o.sampleFunction = sampleFunction;
-	o.SampleObject = SampleObject;
-	log('done adding stuff');
-}
-*/
 
 
 
