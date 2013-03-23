@@ -62,30 +62,30 @@ exports.testBayPrepare = function(test) {
 	test.ok(!b.size());//starts out empty
 	test.ok(!b.hasData());
 
-	b.add(dataA); test.ok(b.size() == 10);//buffer make, capacity is 10, the buffer fits its first contents perfectly
+	b.add(dataA); test.ok(b.size() == 10);//prepare make, capacity is 10, the buffer fits its first contents perfectly
 	test.ok(b.hasData());
-	b.add(dataB); test.ok(b.size() == 20);//buffer enlarge, now the capacity is 64 bytes, with data in the first 20
-	b.add(dataC); test.ok(b.size() == 30);//buffer fill
-	b.add(dataD); test.ok(b.size() == 40);//buffer fill
+	b.add(dataB); test.ok(b.size() == 20);//prepare enlarge, now the capacity is 64 bytes, with data in the first 20
+	b.add(dataC); test.ok(b.size() == 30);//prepare fill
+	b.add(dataD); test.ok(b.size() == 40);//prepare fill
 
 	b.keep(17);//remove
 	test.ok(b.size() == 17);
 	test.ok(b.data().same(Data("cccccccDDDDDDDDDD")));
 
-	b.add(dataE);//buffer fill
+	b.add(dataE);//prepare fill
 	test.ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
 	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
-	b.add(dataF);//buffer fill
+	b.add(dataF);//prepare fill
 	test.ok(b.size() == 37);//now there are just 4 bytes of space at the end
 
-	b.add(dataG);//buffer shift
+	b.add(dataG);//prepare shift
 	test.ok(b.size() == 47);
 	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
 
-	b.add(dataH);//buffer fill
+	b.add(dataH);//prepare fill
 	test.ok(b.size() == 57);
 
-	b.add(dataA);//buffer enlarge
+	b.add(dataA);//prepare enlarge
 	test.ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
 	test.ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
 	test.ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
