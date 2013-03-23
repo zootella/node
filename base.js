@@ -221,7 +221,6 @@ exports.Data = Data;
 function Bay(a) {
 
 	var buffer = null; // Our node buffer which has an allocated block of memory
-	var capacity = 0;  // The size of the memory block, the maximum amount of data we can hold
 	var start = 0;     // Look start bytes into buffer for hold bytes of data there
 	var hold = 0;
 
@@ -253,11 +252,11 @@ function Bay(a) {
 			buffer = new Buffer(more);
 
 		// Our buffer isn't big enough to hold that much more data
-		} else if (hold + more > capacity) {
+		} else if (hold + more > buffer.length) {
 
 			// Calculate how big our new buffer should be
-			var c = ((size() + more) * 3) / 2; // It will be 2/3rds full
-			if (c < 64) c = 64                 // At least 64 bytes
+			var c = Math.floor(((size() + more) * 3) / 2); // It will be 2/3rds full
+			if (c < 64) c = 64;                            // At least 64 bytes
 
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
@@ -266,7 +265,7 @@ function Bay(a) {
 			start = 0; // There's no removed data at the start of our new buffer
 
 		// Our buffer will have enough space at the end once we shift the data to the start
-		} else if (start + hold + more > capacity) {
+		} else if (start + hold + more > buffer.length) {
 
 			// Copy hold bytes at start in buffer to position 0
 			buffer.copy(buffer, 0, start, start + hold);
@@ -284,6 +283,7 @@ function Bay(a) {
 			clear();
 		} else { // Remove from the start
 			start += n;
+			hold -= n;
 		}
 	}
 
@@ -295,7 +295,8 @@ function Bay(a) {
 
 	// Look at the data this Bay object holds
 	function data() {
-		return Data(buffer.slice(start, start + hold)); // Make a new buffer without copying the memory
+		if (!buffer) return Data(); // If we don't have a buffer yet, return an empty data object
+		else return Data(buffer.slice(start, start + hold)); // Make a new buffer without copying the memory
 	}
 
 	return {
@@ -309,6 +310,7 @@ function Bay(a) {
 		data:data
 	};
 };
+exports.Bay = Bay;
 
 
 

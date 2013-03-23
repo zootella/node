@@ -13,6 +13,7 @@ var base16 = base.base16;
 var base32 = base.base32;
 var base62 = base.base62;
 var base64 = base.base64;
+var Bay = base.Bay;
 
 /*
 var o = {};
@@ -26,12 +27,81 @@ o.sampleFunction();
 //for instance, start out in data by saying, what a data object is, why you might want to make one
 //and then say, you can make a data object from anything that has binary data inside it
 
+exports.testBayExample = function(test) {
 
-exports.testBay = function(test) {
+	var b = Bay();//simple common use
+	b.add("a");
+	b.add("b");
+	b.add("c");
+	test.ok(b.data().same(Data("abc")));
 
+	b = Bay(base16("00aa00ff"));//larger use
+	for (var i = 0; i < 100; i++)
+		b.add(base16("2222222222222222"));
+	b.add(base16("11bb11ee"));
+	test.ok(b.size() == 808);
+	test.ok(b.data().start(6).same(base16("00aa00ff2222")));
+	test.ok(b.data().end(6).same(base16("222211bb11ee")));
 
 	test.done();
 }
+
+exports.testBayPrepare = function(test) {
+
+	var dataA = "aaaaaaaaaa";//10 bytes of ascii characters
+	var dataB = "BBBBBBBBBB";
+	var dataC = "cccccccccc";
+	var dataD = "DDDDDDDDDD";
+	var dataE = "eeeeeeeeee";
+	var dataF = "FFFFFFFFFF";
+	var dataG = "gggggggggg";
+	var dataH = "HHHHHHHHHH";
+
+	//inside prepare(), cover the four cases of make, enlarge, shift, and fill
+	var b = Bay();
+	test.ok(!b.size());//starts out empty
+	test.ok(!b.hasData());
+
+	b.add(dataA); test.ok(b.size() == 10);//buffer make, capacity is 10, the buffer fits its first contents perfectly
+	test.ok(b.hasData());
+	b.add(dataB); test.ok(b.size() == 20);//buffer enlarge, now the capacity is 64 bytes, with data in the first 20
+	b.add(dataC); test.ok(b.size() == 30);//buffer fill
+	b.add(dataD); test.ok(b.size() == 40);//buffer fill
+
+	b.keep(17);//remove
+	test.ok(b.size() == 17);
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDD")));
+
+	b.add(dataE);//buffer fill
+	test.ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
+	b.add(dataF);//buffer fill
+	test.ok(b.size() == 37);//now there are just 4 bytes of space at the end
+
+	b.add(dataG);//buffer shift
+	test.ok(b.size() == 47);
+	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
+
+	b.add(dataH);//buffer fill
+	test.ok(b.size() == 57);
+
+	b.add(dataA);//buffer enlarge
+	test.ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
+	test.ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
+	test.ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
+
+	b.keep(15);
+	test.ok(b.size() == 15);
+	test.ok(b.data().same(Data("HHHHHaaaaaaaaaa")));
+
+	b.clear();
+	test.ok(!b.size());
+	test.ok(!b.hasData());
+	test.ok(b.data().same(Data()));
+
+	test.done();
+}
+
 
 
 
