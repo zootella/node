@@ -1,14 +1,19 @@
 
 var log = console.log;
 
-var base = require('./base');//functions
-var Data = base.Data;
-var toByte = base.toByte;
-var base16 = base.base16;
-var base32 = base.base32;
-var base62 = base.base62;
-var base64 = base.base64;
-var Bay = base.Bay;
+var data = require("./data");//functions
+var Size = data.Size;
+var Data = data.Data;
+var toByte = data.toByte;
+var base16 = data.base16;
+var base32 = data.base32;
+var base62 = data.base62;
+var base64 = data.base64;
+var Bay = data.Bay;
+
+var encrypt = require("./encrypt");
+var randomData = encrypt.randomData;
+
 
 
 //ok, now let's write some tests!
@@ -23,6 +28,15 @@ var Bay = base.Bay;
 //  | |_| | (_| | || (_| |
 //  |____/ \__,_|\__\__,_|
 //                        
+
+exports.testSizeConstants = function(test) {
+
+	test.ok(Size.kb == 1024);
+	Size.kb = 5;//this won't change it, but also won't throw an exception
+	test.ok(Size.kb == 1024);//make sure Objet.freeze(Size) worked
+
+	test.done();
+}
 
 exports.testDataMake = function(test) {
 
@@ -393,6 +407,64 @@ exports.testEncodeCycle = function(test) {
 	cycle16("ff");
 	cycle16("00ff");
 	cycle16("f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0");
+
+
+/*
+
+
+
+"81"
+"039a"
+"81e988"
+"305c7df3"
+"d8de65de8d"
+"93d3ccfe477f"
+"bc93867b5d77b3"
+"a923655fa35afc5c"
+"e24b3d010a4ef4b40e"
+"f99246e31918eab69c41"
+"f0ea49f496f8074a97ee81"
+"3307551932386a20bc2acfc2"
+"6237542abe16c955ec666a6335"
+"ce009e6adf2a354fd156b0df6187"
+"1e7472f9f8c2c6b25876423d26cfe1"
+"fcc624f240a5a67606fcf5376c6dcad2"
+"587a8e25caec87250359b1e68ea56a7c01"
+"231e270e7320a3f62f85b6d40d23ebc9b869"
+"de743f4c2c00064dd00285c5c5c70e108fcba0"
+"36790ea7ab215a9f983a0e6613ec0a6431497028"
+"390d411f60bbb86f8350c02d14540aa8e6abe6c0c1"
+"13fc7d96e94cfe448a7a88f618e36143561c4c3b06eb"
+"b1b75ec66001dcbbb7c16ca38dc982b0c8f5ed294068ea"
+"208cb4bbf4e12c27acdc67e33522e90ec9341b76e64a386c"
+"8606e42a36f5f1908cf73bbb152c058d5dd0ebb87c1c865e9c"
+"1bc5ce1cbb82f79632643c4dca6ba6e70473c44c537c8b6b3530"
+"bde5faea7ca6da780528dd1ebd9d95650a8cdd7fb58fac7c23dc18"
+"ab5d7a2e6460d444fb812981142bde3ff88f1eafb0f71a33d0be02f8"
+"f3c403d9248ba073717845bdc77c6a42769e56dbbfb354cff827549be9"
+"cff7ff2b9b0241ba13746ab0f9729e4413ed35a19e93285f5d0191822cc9"
+"57b29c98a51f4a7bf1c287612d4e9f7190c745c1069012ece791ea9883b047"
+"f0324757abc110ee9d1f305a707b3e663799a37ff56ef713fd78fbd897af92f9"
+
+
+"06a4ce40189d297aed4657d0e524dd46c3831647"
+"19e6cd2733d87b4e7f04d43358bfc9c7a15027af"
+"e96748c8c8361673feb0e2ed6870ba06defe819e"
+"c3c8f2f620e12b5c378a78c8f07416a073aa98ec"
+"515746bf84532461fc8f5bcb6306c9d3d81f13af"
+
+
+"00"
+"ff"
+"0000"
+"ffff"
+"00000000"
+"ffffffff"
+"0000000000000000"
+"ffffffffffffffff"
+
+
+*/
 
 
 	test.done();

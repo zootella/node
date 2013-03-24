@@ -5,15 +5,15 @@ var log = console.log;
 
 var crypto = require("crypto");
 
+var data = require("./data");
+
+var Data = data.Data;
 
 
 
-try {
-	var buffer = crypto.randomBytes(256);
-	console.log('Have %d bytes of random data: %s', buffer.length, buffer);
-} catch (e) {
-	log(e);
-}
+function randomData(n) { return Data(crypto.randomBytes(n)); } // Make n bytes of random data
+
+exports.randomData = randomData;
 
 
 

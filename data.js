@@ -8,6 +8,18 @@ var log = console.log;
 //  |____/ \__,_|\__\__,_|
 //                        
 
+// Size constants
+var Size = {};
+Size.kb = 1024;           // Number of bytes in a kilobyte
+Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
+Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
+Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
+Size.value  = 20;           // A SHA1 hash value is 20 bytes
+Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
+Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
+Object.freeze(Size);
+exports.Size = Size;
+
 // Make a Data to look at the bytes of some binary data
 function Data(d) {
 
