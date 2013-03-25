@@ -23,6 +23,7 @@ function Day()    { return 24 * Hour();   } // Number of milliseconds in a day
 
 
 
+
 function Slice(z) { // Takes the size of the file in bytes
 	if (z < 1) throw "range"; // File size must be 1 byte or more
 

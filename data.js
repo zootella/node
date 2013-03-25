@@ -344,10 +344,8 @@ function toByte(i) {
 	return Data(b);
 }
 
-function toBase16(d) { return d.toBuffer().toString("hex"); } // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
-function toBase64(d) { return d.toBuffer().toString("base64"); }
-function base16(s) { return Data(new Buffer(s, "hex")); } // Turn base 16-encoded text back into the data it was made from
-function base64(s) { return Data(new Buffer(s, "base64")); }
+// Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
+function toBase16(d) { return d.toBuffer().toString("hex"); }
 
 // Turn data into text using base 32, each 5 bits will become a character a-z and 2-7
 function toBase32(d) {
@@ -378,42 +376,6 @@ function toBase32(d) {
 		s.push(alphabet.charAt(code));
 	}
 	return s.join(""); // Combine the characters in the array into a string
-}
-
-// Turn base 32-encoded text back into the data it was made from
-function base32(s) {
-
-	/*
-	public static void fromBase32(Bay bay, String s) {
-
-	// Loop for each character in the text
-	char c;        // The character we are converting into bits
-	int  code;     // The bits the character gets turned into
-	int  hold = 0; // A place to hold bits from several characters until we have 8 and can write a byte
-	int  bits = 0; // The number of bits stored in the right side of hold right now
-	for (int i = 0; i < s.length(); i++) {
-
-		// Get a character from the text, and convert it into its code
-		c = Character.toUpperCase(s.charAt(i));             // Accept uppercase and lowercase letters
-		if      (c >= 'A' && c <= 'Z') code = c - 'A';      // 'A'  0 00000 through 'Z' 25 11001
-		else if (c >= '2' && c <= '7') code = c - '2' + 26; // '2' 26 11010 through '7' 31 11111
-		else throw new DataException();                     // Invalid character
-
-		// Insert the bits from code into hold
-		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
-		bits += 5;                 // Record that there are now 5 more bits being held
-
-		// If we have enough bits in hold to write a byte
-		if (bits >= 8) {
-
-			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add((byte)(hold >>> (bits - 8)));
-			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
-		}
-	}
-	}
-	*/
-
 }
 
 // Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
@@ -449,26 +411,62 @@ function toBase62(d) {
 	return s.join(""); // Combine the characters in the array into a string
 }
 
+// Turn data into text using base 64
+function toBase64(d) { return d.toBuffer().toString("base64"); }
+
+// Turn base 16-encoded text back into the data it was made from
+function base16(s) { return Data(new Buffer(s, "hex")); }
+
+// Turn base 32-encoded text back into the data it was made from
+function base32(s) {
+
+	// Loop for each character in the text
+	var c;           // The ASCII byte value of the character we are converting into bits
+	var code;        // The bits the character gets turned into
+	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
+	var bits = 0;    // The number of bits stored in the right side of hold right now
+	var bay = Bay(); // Empty bay for decoded bytes
+	for (var i = 0; i < s.length; i++) {
+
+		// Get a character from the text, and convert it into its code
+		c = ascii(s.charAt(i).toUpperCase());                                    // Accept uppercase and lowercase letters
+		if      (c >= ascii("A") && c <= ascii("Z")) code = c - ascii("A");      // 'A'  0 00000 through 'Z' 25 11001
+		else if (c >= ascii("2") && c <= ascii("7")) code = c - ascii("2") + 26; // '2' 26 11010 through '7' 31 11111
+		else throw "data";                                                       // Invalid character
+
+		// Insert the bits from code into hold
+		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
+		bits += 5;                 // Record that there are now 5 more bits being held
+
+		// If we have enough bits in hold to write a byte
+		if (bits >= 8) {
+
+			// Move the 8 leftmost bits in hold to our Bay object
+			bay.add((byte)(hold >>> (bits - 8)));
+			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
+		}
+	}
+	return bay.data();
+}
+
 // Turn base 62-encoded text back into the data it was made from
 function base62(s) {
 
-	/*
-	public static void fromBase62(Bay bay, String s) {
-
 	// Loop for each character in the text
-	char c;        // The character we are converting into bits
-	int  code;     // The bits the character gets turned into
-	int  hold = 0; // A place to hold bits from several characters until we have 8 and can write a byte
-	int  bits = 0; // The number of bits stored in the right side of hold right now
-	for (int i = 0; i < s.length(); i++) {
+	var c;           // The ASCII byte value of the character we are converting into bits
+	var code;        // The bits the character gets turned into
+	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
+	var bits = 0;    // The number of bits stored in the right side of hold right now
+	var bay = Bay(); // Empty bay for decoded bytes
+	for (var i = 0; i < s.length; i++) {
 
 		// Get a character from the text, and convert it into its code
-		c = s.charAt(i);
-		if      (c >= '0' && c <= '9') code = c - '0';      // '0'  0 000000 through '9'  9 001001
-		else if (c >= 'a' && c <= 'z') code = c - 'a' + 10; // 'a' 10 001010 through 'z' 35 100011
-		else if (c >= 'A' && c <= 'Y') code = c - 'A' + 36; // 'A' 36 100100 through 'Y' 60 111100
-		else if (c == 'Z')             code = 61;           // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
-		else throw new DataException();                  // Invalid character
+		c = ascii(s.charAt(i));
+		if      (c >= ascii("0") && c <= ascii("9")) code = c - ascii("0");      // '0'  0 000000 through '9'  9 001001
+		else if (c >= ascii("a") && c <= ascii("z")) code = c - ascii("a") + 10; // 'a' 10 001010 through 'z' 35 100011
+		else if (c >= ascii("A") && c <= ascii("Y")) code = c - ascii("A") + 36; // 'A' 36 100100 through 'Y' 60 111100
+		else if (c == ascii("Z"))                    code = 61;                  // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
+		else throw "data";                                                       // Invalid character
 
 		// Insert the bits from code into hold
 		if (code == 61) { hold = (hold << 4) | 15;   bits += 4; } // Insert 1111 for 'Z'
@@ -482,10 +480,13 @@ function base62(s) {
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
-	}
-	*/
-
+	return bay.data();
 }
+
+// Turn base 64-encoded text back into the data it was made from
+function base64(s) { return Data(new Buffer(s, "base64")); }
+
+function ascii(c) { return c.charCodeAt(0); } // Turn "A" into 65
 
 exports.toByte = toByte;
 exports.base16 = base16;
