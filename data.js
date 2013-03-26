@@ -509,8 +509,11 @@ exports.base64 = base64;
 
 
 
-//throws on toByte, doesn't work without it
-log(base32("777q").base32());
+
+var d = base32("ZY");
+log("size " + d.size());
+log("base16 " + d.base16());//should be "ff"
+
 
 
 
