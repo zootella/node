@@ -380,117 +380,190 @@ exports.testEncodeByte = function(test) {
 	test.done();
 }
 
-exports.testEncodeCycle = function(test) {
+exports.testEncodeBase = function(test) {
 
-	function cycle16(s) {//take some base16 encoded text
-		var d = base16(s);//turn it into data
-		var s2 = d.base16();//turn that data back into text
-		test.ok(s == s2);//confirm that decoding it and encoding it doesn't change the text
-		cycleData(d);//run additional tests with the data
-	}
-	function cycle32(s) { var d = base32(s); var s2 = d.base32(); test.ok(s == s2); cycleData(d); }
-	function cycle62(s) { var d = base62(s); var s2 = d.base62(); test.ok(s == s2); cycleData(d); }
-	function cycle64(s) { var d = base64(s); var s2 = d.base64(); test.ok(s == s2); cycleData(d); }
+	function set(h) {
 
-	function cycleData(d) {
-		test.ok(d.same(base16(d.base16())));
-		/*
-		test.ok(d.same(base32(d.base32())));
-		test.ok(d.same(base62(d.base62())));
-		test.ok(d.same(base64(d.base64())));
-		*/
+		var d = base16(h.s16);//make sure the text encoded all 4 ways becomes the same data
+
+		var d32 = base32(h.s32);
+//		test.ok(d.same(base32(h.s32)));
+//		test.ok(d.same(base62(h.s62)));
+//		test.ok(d.same(base64(h.s64)));
+
+		test.ok(h.s16 == d.base16());//and make sure that data converts back into the same text
+//		test.ok(h.s32 == d.base32());
+//		test.ok(h.s62 == d.base62());
+//		test.ok(h.s64 == d.base64());
 	}
 
-	cycle16("");
-	cycle16("00");
-	cycle16("01");
-	cycle16("ff");
-	cycle16("00ff");
-	cycle16("f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0");
+	//blank is ok
+	set({
+		s16: "",
+		s32: "",
+		s62: "",
+		s64: ""
+	})
 
+	//random 20 byte values
+	set({
+		s16: "06a4ce40189d297aed4657d0e524dd46c3831647",
+		s32: "a2sm4qaytuuxv3kgk7iokjg5i3bygfsh",
+		s62: "1Gjeg1ytanHJhBvgVijthIe35As",
+		s64: "BqTOQBidKXrtRlfQ5STdRsODFkc"
+	});
+/*	set({
+		s16: "19e6cd2733d87b4e7f04d43358bfc9c7a15027af",
+		s32: "dhtm2jzt3b5u47ye2qzvrp6jy6qvaj5p",
+		s62: "6urd9PfouQVZMjkcRyZYD7El0DHM",
+		s64: "GebNJzPYe05/BNQzWL/Jx6FQJ68"
+	});
+	set({
+		s16: "e96748c8c8361673feb0e2ed6870ba06defe819e",
+		s32: "5ftursgigylhh7vq4lwwq4f2a3pp5am6",
+		s62: "Wmt8OcwS5DfZH3yXmxMKwruZW1Dw",
+		s64: "6WdIyMg2FnP+sOLtaHC6Bt7+gZ4"
+	});
+	set({
+		s16: "c3c8f2f620e12b5c378a78c8f07416a073aa98ec",
+		s32: "ypepf5ra4evvyn4kpdepa5awubz2vghm",
+		s62: "MYzOZowUiJsdUFUOf1Q5G1PGFzI",
+		s64: "w8jy9iDhK1w3injI8HQWoHOqmOw"
+	});
+	set({
+		s16: "515746bf84532461fc8f5bcb6306c9d3d81f13af",
+		s32: "kflunp4ekmsgd7eplpfwgbwj2pmb6e5p",
+		s62: "klt6LUhj967YzRLboMr9QZo7NeL",
+		s64: "UVdGv4RTJGH8j1vLYwbJ09gfE68"
+	});
 
 /*
+	//black and white
+	set({
+		s16: "00",
+		s32: "aa",
+		s62: "00",
+		s64: "AA"
+	});
+	set({
+		s16: "ff",
+		s32: "74",
+		s62: "ZY",
+		s64: "/w"
+	});
+	set({
+		s16: "0000",
+		s32: "aaaa",
+		s62: "000",
+		s64: "AAA"
+	});
+	set({
+		s16: "ffff",
+		s32: "777q",
+		s62: "ZZZY",
+		s64: "//8"
+	});
+	set({
+		s16: "00000000",
+		s32: "aaaaaaa",
+		s62: "000000",
+		s64: "AAAAAA"
+	});
+	set({
+		s16: "ffffffff",
+		s32: "777777y",
+		s62: "ZZZZZZZY",
+		s64: "/////w"
+	});
+	set({
+		s16: "0000000000000000",
+		s32: "aaaaaaaaaaaaa",
+		s62: "00000000000",
+		s64: "AAAAAAAAAAA"
+	});
+	set({
+		s16: "ffffffffffffffff",
+		s32: "7777777777776",
+		s62: "ZZZZZZZZZZZZZZZY",
+		s64: "//////////8"
+	});
 
+	//stripy
+	set({
+		s16: "00",
+		s32: "aa",
+		s62: "00",
+		s64: "AA"
+	});
+	set({
+		s16: "00ff",
+		s32: "ad7q",
+		s62: "0fY",
+		s64: "AP8"
+	});
+	set({
+		s16: "00ff00ff",
+		s32: "ad7qb7y",
+		s62: "0fY0ZY",
+		s64: "AP8A/w"
+	});
+	set({
+		s16: "00ff00ff00ff00ff",
+		s32: "ad7qb7ya74ap6",
+		s62: "0fY0ZY0ZY0ZY",
+		s64: "AP8A/wD/AP8"
+	});
+	set({
+		s16: "00ff00ff00ff00ff00ff00ff00ff00ff",
+		s32: "ad7qb7ya74ap6ah7ad7qb7ya74",
+		s62: "0fY0ZY0ZY0ZY0ZY0ZY0ZY0ZY",
+		s64: "AP8A/wD/AP8A/wD/AP8A/w"
+	});
+	set({
+		s16: "00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff",
+		s32: "ad7qb7ya74ap6ah7ad7qb7ya74ap6ah7ad7qb7ya74ap6ah7ad7q",
+		s62: "0fY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY",
+		s64: "AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8"
+	});
 
-
-"81"
-"039a"
-"81e988"
-"305c7df3"
-"d8de65de8d"
-"93d3ccfe477f"
-"bc93867b5d77b3"
-"a923655fa35afc5c"
-"e24b3d010a4ef4b40e"
-"f99246e31918eab69c41"
-"f0ea49f496f8074a97ee81"
-"3307551932386a20bc2acfc2"
-"6237542abe16c955ec666a6335"
-"ce009e6adf2a354fd156b0df6187"
-"1e7472f9f8c2c6b25876423d26cfe1"
-"fcc624f240a5a67606fcf5376c6dcad2"
-"587a8e25caec87250359b1e68ea56a7c01"
-"231e270e7320a3f62f85b6d40d23ebc9b869"
-"de743f4c2c00064dd00285c5c5c70e108fcba0"
-"36790ea7ab215a9f983a0e6613ec0a6431497028"
-"390d411f60bbb86f8350c02d14540aa8e6abe6c0c1"
-"13fc7d96e94cfe448a7a88f618e36143561c4c3b06eb"
-"b1b75ec66001dcbbb7c16ca38dc982b0c8f5ed294068ea"
-"208cb4bbf4e12c27acdc67e33522e90ec9341b76e64a386c"
-"8606e42a36f5f1908cf73bbb152c058d5dd0ebb87c1c865e9c"
-"1bc5ce1cbb82f79632643c4dca6ba6e70473c44c537c8b6b3530"
-"bde5faea7ca6da780528dd1ebd9d95650a8cdd7fb58fac7c23dc18"
-"ab5d7a2e6460d444fb812981142bde3ff88f1eafb0f71a33d0be02f8"
-"f3c403d9248ba073717845bdc77c6a42769e56dbbfb354cff827549be9"
-"cff7ff2b9b0241ba13746ab0f9729e4413ed35a19e93285f5d0191822cc9"
-"57b29c98a51f4a7bf1c287612d4e9f7190c745c1069012ece791ea9883b047"
-"f0324757abc110ee9d1f305a707b3e663799a37ff56ef713fd78fbd897af92f9"
-
-
-"06a4ce40189d297aed4657d0e524dd46c3831647"
-"19e6cd2733d87b4e7f04d43358bfc9c7a15027af"
-"e96748c8c8361673feb0e2ed6870ba06defe819e"
-"c3c8f2f620e12b5c378a78c8f07416a073aa98ec"
-"515746bf84532461fc8f5bcb6306c9d3d81f13af"
-
-
-"00"
-"ff"
-"0000"
-"ffff"
-"00000000"
-"ffffffff"
-"0000000000000000"
-"ffffffffffffffff"
-
-
-
-06a4ce40189d297aed4657d0e524dd46c3831647
-a2sm4qaytuuxv3kgk7iokjg5i3bygfsh
-1Gjeg1ytanHJhBvgVijthIe35As
-
-19e6cd2733d87b4e7f04d43358bfc9c7a15027af
-dhtm2jzt3b5u47ye2qzvrp6jy6qvaj5p
-6urd9PfouQVZMjkcRyZYD7El0DHM
-
-e96748c8c8361673feb0e2ed6870ba06defe819e
-5ftursgigylhh7vq4lwwq4f2a3pp5am6
-Wmt8OcwS5DfZH3yXmxMKwruZW1Dw
-
-c3c8f2f620e12b5c378a78c8f07416a073aa98ec
-ypepf5ra4evvyn4kpdepa5awubz2vghm
-MYzOZowUiJsdUFUOf1Q5G1PGFzI
-
-515746bf84532461fc8f5bcb6306c9d3d81f13af
-kflunp4ekmsgd7eplpfwgbwj2pmb6e5p
-klt6LUhj967YzRLboMr9QZo7NeL
-
-
-
-
-
+	//test vectors from rfc 4648
+	set({
+		s16: "66",//"f"
+		s32: "my",
+		s62: "pw",
+		s64: "Zg"
+	});
+	set({
+		s16: "666f",
+		s32: "mzxq",
+		s62: "pCY",
+		s64: "Zm8"
+	});
+	set({
+		s16: "666f6f",//"foo"
+		s32: "mzxw6",
+		s62: "pCZrM",
+		s64: "Zm9v"
+	});
+	set({
+		s16: "666f6f62",
+		s32: "mzxw6yq",
+		s62: "pCZrS8",
+		s64: "Zm9vYg"
+	});
+	set({
+		s16: "666f6f6261",
+		s32: "mzxw6ytb",
+		s62: "pCZrS9x",
+		s64: "Zm9vYmE"
+	});
+	set({
+		s16: "666f6f626172",//"foobar"
+		s32: "mzxw6ytboi",
+		s62: "pCZrS9xsw",
+		s64: "Zm9vYmFy"
+	});
 */
-
 
 	test.done();
 }
@@ -523,57 +596,8 @@ exports.testEncodeInvalid = function(test) {
 };
 
 
-exports.testEncodeExpect = function(test) {
 
-	function expect16(a, s) {//takes some ascii text, and the string it should encode into
-		var d = Data(a);//read the ascii text as utf8 bytes
-		var s2 = d.base16();//encode those bytes into text
-		var d2 = base16(s2);//decode that text back into more bytes
-		test.ok(s == s2);// make sure a encoded into s correctly
-		test.ok(d.same(d2));// make sure 
-	}
-	function expect32(a, s) { var d = Data(a); var s2 = d.base32(); var d2 = base32(s2); test.ok(s == s2); test.ok(d.same(d2)); }
-	function expect62(a, s) { var d = Data(a); var s2 = d.base62(); var d2 = base62(s2); test.ok(s == s2); test.ok(d.same(d2)); }
-	function expect64(a, s) { var d = Data(a); var s2 = d.base64(); var d2 = base64(s2); test.ok(s == s2); test.ok(d.same(d2)); }
 
-	expect16("", "");//these test vectors are from rfc 4648
-	expect16("f", "66");
-	expect16("fo", "666f");
-	expect16("foo", "666f6f");
-	expect16("foob", "666f6f62");
-	expect16("fooba", "666f6f6261");
-	expect16("foobar", "666f6f626172");
 
-	/*
-	expect32("") = ""
-	expect32("f") = "MY======"
-	expect32("fo") = "MZXQ===="
-	expect32("foo") = "MZXW6==="
-	expect32("foob") = "MZXW6YQ="
-	expect32("fooba") = "MZXW6YTB"
-	expect32("foobar") = "MZXW6YTBOI======"
-
-	expect32-HEX("") = ""
-	expect32-HEX("f") = "CO======"
-	expect32-HEX("fo") = "CPNG===="
-	expect32-HEX("foo") = "CPNMU==="
-	expect32-HEX("foob") = "CPNMUOG="
-	expect32-HEX("fooba") = "CPNMUOJ1"
-	expect32-HEX("foobar") = "CPNMUOJ1E8======"
-	*/
-	//TODO use the java source to generate test vectors for base62 and put them here
-
-	expect64("", "");
-	expect64("f", "Zg==");
-	expect64("fo", "Zm8=");
-	expect64("foo", "Zm9v");
-	expect64("foob", "Zm9vYg==");
-	expect64("fooba", "Zm9vYmE=");
-	expect64("foobar", "Zm9vYmFy");
-
-	test.done();
-}
-
-//you still need to test base16, 32, quote, and strike
 //confirm that base16 throws on odd characters or anything in there not 0-f
 

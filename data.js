@@ -438,11 +438,24 @@ function base32(s) {
 		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
 		bits += 5;                 // Record that there are now 5 more bits being held
 
+		/*
+		log();
+		log("c    " + c);
+		log("code " + c);
+		log("hold " + c);
+		log("bits " + c);
+		*/
+
 		// If we have enough bits in hold to write a byte
 		if (bits >= 8) {
 
+			/*
+			log();
+			log("add  " + (hold >>> (bits - 8)));
+			*/
+
 			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add((byte)(hold >>> (bits - 8)));
+			bay.add( /*toByte(*/ hold >>> (bits - 8) /*)*/ );//TODO you should need toByte here, but it throws
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
@@ -476,7 +489,7 @@ function base62(s) {
 		if (bits >= 8) {
 
 			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add((byte)(hold >>> (bits - 8)));
+			bay.add( /*toByte(*/ hold >>> (bits - 8) /*)*/ );//TODO you should need toByte here, but it throws
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
@@ -494,6 +507,10 @@ exports.base32 = base32;
 exports.base62 = base62;
 exports.base64 = base64;
 
+
+
+//throws on toByte, doesn't work without it
+log(base32("777q").base32());
 
 
 
