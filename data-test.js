@@ -583,6 +583,34 @@ exports.testEncodeBase = function(test) {
 
 exports.testEncodeInvalid = function(test) {
 
+	function confirmInvalid16(s) {
+		try {
+			d = base16(s);
+			test.fail();
+		} catch (e) {}
+	}
+
+	function confirmInvalid32(s) {
+		try {
+			d = base16(s);
+			test.fail();
+		} catch (e) {}
+	}
+
+	function confirmInvalid62(s) {
+		try {
+			d = base16(s);
+			test.fail();
+		} catch (e) {}
+	}
+
+	function confirmInvalid64(s) {
+		try {
+			d = base16(s);
+			test.fail();
+		} catch (e) {}
+	}
+
 	var d;
 
 	//""valid
@@ -597,14 +625,12 @@ exports.testEncodeInvalid = function(test) {
 
 	//confirm that base16 throws on odd characters or anything in there not 0-f
 
-	try {
-		d = base16("0");
-		test.fail();
-	} catch (e) {}
+
 
 
 	test.done();
 };
+
 
 
 

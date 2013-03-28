@@ -99,6 +99,27 @@ exports.testShift = function(test) {
 
 
 
+//use this everywhere instead of /
+//and write tests for it so you know how it will behave
+
+
+//write unit tests for url encoding, including international characters
+
+
+function div(n, d) {
+	if (!Number.isInteger(n) || n < 0) throw "value";
+	if (!Number.isInteger(d) || d < 1) throw "value";
+
+	var a = {};
+	a.ans = n / d;
+	a.rem = n % d;
+	if ((d * a.ans) + a.rem !== n) throw "math";
+	return a;
+}
+
+
+
+
 
 
 
