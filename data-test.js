@@ -385,16 +385,14 @@ exports.testEncodeBase = function(test) {
 	function set(h) {
 
 		var d = base16(h.s16);//make sure the text encoded all 4 ways becomes the same data
-
-		var d32 = base32(h.s32);
-//		test.ok(d.same(base32(h.s32)));
-//		test.ok(d.same(base62(h.s62)));
-//		test.ok(d.same(base64(h.s64)));
+		test.ok(d.same(base32(h.s32)));
+		test.ok(d.same(base62(h.s62)));
+		test.ok(d.same(base64(h.s64)));
 
 		test.ok(h.s16 == d.base16());//and make sure that data converts back into the same text
-//		test.ok(h.s32 == d.base32());
-//		test.ok(h.s62 == d.base62());
-//		test.ok(h.s64 == d.base64());
+		test.ok(h.s32 == d.base32());
+		test.ok(h.s62 == d.base62());
+		test.ok(h.s64 == d.base64());
 	}
 
 	//blank is ok
@@ -405,87 +403,100 @@ exports.testEncodeBase = function(test) {
 		s64: ""
 	})
 
+	//small test values
+	set({
+		s16: "89",// 1000 1001
+		s32: "re",
+		s62: "yg",
+		s64: "iQ=="
+	})
+	set({
+		s16: "89ab",// 1000 1001 1010 1011
+		s32: "rgvq",
+		s62: "yqI",
+		s64: "ias="
+	})
+
 	//random 20 byte values
 	set({
 		s16: "06a4ce40189d297aed4657d0e524dd46c3831647",
 		s32: "a2sm4qaytuuxv3kgk7iokjg5i3bygfsh",
 		s62: "1Gjeg1ytanHJhBvgVijthIe35As",
-		s64: "BqTOQBidKXrtRlfQ5STdRsODFkc"
+		s64: "BqTOQBidKXrtRlfQ5STdRsODFkc="
 	});
-/*	set({
+	set({
 		s16: "19e6cd2733d87b4e7f04d43358bfc9c7a15027af",
 		s32: "dhtm2jzt3b5u47ye2qzvrp6jy6qvaj5p",
 		s62: "6urd9PfouQVZMjkcRyZYD7El0DHM",
-		s64: "GebNJzPYe05/BNQzWL/Jx6FQJ68"
+		s64: "GebNJzPYe05/BNQzWL/Jx6FQJ68="
 	});
 	set({
 		s16: "e96748c8c8361673feb0e2ed6870ba06defe819e",
 		s32: "5ftursgigylhh7vq4lwwq4f2a3pp5am6",
 		s62: "Wmt8OcwS5DfZH3yXmxMKwruZW1Dw",
-		s64: "6WdIyMg2FnP+sOLtaHC6Bt7+gZ4"
+		s64: "6WdIyMg2FnP+sOLtaHC6Bt7+gZ4="
 	});
 	set({
 		s16: "c3c8f2f620e12b5c378a78c8f07416a073aa98ec",
 		s32: "ypepf5ra4evvyn4kpdepa5awubz2vghm",
 		s62: "MYzOZowUiJsdUFUOf1Q5G1PGFzI",
-		s64: "w8jy9iDhK1w3injI8HQWoHOqmOw"
+		s64: "w8jy9iDhK1w3injI8HQWoHOqmOw="
 	});
 	set({
 		s16: "515746bf84532461fc8f5bcb6306c9d3d81f13af",
 		s32: "kflunp4ekmsgd7eplpfwgbwj2pmb6e5p",
 		s62: "klt6LUhj967YzRLboMr9QZo7NeL",
-		s64: "UVdGv4RTJGH8j1vLYwbJ09gfE68"
+		s64: "UVdGv4RTJGH8j1vLYwbJ09gfE68="
 	});
 
-/*
 	//black and white
 	set({
 		s16: "00",
 		s32: "aa",
 		s62: "00",
-		s64: "AA"
+		s64: "AA=="
 	});
 	set({
 		s16: "ff",
 		s32: "74",
 		s62: "ZY",
-		s64: "/w"
+		s64: "/w=="
 	});
 	set({
 		s16: "0000",
 		s32: "aaaa",
 		s62: "000",
-		s64: "AAA"
+		s64: "AAA="
 	});
 	set({
 		s16: "ffff",
 		s32: "777q",
 		s62: "ZZZY",
-		s64: "//8"
+		s64: "//8="
 	});
 	set({
 		s16: "00000000",
 		s32: "aaaaaaa",
 		s62: "000000",
-		s64: "AAAAAA"
+		s64: "AAAAAA=="
 	});
 	set({
 		s16: "ffffffff",
 		s32: "777777y",
 		s62: "ZZZZZZZY",
-		s64: "/////w"
+		s64: "/////w=="
 	});
 	set({
 		s16: "0000000000000000",
 		s32: "aaaaaaaaaaaaa",
 		s62: "00000000000",
-		s64: "AAAAAAAAAAA"
+		s64: "AAAAAAAAAAA="
 	});
 	set({
 		s16: "ffffffffffffffff",
 		s32: "7777777777776",
 		s62: "ZZZZZZZZZZZZZZZY",
-		s64: "//////////8"
+		s64: "//////////8="
 	});
 
 	//stripy
@@ -493,37 +504,37 @@ exports.testEncodeBase = function(test) {
 		s16: "00",
 		s32: "aa",
 		s62: "00",
-		s64: "AA"
+		s64: "AA=="
 	});
 	set({
 		s16: "00ff",
 		s32: "ad7q",
 		s62: "0fY",
-		s64: "AP8"
+		s64: "AP8="
 	});
 	set({
 		s16: "00ff00ff",
 		s32: "ad7qb7y",
 		s62: "0fY0ZY",
-		s64: "AP8A/w"
+		s64: "AP8A/w=="
 	});
 	set({
 		s16: "00ff00ff00ff00ff",
 		s32: "ad7qb7ya74ap6",
 		s62: "0fY0ZY0ZY0ZY",
-		s64: "AP8A/wD/AP8"
+		s64: "AP8A/wD/AP8="
 	});
 	set({
 		s16: "00ff00ff00ff00ff00ff00ff00ff00ff",
 		s32: "ad7qb7ya74ap6ah7ad7qb7ya74",
 		s62: "0fY0ZY0ZY0ZY0ZY0ZY0ZY0ZY",
-		s64: "AP8A/wD/AP8A/wD/AP8A/w"
+		s64: "AP8A/wD/AP8A/wD/AP8A/w=="
 	});
 	set({
 		s16: "00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff",
 		s32: "ad7qb7ya74ap6ah7ad7qb7ya74ap6ah7ad7qb7ya74ap6ah7ad7q",
 		s62: "0fY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY0ZY",
-		s64: "AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8"
+		s64: "AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8="
 	});
 
 	//test vectors from rfc 4648
@@ -531,13 +542,13 @@ exports.testEncodeBase = function(test) {
 		s16: "66",//"f"
 		s32: "my",
 		s62: "pw",
-		s64: "Zg"
+		s64: "Zg=="
 	});
 	set({
 		s16: "666f",
 		s32: "mzxq",
 		s62: "pCY",
-		s64: "Zm8"
+		s64: "Zm8="
 	});
 	set({
 		s16: "666f6f",//"foo"
@@ -549,13 +560,13 @@ exports.testEncodeBase = function(test) {
 		s16: "666f6f62",
 		s32: "mzxw6yq",
 		s62: "pCZrS8",
-		s64: "Zm9vYg"
+		s64: "Zm9vYg=="
 	});
 	set({
 		s16: "666f6f6261",
 		s32: "mzxw6ytb",
 		s62: "pCZrS9x",
-		s64: "Zm9vYmE"
+		s64: "Zm9vYmE="
 	});
 	set({
 		s16: "666f6f626172",//"foobar"
@@ -563,7 +574,6 @@ exports.testEncodeBase = function(test) {
 		s62: "pCZrS9xsw",
 		s64: "Zm9vYmFy"
 	});
-*/
 
 	test.done();
 }
@@ -585,6 +595,7 @@ exports.testEncodeInvalid = function(test) {
 	//upper and lower case
 	//characters outside 0-9a-f, like P
 
+	//confirm that base16 throws on odd characters or anything in there not 0-f
 
 	try {
 		d = base16("0");
@@ -599,5 +610,13 @@ exports.testEncodeInvalid = function(test) {
 
 
 
-//confirm that base16 throws on odd characters or anything in there not 0-f
+
+
+
+
+
+
+
+
+
 
