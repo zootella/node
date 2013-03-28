@@ -7,17 +7,26 @@
 //use div() everywhere instead of /
 
 
-// Makes sure n and d are positive, and d is not 0
-// Calculates numerator / denominator
-// Returns the integer division and remainder
+// Make sure n and d are positive integers, and d is not 0
+// Calculate numerator / denominator
+// Return the integer division and remainder
 function div(n, d) {
-	if (typeof n !== "number" || typeof d !== "number") throw "type";
-	if (!Number.isInteger(n) || !Number.isInteger(d)) throw "type";
-	if (n < 0 || d < 1) throw "range";
+
+	function check(i, min) {
+		if (typeof i !== "number") throw "type";
+		if (!Number.isInteger(i)) throw "type";
+		if (i < min) throw "range";
+	}
+
+	check(n, 0);
+	check(d, 1);
 
 	var a = {};
 	a.ans = Math.floor(n / d); // Answer
 	a.rem = n % d; // Remainder
+
+	check(a.ans, 0);
+	check(a.rem, 0);
 	if ((d * a.ans) + a.rem !== n) throw "impossible"; // Check our answer before returning it
 	return a;
 }
