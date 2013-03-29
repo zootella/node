@@ -1,7 +1,0 @@
-node
-====
-
-Tests
------
-
-    npm test
