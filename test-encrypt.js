@@ -7,6 +7,10 @@ var random = encrypt.random;
 
 
 
+exports.testDiv = function(test) {
+
+	test.done();
+}
 
 
 
