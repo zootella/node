@@ -1,6 +1,8 @@
 
 var log = console.log;
 
+var div = require("./math").div;
+
 //   ____        _        
 //  |  _ \  __ _| |_ __ _ 
 //  | | | |/ _` | __/ _` |
@@ -271,8 +273,8 @@ function Bay(a) {
 		} else if (hold + more > buffer.length) {
 
 			// Calculate how big our new buffer should be
-			var c = Math.floor(((size() + more) * 3) / 2); // It will be 2/3rds full
-			if (c < 64) c = 64;                            // At least 64 bytes
+			var c = div((size() + more) * 3, 2).ans; // It will be 2/3rds full
+			if (c < 64) c = 64;                      // At least 64 bytes
 
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
@@ -360,8 +362,9 @@ function toBase32(d) {
 	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
-		byteIndex = Math.floor(i / 8); // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  =            i % 8;  // The bit index within that byte is the remainder
+		var a = div(i, 8);
+		byteIndex = a.ans; // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = a.rem; // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
@@ -392,8 +395,9 @@ function toBase62(d) {
 	while (i < d.size() * 8) { // When the bit index moves beyond the memory, we're done
 		
 		// Calculate the byte and bit to move to from the bit index
-		byteIndex = Math.floor(i / 8); // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  =            i % 8;  // The bit index within that byte is the remainder
+		var a = div(i, 8);
+		byteIndex = a.ans; // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = a.rem; // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
