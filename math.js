@@ -16,7 +16,7 @@ function div(n, d) {
 	}
 
 	check(n, 0);
-	check(d, 1);
+	check(d, 1); // Throw before trying to divide by zero
 
 	var a = {};
 	a.ans = Math.floor(n / d); // Answer
