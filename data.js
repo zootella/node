@@ -224,6 +224,7 @@ function Data(d) {
 		split:split, splitLast:splitLast,
 		compare:compare,
 		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, hash:hash,
+		isData:function(){}
 	};
 };
 exports.Data = Data; 
@@ -325,7 +326,8 @@ function Bay(a) {
 		keep:keep,
 		remove:remove,
 		clear:clear,
-		data:data
+		data:data,
+		isBay:function(){}
 	};
 };
 exports.Bay = Bay; 

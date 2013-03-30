@@ -29,6 +29,20 @@ var randomData = encrypt.randomData;
 //  |____/ \__,_|\__\__,_|
 //                        
 
+exports.testType = function(test) {
+
+	var d = Data();
+	var b = Bay();
+
+	d.isData();//here's a way to tell if the var you've been given is a Data object
+	b.isBay();
+
+	try { d.isBay(); test.fail(); } catch (e) { log(e); }//throws [TypeError: Object has no method 'isBay']
+	try { b.isData(); test.fail(); } catch (e) { log(e); }
+
+	test.done();
+}
+
 exports.testSizeConstants = function(test) {
 
 	test.ok(Size.kb == 1024);
@@ -630,9 +644,6 @@ exports.testEncodeInvalid = function(test) {
 
 	test.done();
 };
-
-
-
 
 
 
