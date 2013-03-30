@@ -42,13 +42,13 @@ exports.testDataMake = function(test) {
 
 	//make an empty data
 	var d;
-	d = new Data();
+	d = Data();
 	test.ok(!d.size());
 
 	//boolean
-	d = new Data(true);
+	d = Data(true);
 	test.ok(d.toString() == "t");
-	d = new Data(false);
+	d = Data(false);
 	test.ok(d.toString() == "f");
 
 	//byte
@@ -56,20 +56,20 @@ exports.testDataMake = function(test) {
 	test.ok(d.base16() == "01");
 
 	//number
-	d = new Data(123);
+	d = Data(123);
 	test.ok(d.toString() == "123");
-	d = new Data(-5);
+	d = Data(-5);
 	test.ok(d.toString() == "-5");
-	d = new Data(1.20);
+	d = Data(1.20);
 	test.ok(d.toString() == "1.2");//note how it chops off the unnecessary trailing zero
 
 	//string
-	d = new Data("ab\r\n");
+	d = Data("ab\r\n");
 	test.ok(d.base16() == "61620d0a");//ascii characters a and b are 0x61 and 0x62
 
 	//buffer
 	var b = new Buffer("00ff01aa", "hex");
-	d = new Data(b);
+	d = Data(b);
 	test.ok(d.base16() == "00ff01aa");
 
 	test.done();
@@ -78,7 +78,7 @@ exports.testDataMake = function(test) {
 exports.testDataCopy = function(test) {
 
 	var buffer = new Buffer("00aa0000", "hex");//make a buffer that has aa in it
-	var looking = new Data(buffer);//make a data that looks at it
+	var looking = Data(buffer);//make a data that looks at it
 	var copied = looking.copyData();//copy the data to a new data object
 
 	buffer.writeUInt8(0xbb, 1);//change the aa to bb
@@ -98,17 +98,17 @@ exports.testDataOut = function(test) {
 	test.ok(b.readUInt8(1) == 0x0a);
 
 	//string
-	d = new Data("hello");
+	d = Data("hello");
 	var s = d.toString();
 	test.ok(s == "hello");
 
 	//number
-	d = new Data(786);
+	d = Data(786);
 	var i = d.toNumber();
 	test.ok(i == 786);
 
 	//boolean
-	d = new Data(false);
+	d = Data(false);
 	var f = d.toBoolean();
 	test.ok(!f);
 
@@ -118,20 +118,20 @@ exports.testDataOut = function(test) {
 exports.testDataSize = function(test) {
 
 	//empty
-	var d = new Data();
+	var d = Data();
 	test.ok(!d.size());
 	test.ok(!d.hasData());
 	test.ok(d.isEmpty());
 
 	//full
-	d = new Data("hi");
+	d = Data("hi");
 	test.ok(d.size() == 2);
 	test.ok(d.hasData());
 	test.ok(!d.isEmpty());
 
 	//unicode
 	var s = "\u4e00\u4e8c\u4e09"//chinese one, two, three
-	d = new Data(s);
+	d = Data(s);
 	test.ok(s.length == 3);//3 unicode characters become
 	test.ok(d.size() == 9);//9 bytes of utf8 data
 
