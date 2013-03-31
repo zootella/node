@@ -37,8 +37,8 @@ exports.testType = function(test) {
 	d.isData();//here's a way to tell if the var you've been given is a Data object
 	b.isBay();
 
-	try { d.isBay(); test.fail(); } catch (e) {}//throws [TypeError: Object has no method 'isBay']
-	try { b.isData(); test.fail(); } catch (e) {}
+	try { d.isBay(); test.fail(); } catch (e) { test.ok(e.name == "TypeError"); }
+	try { b.isData(); test.fail(); } catch (e) { test.ok(e.name == "TypeError"); }
 
 	test.done();
 }
@@ -169,8 +169,8 @@ exports.testDataClip = function(test) {
 	//clip nothing
 	c = d.clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
 	c = d.clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
-	try { d.clip(6, 1); test.fail(); } catch (e) {}//clipping 1 from the end is not
-	try { d.clip(7, 0); test.fail(); } catch (e) {}//clipping 0 from beyond the end is not
+	try { d.clip(6, 1); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 1 from the end is not
+	try { d.clip(7, 0); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 0 from beyond the end is not
 
 	//first
 	var b = d.first();
@@ -185,15 +185,15 @@ exports.testDataClip = function(test) {
 	try {
 		d.get(6);
 		test.fail();
-	} catch (e) {}//throws chop
+	} catch (e) { test.ok(e == "chop"); }//throws chop
 
-	try { d.get(-1); test.fail(); } catch (e) {}//before the start
-	try { d.get(6); test.fail(); } catch (e) {}//after the end
+	try { d.get(-1); test.fail(); } catch (e) { test.ok(e == "chop"); }//before the start
+	try { d.get(6); test.fail(); } catch (e) { test.ok(e == "chop"); }//after the end
 
-	try { d.clip(-1, 2); test.fail(); } catch (e) {}//sticking out before the start
-	try { d.clip(-2, 2); test.fail(); } catch (e) {}//entirely before the start
-	try { d.clip(5, 2); test.fail(); } catch (e) {}//sticking out after the end
-	try { d.clip(6, 2); test.fail(); } catch (e) {}//entirely after the end
+	try { d.clip(-1, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out before the start
+	try { d.clip(-2, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely before the start
+	try { d.clip(5, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out after the end
+	try { d.clip(6, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely after the end
 
 	test.done();
 }
@@ -388,8 +388,8 @@ exports.testEncodeByte = function(test) {
 	test.ok(d.size() == 1);
 	test.ok(d.base16() == "ff");
 
-	try { d = toByte(-1); test.fail(); } catch (e) {}//too small
-	try { d = toByte(256); test.fail(); } catch (e) {}//too big
+	try { d = toByte(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//too small
+	try { d = toByte(256); test.fail(); } catch (e) { test.ok(e == "bounds"); }//too big
 
 	test.done();
 }
@@ -594,10 +594,16 @@ exports.testEncodeBase = function(test) {
 
 exports.testEncodeInvalid = function(test) {
 
-	function bad16(s) { try { d = base16(s); test.fail(); } catch (e) {} }
-	function bad32(s) { try { d = base16(s); test.fail(); } catch (e) {} }
-	function bad62(s) { try { d = base16(s); test.fail(); } catch (e) {} }
-	function bad64(s) { try { d = base16(s); test.fail(); } catch (e) {} }
+	//uppercase
+	test.ok(base16("0D0a").base16() == "0d0a");//base16 uppercase is ok
+	test.ok(base32("ad7QB7y").base32() == "ad7qb7y");//base32 uppercase is ok, while base 62 and 64 are case sensitive
+
+	//extra characters
+	bad16(" 06a4ce40189d297aed4657d0e524dd46c3831647 ");//spaces aren't allowed
+	bad32(" a2sm4qaytuuxv3kgk7iokjg5i3bygfsh ");
+	bad62(" 1Gjeg1ytanHJhBvgVijthIe35As ");
+
+	function bad16(s) { try { base16(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
 
 	bad16("0");//odd
 	bad16("000");
@@ -606,58 +612,37 @@ exports.testEncodeInvalid = function(test) {
 	bad16("fff");
 	bad16("fffff");
 
-	bad16("x");//throws Error('invalid hex string')
+	bad16("P");
+	bad16("PV");
+
+	bad16("x");
+	bad16("xx");
 	bad16("xyz");
-	bad16("0g");
+	bad16("0g");//node 0.8 doesn't throw, but should, node 0.10 does
 	bad16("0d0a0h0d0a");
-	/*
 
 	bad16(" 00ff");//space
 	bad16("00ff ");
 	bad16(" 00ff ");
 	bad16("  00  ff  ");
-*/
 
-	//base16 uppercase is ok
-	test.ok(base16("0D0A").base16() == "0d0a");
+	function bad32(s) { try { base32(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
 
-//confirm uppercase and lowercase works
+	bad32("1");//1 and 8 are illegal characters
+	bad32("88");
 
-	var d;
+	function bad62(s) { try { base62(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
 
-	//""valid
-	//"0"invalid
-	//"00"valid
-	//"000"invalid
+	bad32("--");//base62 doesn't use any puncutation at all
 
-	//test
-	//even and odd numbers
-	//upper and lower case
-	//characters outside 0-9a-f, like P
+	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e == "data"); } }//not used, because we cant find anything to make base64 throw
 
-	//confirm that base16 throws on odd characters or anything in there not 0-f
-
-
-
-
-
+	test.ok(base64("AP8A/w==").base64()    == "AP8A/w==");//valid
+	test.ok(base64("AP8A/w").base64()      == "AP8A/w==");//you don't need the trailing equals
+	test.ok(base64("AP ! 8A/w==").base64() == "AP8A/w==");//you can even insert bad characters throughout
 
 	test.done();
 };
-
-
-/*
-log(base16("0g").base16());//becomes 00
-log(base16("0h").base16());//becomes 00
-//log(base16("xx").base16());//invalid hex string
-log(base16("0d0a0h0d0a").base16());
-*/
-
-
-
-
-
-
 
 
 

@@ -422,14 +422,14 @@ function toBase64(d) { return d.toBuffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
 function base16(s) {
+	try {
 
-	if (div(s.length, 2).rem) throw "data"; // Make sure s has an even number of characters
-	for (var i = 0; i < s.length; i++) { // Make sure s is 0-9 a-f, Buffer below throws on "x", but parses "0g" into "00"
-		c = ascii(s.charAt(i).toUpperCase());
-		if (!((c >= ascii("0") && c <= ascii("9")) || (c >= ascii("A") && c <= ascii("F")))) throw "data";
+		return Data(new Buffer(s, "hex"));
+
+	} catch (e) {
+		if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
+		else throw e; // Throw up some other exception we didn't expect
 	}
-
-	return Data(new Buffer(s, "hex"));
 }
 
 // Turn base 32-encoded text back into the data it was made from
@@ -499,6 +499,7 @@ function base62(s) {
 }
 
 // Turn base 64-encoded text back into the data it was made from
+// Doesn't throw on bad input, rather encodes the valid characters you give it into as many bytes as it can
 function base64(s) { return Data(new Buffer(s, "base64")); }
 
 function ascii(c) { return c.charCodeAt(0); } // Turn "A" into 65
