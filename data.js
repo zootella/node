@@ -421,7 +421,16 @@ function toBase62(d) {
 function toBase64(d) { return d.toBuffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
-function base16(s) { return Data(new Buffer(s, "hex")); }
+function base16(s) {
+
+	if (div(s.length, 2).rem) throw "data"; // Make sure s has an even number of characters
+	for (var i = 0; i < s.length; i++) { // Make sure s is 0-9 a-f, Buffer below throws on "x", but parses "0g" into "00"
+		c = ascii(s.charAt(i).toUpperCase());
+		if (!((c >= ascii("0") && c <= ascii("9")) || (c >= ascii("A") && c <= ascii("F")))) throw "data";
+	}
+
+	return Data(new Buffer(s, "hex"));
+}
 
 // Turn base 32-encoded text back into the data it was made from
 function base32(s) {

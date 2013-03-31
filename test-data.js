@@ -37,8 +37,8 @@ exports.testType = function(test) {
 	d.isData();//here's a way to tell if the var you've been given is a Data object
 	b.isBay();
 
-	try { d.isBay(); test.fail(); } catch (e) { log(e); }//throws [TypeError: Object has no method 'isBay']
-	try { b.isData(); test.fail(); } catch (e) { log(e); }
+	try { d.isBay(); test.fail(); } catch (e) {}//throws [TypeError: Object has no method 'isBay']
+	try { b.isData(); test.fail(); } catch (e) {}
 
 	test.done();
 }
@@ -592,38 +592,36 @@ exports.testEncodeBase = function(test) {
 	test.done();
 }
 
-
-
-
 exports.testEncodeInvalid = function(test) {
 
-	function confirmInvalid16(s) {
-		try {
-			d = base16(s);
-			test.fail();
-		} catch (e) {}
-	}
+	function bad16(s) { try { d = base16(s); test.fail(); } catch (e) {} }
+	function bad32(s) { try { d = base16(s); test.fail(); } catch (e) {} }
+	function bad62(s) { try { d = base16(s); test.fail(); } catch (e) {} }
+	function bad64(s) { try { d = base16(s); test.fail(); } catch (e) {} }
 
-	function confirmInvalid32(s) {
-		try {
-			d = base16(s);
-			test.fail();
-		} catch (e) {}
-	}
+	bad16("0");//odd
+	bad16("000");
+	bad16("00000");
+	bad16("f");
+	bad16("fff");
+	bad16("fffff");
 
-	function confirmInvalid62(s) {
-		try {
-			d = base16(s);
-			test.fail();
-		} catch (e) {}
-	}
+	bad16("x");//throws Error('invalid hex string')
+	bad16("xyz");
+	bad16("0g");
+	bad16("0d0a0h0d0a");
+	/*
 
-	function confirmInvalid64(s) {
-		try {
-			d = base16(s);
-			test.fail();
-		} catch (e) {}
-	}
+	bad16(" 00ff");//space
+	bad16("00ff ");
+	bad16(" 00ff ");
+	bad16("  00  ff  ");
+*/
+
+	//base16 uppercase is ok
+	test.ok(base16("0D0A").base16() == "0d0a");
+
+//confirm uppercase and lowercase works
 
 	var d;
 
@@ -642,8 +640,18 @@ exports.testEncodeInvalid = function(test) {
 
 
 
+
+
 	test.done();
 };
+
+
+/*
+log(base16("0g").base16());//becomes 00
+log(base16("0h").base16());//becomes 00
+//log(base16("xx").base16());//invalid hex string
+log(base16("0d0a0h0d0a").base16());
+*/
 
 
 
