@@ -1,8 +1,9 @@
 
 var log = console.log;
 
-var math = require("./math");//functions
-var div = math.div;
+var measure = require("./measure");
+var div     = measure.div;
+var Average = measure.Average;
 
 
 
@@ -39,4 +40,37 @@ exports.testDiv = function(test) {
 
 	test.done();
 }
+
+
+exports.testAverage = function(test) {
+
+	//average 4, 5, and 6
+	var a = Average();
+	test.ok(!a.minimum());
+	a.add(4);
+	a.add(5);
+	test.ok(a.recent() == 5);
+	test.ok(a.maximum() == 5);
+	a.add(6);
+
+	test.ok(a.n() == 3);
+	test.ok(a.total() == 15);
+	test.ok(a.minimum() == 4);
+	test.ok(a.maximum() == 6);
+	test.ok(a.recent() == 6);
+
+	test.ok(a.average() == 5);
+
+	//average 3, 3, and 4
+	a = Average();
+	a.add(3);
+	a.add(3);
+	a.add(4);
+	test.ok(a.average() == 3);
+	test.ok(a.averageFloat() == 3.3333333333333335);
+	test.ok(a.averageThousandths() == 3333);
+
+	test.done();
+}
+
 

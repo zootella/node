@@ -1,7 +1,7 @@
 
 var log = console.log;
 
-var div = require("./math").div;
+var div = require("./measure").div;
 
 //   ____        _        
 //  |  _ \  __ _| |_ __ _ 
