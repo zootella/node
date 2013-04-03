@@ -1,7 +1,7 @@
 
 
 
-exports.testDiv = function(test) {
+exports.testState = function(test) {
 
 	test.done();
 }

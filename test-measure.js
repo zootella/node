@@ -33,10 +33,10 @@ exports.testDiv = function(test) {
 	test.ok(a.ans == 0 && a.rem == 1);
 
 	//catch errors
-	try { div("potato", 1); test.fail(); } catch (e) {}//not a number
-	try { div(1.5, 1);      test.fail(); } catch (e) {}//not an integer
-	try { div(-2, 1);       test.fail(); } catch (e) {}//negative
-	try { div(10, 0);       test.fail(); } catch (e) {}//divide by zero
+	try { div("potato", 1); test.fail(); } catch (e) { test.ok(e == "type");    }//not a number
+	try { div(1.5, 1);      test.fail(); } catch (e) { test.ok(e == "integer"); }//not an integer
+	try { div(-2, 1);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//negative
+	try { div(10, 0);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//divide by zero
 
 	test.done();
 }
