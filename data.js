@@ -227,7 +227,32 @@ function Data(d) {
 		isData:function(){}
 	};
 };
-exports.Data = Data; 
+exports.Data = Data;
+
+// Clip around some data to remove bytes you're done with from the start until it's empty
+// Data is immutale, but Clip is not
+// Clip isn't exported, call data.wrapClip() to get one
+function Clip(b) {
+
+	var d = Data(b); // Make a Data from what we were given and save it
+
+	function data() { return d;       } // The data we have left
+	function copy() { return Clip(d); } // Make a copy of this Clip object so you can change it without changing this one
+
+	function size()    { return d.size();    } // The number of bytes of data this Clip object views
+	function isEmpty() { return d.isEmpty(); } // True if this Clip object is empty, it has a size of 0 bytes
+	function hasData() { return d.hasData(); } // True if this Clip object views some data, it has a size of 1 or more bytes
+
+	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip object views
+	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip object, keeping only the last n bytes
+
+	return {
+		data:data, copy:copy,
+		size:size, isEmpty:isEmpty, hasData:hasData,
+		remove:remove, keep:keep,
+		isClip:function(){}
+	};
+}
 
 //   ____              
 //  | __ )  __ _ _   _ 
@@ -330,7 +355,121 @@ function Bay(a) {
 		isBay:function(){}
 	};
 };
-exports.Bay = Bay; 
+exports.Bay = Bay;
+
+//   ____  _       
+//  | __ )(_)_ __  
+//  |  _ \| | '_ \ 
+//  | |_) | | | | |
+//  |____/|_|_| |_|
+//                 
+
+// Get a new empty 8 KB Bin
+function mediumBin() {
+
+	return Bin(Size.medium);
+}
+
+// Get a new empty 64 KB Bin
+function bigBin() {
+
+	return Bin(Size.big);
+}
+
+
+// Move data from source to destination, do nothing if either are null
+function moveBin(source, destination) {
+
+}
+
+
+
+function Bin(c) { // Make a new Bin with a capacity of c bytes
+
+	var buffer = new Buffer(c); // Our node buffer which has an allocated block of memory
+	var hold = 0; // There are hold bytes of data at the start of buffer
+
+	// Recycle this bin so the program can use it again instead of allocating a new one
+	// Only recycle a bin for something that has finished successfully and as expected
+	// If there was an error or timeout, Node may still use the Buffer in the bin
+	function recycle() {
+		throw "todo";
+
+	}
+
+	// ----
+
+	function data() { return Data(buffer.slice(0, hold)); } // Look at the Data in this Bin
+	
+	function size()     { return hold;                 } // The number of bytes of data in this Bin, 0 if empty
+	function capacity() { return buffer.length;        } // The total number of bytes this Bin is capable of holding
+	function space()    { return buffer.length - hold; } // The amount of free space in this Bin, 0 if totally full
+	
+	function hasData()  { return hold != 0;             } // True if this Bin has at least 1 byte of data
+	function isEmpty()  { return hold == 0;             } // True if this Bin has no data, not even 1 byte
+	function hasSpace() { return hold != buffer.length; } // True if this Bin has at least 1 byte of space
+	function isFull()   { return hold == buffer.length; } // True if this Bin is completely full of data, with no space for even 1 more byte
+
+	// ----
+
+	// Move as much data as fits from bin to this one
+	function addFromBin(bin) {
+
+	}
+
+	// Move as much data as fits from bay to this Bin, removing what we take from bay
+	function addFromBay(bay) {
+
+	}
+
+	// Move as much data as fits from data to this Bin, removing what we take from data
+	function addFromClip(clip) {
+
+	}
+
+	// Remove size bytes from the start of the data in this Bin
+	function remove(n) {
+		if (n < 0 || n > size()) throw "bounds"; // Can't be negative or more data than we have
+		if (!n) return; // Nothing to remove
+		buffer.copy(buffer, 0, n, hold - n); // Shift the data after n to the start of buffer
+		hold -= n; // Record that we hold n fewer bytes
+	}
+	
+	// Remove data from the start of this Bin, keeping only the last size bytes
+	function keep(n) { remove(size() - n) }
+
+	// Remove all the data this Bin is holding, leaving it empty
+	function clear() { hold = 0; }
+
+	// ----
+
+	function inPrepare() {}
+	function inCheck() {}
+	function inDone() {}
+	function outPrepare() {}
+	function outCheck() {}
+	function outDone() {}
+
+	function read() {}
+	function write() {}
+	function download() {}
+	function upload() {}
+	function receive() {}
+	function send() {}
+
+	return {
+		recycle:recycle,
+		data:data, size:size, capacity:capacity, space:space,
+		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
+		addFromBin:addFromBin, addFromBay:addFromBay, addFromClip:addFromClip,
+		remove:remove, keep:keep, clear:clear,
+		isBin:function(){}
+	};
+}
+
+exports.mediumBin = mediumBin;
+exports.bigBin = bigBin;
+exports.moveBin = moveBin;
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 

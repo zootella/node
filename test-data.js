@@ -10,6 +10,8 @@ var base32 = data.base32;
 var base62 = data.base62;
 var base64 = data.base64;
 var Bay = data.Bay;
+var mediumBin = data.mediumBin;
+var bigBin = data.bigBin;
 
 var encrypt = require("./encrypt");
 var randomData = encrypt.randomData;
@@ -274,6 +276,48 @@ exports.testDataSplit = function(test) {
 	test.done();
 }
 
+exports.testClipUse = function(test) {
+
+	var c = Data("abcde").wrapClip();//wrap a clip around 5 ascii bytes
+	test.ok(c.data().toString() == "abcde");//look at them
+	test.ok(c.size() == 5);//check the size
+	test.ok(!c.isEmpty());
+	test.ok(c.hasData());
+
+	var c2 = c.copy();//make a copy that we can change separately
+
+	c.remove(2);
+	test.ok(c.data().toString() == "cde");
+	test.ok(c.size() == 3);
+
+	c.remove(3);
+	test.ok(c.isEmpty());
+
+	test.ok(c2.size() == 5);
+
+
+
+
+	/*
+
+	var d = Data("abcde");//5 ascii bytes
+
+	var c1 = d.wrapClip();
+	var c2 = c1.copy();
+
+	test.ok(c.size() == 5);
+
+	*/
+
+
+
+
+	test.done();
+}
+
+
+
+
 //   ____              
 //  | __ )  __ _ _   _ 
 //  |  _ \ / _` | | | |
@@ -355,6 +399,37 @@ exports.testBayPrepare = function(test) {
 
 	test.done();
 }
+
+//   ____  _       
+//  | __ )(_)_ __  
+//  |  _ \| | '_ \ 
+//  | |_) | | | | |
+//  |____/|_|_| |_|
+//                 
+
+exports.testBin = function(test) {
+
+	var m = mediumBin();
+	test.ok(m.capacity() == Size.medium);
+
+
+
+	var b = bigBin();
+	test.ok(b.capacity() == Size.big);
+
+
+
+
+
+
+
+
+	test.done();
+}
+
+
+
+
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
