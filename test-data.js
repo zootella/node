@@ -276,7 +276,7 @@ exports.testDataSplit = function(test) {
 	test.done();
 }
 
-exports.testClipUse = function(test) {
+exports.testClip = function(test) {
 
 	var c = Data("abcde").wrapClip();//wrap a clip around 5 ascii bytes
 	test.ok(c.data().toString() == "abcde");//look at them
@@ -286,31 +286,39 @@ exports.testClipUse = function(test) {
 
 	var c2 = c.copy();//make a copy that we can change separately
 
-	c.remove(2);
+	c.remove(2);//remove the first 2 bytes
 	test.ok(c.data().toString() == "cde");
 	test.ok(c.size() == 3);
 
-	c.remove(3);
+	c.remove(3);//remove all the others
 	test.ok(c.isEmpty());
 
+	test.ok(c2.size() == 5);//confirm the copy didn't change
+
+	c2.remove(0);//removing nothing is ok
 	test.ok(c2.size() == 5);
 
+	try {
+		c2.remove(6);//try to remove too much
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }//make sure we got chop
+	test.ok(c2.size() == 5);//and that didn't change the clip
 
+	c2.keep(4);//use keep instead of remove
+	test.ok(c2.size() == 4);
+	test.ok(c2.data().toString() == "bcde");
 
+	c2.remove(1);
+	test.ok(c2.size() == 3);
+	test.ok(c2.data().toString() == "cde");
 
-	/*
+	c2.keep(1);
+	test.ok(c2.size() == 1);
+	test.ok(c2.data().toString() == "e");
 
-	var d = Data("abcde");//5 ascii bytes
-
-	var c1 = d.wrapClip();
-	var c2 = c1.copy();
-
-	test.ok(c.size() == 5);
-
-	*/
-
-
-
+	c2.keep(0);
+	test.ok(c2.isEmpty());
+	test.ok(c2.data().toString() == "");
 
 	test.done();
 }

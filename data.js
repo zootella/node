@@ -237,14 +237,14 @@ function Clip(b) {
 	var d = Data(b); // Make a Data from what we were given and save it
 
 	function data() { return d;       } // The data we have left
-	function copy() { return Clip(d); } // Make a copy of this Clip object so you can change it without changing this one
+	function copy() { return Clip(d); } // Make a copy of this Clip so you can change it without changing this one
 
-	function size()    { return d.size();    } // The number of bytes of data this Clip object views
-	function isEmpty() { return d.isEmpty(); } // True if this Clip object is empty, it has a size of 0 bytes
-	function hasData() { return d.hasData(); } // True if this Clip object views some data, it has a size of 1 or more bytes
+	function size()    { return d.size();    } // The number of bytes of data this Clip views
+	function isEmpty() { return d.isEmpty(); } // True if this Clip is empty, it has a size of 0 bytes
+	function hasData() { return d.hasData(); } // True if this Clip views some data, it has a size of 1 or more bytes
 
-	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip object views
-	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip object, keeping only the last n bytes
+	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip views
+	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip, keeping only the last n bytes
 
 	return {
 		data:data, copy:copy,
