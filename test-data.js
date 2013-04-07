@@ -329,9 +329,6 @@ exports.testClip = function(test) {
 	test.done();
 }
 
-
-
-
 //   ____              
 //  | __ )  __ _ _   _ 
 //  |  _ \ / _` | | | |
@@ -436,6 +433,22 @@ exports.testBin = function(test) {
 
 
 
+
+
+	test.done();
+}
+
+exports.testBinAdd = function(test) {
+
+	//different things you can add from
+	var b = mediumBin();
+	b.add(mediumBin());//add from another bin
+	b.add(Bay());//add from a bay
+	b.add(Data().take());//add from a clip
+	try {
+		b.add(Data());//don't let the user add from a data
+		test.fail();
+	} catch (e) { test.ok(e == "type"); }
 
 
 	test.done();

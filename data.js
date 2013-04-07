@@ -389,6 +389,9 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	var buffer = new Buffer(c); // Our node buffer which has an allocated block of memory
 	var hold = 0; // There are hold bytes of data at the start of buffer
 
+	function getBuffer() { return [buffer, hold]; } // Get the internal parts of this Bin
+	function setBuffer(a) { buffer = a[0]; hold = a[1]; } // Set our internal parts
+
 	// Recycle this bin so the program can use it again instead of allocating a new one
 	// Only recycle a bin for something that has finished successfully and as expected
 	// If there was an error or timeout, Node may still use the Buffer in the bin
@@ -416,19 +419,54 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function add(b) {
 
 		// Move as much data as fits from bin to this one
-		if (b.hasOwnProperty("isBin")) {
+		if (b.hasOwnProperty("isBin")) {log("add from a bin");
+
+			/*
+			if (b.isEmpty() || isFull()) {                        // Nothing given or no space here
+			} else if (isEmpty() && capacity() == b.capacity()) { // We're empty and have the same capacity
+				var a = getBuffer();      // Save our buffer and hold in a
+				setBuffer(b.getBuffer()); // Take b's buffer and hold
+				b.setBuffer(a);           // Give b our buffer and hold, which we saved in a
+				log("swapped buffers");
+			} else {                                              // Move some data in
+				var clip = b.data().take();
+				add(clip);                // Call this same function with the Clip
+				b.keep(clip.size());      // Have b keep only what add didn't take
+				log("added from buffer");
+			}
+			*/
 
 		// Move as much data as fits from bay to this Bin, removing what we take from bay
-		} else if (b.hasOwnProperty("isBay")) {
+		} else if (b.hasOwnProperty("isBay")) {log("add from a bay");
+
+			/*
+			var clip = b.data().take();
+			add(clip);
+			b.keep(clip.size()); // Have bay keep only what add didn't take
+			*/
 
 		// Move as much data as fits from data to this Bin, removing what we take from data
-		} else if (b.hasOwnProperty("isClip")) {
+		} else if (b.hasOwnProperty("isClip")) {log("add from a clip");
+
+			/*
+			if (b.isEmpty() || isFull()) return;   // Nothing given or no space here
+			var did = Math.min(b.size(), space()); // Figure out how many bytes we can move
+			Data d = b.data().start(did);          // Clip d around that size
+
+			buffer.put(d.toByteBuffer());             // Copy in the data
+			d.toBuffer().copy(buffer, 0, start, start + hold); // Copy our data from buffer to target
+
+			//source.copy(target, targetStart)
+
+			b.remove(did);                         // Remove what we took from the given Clip object
+			*/
 
 		// Whatever b is, we can't add from it
 		} else {
-			throw "type";
+			throw "type"; // Block adding from a Data, for instance, because we can't remove from the Data what we took
 		}
 	}
+
 
 	// Remove size bytes from the start of the data in this Bin
 	function remove(n) {
@@ -461,6 +499,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function send() {}
 
 	return {
+		getBuffer:getBuffer, setBuffer:setBuffer, // Don't use these methods, ideally they would be private
 		recycle:recycle,
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
@@ -654,6 +693,28 @@ exports.base64 = base64;
 
 
 
+// Copy bytes of memory from source buffer to target buffer
+// Copies n bytes a distance i into the buffers
+function bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN) {
+
+	// Make sure we were given buffers
+	if (!sourceBuffer || !Buffer.isBuffer(sourceBuffer)) throw "arguments";
+	if (!targetBuffer || !Buffer.isBuffer(targetBuffer)) throw "arguments";
+
+	// Unify n
+	if (sourceN != targetN) throw "arguments";
+	var n = sourceN;
+	if (!n) return; // Nothing to copy
+
+	// Check ranges
+	if (sourceI < 0 || targetI < 0) throw "arguments";
+	if (n < 0) throw "arguments";
+	if (sourceI + n > sourceBuffer.length) throw "arguments";
+	if (targetI + n > targetBuffer.length) throw "arguments";
+
+	// Copy the memory
+	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
+}
 
 
 
