@@ -633,7 +633,7 @@ exports.testEncodeInvalid = function(test) {
 
 	function bad62(s) { try { base62(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
 
-	bad32("--");//base62 doesn't use any puncutation at all
+	bad62("--");//base62 doesn't use any puncutation at all
 
 	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e == "data"); } }//not used, because we cant find anything to make base64 throw
 
