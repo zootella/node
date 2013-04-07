@@ -280,6 +280,15 @@ function Bay(a) {
 		prepare(b.length);
 		//###
 		b.copy(buffer, start + hold, 0, b.length); // Append the given data to what we already have
+
+		//b            .copy(buffer,       start + hold, 0,       b.length);
+		//sourceBuffer .copy(targetBuffer, targetI,      sourceI, sourceI + n);
+
+		//bufferCopy(sourceBuffer, sourceI, sourceN,      targetBuffer, targetI,      targetN);
+		//bufferCopy(b,            0,       b.length - 0, buffer,       start + hold, b.length - 0);
+
+		//bufferCopy(b, 0, b.length, buffer, start + hold, b.length);
+
 		//###
 		hold += b.length;
 	}
@@ -308,6 +317,12 @@ function Bay(a) {
 			var target = new Buffer(c);
 			//###
 			buffer.copy(target, 0, start, start + hold); // Copy our data from buffer to target
+
+			//buffer       .copy(target,       0,       start,   start + hold);
+			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
+
+			//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+
 			//###
 			buffer = target; // Point buffer at the new one, discarding our reference to the old one
 			start = 0; // There's no removed data at the start of our new buffer
@@ -318,6 +333,12 @@ function Bay(a) {
 			// Copy hold bytes at start in buffer to position 0
 			//###
 			buffer.copy(buffer, 0, start, start + hold);
+
+			//buffer       .copy(buffer,       0,       start,   start + hold);
+			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
+
+			//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+
 			//###
 			start = 0; // Now the data is at the start
 		} // Otherwise, there's room for more after start and hold at the end
@@ -477,6 +498,12 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		if (!n) return; // Nothing to remove
 		//###
 		buffer.copy(buffer, 0, n, hold - n); // Shift the data after n to the start of buffer
+
+		//buffer       .copy(buffer,       0,       n,       hold - n);
+		//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
+
+		//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+
 		//###
 		hold -= n; // Record that we hold n fewer bytes
 	}
