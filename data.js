@@ -61,11 +61,11 @@ function Data(d) {
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
 	// The size of a Data object cannot change, while Clip can.
-	function wrapClip() { return Clip(buffer); }
+	function take() { return Clip(buffer); }
 
 	// Make a copy of the memory this Data object views
 	// Afterwards, the object that holds the data can close, and the copy will still view it
-	function copyData() {
+	function copyMemory() {
 		return Bay(buffer).data(); // Make a Bay object which will copy the data
 	}
 
@@ -215,7 +215,7 @@ function Data(d) {
 	}
 
 	return {
-		wrapClip:wrapClip, copyData:copyData,
+		take:take, copyMemory:copyMemory,
 		toBuffer:toBuffer, toString:toString, toNumber:toNumber, toBoolean:toBoolean,
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		start:start, end:end, after:after, chop:chop, clip:clip,
@@ -231,7 +231,7 @@ exports.Data = Data;
 
 // Clip around some data to remove bytes you're done with from the start until it's empty
 // Data is immutale, but Clip is not
-// Clip isn't exported, call data.wrapClip() to get one
+// Clip isn't exported, call data.take() to get one
 function Clip(b) {
 
 	var d = Data(b); // Make a Data from what we were given and save it

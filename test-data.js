@@ -95,7 +95,7 @@ exports.testDataCopy = function(test) {
 
 	var buffer = new Buffer("00aa0000", "hex");//make a buffer that has aa in it
 	var looking = Data(buffer);//make a data that looks at it
-	var copied = looking.copyData();//copy the data to a new data object
+	var copied = looking.copyMemory();//copy the bytes in memory to a new data object
 
 	buffer.writeUInt8(0xbb, 1);//change the aa to bb
 
@@ -278,7 +278,7 @@ exports.testDataSplit = function(test) {
 
 exports.testClip = function(test) {
 
-	var c = Data("abcde").wrapClip();//wrap a clip around 5 ascii bytes
+	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
 	test.ok(c.data().toString() == "abcde");//look at them
 	test.ok(c.size() == 5);//check the size
 	test.ok(!c.isEmpty());
