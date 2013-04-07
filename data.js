@@ -284,10 +284,7 @@ function Bay(a) {
 		//b            .copy(buffer,       start + hold, 0,       b.length);
 		//sourceBuffer .copy(targetBuffer, targetI,      sourceI, sourceI + n);
 
-		//bufferCopy(sourceBuffer, sourceI, sourceN,      targetBuffer, targetI,      targetN);
-		//bufferCopy(b,            0,       b.length - 0, buffer,       start + hold, b.length - 0);
-
-		//bufferCopy(b, 0, b.length, buffer, start + hold, b.length);
+		//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
 
 		//###
 		hold += b.length;
@@ -321,7 +318,7 @@ function Bay(a) {
 			//buffer       .copy(target,       0,       start,   start + hold);
 			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
-			//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+			//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
 
 			//###
 			buffer = target; // Point buffer at the new one, discarding our reference to the old one
@@ -337,7 +334,7 @@ function Bay(a) {
 			//buffer       .copy(buffer,       0,       start,   start + hold);
 			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
-			//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+			//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
 
 			//###
 			start = 0; // Now the data is at the start
@@ -502,7 +499,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		//buffer       .copy(buffer,       0,       n,       hold - n);
 		//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
-		//bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN);
+		//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
 
 		//###
 		hold -= n; // Record that we hold n fewer bytes
@@ -725,24 +722,19 @@ exports.base64 = base64;
 
 
 
-// Copy bytes of memory from source buffer to target buffer
-// Copies n bytes a distance i into the buffers
-function bufferCopy(sourceBuffer, sourceI, sourceN, targetBuffer, targetI, targetN) {
 
-	// Make sure we were given buffers
-	if (!sourceBuffer || !Buffer.isBuffer(sourceBuffer)) throw "arguments";
-	if (!targetBuffer || !Buffer.isBuffer(targetBuffer)) throw "arguments";
 
-	// Unify n
-	if (sourceN != targetN) throw "arguments";
-	var n = sourceN;
-	if (!n) return; // Nothing to copy
 
-	// Check ranges
-	if (sourceI < 0 || targetI < 0) throw "arguments";
-	if (n < 0) throw "arguments";
-	if (sourceI + n > sourceBuffer.length) throw "arguments";
-	if (targetI + n > targetBuffer.length) throw "arguments";
+// Copy n bytes from the source buffer to the target buffer a distance i bytes into each
+function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
+
+	// Nothing to copy
+	if (!n) return;
+
+	// Check bounds
+	if (n < 0 || sourceI < 0 || targetI < 0) throw "bounds";
+	if (sourceI + n > sourceBuffer.length) throw "bounds";
+	if (targetI + n > targetBuffer.length) throw "bounds";
 
 	// Copy the memory
 	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
