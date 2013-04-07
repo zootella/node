@@ -412,19 +412,22 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	// ----
 
-	// Move as much data as fits from bin to this one
-	function addFromBin(bin) {
+	// Move as much data as fits from b to this Bin
+	function add(b) {
 
-	}
+		// Move as much data as fits from bin to this one
+		if (b.hasOwnProperty("isBin")) {
 
-	// Move as much data as fits from bay to this Bin, removing what we take from bay
-	function addFromBay(bay) {
+		// Move as much data as fits from bay to this Bin, removing what we take from bay
+		} else if (b.hasOwnProperty("isBay")) {
 
-	}
+		// Move as much data as fits from data to this Bin, removing what we take from data
+		} else if (b.hasOwnProperty("isClip")) {
 
-	// Move as much data as fits from data to this Bin, removing what we take from data
-	function addFromClip(clip) {
-
+		// Whatever b is, we can't add from it
+		} else {
+			throw "type";
+		}
 	}
 
 	// Remove size bytes from the start of the data in this Bin
@@ -461,8 +464,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		recycle:recycle,
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
-		addFromBin:addFromBin, addFromBay:addFromBay, addFromClip:addFromClip,
-		remove:remove, keep:keep, clear:clear,
+		add:add, remove:remove, keep:keep, clear:clear,
 		isBin:function(){}
 	};
 }

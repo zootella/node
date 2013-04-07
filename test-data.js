@@ -151,6 +151,12 @@ exports.testDataSize = function(test) {
 	test.ok(s.length == 3);//3 unicode characters become
 	test.ok(d.size() == 9);//9 bytes of utf8 data
 
+	//unicde in literals works, too
+	var s2 = "一二三";//chinese one, two, three
+	var d2 = Data(s2);
+	test.ok(d.same(d2));
+	test.ok(d.base16() == "e4b880e4ba8ce4b889");//each triple starts with byte e4
+
 	test.done();
 };
 
