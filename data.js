@@ -425,12 +425,10 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 				var a = getBuffer();      // Save our buffer and hold in a
 				setBuffer(b.getBuffer()); // Take b's buffer and hold
 				b.setBuffer(a);           // Give b our buffer and hold, which we saved in a
-				log("added from a bin, swapped buffers");
 			} else {                                              // Move some data in
 				var clip = b.data().take();
 				add(clip);                // Call this same function with the Clip
 				b.keep(clip.size());      // Have b keep only what add didn't take
-				log("added from a bin, added from buffer");
 			}
 
 		// Move as much data as fits from bay to this Bin, removing what we take from bay
@@ -439,7 +437,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 			var clip = b.data().take();
 			add(clip);           // Call this same function with the Clip
 			b.keep(clip.size()); // Have b keep only what add didn't take
-			log("added from a bay");
 
 		// Move as much data as fits from data to this Bin, removing what we take from data
 		} else if (b.hasOwnProperty("isClip")) {
@@ -450,7 +447,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 			bufferCopy(n, d.toBuffer(), 0, buffer, hold); // Copy in the data
 			hold += n;                                    // Record that we hold n more bytes
 			b.remove(n);                                  // Remove what we took from the given Clip object
-			log("added from a clip");
 
 		// Whatever b is, we can't add from it
 		} else {

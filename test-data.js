@@ -12,6 +12,7 @@ var base64 = data.base64;
 var Bay = data.Bay;
 var mediumBin = data.mediumBin;
 var bigBin = data.bigBin;
+var testBin = data.testBin;
 
 var encrypt = require("./encrypt");
 var randomData = encrypt.randomData;
@@ -418,27 +419,7 @@ exports.testBayPrepare = function(test) {
 //  |____/|_|_| |_|
 //                 
 
-exports.testBin = function(test) {
-
-	var m = mediumBin();
-	test.ok(m.capacity() == Size.medium);
-
-
-
-	var b = bigBin();
-	test.ok(b.capacity() == Size.big);
-
-
-
-
-
-
-
-
-	test.done();
-}
-
-exports.testBinAdd = function(test) {
+exports.testBinType = function(test) {
 
 	//different things you can add from
 	var b = mediumBin();
@@ -449,6 +430,50 @@ exports.testBinAdd = function(test) {
 		b.add(Data());//don't let the user add from a data
 		test.fail();
 	} catch (e) { test.ok(e == "type"); }
+
+	test.done();
+}
+
+exports.testBinAdd = function(test) {
+
+	var b1 = testBin();
+	test.ok(b1.capacity() == 8);
+
+	//add from bin when empty
+	var b2 = testBin();
+	b2.add(Data("abc").take());
+	test.ok(b1.size() == 0);
+	test.ok(b2.size() == 3);
+	b1.add(b2);//because b1 is empty, the bins will swap buffers instead of copying memory
+	test.ok(b1.size() == 3);
+	test.ok(b2.size() == 0);
+
+	//add from bin when not empty
+	b2.add(Data("de").take());
+	test.ok(b1.size() == 3);
+	test.ok(b2.size() == 2);
+	b1.add(b2);//this time, we copy across the memory instead
+	test.ok(b1.size() == 5);
+	test.ok(b1.data().toString() == "abcde");
+	test.ok(b2.size() == 0);
+
+	//add from bay
+
+	//add from clip
+
+
+
+
+	test.done();
+}
+
+exports.testBinOverflow = function(test) {
+
+	//add from bin that has more than we can take
+
+	//add from bay that has more than we can take
+
+	//add from clip that has more than we can take
 
 
 	test.done();
