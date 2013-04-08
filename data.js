@@ -278,22 +278,7 @@ function Bay(a) {
 		if (!a) return; // Nothing to add
 		var b = Data(a).toBuffer(); // Convert the given a into buffer b so it's easy to add
 		prepare(b.length);
-		//###
-		//b.copy(buffer, start + hold, 0, b.length);
 		bufferCopy(b.length, b, 0, buffer, start + hold); // Append the given data to what we already have
-
-		//b            .copy(buffer,       start + hold, 0,       b.length);
-		//sourceBuffer .copy(targetBuffer, targetI,      sourceI, sourceI + n);
-
-		//bufferCopy(n,        sourceBuffer, sourceI, targetBuffer, targetI);
-		//bufferCopy(b.length, b,            0,       buffer,       start + hold);
-
-		//write each one twice
-		//first, by carrying it across exactly
-		//then, by looking at what we're tyring to accomplish and writing it new
-		//and then confirm that you get the same result
-
-		//###
 		hold += b.length;
 	}
 
@@ -319,17 +304,7 @@ function Bay(a) {
 
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
-			//###
-			//buffer.copy(target, 0, start, start + hold);
 			bufferCopy(hold, buffer, start, target, 0); // Copy our data from buffer to target
-
-			//buffer       .copy(target,       0,       start,   start + hold);
-			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
-
-			//bufferCopy(n,    sourceBuffer, sourceI, targetBuffer, targetI);
-			//bufferCopy(hold, buffer,       start,   target,       0);
-
-			//###
 			buffer = target; // Point buffer at the new one, discarding our reference to the old one
 			start = 0; // There's no removed data at the start of our new buffer
 
@@ -337,17 +312,7 @@ function Bay(a) {
 		} else if (start + hold + more > buffer.length) {
 
 			// Copy hold bytes at start in buffer to position 0
-			//###
-			//buffer.copy(buffer, 0, start, start + hold);
 			bufferCopy(hold, buffer, start, buffer, 0);
-
-			//buffer       .copy(buffer,       0,       start,   start + hold);
-			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
-
-			//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
-			//bufferCopy(hold, buffer, start, buffer, 0);
-
-			//###
 			start = 0; // Now the data is at the start
 		} // Otherwise, there's room for more after start and hold at the end
 	}
@@ -411,7 +376,6 @@ function bigBin() {
 	return Bin(Size.big);
 }
 
-
 // Move data from source to destination, do nothing if either are null
 function moveBin(source, destination) {
 
@@ -424,8 +388,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	var buffer = new Buffer(c); // Our node buffer which has an allocated block of memory
 	var hold = 0; // There are hold bytes of data at the start of buffer
 
-	function getBuffer() { return [buffer, hold]; } // Get the internal parts of this Bin
-	function setBuffer(a) { buffer = a[0]; hold = a[1]; } // Set our internal parts
+	function getBuffer() { return { buffer:buffer, hold:hold }; } // Let the user get our buffer and hold
+	function setBuffer(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
 
 	// Recycle this bin so the program can use it again instead of allocating a new one
 	// Only recycle a bin for something that has finished successfully and as expected
@@ -454,44 +418,39 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function add(b) {
 
 		// Move as much data as fits from bin to this one
-		if (b.hasOwnProperty("isBin")) {log("add from a bin");
+		if (b.hasOwnProperty("isBin")) {
 
-			/*
 			if (b.isEmpty() || isFull()) {                        // Nothing given or no space here
 			} else if (isEmpty() && capacity() == b.capacity()) { // We're empty and have the same capacity
 				var a = getBuffer();      // Save our buffer and hold in a
 				setBuffer(b.getBuffer()); // Take b's buffer and hold
 				b.setBuffer(a);           // Give b our buffer and hold, which we saved in a
-				log("swapped buffers");
+				log("added from a bin, swapped buffers");
 			} else {                                              // Move some data in
 				var clip = b.data().take();
 				add(clip);                // Call this same function with the Clip
 				b.keep(clip.size());      // Have b keep only what add didn't take
-				log("added from buffer");
+				log("added from a bin, added from buffer");
 			}
-			*/
 
 		// Move as much data as fits from bay to this Bin, removing what we take from bay
-		} else if (b.hasOwnProperty("isBay")) {log("add from a bay");
+		} else if (b.hasOwnProperty("isBay")) {
 
-			/*
 			var clip = b.data().take();
-			add(clip);
-			b.keep(clip.size()); // Have bay keep only what add didn't take
-			*/
+			add(clip);           // Call this same function with the Clip
+			b.keep(clip.size()); // Have b keep only what add didn't take
+			log("added from a bay");
 
 		// Move as much data as fits from data to this Bin, removing what we take from data
-		} else if (b.hasOwnProperty("isClip")) {log("add from a clip");
+		} else if (b.hasOwnProperty("isClip")) {
 
-			/*
-			if (b.isEmpty() || isFull()) return;   // Nothing given or no space here
-			var did = Math.min(b.size(), space()); // Figure out how many bytes we can move
-			Data d = b.data().start(did);          // Clip d around that size
-
-			buffer.put(d.toByteBuffer());             // Copy in the data
-			d.toBuffer().copy(buffer, 0, start, start + hold); // Copy our data from buffer to target
-			b.remove(did);                         // Remove what we took from the given Clip object
-			*/
+			if (b.isEmpty() || isFull()) return;          // Nothing given or no space here
+			var n = Math.min(b.size(), space());          // Figure out how many bytes we can move
+			var d = b.data().start(n);                    // Clip d around that size
+			bufferCopy(n, d.toBuffer(), 0, buffer, hold); // Copy in the data
+			hold += n;                                    // Record that we hold n more bytes
+			b.remove(n);                                  // Remove what we took from the given Clip object
+			log("added from a clip");
 
 		// Whatever b is, we can't add from it
 		} else {
@@ -499,22 +458,11 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		}
 	}
 
-
 	// Remove size bytes from the start of the data in this Bin
 	function remove(n) {
 		if (n < 0 || n > size()) throw "bounds"; // Can't be negative or more data than we have
 		if (!n) return; // Nothing to remove
-		//###
-		//buffer.copy(buffer, 0, n, hold);
 		bufferCopy(hold - n, buffer, n, buffer, 0); // Shift the data after n to the start of buffer
-
-		//buffer       .copy(buffer,       0,       n,       hold);
-		//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
-
-		//bufferCopy(n,        sourceBuffer, sourceI, targetBuffer, targetI);
-		//bufferCopy(hold - n, buffer,       n,       buffer,       0);
-
-		//###
 		hold -= n; // Record that we hold n fewer bytes
 	}
 	
@@ -553,6 +501,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 exports.mediumBin = mediumBin;
 exports.bigBin = bigBin;
 exports.moveBin = moveBin;
+
+exports.testBin = function() { return Bin(8); } // A bin that only holds 8 bytes used for testing
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
@@ -732,11 +682,12 @@ exports.base32 = base32;
 exports.base62 = base62;
 exports.base64 = base64;
 
-
-
-
-
-
+//                           
+//                           
+//   _____ _____ _____ _____ 
+//  |_____|_____|_____|_____|
+//                           
+//                           
 
 // Copy n bytes from the source buffer to the target buffer a distance i bytes into each
 function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
