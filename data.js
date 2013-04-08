@@ -279,12 +279,19 @@ function Bay(a) {
 		var b = Data(a).toBuffer(); // Convert the given a into buffer b so it's easy to add
 		prepare(b.length);
 		//###
-		b.copy(buffer, start + hold, 0, b.length); // Append the given data to what we already have
+		b.copy(buffer, start + hold, 0, b.length);
+		//bufferCopy(b.length, b, 0, buffer, start + hold); // Append the given data to what we already have
 
 		//b            .copy(buffer,       start + hold, 0,       b.length);
 		//sourceBuffer .copy(targetBuffer, targetI,      sourceI, sourceI + n);
 
-		//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
+		//bufferCopy(n,        sourceBuffer, sourceI, targetBuffer, targetI);
+		//bufferCopy(b.length, b,            0,       buffer,       start + hold);
+
+		//write each one twice
+		//first, by carrying it across exactly
+		//then, by looking at what we're tyring to accomplish and writing it new
+		//and then confirm that you get the same result
 
 		//###
 		hold += b.length;
@@ -313,12 +320,14 @@ function Bay(a) {
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
 			//###
-			buffer.copy(target, 0, start, start + hold); // Copy our data from buffer to target
+			buffer.copy(target, 0, start, start + hold);
+			//bufferCopy(hold, buffer, start, target, 0); // Copy our data from buffer to target
 
 			//buffer       .copy(target,       0,       start,   start + hold);
 			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
-			//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
+			//bufferCopy(n,    sourceBuffer, sourceI, targetBuffer, targetI);
+			//bufferCopy(hold, buffer,       start,   target,       0);
 
 			//###
 			buffer = target; // Point buffer at the new one, discarding our reference to the old one
@@ -330,11 +339,13 @@ function Bay(a) {
 			// Copy hold bytes at start in buffer to position 0
 			//###
 			buffer.copy(buffer, 0, start, start + hold);
+			//bufferCopy(hold, buffer, start, buffer, 0);
 
 			//buffer       .copy(buffer,       0,       start,   start + hold);
 			//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
 			//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
+			//bufferCopy(hold, buffer, start, buffer, 0);
 
 			//###
 			start = 0; // Now the data is at the start
@@ -494,12 +505,14 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		if (n < 0 || n > size()) throw "bounds"; // Can't be negative or more data than we have
 		if (!n) return; // Nothing to remove
 		//###
-		buffer.copy(buffer, 0, n, hold - n); // Shift the data after n to the start of buffer
+		buffer.copy(buffer, 0, n, hold); // Shift the data after n to the start of buffer
+		//bufferCopy(hold - n, buffer, n, buffer, 0);
 
-		//buffer       .copy(buffer,       0,       n,       hold - n);
+		//buffer       .copy(buffer,       0,       n,       hold);
 		//sourceBuffer .copy(targetBuffer, targetI, sourceI, sourceI + n);
 
-		//bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI);
+		//bufferCopy(n,        sourceBuffer, sourceI, targetBuffer, targetI);
+		//bufferCopy(hold - n, buffer,       n,       buffer,       0);
 
 		//###
 		hold -= n; // Record that we hold n fewer bytes
