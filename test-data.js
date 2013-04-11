@@ -436,33 +436,46 @@ exports.testBinType = function(test) {
 
 exports.testBinAdd = function(test) {
 
-	var b1 = testBin();
-	test.ok(b1.capacity() == 8);
+	var b = testBin();
+	test.ok(b.capacity() == 8);
 
 	//add from bin when empty
-	var b2 = testBin();
-	b2.add(Data("abc").take());
-	test.ok(b1.size() == 0);
-	test.ok(b2.size() == 3);
-	b1.add(b2);//because b1 is empty, the bins will swap buffers instead of copying memory
-	test.ok(b1.size() == 3);
-	test.ok(b2.size() == 0);
+	var bin = testBin();
+	bin.add(Data("abc").take());
+	test.ok(b.size() == 0);
+	test.ok(bin.size() == 3);
+	b.add(bin);//because b is empty, the bins will swap buffers instead of copying memory
+	test.ok(b.size() == 3);
+	test.ok(bin.size() == 0);
 
 	//add from bin when not empty
-	b2.add(Data("de").take());
-	test.ok(b1.size() == 3);
-	test.ok(b2.size() == 2);
-	b1.add(b2);//this time, we copy across the memory instead
-	test.ok(b1.size() == 5);
-	test.ok(b1.data().toString() == "abcde");
-	test.ok(b2.size() == 0);
+	bin.add(Data("de").take());
+	test.ok(b.size() == 3);
+	test.ok(bin.size() == 2);
+	b.add(bin);//this time, we copy across the memory instead
+	test.ok(b.size() == 5);
+	test.ok(b.data().toString() == "abcde");
+	test.ok(bin.size() == 0);
+
+	b.keep(2);
+	test.ok(b.size() == 2);
+	test.ok(b.data().toString() == "de");
 
 	//add from bay
+	var bay = Bay("fgh");
+	b.add(bay);
+	test.ok(b.data().toString() == "defgh");
+	test.ok(bay.isEmpty());//add() removed what the bin took from bay
 
 	//add from clip
-
-
-
+	var data = Data("ijk");
+	var clip = data.take();//wrap a Clip object around data
+	test.ok(clip.size() == 3);
+	test.ok(b.hasSpace());
+	b.add(clip);
+	test.ok(clip.isEmpty());
+	test.ok(b.data().toString() == "defghijk");//8 bytes, no more space
+	test.ok(b.isFull());
 
 	test.done();
 }

@@ -270,8 +270,9 @@ function Bay(a) {
 
 	if (a) add(a);
 
-	function hasData() { return hold != 0; } // True if this Bay has some data
-	function size() { return hold; } // How many bytes of data this Bay contains
+	function size()    { return hold; }      // How many bytes of data this Bay contains
+	function isEmpty() { return hold == 0; } // True if this Bay has 0 bytes
+	function hasData() { return hold != 0; } // True if this Bay has 1 or more bytes of data
 
 	// Copy the data in the given object to the end of the data this Bay holds
 	function add(a) {
@@ -344,13 +345,9 @@ function Bay(a) {
 	}
 
 	return {
-		hasData:hasData,
-		size:size,
-		add:add,
-		prepare:prepare,
-		keep:keep,
-		remove:remove,
-		clear:clear,
+		size:size, isEmpty:isEmpty, hasData:hasData,
+		add:add, prepare:prepare,
+		keep:keep, remove:remove, clear:clear,
 		data:data,
 		isBay:function(){}
 	};
