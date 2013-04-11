@@ -64,7 +64,7 @@ function divide(n, d) {
 	check(a.whole, 0); // Check our answer before returning it
 	check(a.remainder, 0);
 	if ((d * a.whole) + a.remainder !== n) throw "impossible";
-	if (a.whole + ((a.remainder === 0) ? 0 : 1)) !== a.ceiling) throw "impossible";
+	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) throw "impossible";
 	return a;
 }
 

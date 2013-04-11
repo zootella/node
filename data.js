@@ -312,7 +312,7 @@ function Bay(a) {
 		} else if (start + hold + more > buffer.length) {
 
 			// Copy hold bytes at start in buffer to position 0
-			bufferCopy(hold, buffer, start, buffer, 0);
+			bufferShift(buffer, start, hold);
 			start = 0; // Now the data is at the start
 		} // Otherwise, there's room for more after start and hold at the end
 	}
@@ -458,7 +458,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function remove(n) {
 		if (n < 0 || n > size()) throw "bounds"; // Can't be negative or more data than we have
 		if (!n) return; // Nothing to remove
-		bufferCopy(hold - n, buffer, n, buffer, 0); // Shift the data after n to the start of buffer
+		bufferShift(buffer, n, hold - n); // Shift the data after n to the start of buffer
 		hold -= n; // Record that we hold n fewer bytes
 	}
 	
