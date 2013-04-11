@@ -18,3 +18,6 @@ exports.randomData = randomData;
 
 
 
+//write hash, use it to have data.hash()
+
+

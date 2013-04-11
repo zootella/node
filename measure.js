@@ -38,8 +38,35 @@ function div(n, d) {
 
 exports.div = div;
 
-//maybe rename to divide, int, rem
 
+
+
+// Make sure n and d are positive integers, and d is not 0
+// Calculate numerator / denominator
+// Return the integer division and remainder
+function divide(n, d) {
+
+	function check(i, min) {
+		if (typeof i !== "number") throw "type"; // Make sure i is a number
+		if (Math.floor(i) !== i) throw "integer"; // A whole number
+		if (i < min) throw "bounds"; // With the minimum value or larger
+	}
+
+	check(n, 0);
+	check(d, 1); // Throw before trying to divide by zero
+
+	var a = {}; // Answer
+	a.whole     = Math.floor(n / d); // Round down
+	a.remainder = n % d;             // Remainder
+	a.decimal   = n / d;             // Floating point number
+	a.ceiling   = Math.ceil(n / d);  // Round up
+
+	check(a.whole, 0); // Check our answer before returning it
+	check(a.remainder, 0);
+	if ((d * a.whole) + a.remainder !== n) throw "impossible";
+	if (a.whole + ((a.remainder === 0) ? 0 : 1)) !== a.ceiling) throw "impossible";
+	return a;
+}
 
 
 

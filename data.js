@@ -685,6 +685,11 @@ exports.base64 = base64;
 //                           
 //                           
 
+// Shift n bytes at i to the start of buffer
+function bufferShift(buffer, i, n) {
+	bufferCopy(n, buffer, i, buffer, 0);
+}
+
 // Copy n bytes from the source buffer to the target buffer a distance i bytes into each
 function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 
