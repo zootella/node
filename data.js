@@ -3,12 +3,12 @@ var log = console.log;
 
 var div = require("./measure").div;
 
-//   ____        _        
-//  |  _ \  __ _| |_ __ _ 
-//  | | | |/ _` | __/ _` |
-//  | |_| | (_| | || (_| |
-//  |____/ \__,_|\__\__,_|
-//                        
+//   ____  _         
+//  / ___|(_)_______ 
+//  \___ \| |_  / _ \
+//   ___) | |/ /  __/
+//  |____/|_/___\___|
+//                   
 
 // Size constants
 var Size = {};
@@ -21,6 +21,40 @@ Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our 
 Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
 Object.freeze(Size);
 exports.Size = Size;
+
+//   ____         __  __           
+//  | __ ) _   _ / _|/ _| ___ _ __ 
+//  |  _ \| | | | |_| |_ / _ \ '__|
+//  | |_) | |_| |  _|  _|  __/ |   
+//  |____/ \__,_|_| |_|  \___|_|   
+//                                 
+
+// Shift n bytes at i to the start of buffer
+function bufferShift(buffer, i, n) {
+	bufferCopy(n, buffer, i, buffer, 0);
+}
+
+// Copy n bytes from the source buffer to the target buffer a distance i bytes into each
+function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
+
+	// Nothing to copy
+	if (!n) return;
+
+	// Check bounds
+	if (n < 0 || sourceI < 0 || targetI < 0) throw "bounds";
+	if (sourceI + n > sourceBuffer.length) throw "bounds";
+	if (targetI + n > targetBuffer.length) throw "bounds";
+
+	// Copy the memory
+	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
+}
+
+//   ____        _        
+//  |  _ \  __ _| |_ __ _ 
+//  | | | |/ _` | __/ _` |
+//  | |_| | (_| | || (_| |
+//  |____/ \__,_|\__\__,_|
+//                        
 
 // Make a Data to look at the bytes of some binary data
 function Data(d) {
@@ -361,24 +395,20 @@ exports.Bay = Bay;
 //  |____/|_|_| |_|
 //                 
 
-// Get a new empty 8 KB Bin
-function mediumBin() {
+function mediumBin() { return Bin(Size.medium); } // Get a new empty 8 KB Bin
+function bigBin()    { return Bin(Size.big);    } // Get a new empty 64 KB Bin
+function testBin()   { return Bin(8);           } // A bin that only holds 8 bytes used for testing
 
-	return Bin(Size.medium);
+// Move data from source to target, do nothing if either are null
+function moveBin(source, target) {
+	if (!source || !target) return;
+	target.add(source); // Move data from the source Bin to the target Bin
 }
 
-// Get a new empty 64 KB Bin
-function bigBin() {
-
-	return Bin(Size.big);
-}
-
-// Move data from source to destination, do nothing if either are null
-function moveBin(source, destination) {
-
-}
-
-
+exports.mediumBin = mediumBin;
+exports.bigBin = bigBin;
+exports.testBin = testBin;
+exports.moveBin = moveBin;
 
 function Bin(c) { // Make a new Bin with a capacity of c bytes
 
@@ -483,6 +513,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	return {
 		getBuffer:getBuffer, setBuffer:setBuffer, // Don't use these methods, ideally they would be private
+		
 		recycle:recycle,
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
@@ -490,12 +521,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		isBin:function(){}
 	};
 }
-
-exports.mediumBin = mediumBin;
-exports.bigBin = bigBin;
-exports.moveBin = moveBin;
-
-exports.testBin = function() { return Bin(8); } // A bin that only holds 8 bytes used for testing
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
@@ -675,37 +700,12 @@ exports.base32 = base32;
 exports.base62 = base62;
 exports.base64 = base64;
 
-//                           
-//                           
-//   _____ _____ _____ _____ 
-//  |_____|_____|_____|_____|
-//                           
-//                           
-
-// Shift n bytes at i to the start of buffer
-function bufferShift(buffer, i, n) {
-	bufferCopy(n, buffer, i, buffer, 0);
-}
-
-// Copy n bytes from the source buffer to the target buffer a distance i bytes into each
-function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
-
-	// Nothing to copy
-	if (!n) return;
-
-	// Check bounds
-	if (n < 0 || sourceI < 0 || targetI < 0) throw "bounds";
-	if (sourceI + n > sourceBuffer.length) throw "bounds";
-	if (targetI + n > targetBuffer.length) throw "bounds";
-
-	// Copy the memory
-	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
-}
-
-
-
-
-
+//    ___        _   _ _            
+//   / _ \ _   _| |_| (_)_ __   ___ 
+//  | | | | | | | __| | | '_ \ / _ \
+//  | |_| | |_| | |_| | | | | |  __/
+//   \___/ \__,_|\__|_|_|_| |_|\___|
+//                                  
 
 
 

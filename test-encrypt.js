@@ -3,11 +3,20 @@ var log = console.log;
 
 var encrypt = require("./encrypt");
 
-var random = encrypt.random;
+var randomData = encrypt.randomData;
+var uniqueData = encrypt.uniqueData;
 
 
 
-exports.testEncrypt = function(test) {
+exports.testRandom = function(test) {
+
+	test.ok(uniqueData().size() == 20);
+	test.ok(randomData(6).size() == 6);
+
+	test.ok(!uniqueData().same(uniqueData()));
+	test.ok(!randomData(100).same(randomData(100)));
+
+
 
 	test.done();
 }

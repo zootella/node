@@ -482,19 +482,42 @@ exports.testBinAdd = function(test) {
 
 exports.testBinOverflow = function(test) {
 
-	//add from bin that has more than we can take
+	var b = testBin();
+	b.add(Data("aaaaa").take());
+	test.ok(b.space() == 3);
 
-	//add from bay that has more than we can take
+	//setup a bin
+	var bin = testBin();
+	bin.add(Data("bbbbbbbb").take());
+	//add from it
+	b.add(bin);
+	test.ok(b.data().toString() == "aaaaabbb");
+	test.ok(bin.data().toString() == "bbbbb");
+	//remove some
+	b.remove(4);
+	test.ok(b.data().toString() == "abbb");
+	test.ok(b.size() == 4);
 
-	//add from clip that has more than we can take
+	//setup a bay
+	var bay = Bay("cccccc");
+	//add from it
+	b.add(bay);
+	test.ok(b.data().toString() == "abbbcccc");
+	test.ok(bay.data().toString() == "cc");
+	//remove some
+	b.remove(3);
+	test.ok(b.space() == 3);
 
+	//setup a clip
+	var clip = Data("ddddd").take();
+	test.ok(clip.size() == 5);
+	//add from it
+	b.add(clip);
+	test.ok(b.data().toString() == "bccccddd")
+	test.ok(clip.size() == 2);
 
 	test.done();
 }
-
-
-
-
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
