@@ -25,7 +25,7 @@ function Day()    { return 24 * Hour();   } // Number of milliseconds in a day
 
 
 function Slice(z) { // Takes the size of the file in bytes
-	if (z < 1) throw "range"; // File size must be 1 byte or more
+	if (z < 1) throw "bounds"; // File size must be 1 byte or more
 
 	var _size = z;
 
@@ -40,7 +40,7 @@ function Slice(z) { // Takes the size of the file in bytes
 	// For instance, the first piece starts at piece(0), the second starts at piece(1), and so on
 	// If a file has n pieces, piece(n) will be the size of the file
 	function piece(index) {
-		if (index < 0 || index > pieces()) throw "range";
+		if (index < 0 || index > pieces()) throw "bounds";
 		return Math.floor((index * size()) / pieces()) // Multiply before we divide, and round down to the nearst byte
 	}
 

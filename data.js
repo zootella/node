@@ -410,21 +410,33 @@ exports.bigBin = bigBin;
 exports.testBin = testBin;
 exports.moveBin = moveBin;
 
+// Single global Recycle object
+var Recycle = {};
+Recycle.medium = []; // Up to 8 previously used medium sized buffers
+Recycle.big    = []; // Up to 8 previously used big buffers
+Recycle.capacity = 8;
+
 function Bin(c) { // Make a new Bin with a capacity of c bytes
 
-	var buffer = new Buffer(c); // Our node buffer which has an allocated block of memory
+	var buffer = null; // Our node buffer which has an allocated block of memory
 	var hold = 0; // There are hold bytes of data at the start of buffer
 
-	function getBuffer() { return { buffer:buffer, hold:hold }; } // Let the user get our buffer and hold
-	function setBuffer(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
+	if (c == Size.medium && Recycle.medium.length) { buffer = Recycle.medium.pop(); log("got from recycling"); }
+	if (c == Size.big    && Recycle.big.length)    buffer = Recycle.big.pop();
+	if (!buffer) buffer = new Buffer(c); // Custom size or empty recycle bins
 
-	// Recycle this bin so the program can use it again instead of allocating a new one
-	// Only recycle a bin for something that has finished successfully and as expected
-	// If there was an error or timeout, Node may still use the Buffer in the bin
+	// ----
+
+	// Recycle our buffer so the program can use it again instead of allocating a new one
+	// Only call recycle() when the task has finished successfully and as expected
+	// If there was an error or timeout, Node may still use the buffer
 	function recycle() {
-		throw "todo";
-
+		if (buffer.length == Size.medium && Recycle.medium.length < Recycle.capacity) { Recycle.medium.push(buffer); buffer = null; log("recycled");}
+		if (buffer.length == Size.big    && Recycle.big.length    < Recycle.capacity) { Recycle.big.push(buffer);    buffer = null; }
 	}
+
+	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
+	function setBuffer(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
 
 	// ----
 
@@ -513,7 +525,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	return {
 		getBuffer:getBuffer, setBuffer:setBuffer, // Don't use these methods, ideally they would be private
-		
+
 		recycle:recycle,
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
