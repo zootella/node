@@ -30,9 +30,7 @@ exports.Size = Size;
 //                                 
 
 // Shift n bytes at i to the start of buffer
-function bufferShift(buffer, i, n) {
-	bufferCopy(n, buffer, i, buffer, 0);
-}
+function bufferShift(buffer, i, n) { bufferCopy(n, buffer, i, buffer, 0); }
 
 // Copy n bytes from the source buffer to the target buffer a distance i bytes into each
 function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
@@ -421,7 +419,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	var buffer = null; // Our node buffer which has an allocated block of memory
 	var hold = 0; // There are hold bytes of data at the start of buffer
 
-	if (c == Size.medium && Recycle.medium.length) { buffer = Recycle.medium.pop(); log("got from recycling"); }
+	if (c == Size.medium && Recycle.medium.length) buffer = Recycle.medium.pop();
 	if (c == Size.big    && Recycle.big.length)    buffer = Recycle.big.pop();
 	if (!buffer) buffer = new Buffer(c); // Custom size or empty recycle bins
 
@@ -431,8 +429,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	// Only call recycle() when the task has finished successfully and as expected
 	// If there was an error or timeout, Node may still use the buffer
 	function recycle() {
-		if (buffer.length == Size.medium && Recycle.medium.length < Recycle.capacity) { Recycle.medium.push(buffer); buffer = null; log("recycled");}
-		if (buffer.length == Size.big    && Recycle.big.length    < Recycle.capacity) { Recycle.big.push(buffer);    buffer = null; }
+		if      (buffer.length == Size.medium && Recycle.medium.length < Recycle.capacity) { Recycle.medium.push(buffer); buffer = null; }
+		else if (buffer.length == Size.big    && Recycle.big.length    < Recycle.capacity) { Recycle.big.push(buffer);    buffer = null; }
 	}
 
 	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
@@ -718,6 +716,13 @@ exports.base64 = base64;
 //  | |_| | |_| | |_| | | | | |  __/
 //   \___/ \__,_|\__|_|_|_| |_|\___|
 //                                  
+
+
+
+
+
+
+
 
 
 

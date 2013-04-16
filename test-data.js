@@ -519,6 +519,26 @@ exports.testBinOverflow = function(test) {
 	test.done();
 }
 
+exports.testBinRecycle = function(test) {
+
+	//use the recycle bin
+	var b1 = mediumBin();//allocated
+	b1.recycle();//recycled
+	var b2 = mediumBin();//got from recycling
+	var b3 = mediumBin();//allocated
+
+	//can't add after recycling
+	var b = mediumBin();
+	b.add(Data("a").take());
+	b.recycle();
+	try {
+		b.add(Data("a").take());
+		test.fail();
+	} catch (e) {}
+
+	test.done();
+}
+
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
 //  |  _| | '_ \ / __/ _ \ / _` |/ _ \
