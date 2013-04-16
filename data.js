@@ -507,19 +507,20 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	// ----
 
-	function inPrepare() {}
-	function inCheck() {}
-	function inDone() {}
-	function outPrepare() {}
-	function outCheck() {}
-	function outDone() {}
+	//TODO
+	function inPrepare(space) {} // Copy our buffer clipped around space bytes of space for moving data in
+	function inCheck(did, space) {} // Make sure we did at least 1 byte and position moved forward correctly
+	function inDone(space) {} // Save our buffer after moving data in
+	function outPrepare(size) {} // Copy our buffer clipped around size bytes of data at the start for moving data out
+	function outCheck(did, data) {} // Make sure we did at least 1 byte and position moved forward correctly
+	function outDone(data) {} // Save our buffer after moving data out
 
-	function read() {}
-	function write() {}
-	function download() {}
-	function upload() {}
-	function receive() {}
-	function send() {}
+	function read(file, pattern, range) {} // Read 1 byte or more from file to this Bin
+	function write(file, range) {} // Write 1 byte or more from this Bin to file
+	function download(socket, range) {} // Download 1 byte or more from socket, adding it to this Bin
+	function upload(socket, range) {} // Upload 1 byte or more from this Bin into socket
+	function receive(listen) {} // Receive the data of a single UDP packet from listen, 0 or more bytes, putting it in this empty Bin
+	function send(listen, p) {} // Use listen to send the data in this Bin, 0 or more bytes, as a UDP packet to p
 
 	return {
 		getBuffer:getBuffer, setBuffer:setBuffer, // Don't use these methods, ideally they would be private
