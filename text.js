@@ -39,6 +39,27 @@ String.prototype.distance = function (arg) {
 
 
 
+//write them all as functions
+//in a separate section, add them to String prototype
+
+//add parse, it's not here for some reason
+
+//write sortData(a, b) as a separate function
+
+//watch rock dots go between upper and lower case
+//watch french accents get alphebetized correctly
+
+//write make safe for windows file name
+//write url encode and decode parts
+
+//look in cpp text code, this is the most recent and complete job you did with parse() and uri encoding of international characters 
+
+
+
+function get(s, i) {
+	return s.charAt(i);
+}
+
 
 
 
