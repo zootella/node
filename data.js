@@ -3,6 +3,8 @@ var log = console.log;
 
 var div = require("./measure").div;
 
+//TODO move size to the top of measure
+
 //   ____  _         
 //  / ___|(_)_______ 
 //  \___ \| |_  / _ \
@@ -704,6 +706,7 @@ function base62(s) {
 function base64(s) { return Data(new Buffer(s, "base64")); }
 
 function ascii(c) { return c.charCodeAt(0); } // Turn "A" into 65
+//TODO switch to c.code() once you have the text module done
 
 exports.toByte = toByte;
 exports.base16 = base16;

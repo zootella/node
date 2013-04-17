@@ -9,39 +9,41 @@ var base64 = data.base64;
 
 //try using utf8 right in the source code
 
-exports.testEurope = function(test) {
 
-	var s = "ö";//rock dots
-	var d = Data(s);
+// How many bytes the given text take up encoded into UTF-8
+function size(s) {
+	return Data(s).size();
+}
+exports.testSize = function(test) {
 
+	var s;
+
+	s = "a";//ascii
 	test.ok(s.length == 1);
-	test.ok(d.size() == 2);
-	test.ok(d.base16() == "c3b6");
+	test.ok(size(s) == 1);
+
+	s = "ö";//rock dots
+	test.ok(s.length == 1);
+	test.ok(size(s) == 2);//two bytes
+	test.ok(Data(s).base16() == "c3b6");
+
+	s = "خ";//arabic ha
+	test.ok(s.length == 1);
+	test.ok(size(s) == 2);//two bytes
+
+	s = "の";//hiragana no
+	test.ok(s.length == 1);
+	test.ok(size(s) == 3);//three bytes
+	test.ok(Data(s).base16() == "e381ae");
 
 	test.done();
 }
-
-exports.testAsia = function(test) {
-
-	var s = "の";//hiragana no
-	var d = Data(s);
-
-	test.ok(s.length == 1);
-	test.ok(d.size() == 3);
-	test.ok(d.base16() == "e381ae");
-
-	test.done();
-}
-
-//TODO add tests to confirm you can find international characters in text, split on them, and so on
-
 
 // Get the character a distance i in characters into the string s
 function get(s, i) {
 	if (i < 0 || i > s.length - 1) throw "bounds";
 	return s.charAt(i);
 }
-
 exports.testGet = function(test) {
 
 	var s;
@@ -92,37 +94,81 @@ exports.testGet = function(test) {
 	test.done();
 }
 
-
-//merge this with ascii(), call it code(s, i), probably
-
-function ascii(c) { return c.charCodeAt(0); } // Turn "A" into 65
-//see if you can just leave out i to get the first character, have a test for that
-//you probably want to have if (!i) i = 0;
-
-
-function getUnicodeValue(s, i) {
+// The Unicode number value of the character a distance i characters into s
+// Also gets ASCII codes, code("A") is 65
+// You can omit i to get the code of the first character
+function code(s, i) {
 	if (i < 0 || i > s.length - 1) throw "bounds";
 	return s.charCodeAt(i);
 }
+exports.testCode = function(test) {
 
-exports.testUnicodeValue = function(test) {
+	test.ok(code("A") == 65);//you can omit i to get the first character
+
+	var s = "\0\r\n\x0d\x0a\t\"";//control characters
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 0);//null
+	test.ok(code(s, 1) == 0x0d);//r
+	test.ok(code(s, 2) == 0x0a);//n
+	test.ok(code(s, 3) == 0x0d);//r
+	test.ok(code(s, 4) == 0x0a);//n
+	test.ok(code(s, 5) == 9);//tab
+	test.ok(code(s, 6) == 34);//quote
+
+	s = "09AZaz";//letters and numbers
+	test.ok(code(s, 0) == 48);
+	test.ok(code(s, 1) == 57);
+	test.ok(code(s, 2) == 65);
+	test.ok(code(s, 3) == 90);
+	test.ok(code(s, 4) == 97);
+	test.ok(code(s, 5) == 122);
+
+	s = " !.^_";//punctuation
+	test.ok(code(s, 0) == 32);
+	test.ok(code(s, 1) == 33);
+	test.ok(code(s, 2) == 46);
+	test.ok(code(s, 3) == 94);
+	test.ok(code(s, 4) == 95);
+
+	s = "español";//europe
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 101);
+	test.ok(code(s, 4) == 241);//beyond the ascii table
+	test.ok(code(s, 6) == 108);
+
+	s = "中文";//asia
+	test.ok(s.length == 2);
+	test.ok(code(s, 0) == 20013);//tens of thousands
+	test.ok(code(s, 1) == 25991);
+
+	s = "مرحبا";//arabic
+	test.ok(s.length == 5);
+	test.ok(code(s, 0) == 1605);//just thousands
+	test.ok(code(s, 1) == 1585);
+	test.ok(code(s, 2) == 1581);
+	test.ok(code(s, 3) == 1576);
+	test.ok(code(s, 4) == 1575);
 
 	test.done();
 }
 
+// Concatenate all the given strings together
+// For instance, make("a", "b", "c") is "abc"
 function make() {
 	var s = "";
 	for (var i = 0; i < arguments.length; i++)
 		s += arguments[i];
 	return s;
 }
-
+//TODO use TextBay instead of the loop above
 exports.testMake = function(test) {
 
 	test.ok(make("a", "b", "cd") == "abcd");
+	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
 
 	test.done();
 }
+
 
 
 
@@ -130,6 +176,138 @@ exports.testMake = function(test) {
 //maybe you should also make your own StringBuffer in here
 //and then use it in encode, rather than the weird thing you have there
 //call it TextBay, for instance, and have an add() method, and say()
+
+
+
+//TODO add tests to confirm you can find international characters in text, split on them, and so on
+
+
+
+//here's a weird idea
+//what if you replaced characters illegal for windows filenames with unicode characters that look similar
+
+
+
+//go to and from data
+//go to and from number, base 10 and base 16
+
+
+
+
+
+/*
+
+javascript
+
+charAt
+charCodeAt
+concat
+contains
+endsWith
+indexOf
+lastIndexOf
+localeCompare
+match
+quote
+replace
+search
+slice
+split
+startsWith
+substr
+substring
+toLocaleLowerCase
+toLocaleUpperCase
+toLowerCase
+toSource
+toString
+toUpperCase
+trim
+trimLeft
+trimRight
+valueOf
+String.fromCharCode
+
+c++
+
+make
+upper
+lower
+number
+is
+isblank
+same
+compare
+starts
+trails
+has
+find
+parse
+before
+after
+split
+replace
+clip
+on
+off
+trim
+words
+SayNumber
+InsertCommas
+SayTime
+SayNow
+UriDecode
+UriEncode
+SafeFileName
+
+java
+
+same
+sameCase
+starts
+startsCase
+ends
+endsCase
+has
+hasCase
+find
+find
+findCase
+last
+lastCase
+search
+isBlank
+is
+before
+after
+beforeLast
+afterLast
+split
+splitCase
+splitLast
+splitLastCase
+split
+clip
+start
+end
+after
+chop
+lines
+words
+words
+replace
+trim
+group
+line
+isLetter
+isNumber
+quote
+add
+line
+table
+
+*/
+
 
 
 
