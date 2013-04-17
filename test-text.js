@@ -191,6 +191,8 @@ exports.testMake = function(test) {
 //go to and from data
 //go to and from number, base 10 and base 16
 
+//move Encode from data to text, but leave them as separate functions
+
 
 
 

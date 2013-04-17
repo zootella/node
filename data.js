@@ -410,19 +410,19 @@ exports.bigBin = bigBin;
 exports.testBin = testBin;
 exports.moveBin = moveBin;
 
-// Single global Recycle object
-var Recycle = {};
-Recycle.medium = []; // Up to 8 previously used medium sized buffers
-Recycle.big    = []; // Up to 8 previously used big buffers
-Recycle.capacity = 8;
+// Single global recycleBin object
+var recycleBin = {};
+recycleBin.medium = []; // Up to 8 previously used medium sized buffers
+recycleBin.big    = []; // Up to 8 previously used big buffers
+recycleBin.capacity = 8;
 
 function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	var buffer = null; // Our node buffer which has an allocated block of memory
 	var hold = 0; // There are hold bytes of data at the start of buffer
 
-	if (c == Size.medium && Recycle.medium.length) buffer = Recycle.medium.pop();
-	if (c == Size.big    && Recycle.big.length)    buffer = Recycle.big.pop();
+	if (c == Size.medium && recycleBin.medium.length) buffer = recycleBin.medium.pop();
+	if (c == Size.big    && recycleBin.big.length)    buffer = recycleBin.big.pop();
 	if (!buffer) buffer = new Buffer(c); // Custom size or empty recycle bins
 
 	// ----
@@ -431,8 +431,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	// Only call recycle() when the task has finished successfully and as expected
 	// If there was an error or timeout, Node may still use the buffer
 	function recycle() {
-		if      (buffer.length == Size.medium && Recycle.medium.length < Recycle.capacity) { Recycle.medium.push(buffer); buffer = null; }
-		else if (buffer.length == Size.big    && Recycle.big.length    < Recycle.capacity) { Recycle.big.push(buffer);    buffer = null; }
+		if      (buffer.length == Size.medium && recycleBin.medium.length < recycleBin.capacity) { recycleBin.medium.push(buffer); buffer = null; }
+		else if (buffer.length == Size.big    && recycleBin.big.length    < recycleBin.capacity) { recycleBin.big.push(buffer);    buffer = null; }
 	}
 
 	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
