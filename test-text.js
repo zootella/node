@@ -199,114 +199,98 @@ exports.testMake = function(test) {
 
 /*
 
-javascript
+length, size
+js length
 
-charAt
-charCodeAt
-concat
-contains
-endsWith
-indexOf
-lastIndexOf
-localeCompare
-match
-quote
-replace
-search
-slice
-split
-startsWith
-substr
-substring
-toLocaleLowerCase
-toLocaleUpperCase
-toLowerCase
-toSource
-toString
-toUpperCase
-trim
-trimLeft
-trimRight
-valueOf
-String.fromCharCode
-
-c++
+get, code
+js charAt
+js charCodeAt
 
 make
-upper
-lower
-number
-is
-isblank
-same
-compare
-starts
-trails
-has
-find
-parse
-before
-after
-split
-replace
-clip
-on
-off
-trim
-words
-SayNumber
-InsertCommas
-SayTime
-SayNow
-UriDecode
-UriEncode
-SafeFileName
+c make
+j add
+js concat
 
-java
+upper, lower
+c upper, lower
 
-same
-sameCase
-starts
-startsCase
-ends
-endsCase
-has
-hasCase
-find
-find
-findCase
-last
-lastCase
-search
-isBlank
-is
-before
-after
-beforeLast
-afterLast
-split
-splitCase
-splitLast
-splitLastCase
-split
-clip
-start
-end
-after
-chop
-lines
-words
-words
-replace
-trim
-group
-line
-isLetter
-isNumber
-quote
-add
-line
-table
+c number
+j isLetter
+j isNumber
+
+is, blank
+c is, isblank
+j isBlank, is
+
+c same, compare
+j same, sameCase
+js localeCompare
+
+c starts, trails, has, find
+j starts, startsCase, ends, endsCase
+j has, hasCase
+j findEither, find, findCase, last, lastCase, search
+js contains
+js startsWith, endsWith
+js indexOf, lastIndexOf
+
+c parse
+
+c before, after, split
+j before, after, beforeLast, afterLast, split, splitCase, splitLast, splitLastCase, split
+
+c replace
+j replace
+
+c clip
+j clip, start, end, after, chop
+
+c on, off
+
+c trim
+j trim
+
+c words
+j group, line
+j lines, words, words
+j line
+j table
+
+c SayNumber
+
+c InsertCommas
+c SayTime
+c SayNow
+c UriDecode, UriEncode
+c SafeFileName
+j quote
+
+
+
+
+
+
+js match
+js quote
+js replace
+js search
+js slice
+js split
+js substr
+js substring
+js toLocaleLowerCase
+js toLocaleUpperCase
+js toLowerCase
+js toSource
+js toString
+js toUpperCase
+js trim
+js trimLeft
+js trimRight
+js valueOf
+js String.fromCharCode
+
+
 
 */
 
