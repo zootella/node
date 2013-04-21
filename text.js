@@ -9,6 +9,12 @@ var Data = data.Data;
 
 
 
+//how to polyfill
+/*
+if(!('contains' in String.prototype))
+  String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
+*/
+
 
 /*
  * These are a few of my favorite strings.
@@ -91,14 +97,29 @@ exports.clip = clip;
 
 // Compare two strings, matching cases
 function sameMatch(s1, s2) {
-	if (s1.length() != s2.length()) return false;   // Make sure s1 and s2 are the same length
-	else if (s1.length() == 0) return true;         // Blanks are the same
+	var a1 = sameMatchPlatform(s1, s2);
+	var a2 =   sameMatchCustom(s1, s2);
+	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
+	return a1;
+}
+function sameMatchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
+function sameMatchCustom(s1, s2) {
+	if (s1.length() != s2.length()) return false;       // Make sure s1 and s2 are the same length
+	else if (s1.length() == 0) return true;             // Blanks are the same
 	return search(s1, s2, true, false, true) != -1; // Search at the start only
 }
-// Compare two strings, case sensitive
+
+// Compare two strings, case sensitive, or just use s1 == s2
 function same(s1, s2) {
-	if (s1.length() != s2.length()) return false;    // Make sure s1 and s2 are the same length
-	else if (s1.length() == 0) return true;          // Blanks are the same
+	var a1 = samePlatform(s1, s2);
+	var a2 =   sameCustom(s1, s2);
+	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
+	return a1;
+}
+function samePlatform(s1, s2) { return s1 == s2; }
+function sameCustom(s1, s2) {
+	if (s1.length() != s2.length()) return false;        // Make sure s1 and s2 are the same length
+	else if (s1.length() == 0) return true;              // Blanks are the same
 	return search(s1, s2, true, false, false) != -1; // Search at the start only
 }
 
@@ -110,36 +131,13 @@ function ends(s, tag)        { return search(s, tag, false, false, false) != -1;
 function hasMatch(s, tag)    { return search(s, tag, true,  true,  true)  != -1; } // True if s contains tag, matching cases
 function has(s, tag)         { return search(s, tag, true,  true,  false) != -1; } // True if s contains tag, case sensitive
 
-// Find where tag1 or tag2 first appears in s, -1 if neither found
-function either(s, tag1, tag2) {
-	int i1 = find(s, tag1); // Search for both
-	int i2 = find(s, tag2);
-	if (i1 == -1 && i2 == -1) return -1; // Both not found
-	else if (i1 == -1) return i2; // One found, but not the other
-	else if (i2 == -1) return i1;
-	else return Math.min(i1, i2); // Both found, return the one that appears first
-}
-
-function findMatch(s, tag) { return search(s, tag, true, true, true); } // Find the character index in s where tag appears, matching cases, -1 not found
-function find(s, tag)      { return search(s, tag, true, true, false); } // Find the character index in s where tag appears, case sensitive, -1 not found
-function lastMatch(s, tag) { return search(s, tag, false, true, true); } // Find the character index in s where tag last appears, matching cases, -1 not found
+function findMatch(s, tag) { return search(s, tag, true,  true, true);  } // Find the character index in s where tag appears, matching cases, -1 not found
+function find(s, tag)      { return search(s, tag, true,  true, false); } // Find the character index in s where tag appears, case sensitive, -1 not found
+function lastMatch(s, tag) { return search(s, tag, false, true, true);  } // Find the character index in s where tag last appears, matching cases, -1 not found
 function last(s, tag)      { return search(s, tag, false, true, false); } // Find the character index in s where tag last appears, case sensitive, -1 not found
 
 
 
-
-
-/*
-c starts, trails, has, find
-
-j starts, startsCase, ends, endsCase
-j has, hasCase
-j find, findCase, last, lastCase, search
-
-js contains
-js startsWith, endsWith
-js indexOf, lastIndexOf
-*/
 
 
 
@@ -147,13 +145,22 @@ js indexOf, lastIndexOf
 // forward: true to search forwards from the start, false to search backwards from the end
 // scan:    true to scan across all the positions possible in s, false to only look at the starting position
 // match:   true to match upper and lower case characters, false to treat upper and lower case characters as different
-
-//TODO say what it does if s or tag are blank
 function search(s, tag, forward, scan, match) {
+	var a1 = searchPlatform(s, tag, forward, scan, match);
+	var a2 =   searchCustom(s, tag, forward, scan, match);
+	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
+	return a1;
+}
+function searchPlatform(s, tag, forward, scan, match) { // Using JavaScript
+	if (!tag.length) throw "argument";
+	if (match) { s = s.toLocaleLowerCase(); tag = tag.toLocaleLowerCase(); } // Lowercase everything to match cases
+	return forward ? s.indexOf(tag) : s.lastIndexOf(tag); // Find the first or last index of the tag
+}
+function searchCustom(s, tag, forward, scan, match) { // Using our own code
 
 	// Get and check the lengths
-	if (!tag.length) throw "argument";
-	if (s.length < tag.length) return -1;
+	if (!tag.length) throw "argument"; // The tag cannot be blank
+	if (s.length < tag.length) return -1; // If s is blank, return -1
 
 	// Our search will scan s from the start index through the end index
 	var start = forward ? 0                     : s.length - tag.length;
@@ -169,8 +176,8 @@ function search(s, tag, forward, scan, match) {
 			var tc = tag.charAt(ti);
 
 			if (match) { // The caller requested matching cases
-				sc = lower(sc); // Change both characters to lower case so they match
-				tc = lower(tc);
+				sc = sc.toLocaleLowerCase(); // Change both characters to lower case so they match
+				tc = tc.toLocaleLowerCase();
 			}
 			if (sc !== tc) break; // Mismatch found, break to move to the next spot in s
 		}
@@ -179,7 +186,10 @@ function search(s, tag, forward, scan, match) {
 	return -1; // Not found
 }
 
-exports.search = search; // Only exported for testing
+exports.search = search; // Exported only for testing
+
+exports.searchPlatform = searchPlatform; // Exported only for testing
+exports.searchCustom = searchCustom;
 
 
 
@@ -311,6 +321,15 @@ js valueOf
 
 
 
+// Find where tag1 or tag2 first appears in s, -1 if neither found
+function either(s, tag1, tag2) {
+	var i1 = find(s, tag1); // Search for both
+	var i2 = find(s, tag2);
+	if (i1 == -1 && i2 == -1) return -1; // Both not found
+	else if (i1 == -1) return i2; // One found, but not the other
+	else if (i2 == -1) return i1;
+	else return Math.min(i1, i2); // Both found, return the one that appears first
+}
 
 
 //write tests for these, confirm they throw on undefined and null

@@ -20,7 +20,8 @@ var chop = text.chop;
 var clip = text.clip;
 
 
-var search = text.search; // Only exported for testing
+var searchPlatform = text.searchPlatform;
+var searchCustom = text.searchCustom;
 
 var upper = text.upper;
 var lower = text.lower;
@@ -214,17 +215,64 @@ exports.testClip = function(test) {
 
 
 
-exports.testSearch = function(test) {
+exports.testSearchPlatformCustom = function(test) {
 
-	test.ok(search("abcd", "bc", true, true, true) == 1);
+	//no tag
+	try { searchPlatform("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
+	try {   searchCustom("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
+
+	function both(found, s, tag, forward, match) {
+		test.ok(found == searchPlatform(s, tag, forward, true, match));
+		test.ok(found == searchCustom(s, tag, forward, true, match));
+	}
+
+	//basic use
+	both(0,  "abcd",   "ab",     true, false);//first
+	both(2,  "abcd",     "cd",   true, false);//last
+	both(1,  "abcd",    "bc",    true, false);//middle
+	both(-1, "abcd", "YZ",       true, false);//not found
+
+	//tag longer
+	both(-1, "abcd",   "abcdef", true, false);//tag matches but longer beyond end
+	both(-1, "abcd", "YZabcd",   true, false);//tag matches but longer before start
+	both(-1, "abcd",   "abcE",   true, false);//tag matches at start
+
+	//forward and reverse
+	both(1,  " abc ab bcde abcd ", "ab", true,  false);
+	both(13, " abc ab bcde abcd ", "ab", false, false);
+	both(2,  " abc ab bcde abcd ", "bc", true,  false);
+	both(14, " abc ab bcde abcd ", "bc", false, false);
+	both(9,  " abc ab bcde abcd ", "cd", true,  false);
+	both(15, " abc ab bcde abcd ", "cd", false, false);
+	both(10, " abc ab bcde abcd ", "de", true,  false);
+	both(10, " abc ab bcde abcd ", "de", false, false);
+
+	//matching cases
+	both(0,  "abcd",   "AB",     true, true);//first
+	both(2,  "abcd",     "cD",   true, true);//last
+	both(1,  "abcd",    "Bc",    true, true);//middle
+
+	//international
+	var s = "español 中文 বাংলা português";
+	both(0, s, "español", true, false);
+	both(8, s, "中文", true, false);
+	both(11, s, "বাংলা", true, false);
+	both(17, s, "português", true, false);
+
+	//international matching cases
+	both(-1, s, "ESPAÑOL", true, false);
+	both(0,  s, "ESPAÑOL", true, true);
+	both(-1, s, "PORTUGUÊS", true, false);
+	both(17, s, "PORTUGUÊS", true, true);
+
+	//international forward and reverse
+	s = " X বাংলা X বাংলা X ";
+	both(3,  s, "বাংলা", true,  false);
+	both(11, s, "বাংলা", false, false);
 
 	test.done();
 }
 
-//c find
-// Takes text r and t, and direction and matching
-// Finds in r the first or last instance of t
-// Returns the zero based index of t in r, or -1 if not found or if r or t are blank
 
 
 
