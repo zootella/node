@@ -19,7 +19,6 @@ var beyond = text.beyond;
 var chop = text.chop;
 var clip = text.clip;
 
-
 var searchPlatform = text.searchPlatform;
 var searchCustom = text.searchCustom;
 
@@ -209,7 +208,11 @@ exports.testClip = function(test) {
 }
 
 
+exports.testSamePlatformCustom = function(test) {
 
+
+	test.done();
+}
 
 
 
