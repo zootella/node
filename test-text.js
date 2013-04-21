@@ -6,15 +6,86 @@ var data = require("./data");
 var Data = data.Data;
 var base64 = data.base64;
 
+var text = require("./text");
+var make = text.make;
+var is = text.is;
+var blank = text.blank;
+var size = text.size;
+var first = text.first;
+var get = text.get;
+var start = text.start;
+var end = text.end;
+var beyond = text.beyond;
+var chop = text.chop;
+var clip = text.clip;
 
-//try using utf8 right in the source code
+
+var search = text.search; // Only exported for testing
+
+var upper = text.upper;
+var lower = text.lower;
 
 
-// How many bytes the given text take up encoded into UTF-8
-function size(s) {
-	return Data(s).size();
+
+
+//   ____  _        _             
+//  / ___|| |_ _ __(_)_ __   __ _ 
+//  \___ \| __| '__| | '_ \ / _` |
+//   ___) | |_| |  | | | | | (_| |
+//  |____/ \__|_|  |_|_| |_|\__, |
+//                          |___/ 
+
+exports.testMake = function(test) {
+
+	test.ok(make("a", "b", "cd") == "abcd");
+	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
+
+	test.done();
 }
-exports.testSize = function(test) {
+
+exports.testEqualsQuotes = function(test) {
+
+	function likeBlank(v) { test.ok(v == ""); test.ok(!(v != "")); }
+	function likeText(v)  { test.ok(v != ""); test.ok(!(v == "")); }
+
+	likeText(undefined);//undefined and null
+	likeText(null);
+
+	likeBlank(false);//boolean values
+	likeText(true);
+
+	likeBlank(0);//numbers
+	likeText(1);
+
+	likeBlank([]);//empty objects
+	likeText({});
+	likeBlank(new Buffer(0));//platform object
+	likeText(new Buffer(1));
+
+	likeText(function(){});//function
+	likeText(console.log);
+
+	likeBlank("");//strings
+	likeText("a");
+
+	test.done();
+}
+
+exports.testIsBlank = function(test) {
+
+	test.ok(is("a"));//standard use
+	test.ok(blank(""));
+
+	//throws for non string
+	try { is(null);             test.fail(); } catch (e) { test.ok(e == "type"); }
+	try { is(1);                test.fail(); } catch (e) { test.ok(e == "type"); }
+	try { blank(false);         test.fail(); } catch (e) { test.ok(e == "type"); }
+	try { blank(new Buffer(0)); test.fail(); } catch (e) { test.ok(e == "type"); }
+
+	test.done();
+}
+
+exports.testLengthSize = function(test) {
 
 	var s;
 
@@ -36,15 +107,24 @@ exports.testSize = function(test) {
 	test.ok(size(s) == 3);//three bytes
 	test.ok(Data(s).base16() == "e381ae");
 
+	// The number of characters in string s is s.length
+	// MDN warns: This property returns the number of code units in the string. UTF-16, the string format used by JavaScript, uses a single 16-bit code unit to represent the most common characters, but needs to use two code units for less commonly-used characters, so it's possible for the value returned by length to not match the actual number of characters in the string.
+	//TODO write a test that demonstrates how s.length fails, then a function that corrects it
+
 	test.done();
 }
 
-// Get the character a distance i in characters into the string s
-function get(s, i) {
-	if (i < 0 || i > s.length - 1) throw "bounds";
-	return s.charAt(i);
+exports.testFirst = function(test) {
+
+	var s = "abc";
+	test.ok(first(s) == "a");
+	test.ok(get(s, 0) == "a");
+	test.ok(get(s) == "a");//you can also just omit the 0
+
+	test.done();
 }
-exports.testGet = function(test) {
+
+exports.testLengthGet = function(test) {
 
 	var s;
 	s = "abc";
@@ -94,77 +174,35 @@ exports.testGet = function(test) {
 	test.done();
 }
 
-// The Unicode number value of the character a distance i characters into s
-// Also gets ASCII codes, code("A") is 65
-// You can omit i to get the code of the first character
-function code(s, i) {
-	if (i < 0 || i > s.length - 1) throw "bounds";
-	return s.charCodeAt(i);
-}
-exports.testCode = function(test) {
+exports.testStartEndBeyondChop = function(test) {
 
-	test.ok(code("A") == 65);//you can omit i to get the first character
-
-	var s = "\0\r\n\x0d\x0a\t\"";//control characters
-	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 0);//null
-	test.ok(code(s, 1) == 0x0d);//r
-	test.ok(code(s, 2) == 0x0a);//n
-	test.ok(code(s, 3) == 0x0d);//r
-	test.ok(code(s, 4) == 0x0a);//n
-	test.ok(code(s, 5) == 9);//tab
-	test.ok(code(s, 6) == 34);//quote
-
-	s = "09AZaz";//letters and numbers
-	test.ok(code(s, 0) == 48);
-	test.ok(code(s, 1) == 57);
-	test.ok(code(s, 2) == 65);
-	test.ok(code(s, 3) == 90);
-	test.ok(code(s, 4) == 97);
-	test.ok(code(s, 5) == 122);
-
-	s = " !.^_";//punctuation
-	test.ok(code(s, 0) == 32);
-	test.ok(code(s, 1) == 33);
-	test.ok(code(s, 2) == 46);
-	test.ok(code(s, 3) == 94);
-	test.ok(code(s, 4) == 95);
-
-	s = "español";//europe
-	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 101);
-	test.ok(code(s, 4) == 241);//beyond the ascii table
-	test.ok(code(s, 6) == 108);
-
-	s = "中文";//asia
-	test.ok(s.length == 2);
-	test.ok(code(s, 0) == 20013);//tens of thousands
-	test.ok(code(s, 1) == 25991);
-
-	s = "مرحبا";//arabic
-	test.ok(s.length == 5);
-	test.ok(code(s, 0) == 1605);//just thousands
-	test.ok(code(s, 1) == 1585);
-	test.ok(code(s, 2) == 1581);
-	test.ok(code(s, 3) == 1576);
-	test.ok(code(s, 4) == 1575);
+	var s = "abcdefgh";
+	test.ok( start(s, 3) == "abc");
+	test.ok(   end(s, 3) ==      "fgh");
+	test.ok(beyond(s, 3) ==    "defgh");
+	test.ok(  chop(s, 3) == "abcde");
 
 	test.done();
 }
 
-// Concatenate all the given strings together
-// For instance, make("a", "b", "c") is "abc"
-function make() {
-	var s = "";
-	for (var i = 0; i < arguments.length; i++)
-		s += arguments[i];
-	return s;
-}
-//TODO use TextBay instead of the loop above
-exports.testMake = function(test) {
+exports.testClip = function(test) {
 
-	test.ok(make("a", "b", "cd") == "abcd");
-	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
+	var s = "abcdefgh";
+	test.ok(clip(s, 1, 2) == "bc");//middle
+	test.ok(clip(s, 0, 2) == "ab");//start
+	test.ok(clip(s, 6, 2) == "gh");//end
+	test.ok(clip(s, 0, 8) == "abcdefgh");//everything
+	test.ok(clip(s, 0, 0) == "");//nothing start
+	test.ok(clip(s, 8, 0) == "");//nothing end
+	test.ok(clip(s, 4, 0) == "");//nothing middle
+
+	test.ok(typeof clip(s, 0, 0) === "string");//make sure nothing gives us ""
+
+	try { clip(s, -1, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//before start
+	try { clip(s, 8, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//beyond end
+
+	try { clip(s, -1, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing before start
+	try { clip(s, 9, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing beyond end
 
 	test.done();
 }
@@ -173,25 +211,37 @@ exports.testMake = function(test) {
 
 
 
-//maybe you should also make your own StringBuffer in here
-//and then use it in encode, rather than the weird thing you have there
-//call it TextBay, for instance, and have an add() method, and say()
 
 
 
-//TODO add tests to confirm you can find international characters in text, split on them, and so on
+exports.testSearch = function(test) {
+
+	test.ok(search("abcd", "bc", true, true, true) == 1);
+
+	test.done();
+}
+
+//c find
+// Takes text r and t, and direction and matching
+// Finds in r the first or last instance of t
+// Returns the zero based index of t in r, or -1 if not found or if r or t are blank
 
 
 
-//here's a weird idea
-//what if you replaced characters illegal for windows filenames with unicode characters that look similar
+
+exports.testUpperLower = function(test) {
+
+	test.ok(upper("a") == "A");//very simple use
+	test.ok(lower("A") == "a");
+
+	//try with international characters
 
 
 
-//go to and from data
-//go to and from number, base 10 and base 16
+	test.done();
+}
 
-//move Encode from data to text, but leave them as separate functions
+
 
 
 
@@ -294,6 +344,60 @@ js String.fromCharCode
 
 */
 
+
+
+
+var code = text.code;
+exports.testCode = function(test) {
+
+	test.ok(code("A") == 65);//you can omit i to get the first character
+
+	var s = "\0\r\n\x0d\x0a\t\"";//control characters
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 0);//null
+	test.ok(code(s, 1) == 0x0d);//r
+	test.ok(code(s, 2) == 0x0a);//n
+	test.ok(code(s, 3) == 0x0d);//r
+	test.ok(code(s, 4) == 0x0a);//n
+	test.ok(code(s, 5) == 9);//tab
+	test.ok(code(s, 6) == 34);//quote
+
+	s = "09AZaz";//letters and numbers
+	test.ok(code(s, 0) == 48);
+	test.ok(code(s, 1) == 57);
+	test.ok(code(s, 2) == 65);
+	test.ok(code(s, 3) == 90);
+	test.ok(code(s, 4) == 97);
+	test.ok(code(s, 5) == 122);
+
+	s = " !.^_";//punctuation
+	test.ok(code(s, 0) == 32);
+	test.ok(code(s, 1) == 33);
+	test.ok(code(s, 2) == 46);
+	test.ok(code(s, 3) == 94);
+	test.ok(code(s, 4) == 95);
+
+	s = "español";//europe
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 101);
+	test.ok(code(s, 4) == 241);//beyond the ascii table
+	test.ok(code(s, 6) == 108);
+
+	s = "中文";//asia
+	test.ok(s.length == 2);
+	test.ok(code(s, 0) == 20013);//tens of thousands
+	test.ok(code(s, 1) == 25991);
+
+	s = "مرحبا";//arabic
+	test.ok(s.length == 5);
+	test.ok(code(s, 0) == 1605);//just thousands
+	test.ok(code(s, 1) == 1585);
+	test.ok(code(s, 2) == 1581);
+	test.ok(code(s, 3) == 1576);
+	test.ok(code(s, 4) == 1575);
+
+	test.done();
+}
 
 
 

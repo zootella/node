@@ -563,7 +563,7 @@ function toBase32(d) {
 	// Loop through the memory, encoding its bits into letters and numbers
 	var byteIndex, bitIndex;                    // The bit index i as a distance in bytes followed by a distance in bits
 	var pair, mask, code;                       // Use the data bytes a pair at a time, with a mask of five 1s, to read a code 0 through 31
-	var s = [];                                 // Empty target array for text characters to return as a string
+	var s = "";                                 // Target string to build up and return
 	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
@@ -581,9 +581,9 @@ function toBase32(d) {
 		code = code >>> (11 - bitIndex); // Shift it to the right to read it as a number       -----------10101
 		
 		// Describe the 5 bits with a numeral or letter
-		s.push(alphabet.charAt(code));
+		s += alphabet.charAt(code);
 	}
-	return s.join(""); // Combine the characters in the array into a string
+	return s;
 }
 
 // Turn data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
@@ -596,7 +596,7 @@ function toBase62(d) {
 	var i = 0;                 // The index in bits, from 0 through all the bits in the given data
 	var byteIndex, bitIndex;   // The same index as a distance in bytes followed by a distance in bits
 	var pair, mask, code;      // Use the data bytes a pair at a time, with a mask of six 1s, to read a code 0 through 63
-	var s = [];                // Empty target array for text characters to return as a string
+	var s = "";                // Target string to build up and return
 	while (i < d.size() * 8) { // When the bit index moves beyond the memory, we're done
 		
 		// Calculate the byte and bit to move to from the bit index
@@ -614,10 +614,10 @@ function toBase62(d) {
 		code = code >>> (10 - bitIndex); // Shift it to the right to read it as a number       ----------101101
 		
 		// Describe the 6 bits with a numeral or letter, 111100 is 60 and Y, if more than that use Z and move forward 4, not 6
-		if (code < 61) { s.push(alphabet.charAt(code)); i += 6; } // 000000  0 '0' through 111100 60 'Y'
-		else           { s.push(alphabet.charAt(61));   i += 4; } // 111101 61, 111110 62, and 111111 63 are 'Z', move past the four 1s
+		if (code < 61) { s += alphabet.charAt(code); i += 6; } // 000000  0 '0' through 111100 60 'Y'
+		else           { s += alphabet.charAt(61);   i += 4; } // 111101 61, 111110 62, and 111111 63 are 'Z', move past the four 1s
 	}
-	return s.join(""); // Combine the characters in the array into a string
+	return s; // Combine the characters in the array into a string
 }
 
 // Turn data into text using base 64
