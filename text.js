@@ -90,9 +90,6 @@ exports.beyond = beyond;
 exports.chop = chop;
 exports.clip = clip;
 
-
-//maybe rename sameMatch to just match. or leave it, actually
-
 // Compare two strings, matching cases
 function match(s1, s2) {
 	var a1 = sameMatchPlatform(s1, s2);
@@ -120,7 +117,6 @@ function sameCustom(s1, s2) {
 	else if (s1.length == 0) return true;              // Blanks are the same
 	return search(s1, s2, true, false, false) != -1; // Search at the start only
 }
-
 
 function startsMatch(s, tag) { return search(s, tag, true,  false, true)  != -1; } // True if s starts with tag, matching cases
 function starts(s, tag)      { return search(s, tag, true,  false, false) != -1; } // True if s starts with tag, case sensitive
@@ -216,23 +212,91 @@ exports.searchCustom = searchCustom;
 
 
 
+function beforeMatch(s, tag)     { return aroundDo(s, tag); }
+function beforeMatchLast(s, tag) { return aroundDo(s, tag); }
+function before(s, tag)          { return aroundDo(s, tag); }
+function beforeLast(s, tag)      { return aroundDo(s, tag); }
+
+function afterMatch(s, tag)      { return aroundDo(s, tag); }
+function afterMatchLast(s, tag)  { return aroundDo(s, tag); }
+function after(s, tag)           { return aroundDo(s, tag); }
+function afterLast(s, tag)       { return aroundDo(s, tag); }
+
+function aroundMatch(s, tag)     { return aroundDo(s, tag); }
+function around(s, tag)          { return aroundDo(s, tag); }
+function aroundLastMatch(s, tag) { return aroundDo(s, tag); }
+function aroundLast(s, tag)      { return aroundDo(s, tag); }
+
+
+
+// Takes text and tag, and direction and matching
+// Splits the text before the tag
+// Returns a string, the text from r if not found in either direction
+//CString before(read r, read t, direction d, matching m) {
+
+// Takes text and tag, and direction and matching
+// Splits the text after the tag
+// Returns a string, blank if not found in either direction
+//CString after(read r, read t, direction d, matching m) {
+
+// Takes text and tag, strings for before and after, and direction and matching
+// Splits the text around the tag, writing text in before and after
+// Returns nothing, puts all text in before and none in after if not found in either direction
+//void split(read r, read t, CString *b, CString *a, direction d, matching m) {
+
+
+
+
+function before(s, tag) { return aroundDo(s, tag).before; } // The part of s that is before tag, s if not found
+function after(s, tag) { return aroundDo(s, tag).after; } // The part of s that is after tag, "" if not found
+function beforeLast(s, tag) { return aroundDo(s, tag).before; } // The part of s that is before the last place tag appears, s if not found
+function afterLast(s, tag) { return aroundDo(s, tag).after; } // The part of s that is after the last place tag appears, "" if not found
+
+/** Split s around tag to get what's before and after. */
+public static Split<String> split(String s, String tag) { return aroundDo(s, tag, true, true); }
+/** Split s around tag to get what's before and after, matching cases. */
+public static Split<String> splitCase(String s, String tag) { return aroundDo(s, tag, true, false); }
+/** Split s around where a tag last appears to get what's before and after. */ 
+public static Split<String> splitLast(String s, String tag) { return aroundDo(s, tag, false, true); }
+/** Split s around where a tag last appears to get what's before and after, matching cases. */
+public static Split<String> splitLastCase(String s, String tag) { return aroundDo(s, tag, false, false); }
+
+/**
+ * Split a String around a tag, finding the parts before and after it.
+ * 
+ * @param s       The String to search.
+ * @param tag     The tag to look for.
+ * @param forward true to find the first place the tag appears.
+ *                false to search backwards from the end.
+ * @param match   true to match upper and lower case characters.
+ *                false to be case-sensitive.
+ * @return        A TextSplit object that tells if the tag was found, and clips out the strings before and after it.
+ *                If the tag is not found, textSplit.before will be s, and textSplit.after will be blank.
+ */
+function aroundDo(s, tag, forward, match) {
+	var i = search(s, tag, forward, true, match); // Search s for tag
+	if (i == -1) {
+		return {
+			found:  false, // Not found, make before s and after blank
+			before: s,
+			tag:    "", // No tag because it's not a part of s
+			after:  ""
+		};
+	} else {
+		return {
+			found:  true, // We found the tag at i, clip out the text before and after it
+			before: start(s, i),
+			tag:    tag, // Include tag to have all parts of s
+			after:  beyond(s, i + tag.length)
+		};
+	}
+}
 
 
 
 
 
 
-
-
-
-
-function before() {}
-function after() {}
-function around() {}
-/*
-c before, after, split
-j before, after, beforeLast, afterLast, split, splitCase, splitLast, splitLastCase, split
-*/
 
 function replace() {}
 /*
@@ -255,9 +319,10 @@ j trim
 js trim
 js trimLeft
 js trimRight
+
+include the feature where you can trim everything in the given string of tags
 */
 
-function same(s1, s2) {}
 function sort(s1, s2) {}
 /*
 c same, compare
