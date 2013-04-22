@@ -86,7 +86,7 @@ exports.testLengthSize = function(test) {
 	test.ok(s.length == 1);
 	test.ok(size(s) == 1);
 
-	s = "ö";//rock dots
+	s = "ö";//umlaut
 	test.ok(s.length == 1);
 	test.ok(size(s) == 2);//two bytes
 	test.ok(Data(s).base16() == "c3b6");
@@ -234,28 +234,45 @@ var searchCustom = text.searchCustom;
 exports.testSamePlatformCustom = function(test) {
 
 	function run(answerMatch, answerCase, s1, s2) {
+
 		test.ok(answerMatch == matchPlatform(s1, s2));
 		test.ok(answerMatch == matchCustom(s1, s2));
 		test.ok(answerCase == samePlatform(s1, s2));
 		test.ok(answerCase == sameCustom(s1, s2));
+
+		test.ok(answerMatch == matchPlatform(s2, s1));//flip inputs
+		test.ok(answerMatch == matchCustom(s2, s1));
+		test.ok(answerCase == samePlatform(s2, s1));
+		test.ok(answerCase == sameCustom(s2, s1));
 	}
 
-	run(true, true, "", "");
-	run(true, true, "abc", "abc");
+	//same
+	run(true, true, "", "");//blank
+	run(true, true, "abc", "abc");//same case
 
+	//different
+	run(false, false, "", "a");//blank
+	run(false, false, "abc", "yz");//different
+	run(false, false, "abc", "ab");//contained
 
+	//different cases
+	run(true, false, "Abc", "abc");
+	run(true, false, "Different Cases", "different cases");
 
-	//TODO
+	//international
+	run(true, true, "中文", "中文");
+	run(true, true, "বাংলা", "বাংলা");
+	run(true, false, "español", "ESPAÑOL");
+	run(true, false, "português", "PORTUGUÊS");
 
 	test.done();
 }
 
 exports.testStartsEndsHas = function(test) {
 
-
-
-
-	//TODO
+	test.ok(starts("abcd", "ab"));
+	test.ok(ends("abcd", "cd"));
+	test.ok(has("abcd", "bc"));
 
 	test.done();
 }
