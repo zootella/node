@@ -39,8 +39,6 @@ function make() {
 	return s;
 }
 
-exports.make = make;
-
 // True if s is a string with some text
 // Instead of is(), you can also just use s == ""
 function is(s) {
@@ -62,9 +60,9 @@ function size(s) {
 	return Data(s).size();
 }
 
+exports.make = make;
 exports.is = is;
 exports.blank = blank;
-// Use s.length
 exports.size = size;
 
 // Get the first character in s
@@ -83,7 +81,6 @@ function clip(s, i, n) {                                  // Clip out part of s,
 	if (i < 0 || n < 0 || i + n > s.length) throw "bounds"; // Make sure the requested index and number of characters fits inside s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
-//TODO test the bounds the same way you did data
 
 exports.first = first;
 exports.get = get;
@@ -94,32 +91,33 @@ exports.chop = chop;
 exports.clip = clip;
 
 
+//maybe rename sameMatch to just match. or leave it, actually
 
 // Compare two strings, matching cases
-function sameMatch(s1, s2) {
+function match(s1, s2) {
 	var a1 = sameMatchPlatform(s1, s2);
-	var a2 =   sameMatchCustom(s1, s2);
+	var a2 = sameMatchCustom(s1, s2);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
-function sameMatchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
-function sameMatchCustom(s1, s2) {
-	if (s1.length() != s2.length()) return false;       // Make sure s1 and s2 are the same length
-	else if (s1.length() == 0) return true;             // Blanks are the same
+function matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
+function matchCustom(s1, s2) {
+	if (s1.length != s2.length) return false;       // Make sure s1 and s2 are the same length
+	else if (s1.length == 0) return true;             // Blanks are the same
 	return search(s1, s2, true, false, true) != -1; // Search at the start only
 }
 
-// Compare two strings, case sensitive, or just use s1 == s2
+// Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
 	var a1 = samePlatform(s1, s2);
-	var a2 =   sameCustom(s1, s2);
+	var a2 = sameCustom(s1, s2);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
 function samePlatform(s1, s2) { return s1 == s2; }
 function sameCustom(s1, s2) {
-	if (s1.length() != s2.length()) return false;        // Make sure s1 and s2 are the same length
-	else if (s1.length() == 0) return true;              // Blanks are the same
+	if (s1.length != s2.length) return false;        // Make sure s1 and s2 are the same length
+	else if (s1.length == 0) return true;              // Blanks are the same
 	return search(s1, s2, true, false, false) != -1; // Search at the start only
 }
 
@@ -136,18 +134,13 @@ function find(s, tag)      { return search(s, tag, true,  true, false); } // Fin
 function lastMatch(s, tag) { return search(s, tag, false, true, true);  } // Find the character index in s where tag last appears, matching cases, -1 not found
 function last(s, tag)      { return search(s, tag, false, true, false); } // Find the character index in s where tag last appears, case sensitive, -1 not found
 
-
-
-
-
-
 // Find where in s tag appears, the character index, or -1 not found
 // forward: true to search forwards from the start, false to search backwards from the end
 // scan:    true to scan across all the positions possible in s, false to only look at the starting position
 // match:   true to match upper and lower case characters, false to treat upper and lower case characters as different
 function search(s, tag, forward, scan, match) {
 	var a1 = searchPlatform(s, tag, forward, scan, match);
-	var a2 =   searchCustom(s, tag, forward, scan, match);
+	var a2 = searchCustom(s, tag, forward, scan, match);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
@@ -186,10 +179,43 @@ function searchCustom(s, tag, forward, scan, match) { // Using our own code
 	return -1; // Not found
 }
 
-exports.search = search; // Exported only for testing
+exports.match = match;
+exports.matchPlatform = matchPlatform;
+exports.matchCustom = matchCustom;
+exports.same = same;
+exports.samePlatform = samePlatform;
+exports.sameCustom = sameCustom;
 
-exports.searchPlatform = searchPlatform; // Exported only for testing
+exports.startsMatch = startsMatch;
+exports.starts = starts;
+exports.endsMatch = endsMatch;
+exports.ends = ends;
+exports.hasMatch = hasMatch;
+exports.has = has;
+
+exports.findMatch = findMatch;
+exports.find = find;
+exports.lastMatch = lastMatch;
+exports.last = last;
+
+exports.search = search;
+exports.searchPlatform = searchPlatform;
 exports.searchCustom = searchCustom;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

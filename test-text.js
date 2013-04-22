@@ -7,23 +7,11 @@ var Data = data.Data;
 var base64 = data.base64;
 
 var text = require("./text");
-var make = text.make;
-var is = text.is;
-var blank = text.blank;
-var size = text.size;
-var first = text.first;
-var get = text.get;
-var start = text.start;
-var end = text.end;
-var beyond = text.beyond;
-var chop = text.chop;
-var clip = text.clip;
 
-var searchPlatform = text.searchPlatform;
-var searchCustom = text.searchCustom;
 
-var upper = text.upper;
-var lower = text.lower;
+
+
+
 
 
 
@@ -34,6 +22,11 @@ var lower = text.lower;
 //   ___) | |_| |  | | | | | (_| |
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
+
+var make = text.make;
+var is = text.is;
+var blank = text.blank;
+var size = text.size;
 
 exports.testMake = function(test) {
 
@@ -113,6 +106,14 @@ exports.testLengthSize = function(test) {
 
 	test.done();
 }
+
+var first = text.first;
+var get = text.get;
+var start = text.start;
+var end = text.end;
+var beyond = text.beyond;
+var chop = text.chop;
+var clip = text.clip;
 
 exports.testFirst = function(test) {
 
@@ -207,16 +208,56 @@ exports.testClip = function(test) {
 	test.done();
 }
 
+var match = text.match;
+var matchPlatform = text.matchPlatform;
+var matchCustom = text.matchCustom;
+var same = text.same;
+var samePlatform = text.samePlatform;
+var sameCustom = text.sameCustom;
+
+var startsMatch = text.startsMatch;
+var starts = text.starts;
+var endsMatch = text.endsMatch;
+var ends = text.ends;
+var hasMatch = text.hasMatch;
+var has = text.has;
+
+var findMatch = text.findMatch;
+var find = text.find;
+var lastMatch = text.lastMatch;
+var last = text.last;
+
+var search = text.search;
+var searchPlatform = text.searchPlatform;
+var searchCustom = text.searchCustom;
 
 exports.testSamePlatformCustom = function(test) {
 
+	function run(answerMatch, answerCase, s1, s2) {
+		test.ok(answerMatch == matchPlatform(s1, s2));
+		test.ok(answerMatch == matchCustom(s1, s2));
+		test.ok(answerCase == samePlatform(s1, s2));
+		test.ok(answerCase == sameCustom(s1, s2));
+	}
+
+	run(true, true, "", "");
+
+
+
+	//TODO
 
 	test.done();
 }
 
+exports.testStartsEndsHas = function(test) {
 
 
 
+
+	//TODO
+
+	test.done();
+}
 
 exports.testSearchPlatformCustom = function(test) {
 
@@ -279,6 +320,23 @@ exports.testSearchPlatformCustom = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var upper = text.upper;
+var lower = text.lower;
 
 exports.testUpperLower = function(test) {
 
