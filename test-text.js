@@ -241,6 +241,7 @@ exports.testSamePlatformCustom = function(test) {
 	}
 
 	run(true, true, "", "");
+	run(true, true, "abc", "abc");
 
 
 
