@@ -208,24 +208,24 @@ exports.testClip = function(test) {
 	test.done();
 }
 
-var match = text.match;
-var matchPlatform = text.matchPlatform;
-var matchCustom = text.matchCustom;
 var same = text.same;
 var samePlatform = text.samePlatform;
 var sameCustom = text.sameCustom;
+var match = text.match;
+var matchPlatform = text.matchPlatform;
+var matchCustom = text.matchCustom;
 
-var startsMatch = text.startsMatch;
 var starts = text.starts;
-var endsMatch = text.endsMatch;
+var startsMatch = text.startsMatch;
 var ends = text.ends;
-var hasMatch = text.hasMatch;
+var endsMatch = text.endsMatch;
 var has = text.has;
+var hasMatch = text.hasMatch;
 
-var findMatch = text.findMatch;
 var find = text.find;
-var lastMatch = text.lastMatch;
+var findMatch = text.findMatch;
 var last = text.last;
+var lastMatch = text.lastMatch;
 
 var search = text.search;
 var searchPlatform = text.searchPlatform;
@@ -335,9 +335,54 @@ exports.testSearchPlatformCustom = function(test) {
 	test.done();
 }
 
+var before = text.before;
+var beforeMatch = text.beforeMatch;
+var beforeLast = text.beforeLast;
+var beforeLastMatch = text.beforeLastMatch;
 
+var after = text.after;
+var afterMatch = text.afterMatch;
+var afterLast = text.afterLast;
+var afterLastMatch = text.afterLastMatch;
 
+var cut = text.cut;
+var cutMatch = text.cutMatch;
+var cutLast = text.cutLast;
+var cutLastMatch = text.cutLastMatch;
 
+exports.testCut = function(test) {
+
+	var s = "apple<tag>banana<tag>carrot";
+
+	//before and after
+	test.ok(before(s,     "<tag>") == "apple");
+	test.ok(after(s,      "<tag>") ==           "banana<tag>carrot");
+	test.ok(beforeLast(s, "<tag>") == "apple<tag>banana");
+	test.ok(afterLast(s,  "<tag>") ==                      "carrot");
+
+	//cut
+	var c = cutLastMatch(s, "<TAG>");//tag uppercase, matching on
+	test.ok(c.found);
+	test.ok(c.before == "apple<tag>banana");
+	test.ok(c.tag    == "<tag>");//tag lowercase from s
+	test.ok(c.after  == "carrot");
+
+	s = "Sample text";
+
+	//not found
+	test.ok(before(s,          "E") == "Sample text");//not found, all before
+	test.ok(after(s,           "E") == "");
+	test.ok(beforeLast(s,      "E") == "Sample text");
+	test.ok(afterLast(s,       "E") == "");
+
+	//case matching
+	test.ok(beforeMatch(s,     "E") == "Sampl");
+	test.ok(afterMatch(s,      "E") ==       " text");
+	test.ok(beforeLastMatch(s, "E") == "Sample t");
+	test.ok(afterLastMatch(s,  "E") ==          "xt");
+
+	test.done();
+}
 
 
 
