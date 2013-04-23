@@ -14,6 +14,7 @@ var Data = data.Data;
 if(!('contains' in String.prototype))
   String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
 */
+//don't polyfill, exactly, rather if something is already defined, throw "platform"
 
 
 /*
@@ -252,27 +253,94 @@ exports.cutLastMatch = cutLastMatch;
 
 
 
+//maybe rename split to cutDo
+//and search to findDo
+//to use that naming convention rather than cleverly picking another name for things
 
 
 
 
 
 
+// Replace all the tags in s with something else, like replace("a-b-c", "-", "_") is "a_b_c"
+function replace(s, t1, t2) { return replaceDo(s, t1, t2, false); } // Case sensitive
+function replaceMatch(s, t1, t2) { return replaceDo(s, t1, t2, true); } // Matches cases
+function replaceDo(s, t1, t2, match) {
+	var s2 = "";                         // Target string to fill with text as we break off parts and make the replacement
+	while (is(s)) {                      // Loop until s is blank
+		var c = split(s, t1, true, match); // Split s around the first instance of the tag in it
+		s2 += c.before;                    // Move the part before from s to done
+		if (c.found) s2 += t2;
+		s = c.after;
+	}
+	return s2;
+	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, and wrapping input that might be data from a user as a regular expression is scary
+}
 
 
 
 
 
-
-
-function replace() {}
 /*
 c replace
 j replace
 js replace
 */
 
+
+// Takes text, find and replace tags, and matching
+// Makes a single pass down the text, replacing whole instances of the find text with the replacement text
+// Returns a string
+CString replace(read r, read t1, read t2, matching m) {
+
+	// If the text or the find text is blank, or if the find text is not found, return the text unchanged
+	CString top, left, bottom;
+	top = r;
+	if (isblank(r) || isblank(t1) || !has(r, t1, m)) return top;
+
+	// Loop while top has find
+	while (has(top, t1, m)) {
+
+		// f is in top
+		split(top, t1, &left, &top, Forward, m);
+		bottom += left + t2;
+	}
+
+	// f is not in top
+	bottom += top;
+
+	// Return bottom text
+	return bottom;
+}
+
+
+
+
+
+
 //write a test to see how it replaces "aaaaa" "aa" "bb", should be "bbbba", you think
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function on() {}
 function off() {}
@@ -336,6 +404,10 @@ function numerals(n) {}
 /*
 c number
 */
+
+
+//maybe have one that returns strings to define all the ranges of ascii and beyond
+//like whitespace, punctuation, letter, number, beyond
 
 
 

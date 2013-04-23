@@ -48,7 +48,7 @@ function divide(n, d) {
 
 	function check(i, min) {
 		if (typeof i !== "number") throw "type"; // Make sure i is a number
-		if (Math.floor(i) !== i) throw "integer"; // A whole number
+		if (Math.floor(i) !== i) throw "type"; // A whole number
 		if (i < min) throw "bounds"; // With the minimum value or larger
 	}
 
@@ -63,8 +63,8 @@ function divide(n, d) {
 
 	check(a.whole, 0); // Check our answer before returning it
 	check(a.remainder, 0);
-	if ((d * a.whole) + a.remainder !== n) throw "impossible";
-	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) throw "impossible";
+	if ((d * a.whole) + a.remainder !== n) throw "check";
+	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) throw "check";
 	return a;
 }
 
