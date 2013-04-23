@@ -253,7 +253,7 @@ exports.cutMatch = cutMatch;
 exports.cutLast = cutLast;
 exports.cutLastMatch = cutLastMatch;
 
-
+exports._cut = _cut;
 
 
 

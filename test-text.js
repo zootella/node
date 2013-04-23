@@ -350,6 +350,8 @@ var cutMatch = text.cutMatch;
 var cutLast = text.cutLast;
 var cutLastMatch = text.cutLastMatch;
 
+var _cut = text._cut;
+
 exports.testCut = function(test) {
 
 	var s = "apple<tag>banana<tag>carrot";
