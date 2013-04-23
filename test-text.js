@@ -209,11 +209,11 @@ exports.testClip = function(test) {
 }
 
 var same = text.same;
-var samePlatform = text.samePlatform;
-var sameCustom = text.sameCustom;
+var _samePlatform = text._samePlatform;
+var _sameCustom = text._sameCustom;
 var match = text.match;
-var matchPlatform = text.matchPlatform;
-var matchCustom = text.matchCustom;
+var _matchPlatform = text._matchPlatform;
+var _matchCustom = text._matchCustom;
 
 var starts = text.starts;
 var startsMatch = text.startsMatch;
@@ -235,15 +235,15 @@ exports.testSamePlatformCustom = function(test) {
 
 	function run(answerMatch, answerCase, s1, s2) {
 
-		test.ok(answerMatch == matchPlatform(s1, s2));
-		test.ok(answerMatch == matchCustom(s1, s2));
-		test.ok(answerCase == samePlatform(s1, s2));
-		test.ok(answerCase == sameCustom(s1, s2));
+		test.ok(answerMatch == _matchPlatform(s1, s2));
+		test.ok(answerMatch == _matchCustom(s1, s2));
+		test.ok(answerCase == _samePlatform(s1, s2));
+		test.ok(answerCase == _sameCustom(s1, s2));
 
-		test.ok(answerMatch == matchPlatform(s2, s1));//flip inputs
-		test.ok(answerMatch == matchCustom(s2, s1));
-		test.ok(answerCase == samePlatform(s2, s1));
-		test.ok(answerCase == sameCustom(s2, s1));
+		test.ok(answerMatch == _matchPlatform(s2, s1));//flip inputs
+		test.ok(answerMatch == _matchCustom(s2, s1));
+		test.ok(answerCase == _samePlatform(s2, s1));
+		test.ok(answerCase == _sameCustom(s2, s1));
 	}
 
 	//same

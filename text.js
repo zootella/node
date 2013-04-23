@@ -95,13 +95,13 @@ exports.clip = clip;
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
-	var a1 = samePlatform(s1, s2);
-	var a2 = sameCustom(s1, s2);
+	var a1 = _samePlatform(s1, s2);
+	var a2 = _sameCustom(s1, s2);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
-function samePlatform(s1, s2) { return s1 == s2; }
-function sameCustom(s1, s2) {
+function _samePlatform(s1, s2) { return s1 == s2; }
+function _sameCustom(s1, s2) {
 	if (s1.length != s2.length) return false;       // Make sure s1 and s2 are the same length
 	else if (s1.length == 0) return true;           // Blanks are the same
 	return _find(s1, s2, true, false, false) != -1; // Search at the start only
@@ -109,13 +109,13 @@ function sameCustom(s1, s2) {
 
 // Compare two strings, matching cases
 function match(s1, s2) {
-	var a1 = sameMatchPlatform(s1, s2);
-	var a2 = sameMatchCustom(s1, s2);
+	var a1 = _matchPlatform(s1, s2);
+	var a2 = _matchCustom(s1, s2);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
-function matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
-function matchCustom(s1, s2) {
+function _matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
+function _matchCustom(s1, s2) {
 	if (s1.length != s2.length) return false;      // Make sure s1 and s2 are the same length
 	else if (s1.length == 0) return true;          // Blanks are the same
 	return _find(s1, s2, true, false, true) != -1; // Search at the start only
@@ -179,11 +179,11 @@ function _findCustom(s, tag, forward, scan, match) { // Using our own code
 }
 
 exports.same = same;
-exports.samePlatform = samePlatform;
-exports.sameCustom = sameCustom;
+exports._samePlatform = _samePlatform;
+exports._sameCustom = _sameCustom;
 exports.match = match;
-exports.matchPlatform = matchPlatform;
-exports.matchCustom = matchCustom;
+exports._matchPlatform = _matchPlatform;
+exports._matchCustom = _matchCustom;
 
 exports.starts = starts;
 exports.startsMatch = startsMatch;
