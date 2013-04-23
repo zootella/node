@@ -7,6 +7,8 @@ var Data = data.Data;
 
 
 
+/* Warning: This file contains some long lines (Like this one!). So maximize the window or just turn word wrap on, and quit complaining. Screens were 80 characters wide a long, long time ago, and nobody cares anymore. Seriously. */
+
 
 
 //how to polyfill
@@ -100,9 +102,9 @@ function same(s1, s2) {
 }
 function samePlatform(s1, s2) { return s1 == s2; }
 function sameCustom(s1, s2) {
-	if (s1.length != s2.length) return false;        // Make sure s1 and s2 are the same length
-	else if (s1.length == 0) return true;              // Blanks are the same
-	return search(s1, s2, true, false, false) != -1; // Search at the start only
+	if (s1.length != s2.length) return false;       // Make sure s1 and s2 are the same length
+	else if (s1.length == 0) return true;           // Blanks are the same
+	return _find(s1, s2, true, false, false) != -1; // Search at the start only
 }
 
 // Compare two strings, matching cases
@@ -114,39 +116,39 @@ function match(s1, s2) {
 }
 function matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
 function matchCustom(s1, s2) {
-	if (s1.length != s2.length) return false;       // Make sure s1 and s2 are the same length
-	else if (s1.length == 0) return true;             // Blanks are the same
-	return search(s1, s2, true, false, true) != -1; // Search at the start only
+	if (s1.length != s2.length) return false;      // Make sure s1 and s2 are the same length
+	else if (s1.length == 0) return true;          // Blanks are the same
+	return _find(s1, s2, true, false, true) != -1; // Search at the start only
 }
 
-function starts(s, tag)      { return search(s, tag, true,  false, false) != -1; } // True if s starts with tag, case sensitive
-function startsMatch(s, tag) { return search(s, tag, true,  false, true)  != -1; } // True if s starts with tag, matches cases
-function ends(s, tag)        { return search(s, tag, false, false, false) != -1; } // True if s ends with tag, case sensitive
-function endsMatch(s, tag)   { return search(s, tag, false, false, true)  != -1; } // True if s ends with tag, matches cases
-function has(s, tag)         { return search(s, tag, true,  true,  false) != -1; } // True if s contains tag, case sensitive
-function hasMatch(s, tag)    { return search(s, tag, true,  true,  true)  != -1; } // True if s contains tag, matches cases
+function starts(s, tag)      { return _find(s, tag, true,  false, false) != -1; } // True if s starts with tag, case sensitive
+function startsMatch(s, tag) { return _find(s, tag, true,  false, true)  != -1; } // True if s starts with tag, matches cases
+function ends(s, tag)        { return _find(s, tag, false, false, false) != -1; } // True if s ends with tag, case sensitive
+function endsMatch(s, tag)   { return _find(s, tag, false, false, true)  != -1; } // True if s ends with tag, matches cases
+function has(s, tag)         { return _find(s, tag, true,  true,  false) != -1; } // True if s contains tag, case sensitive
+function hasMatch(s, tag)    { return _find(s, tag, true,  true,  true)  != -1; } // True if s contains tag, matches cases
 
-function find(s, tag)      { return search(s, tag, true,  true, false); } // Find the character index in s where tag appears, case sensitive, -1 not found
-function findMatch(s, tag) { return search(s, tag, true,  true, true);  } // Find the character index in s where tag appears, matches cases, -1 not found
-function last(s, tag)      { return search(s, tag, false, true, false); } // Find the character index in s where tag last appears, case sensitive, -1 not found
-function lastMatch(s, tag) { return search(s, tag, false, true, true);  } // Find the character index in s where tag last appears, matches cases, -1 not found
+function find(s, tag)      { return _find(s, tag, true,  true, false); } // Find the character index in s where tag appears, case sensitive, -1 not found
+function findMatch(s, tag) { return _find(s, tag, true,  true, true);  } // Find the character index in s where tag appears, matches cases, -1 not found
+function last(s, tag)      { return _find(s, tag, false, true, false); } // Find the character index in s where tag last appears, case sensitive, -1 not found
+function lastMatch(s, tag) { return _find(s, tag, false, true, true);  } // Find the character index in s where tag last appears, matches cases, -1 not found
 
 // Find where in s tag appears, the character index, or -1 not found
 // forward: true to search forwards from the start, false to search backwards from the end
 // scan:    true to scan across all the positions possible in s, false to only look at the starting position
 // match:   true to match upper and lower case characters, false to treat upper and lower case characters as different
-function search(s, tag, forward, scan, match) {
-	var a1 = searchPlatform(s, tag, forward, scan, match);
-	var a2 = searchCustom(s, tag, forward, scan, match);
+function _find(s, tag, forward, scan, match) {
+	var a1 = _findPlatform(s, tag, forward, scan, match);
+	var a2 = _findCustom(s, tag, forward, scan, match);
 	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
 	return a1;
 }
-function searchPlatform(s, tag, forward, scan, match) { // Using JavaScript
+function _findPlatform(s, tag, forward, scan, match) { // Using JavaScript
 	if (!tag.length) throw "argument";
 	if (match) { s = s.toLocaleLowerCase(); tag = tag.toLocaleLowerCase(); } // Lowercase everything to match cases
 	return forward ? s.indexOf(tag) : s.lastIndexOf(tag); // Find the first or last index of the tag
 }
-function searchCustom(s, tag, forward, scan, match) { // Using our own code
+function _findCustom(s, tag, forward, scan, match) { // Using our own code
 
 	// Get and check the lengths
 	if (!tag.length) throw "argument"; // The tag cannot be blank
@@ -195,34 +197,30 @@ exports.findMatch = findMatch;
 exports.last = last;
 exports.lastMatch = lastMatch;
 
-exports.search = search;//_find
-exports.searchPlatform = searchPlatform;//_findPlatform
-exports.searchCustom = searchCustom;//_findCustom
+exports._find = _find;
+exports._findPlatform = _findPlatform;
+exports._findCustom = _findCustom;
 
-//split -> _cut
-//replaceDo -> _replace
+function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
+function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
+function beforeLast(s, tag)      { return _cut(s, tag, false, false).before; } // The part of s before the last place tag appears, s if not found, case sensitive
+function beforeLastMatch(s, tag) { return _cut(s, tag, false, true ).before; } // The part of s before the last place tag appears, s if not found, matches cases
 
+function after(s, tag)          { return _cut(s, tag, true,  false).after; } // The part of s after tag, "" if not found, case sensitive
+function afterMatch(s, tag)     { return _cut(s, tag, true,  true ).after; } // The part of s after tag, "" if not found, matches cases
+function afterLast(s, tag)      { return _cut(s, tag, false, false).after; } // The part of s after the last place tag appears, "" if not found, case sensitive
+function afterLastMatch(s, tag) { return _cut(s, tag, false, true ).after; } // The part of s after the last place tag appears, "" if not found, matches cases
 
-function before(s, tag)          { return split(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
-function beforeMatch(s, tag)     { return split(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
-function beforeLast(s, tag)      { return split(s, tag, false, false).before; } // The part of s before the last place tag appears, s if not found, case sensitive
-function beforeLastMatch(s, tag) { return split(s, tag, false, true ).before; } // The part of s before the last place tag appears, s if not found, matches cases
+function cut(s, tag)          { return _cut(s, tag, true,  false); } // Cut s around tag to get what's before and after, case sensitive
+function cutMatch(s, tag)     { return _cut(s, tag, true,  true ); } // Cut s around tag to get what's before and after, matches cases
+function cutLast(s, tag)      { return _cut(s, tag, false, false); } // Cut s around the last place tag appears to get what's before and after, case sensitive
+function cutLastMatch(s, tag) { return _cut(s, tag, false, true ); } // Cut s around the last place tag appears to get what's before and after, matches cases
 
-function after(s, tag)          { return split(s, tag, true,  false).after; } // The part of s after tag, "" if not found, case sensitive
-function afterMatch(s, tag)     { return split(s, tag, true,  true ).after; } // The part of s after tag, "" if not found, matches cases
-function afterLast(s, tag)      { return split(s, tag, false, false).after; } // The part of s after the last place tag appears, "" if not found, case sensitive
-function afterLastMatch(s, tag) { return split(s, tag, false, true ).after; } // The part of s after the last place tag appears, "" if not found, matches cases
-
-function cut(s, tag)          { return split(s, tag, true,  false); } // Cut s around tag to get what's before and after, case sensitive
-function cutMatch(s, tag)     { return split(s, tag, true,  true ); } // Cut s around tag to get what's before and after, matches cases
-function cutLast(s, tag)      { return split(s, tag, false, false); } // Cut s around the last place tag appears to get what's before and after, case sensitive
-function cutLastMatch(s, tag) { return split(s, tag, false, true ); } // Cut s around the last place tag appears to get what's before and after, matches cases
-
-// Split s around tag, finding the parts before and after it
+// Cut s around tag, finding the parts before and after it
 // forward: true to find the first place the tag appears, false to search backwards from the end
 // match:   true to match upper and lower case characters, false to be case-sensitive
-function split(s, tag, forward, match) {
-	var i = search(s, tag, forward, true, match); // Search s for tag
+function _cut(s, tag, forward, match) {
+	var i = _find(s, tag, forward, true, match); // Search s for tag
 	if (i == -1) {
 		return {
 			found:  false, // Not found, make before s and after blank
@@ -259,77 +257,28 @@ exports.cutLastMatch = cutLastMatch;
 
 
 
-//maybe rename split to cutDo
-//and search to findDo
-//to use that naming convention rather than cleverly picking another name for things
 
 
 
 
 
-
-// Replace all the tags in s with something else, like replace("a-b-c", "-", "_") is "a_b_c"
-function replace(s, t1, t2) { return replaceDo(s, t1, t2, false); } // Case sensitive
-function replaceMatch(s, t1, t2) { return replaceDo(s, t1, t2, true); } // Matches cases
-function replaceDo(s, t1, t2, match) {
-	var s2 = "";                         // Target string to fill with text as we break off parts and make the replacement
-	while (is(s)) {                      // Loop until s is blank
-		var c = split(s, t1, true, match); // Split s around the first instance of the tag in it
-		s2 += c.before;                    // Move the part before from s to done
+// In a single pass through s, replace whole instances of t1 with t2, like replace("a-b-c", "-", "_") is "a_b_c"
+function replace(s, t1, t2)      { return _replace(s, t1, t2, false); } // Case sensitive
+function replaceMatch(s, t1, t2) { return _replace(s, t1, t2, true);  } // Matches cases
+function _replace(s, t1, t2, match) {
+	var s2 = "";                        // Target string to fill with text as we break off parts and make the replacement
+	while (is(s)) {                     // Loop until s is blank, also makes sure it's a string
+		var c = _cut(s, t1, true, match); // Cut s around the first instance of the tag in it
+		s2 += c.before;                   // Move the part before from s to done
 		if (c.found) s2 += t2;
 		s = c.after;
 	}
 	return s2;
-	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, that might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is scary
+	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea
 }
 
-
-
-
-
-/*
-c replace
-j replace
-js replace
-*/
-
-/*
-// Takes text, find and replace tags, and matching
-// Makes a single pass down the text, replacing whole instances of the find text with the replacement text
-// Returns a string
-CString replace(read r, read t1, read t2, matching m) {
-
-	// If the text or the find text is blank, or if the find text is not found, return the text unchanged
-	CString top, left, bottom;
-	top = r;
-	if (isblank(r) || isblank(t1) || !has(r, t1, m)) return top;
-
-	// Loop while top has find
-	while (has(top, t1, m)) {
-
-		// f is in top
-		split(top, t1, &left, &top, Forward, m);
-		bottom += left + t2;
-	}
-
-	// f is not in top
-	bottom += top;
-
-	// Return bottom text
-	return bottom;
-}
-*/
-
-
-
-
-
-
-//write a test to see how it replaces "aaaaa" "aa" "bb", should be "bbbba", you think
-
-
-
-
+exports.replace = replace;
+exports.replaceMatch = replaceMatch;
 
 
 
@@ -550,7 +499,7 @@ String.prototype.distance = function (arg) {
 
 
 
-
+//after String in this file is where you'll put Describe
 
 
 

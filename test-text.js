@@ -227,9 +227,9 @@ var findMatch = text.findMatch;
 var last = text.last;
 var lastMatch = text.lastMatch;
 
-var search = text.search;
-var searchPlatform = text.searchPlatform;
-var searchCustom = text.searchCustom;
+var _find = text._find;
+var _findPlatform = text._findPlatform;
+var _findCustom = text._findCustom;
 
 exports.testSamePlatformCustom = function(test) {
 
@@ -277,15 +277,15 @@ exports.testStartsEndsHas = function(test) {
 	test.done();
 }
 
-exports.testSearchPlatformCustom = function(test) {
+exports.testFindPlatformCustom = function(test) {
 
 	//no tag
-	try { searchPlatform("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
-	try {   searchCustom("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
+	try { _findPlatform("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
+	try {   _findCustom("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
 
 	function both(found, s, tag, forward, match) {
-		test.ok(found == searchPlatform(s, tag, forward, true, match));
-		test.ok(found == searchCustom(s, tag, forward, true, match));
+		test.ok(found == _findPlatform(s, tag, forward, true, match));
+		test.ok(found == _findCustom(s, tag, forward, true, match));
 	}
 
 	//basic use
@@ -384,6 +384,27 @@ exports.testCut = function(test) {
 	test.done();
 }
 
+
+
+
+
+
+
+
+
+
+var replace = text.replace;
+var replaceMatch = text.replaceMatch;
+
+exports.testReplace = function(test) {
+
+
+
+
+	test.done();
+}
+
+//write a test to see how it replaces "aaaaa" "aa" "bb", should be "bbbba", you think
 
 
 
