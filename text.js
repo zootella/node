@@ -195,9 +195,13 @@ exports.findMatch = findMatch;
 exports.last = last;
 exports.lastMatch = lastMatch;
 
-exports.search = search;
-exports.searchPlatform = searchPlatform;
-exports.searchCustom = searchCustom;
+exports.search = search;//_find
+exports.searchPlatform = searchPlatform;//_findPlatform
+exports.searchCustom = searchCustom;//_findCustom
+
+//split -> _cut
+//replaceDo -> _replace
+
 
 function before(s, tag)          { return split(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return split(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
@@ -253,6 +257,8 @@ exports.cutLastMatch = cutLastMatch;
 
 
 
+
+
 //maybe rename split to cutDo
 //and search to findDo
 //to use that naming convention rather than cleverly picking another name for things
@@ -274,7 +280,7 @@ function replaceDo(s, t1, t2, match) {
 		s = c.after;
 	}
 	return s2;
-	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, and wrapping input that might be data from a user as a regular expression is scary
+	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, that might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is scary
 }
 
 
@@ -287,7 +293,7 @@ j replace
 js replace
 */
 
-
+/*
 // Takes text, find and replace tags, and matching
 // Makes a single pass down the text, replacing whole instances of the find text with the replacement text
 // Returns a string
@@ -312,6 +318,7 @@ CString replace(read r, read t1, read t2, matching m) {
 	// Return bottom text
 	return bottom;
 }
+*/
 
 
 
