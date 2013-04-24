@@ -395,23 +395,28 @@ exports.testCut = function(test) {
 
 
 
-var replace = text.replace;
-var replaceMatch = text.replaceMatch;
+var swap = text.swap;
+var swapMatch = text.swapMatch;
 
-exports.testReplace = function(test) {
+exports.testSwap = function(test) {
+
+
+
+	var s = "Abacore tuna is absolutely the best.";
+	test.ok(swapMatch(s, "ab", "Ba") == "Baacore tuna is Basolutely the best.");
+
+	s = "Yesterday. Bill said it. That's when Bill was in here.";
+	test.ok(swapMatch(s, "bill", "REDACTED") == "Yesterday. REDACTED said it. That's when REDACTED was in here.");
+
+	test.ok(swap("aaaaa", "aa", "bb") == "bbbba");//replaced 2 whole instances
+	test.ok(swap("aaaaa", "aa", "bbb") == "bbbbbba");
+
 
 
 
 
 	test.done();
 }
-
-//write a test to see how it replaces "aaaaa" "aa" "bb", should be "bbbba", you think
-
-
-
-
-
 
 
 
@@ -424,18 +429,107 @@ exports.testReplace = function(test) {
 var upper = text.upper;
 var lower = text.lower;
 
-exports.testUpperLower = function(test) {
+exports.testUpperLocale = function(test) {
 
-	test.ok(upper("a") == "A");//very simple use
-	test.ok(lower("A") == "a");
 
-	//try with international characters
+	//see what toLocaleUpperCase() can do that toUpperCase() can't
 
+
+	//see what toLocaleUpperCase() can't do, like that turkish example
 
 
 	test.done();
 }
 
+exports.testUpperLower = function(test) {
+
+	//use
+	test.ok(lower("A") == "a");
+	test.ok(upper("a") == "A");
+	test.ok(lower("Shhhh. Whisper, please.") == "shhhh. whisper, please.");
+	test.ok(upper("Do you want to buy a duck?") == "DO YOU WANT TO BUY A DUCK?");
+
+	//greek alphabet
+	var greekLower = "αβγδεζηθικλμνξοπρστυφχψω";
+	var greekUpper = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ";
+	test.ok(upper(greekLower) == greekUpper);
+	test.ok(lower(greekUpper) == greekLower);
+
+	test.done();
+}
+
+
+
+
+
+
+
+var code = text.code;
+var range = text.range;
+
+exports.testCode = function(test) {
+
+	test.ok(code("A") == 65);//you can omit i to get the first character
+
+	var s = "\0\r\n\x0d\x0a\t\"";//control characters
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 0);//null
+	test.ok(code(s, 1) == 0x0d);//r
+	test.ok(code(s, 2) == 0x0a);//n
+	test.ok(code(s, 3) == 0x0d);//r
+	test.ok(code(s, 4) == 0x0a);//n
+	test.ok(code(s, 5) == 9);//tab
+	test.ok(code(s, 6) == 34);//quote
+
+	s = "09AZaz";//letters and numbers
+	test.ok(code(s, 0) == 48);
+	test.ok(code(s, 1) == 57);
+	test.ok(code(s, 2) == 65);
+	test.ok(code(s, 3) == 90);
+	test.ok(code(s, 4) == 97);
+	test.ok(code(s, 5) == 122);
+
+	s = " !.^_";//punctuation
+	test.ok(code(s, 0) == 32);
+	test.ok(code(s, 1) == 33);
+	test.ok(code(s, 2) == 46);
+	test.ok(code(s, 3) == 94);
+	test.ok(code(s, 4) == 95);
+
+	s = "español";//europe
+	test.ok(s.length == 7);
+	test.ok(code(s, 0) == 101);
+	test.ok(code(s, 4) == 241);//beyond the ascii table
+	test.ok(code(s, 6) == 108);
+
+	s = "中文";//asia
+	test.ok(s.length == 2);
+	test.ok(code(s, 0) == 20013);//tens of thousands
+	test.ok(code(s, 1) == 25991);
+
+	s = "مرحبا";//arabic
+	test.ok(s.length == 5);
+	test.ok(code(s, 0) == 1605);//just thousands
+	test.ok(code(s, 1) == 1585);
+	test.ok(code(s, 2) == 1581);
+	test.ok(code(s, 3) == 1576);
+	test.ok(code(s, 4) == 1575);
+
+	test.done();
+}
+
+exports.testRange = function(test) {
+
+	test.ok(range("a", "a", "z"));//first
+	test.ok(range("z", "a", "z"));//last
+	test.ok(range("k", "a", "z"));//middle
+	test.ok(range("5", "5", "5"));//only
+
+	test.ok(!range("0", "a", "z"));//outside
+	test.ok(!range("A", "a", "z"));
+
+	test.done();
+}
 
 
 
@@ -538,61 +632,6 @@ js String.fromCharCode
 
 
 */
-
-
-
-
-var code = text.code;
-exports.testCode = function(test) {
-
-	test.ok(code("A") == 65);//you can omit i to get the first character
-
-	var s = "\0\r\n\x0d\x0a\t\"";//control characters
-	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 0);//null
-	test.ok(code(s, 1) == 0x0d);//r
-	test.ok(code(s, 2) == 0x0a);//n
-	test.ok(code(s, 3) == 0x0d);//r
-	test.ok(code(s, 4) == 0x0a);//n
-	test.ok(code(s, 5) == 9);//tab
-	test.ok(code(s, 6) == 34);//quote
-
-	s = "09AZaz";//letters and numbers
-	test.ok(code(s, 0) == 48);
-	test.ok(code(s, 1) == 57);
-	test.ok(code(s, 2) == 65);
-	test.ok(code(s, 3) == 90);
-	test.ok(code(s, 4) == 97);
-	test.ok(code(s, 5) == 122);
-
-	s = " !.^_";//punctuation
-	test.ok(code(s, 0) == 32);
-	test.ok(code(s, 1) == 33);
-	test.ok(code(s, 2) == 46);
-	test.ok(code(s, 3) == 94);
-	test.ok(code(s, 4) == 95);
-
-	s = "español";//europe
-	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 101);
-	test.ok(code(s, 4) == 241);//beyond the ascii table
-	test.ok(code(s, 6) == 108);
-
-	s = "中文";//asia
-	test.ok(s.length == 2);
-	test.ok(code(s, 0) == 20013);//tens of thousands
-	test.ok(code(s, 1) == 25991);
-
-	s = "مرحبا";//arabic
-	test.ok(s.length == 5);
-	test.ok(code(s, 0) == 1605);//just thousands
-	test.ok(code(s, 1) == 1585);
-	test.ok(code(s, 2) == 1581);
-	test.ok(code(s, 3) == 1576);
-	test.ok(code(s, 4) == 1575);
-
-	test.done();
-}
 
 
 

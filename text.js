@@ -95,10 +95,10 @@ exports.clip = clip;
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
-	var a1 = _samePlatform(s1, s2);
-	var a2 = _sameCustom(s1, s2);
-	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
-	return a1;
+	var p = _samePlatform(s1, s2);
+	var c = _sameCustom(s1, s2);
+	if (p != c) Mistake.log({ name:"same", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
+	return c; // Return custom
 }
 function _samePlatform(s1, s2) { return s1 == s2; }
 function _sameCustom(s1, s2) {
@@ -109,10 +109,10 @@ function _sameCustom(s1, s2) {
 
 // Compare two strings, matching cases
 function match(s1, s2) {
-	var a1 = _matchPlatform(s1, s2);
-	var a2 = _matchCustom(s1, s2);
-	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
-	return a1;
+	var p = _matchPlatform(s1, s2);
+	var c = _matchCustom(s1, s2);
+	if (p != c) Mistake.log({ name:"match", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
+	return c; // Return custom
 }
 function _matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
 function _matchCustom(s1, s2) {
@@ -138,10 +138,10 @@ function lastMatch(s, tag) { return _find(s, tag, false, true, true);  } // Find
 // scan:    true to scan across all the positions possible in s, false to only look at the starting position
 // match:   true to match upper and lower case characters, false to treat upper and lower case characters as different
 function _find(s, tag, forward, scan, match) {
-	var a1 = _findPlatform(s, tag, forward, scan, match);
-	var a2 = _findCustom(s, tag, forward, scan, match);
-	if (a1 != a2) throw "check"; //TODO do the way that's faster instead of this check
-	return a1;
+	var p = _findPlatform(s, tag, forward, scan, match);
+	var c = _findCustom(s, tag, forward, scan, match);
+	if (p != c) Mistake.log({ name:"_find", s:s, tag:tag, forward:forward, scan:scan, match:match, p:p, c:c }); //TODO do the way that's faster instead of this check
+	return c; // Return custom
 }
 function _findPlatform(s, tag, forward, scan, match) { // Using JavaScript
 	if (!tag.length) throw "argument";
@@ -262,10 +262,10 @@ exports._cut = _cut;
 
 
 
-// In a single pass through s, replace whole instances of t1 with t2, like replace("a-b-c", "-", "_") is "a_b_c"
-function replace(s, t1, t2)      { return _replace(s, t1, t2, false); } // Case sensitive
-function replaceMatch(s, t1, t2) { return _replace(s, t1, t2, true);  } // Matches cases
-function _replace(s, t1, t2, match) {
+// In a single pass through s, replace whole instances of t1 with t2, like swap("a-b-c", "-", "_") is "a_b_c"
+function swap(s, t1, t2)      { return _swap(s, t1, t2, false); } // Case sensitive
+function swapMatch(s, t1, t2) { return _swap(s, t1, t2, true);  } // Matches cases
+function _swap(s, t1, t2, match) {
 	var s2 = "";                        // Target string to fill with text as we break off parts and make the replacement
 	while (is(s)) {                     // Loop until s is blank, also makes sure it's a string
 		var c = _cut(s, t1, true, match); // Cut s around the first instance of the tag in it
@@ -274,11 +274,11 @@ function _replace(s, t1, t2, match) {
 		s = c.after;
 	}
 	return s2;
-	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea
+	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
 }
 
-exports.replace = replace;
-exports.replaceMatch = replaceMatch;
+exports.swap = swap;
+exports.swapMatch = swapMatch;
 
 
 
@@ -323,16 +323,34 @@ j same, sameCase
 js localeCompare
 */
 
-function upper(s) { return s.toLocaleUpperCase(); }
-function lower(s) { return s.toLocaleLowerCase(); }
-/*
-js toLocaleLowerCase
-js toLocaleUpperCase
-js toLowerCase
-js toUpperCase
-*/
+
+
+
+
+
+// Convert lower case characters in s to upper case
+function upper(s) {
+	var u = s.toLocaleUpperCase();
+	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure that didn't change the length
+	return u;
+}
+
+// Convert upper case characters in s to lower case
+function lower(s) {
+	var l = s.toLocaleLowerCase();
+	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
+	return l;
+}
+
 exports.upper = upper;
 exports.lower = lower;
+
+
+
+
+
+
+
 
 // The Unicode number value of the character a distance i characters into s
 // Also gets ASCII codes, code("A") is 65
@@ -341,12 +359,17 @@ function code(s, i) {
 	if (i < 0 || i > s.length - 1) throw "bounds";
 	return s.charCodeAt(i);
 }
+
+// True if s has a code in the range of c1 through c2
+// For instance, range("m", "a", "z") == true
+// Takes three strings to look at the first character of each
+function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)); }
+
 exports.code = code;
-function fromCode(n) {}
-/*
-js charCodeAt
-js String.fromCharCode
-*/
+exports.range = range;
+
+
+
 
 function isLetter(c) {}
 function isNumber(c) {}
