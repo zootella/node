@@ -255,7 +255,7 @@ exports.cutLastMatch = cutLastMatch;
 
 exports._cut = _cut;
 
-
+//stuff beyond this point isn't in order yet
 
 
 
@@ -285,53 +285,10 @@ exports.swapMatch = swapMatch;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-function on() {}
-function off() {}
-/*
-c on, off
-*/
-
-function trim() {}
-/*
-trim
-c trim
-j trim
-js trim
-js trimLeft
-js trimRight
-
-include the feature where you can trim everything in the given string of tags
-*/
-
-function sort(s1, s2) {}
-/*
-c same, compare
-j same, sameCase
-js localeCompare
-*/
-
-
-
-
-
-
 // Convert lower case characters in s to upper case
 function upper(s) {
-	var u = s.toLocaleUpperCase();
-	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure that didn't change the length
+	var u = s.toLocaleUpperCase(); // Use instead of toUpperCase() to work for locales without the default Unicode case mappings
+	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure the case change didn't change the length
 	return u;
 }
 
@@ -344,7 +301,6 @@ function lower(s) {
 
 exports.upper = upper;
 exports.lower = lower;
-
 
 
 
@@ -367,6 +323,131 @@ function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)
 
 exports.code = code;
 exports.range = range;
+
+
+
+
+
+
+
+// Find where tag1 or tag2 first appears in s, -1 if neither found
+function either(s, tag1, tag2) { return _either(s, tag1, tag2, false); } // Case sensitive
+function eitherMatch(s, tag1, tag2) { return _either(s, tag1, tag2, true); } // Matches cases
+function _either(s, tag1, tag2, match) {
+	var i1 = _find(s, tag1, true, true, match); // Search for both
+	var i2 = _find(s, tag2, true, true, match);
+	if (i1 == -1 && i2 == -1) return -1; // Both not found
+	else if (i1 == -1) return i2; // One found, but not the other
+	else if (i2 == -1) return i1;
+	else return Math.min(i1, i2); // Both found, return the one that appears first
+}
+
+exports.either = either;
+exports.eitherMatch = eitherMatch;
+exports._either = _either;
+
+
+
+
+
+
+
+
+
+function trim() {}
+/*
+trim
+c trim
+j trim
+js trim
+js trimLeft
+js trimRight
+
+include the feature where you can trim everything in the given string of tags
+*/
+
+
+
+
+// Confirm s starts or ends with tag, inserting it if necessary
+function onStart(s, tag)      { return _on(s, tag, true); }
+function onEnd(s, tag)        { return _on(s, tag, false); }
+function _on(s, tag, forward) {
+	if (forward) { if (!starts(s, tag)) s = tag + s; } // Find and insert at start
+	else         { if (!ends(s, tag))   s = s + tag; } // Find and insert at end
+	return s;
+}
+
+// Confirm s does not start or end with tag, removing multiple instances of it if necessary
+function offStart(s, tag)      { return _off(s, tag, true); }
+function offEnd(s, tag)        { return _off(s, tag, false); }
+function _off(s, tag, forward) {
+	if (forward) { while(starts(s, tag)) s = clip(s, tag.length, -1); }           // Remove tag from the start of s
+	else         { while(ends(s, tag)) s = clip(s, 0, s.length - tag.length); } // Remove tag from the end of s
+	return s;
+}
+
+// Remove any number of tags from the start and end of s
+function off(s) {
+
+	// Remove the tags from the start of s until gone
+	while (true) {
+		var none = true;
+		for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
+			if (starts(s, arguments[i])) {
+				s = beyond(s, arguments[i].length);
+				none = false;
+			}
+		}
+		if (none) break;
+	}
+
+	// Remove the tags from the end of the string until gone
+	while (true) {
+		var none = true;
+		for (var i = 1; i < arguments.length; i++) {
+			if (trails(s, arguments[i])) {
+				s = chop(s, arguments[i].length);
+				none = false;
+			}
+		}
+		if (none) break;
+	}
+
+	return s;
+}
+
+exports.onStart = onStart;
+exports.onEnd = onEnd;
+exports._on = _on;
+
+exports.offStart = offStart;
+exports.offEnd = offEnd;
+exports._off = _off;
+
+exports.off = off;
+
+
+
+
+
+
+
+
+
+
+function sort(s1, s2) {}
+/*
+c same, compare
+j same, sameCase
+js localeCompare
+*/
+
+
+
+
+
+
 
 
 
@@ -432,15 +513,14 @@ js valueOf
 
 
 
-// Find where tag1 or tag2 first appears in s, -1 if neither found
-function either(s, tag1, tag2) {
-	var i1 = find(s, tag1); // Search for both
-	var i2 = find(s, tag2);
-	if (i1 == -1 && i2 == -1) return -1; // Both not found
-	else if (i1 == -1) return i2; // One found, but not the other
-	else if (i2 == -1) return i1;
-	else return Math.min(i1, i2); // Both found, return the one that appears first
-}
+
+//write fill, a really easy simple format
+//like c's sprintf, but much simpler
+//fill("Tom is # years old #.", 7, "Tuesday");
+
+// It's like C's famous , but simpler and more in the style of dynamic types
+// What if you want to include a # that doesn't get replaces? Assemble your string the old fasioned way with "# of kittens: " + kittens + ";"
+
 
 
 //write tests for these, confirm they throw on undefined and null

@@ -386,6 +386,7 @@ exports.testCut = function(test) {
 	test.done();
 }
 
+//stuff beyond this point isn't in order yet
 
 
 
@@ -400,8 +401,6 @@ var swapMatch = text.swapMatch;
 
 exports.testSwap = function(test) {
 
-
-
 	var s = "Abacore tuna is absolutely the best.";
 	test.ok(swapMatch(s, "ab", "Ba") == "Baacore tuna is Basolutely the best.");
 
@@ -410,10 +409,6 @@ exports.testSwap = function(test) {
 
 	test.ok(swap("aaaaa", "aa", "bb") == "bbbba");//replaced 2 whole instances
 	test.ok(swap("aaaaa", "aa", "bbb") == "bbbbbba");
-
-
-
-
 
 	test.done();
 }
@@ -428,18 +423,6 @@ exports.testSwap = function(test) {
 
 var upper = text.upper;
 var lower = text.lower;
-
-exports.testUpperLocale = function(test) {
-
-
-	//see what toLocaleUpperCase() can do that toUpperCase() can't
-
-
-	//see what toLocaleUpperCase() can't do, like that turkish example
-
-
-	test.done();
-}
 
 exports.testUpperLower = function(test) {
 
@@ -530,6 +513,57 @@ exports.testRange = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+var either = text.either;
+var eitherMatch = text.eitherMatch;
+var _either = text._either;
+
+exports.testEither = function(test) {
+
+	var s = "sample abc text def and more";
+
+	test.ok(either(s, "abc", "xyz") == 7);//first found
+	test.ok(either(s, "xyz", "abc") == 7);//second found
+
+	test.ok(either(s, "abc", "def") == 7);//both found
+	test.ok(either(s, "aBC", "def") == 16);//first case mismatch
+	test.ok(eitherMatch(s, "aBC", "def") == 7);//matching cases
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+var onStart = text.onStart;
+var onEnd = text.onEnd;
+var _on = text._on;
+
+var offStart = text.offStart;
+var offEnd = text.offEnd;
+var _off = text._off;
+
+var off = text.off;
+
+exports.testOff = function(test) {
+
+
+
+	test.done();
+}
+
+
+
+
 
 
 
