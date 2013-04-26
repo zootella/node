@@ -729,111 +729,16 @@ exports.testWiden = function(test) {
 
 
 
+var commas = text.commas;
+
+exports.testCommas = function(test) {
+
+	test.ok(commas("") == "");
 
 
+	test.done();
+}
 
-
-
-
-
-
-
-/*
-
-length, size
-js length
-
-get, code
-js charAt
-js charCodeAt
-
-make
-c make
-j add
-js concat
-
-upper, lower
-c upper, lower
-
-c number
-j isLetter
-j isNumber
-
-is, blank
-c is, isblank
-j isBlank, is
-
-c same, compare
-j same, sameCase
-js localeCompare
-
-c starts, trails, has, find
-j starts, startsCase, ends, endsCase
-j has, hasCase
-j findEither, find, findCase, last, lastCase, search
-js contains
-js startsWith, endsWith
-js indexOf, lastIndexOf
-
-c parse
-
-c before, after, split
-j before, after, beforeLast, afterLast, split, splitCase, splitLast, splitLastCase, split
-
-c replace
-j replace
-
-c clip
-j clip, start, end, after, chop
-
-c on, off
-
-c trim
-j trim
-
-c words
-j group, line
-j lines, words, words
-j line
-j table
-
-c SayNumber
-
-c InsertCommas
-c SayTime
-c SayNow
-c UriDecode, UriEncode
-c SafeFileName
-j quote
-
-
-
-
-
-
-js match
-js quote
-js replace
-js search
-js slice
-js split
-js substr
-js substring
-js toLocaleLowerCase
-js toLocaleUpperCase
-js toLowerCase
-js toSource
-js toString
-js toUpperCase
-js trim
-js trimLeft
-js trimRight
-js valueOf
-js String.fromCharCode
-
-
-
-*/
 
 
 

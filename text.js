@@ -509,6 +509,23 @@ exports.widen = widen;
 
 
 
+// Insert commas between groups of three characters
+// For example, commas("12345") == "12,345"
+// In Europe, specify a custom separator like commas(s, ".")
+function commas(s, c) {
+	if (!c) c = ","; // Separate with comma by default
+	var u = ""; // Temporary string
+	var t = ""; // Target text to build and return
+	while (s.length > 3) {// Move commas and groups of 3 characters from s to t
+		u = end(s, 3);
+		s = chop(s, 3);
+		t = c + u + t;
+	}
+	return s + t; // Move the leading gorup of up to 3 characters
+}
+
+exports.commas = commas;
+
 
 
 
@@ -555,41 +572,44 @@ js localeCompare
 
 
 /*
-(do later)
 
-j findEither
-c parse
 
-c words
+
+
 js split
+
+c parse
+c words
+c SayNumber
+c InsertCommas
+
+c UriDecode, UriEncode
+c SafeFileName
+
+j table
 j group, line
 j lines, words, words
 j line
-j table
 
-c SayNumber
 
-c InsertCommas
-c SayTime
+
+
+
+
+(dont do)
+j quote, because javascript allows single quotes
+c SayTime, because these will be methods on time objects
 c SayNow
-c UriDecode, UriEncode
-c SafeFileName
-j quote
 
 (regular expressions)
-
 js match
 js search
 
 (not used)
-
 js quote
 js toSource
 js toString
 js valueOf
-
-
-
 */
 
 
