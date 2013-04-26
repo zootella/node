@@ -449,6 +449,8 @@ exports.testUpperLower = function(test) {
 
 var code = text.code;
 var range = text.range;
+var isLetter = text.isLetter;
+var isNumber = text.isNumber;
 
 exports.testCode = function(test) {
 
@@ -514,6 +516,38 @@ exports.testRange = function(test) {
 	test.done();
 }
 
+exports.testIsLetterIsNumber = function(test) {
+
+	test.ok(isLetter("a"));//lower
+	test.ok(isLetter("b"));
+	test.ok(isLetter("z"));
+
+	test.ok(isLetter("A"));//upper
+	test.ok(isLetter("K"));
+	test.ok(isLetter("Z"));
+
+	test.ok(isNumber("0"));//number
+	test.ok(isNumber("2"));
+	test.ok(isNumber("9"));
+
+	//blank throws bounds
+	try { isLetter(""); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+
+	function neither(c) {
+		test.ok(!isLetter(c));
+		test.ok(!isNumber(c));
+	}
+
+	neither(" ");
+	neither(":");
+	neither("/");
+	neither("!");
+	neither("\0");
+	neither("\r");
+
+	test.done();
+}
+
 
 
 
@@ -556,10 +590,117 @@ var off = text.off;
 
 exports.testOff = function(test) {
 
+	//on start and end
+	test.ok(onStart("/folder", "/") == "/folder");//already there
+	test.ok(onStart("folder", "/") == "/folder");//added it
 
+	test.ok(onEnd("folder/", "/") == "folder/");//already there
+	test.ok(onEnd("folder", "/") == "folder/");//added it
+
+	test.ok(onEnd("folder///", "//") == "folder///");//already there
+	test.ok(onEnd("folderABC", "AB") == "folderABCAB");//added it
+
+	//off start and end
+	test.ok(offStart("/folder", "/") == "folder");//removed it
+	test.ok(offStart("folder", "/") == "folder");//didn't need to
+	test.ok(offStart("///folder", "/") == "folder");//removed multiple
+
+	test.ok(offEnd("folder/", "/") == "folder");//removed it
+	test.ok(offEnd("folder", "/") == "folder");//didn't need to
+	test.ok(offEnd("folder///", "/") == "folder");//removed multiple
+
+	//off
+	var s = " --_ folder-_-- -";
+	test.ok(off(s, " ") == "--_ folder-_-- -");
+	test.ok(off(s, "-") == " --_ folder-_-- ");
+	test.ok(off(s, " ", "-") == "_ folder-_");
+	test.ok(off(s, " ", "-", "_") == "folder");
 
 	test.done();
 }
+
+
+
+
+
+
+var number = text.number;
+var number16 = text.number16;
+var _number = text._number;
+
+var numerals = text.numerals;
+var numerals16 = text.numerals16;
+
+exports.testNumberNumerals = function(test) {
+
+	test.ok(numerals(123) === "123");
+	test.ok(number("123") === 123);
+
+	test.ok(numerals16(255) === "ff");
+	test.ok(number16("ff") === 255);
+
+	function run(n, s) {
+		test.ok(numerals(n) === s);//use triple equals here
+		test.ok(number(s) === n);
+	}
+	function run16(n, s) {
+		test.ok(numerals16(n) === s);
+		test.ok(number16(s) === n);
+	}
+
+	//basic use
+	run(123, "123");
+	run16(255, "ff");
+
+
+
+
+
+
+
+	//have it do
+	//integer
+	//decimal
+	//negative
+	//base16 like "ff" is 255
+	//and have it throw data on anything that doesn't look quite right
+	//there is lots of custom work to do with this one
+
+	test.done();
+}
+
+
+
+var fill = text.fill;
+
+exports.testFill = function(test) {
+	
+	test.ok(fill("") == "");//blank
+	test.ok(fill("hello") == "hello");//no tags
+
+	test.ok(fill("#ab", 7) == "7ab");//start
+	test.ok(fill("a#b", 7) == "a7b");//middle
+	test.ok(fill("ab#", 7) == "ab7");//end
+
+	test.ok(fill("###", "a", "b", "c")      == "abc");//multiple
+	test.ok(fill("###", "a", "b", "c", "d") == "abcd");//too many
+	test.ok(fill("###", "a", "b")           == "ab#");//too few
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

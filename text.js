@@ -72,6 +72,7 @@ exports.size = size;
 function first(s) { return get(s, 0); }
 // Get the character a distance i in characters into the string s
 function get(s, i) {
+	if (!i) i = 0; // Turn undefined into 0 so math below works
 	if (i < 0 || i > s.length - 1) throw "bounds";
 	return s.charAt(i);
 }
@@ -80,7 +81,9 @@ function start(s, n)  { return clip(s, 0, n); }            // Clip out the first
 function end(s, n)    { return clip(s, s.length - n, n); } // Clip out the last n characters of s, end(3) is cccccccCCC	
 function beyond(s, i) { return clip(s, i, s.length - i); } // Clip out the characters beyond index i in s, beyond(3) is cccCCCCCCC	
 function chop(s, n)   { return clip(s, 0, s.length - n); } // Chop the last n characters off the end of s, returning the start before them, chop(3) is CCCCCCCccc	
-function clip(s, i, n) {                                  // Clip out part of s, clip(5, 3) is cccccCCCcc
+function clip(s, i, n) {                                   // Clip out part of s, clip(5, 3) is cccccCCCcc
+	if (!i) i = 0; // Turn undefined into 0 so math below works
+	if (!n) n = 0;
 	if (i < 0 || n < 0 || i + n > s.length) throw "bounds"; // Make sure the requested index and number of characters fits inside s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
@@ -140,7 +143,7 @@ function lastMatch(s, tag) { return _find(s, tag, false, true, true);  } // Find
 function _find(s, tag, forward, scan, match) {
 	var p = _findPlatform(s, tag, forward, scan, match);
 	var c = _findCustom(s, tag, forward, scan, match);
-	if (p != c) Mistake.log({ name:"_find", s:s, tag:tag, forward:forward, scan:scan, match:match, p:p, c:c }); //TODO do the way that's faster instead of this check
+	if (scan && p != c) Mistake.log({ name:"_find", s:s, tag:tag, forward:forward, scan:scan, match:match, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _findPlatform(s, tag, forward, scan, match) { // Using JavaScript
@@ -312,6 +315,7 @@ exports.lower = lower;
 // Also gets ASCII codes, code("A") is 65
 // You can omit i to get the code of the first character
 function code(s, i) {
+	if (!i) i = 0; // Turn undefined into 0 so the math below works
 	if (i < 0 || i > s.length - 1) throw "bounds";
 	return s.charCodeAt(i);
 }
@@ -320,9 +324,14 @@ function code(s, i) {
 // For instance, range("m", "a", "z") == true
 // Takes three strings to look at the first character of each
 function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)); }
+function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
+function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
 
 exports.code = code;
 exports.range = range;
+exports.isLetter = isLetter;
+exports.isNumber = isNumber;
+
 
 
 
@@ -353,22 +362,6 @@ exports._either = _either;
 
 
 
-
-function trim() {}
-/*
-trim
-c trim
-j trim
-js trim
-js trimLeft
-js trimRight
-
-include the feature where you can trim everything in the given string of tags
-*/
-
-
-
-
 // Confirm s starts or ends with tag, inserting it if necessary
 function onStart(s, tag)      { return _on(s, tag, true); }
 function onEnd(s, tag)        { return _on(s, tag, false); }
@@ -382,12 +375,12 @@ function _on(s, tag, forward) {
 function offStart(s, tag)      { return _off(s, tag, true); }
 function offEnd(s, tag)        { return _off(s, tag, false); }
 function _off(s, tag, forward) {
-	if (forward) { while(starts(s, tag)) s = clip(s, tag.length, -1); }           // Remove tag from the start of s
-	else         { while(ends(s, tag)) s = clip(s, 0, s.length - tag.length); } // Remove tag from the end of s
+	if (forward) { while(starts(s, tag)) s = beyond(s, tag.length); } // Remove tag from the start of s
+	else         { while(ends(s, tag)) s = chop(s, tag.length); } // Remove tag from the end of s
 	return s;
 }
 
-// Remove any number of tags from the start and end of s
+// Remove any number of tags from the start and end of s, like off(s, " ", "-", "_")
 function off(s) {
 
 	// Remove the tags from the start of s until gone
@@ -406,7 +399,7 @@ function off(s) {
 	while (true) {
 		var none = true;
 		for (var i = 1; i < arguments.length; i++) {
-			if (trails(s, arguments[i])) {
+			if (ends(s, arguments[i])) {
 				s = chop(s, arguments[i].length);
 				none = false;
 			}
@@ -435,6 +428,84 @@ exports.off = off;
 
 
 
+//move these to a section other than String called Number or Convert
+
+function number(s) { return _number(s, 10); }
+function number16(s) { return _number(s, 16); }
+function _number(s, base) {
+	var n = parseInt(s, base);
+	if (isNaN(n)) throw "data";
+	return n;
+}
+
+function numerals(n) { return n.toString(10); }
+function numerals16(n) { return n.toString(16); }
+/*
+c number
+*/
+
+exports.number = number;
+exports.number16 = number16;
+exports._number = _number;
+
+exports.numerals = numerals;
+exports.numerals16 = numerals16;
+
+
+
+
+
+//write the function that adds leading zeros until its a given length
+
+
+
+
+
+//write fill, a really easy simple format
+//like c's sprintf, but much simpler
+//fill("Tom is # years old #.", 7, "Tuesday");
+
+// It's like C's famous , but simpler and more in the style of dynamic types
+// What if you want to include a # that doesn't get replaces? Assemble your string the old fasioned way with "# of kittens: " + kittens + ";"
+
+
+function fill(s) {
+	var t = "";
+	for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
+		var c = cut(s, "#");
+		t += c.before + (arguments[i] + ""); // Turn the argument into a string
+		s = c.after;
+	}
+	return t + s; // Include any part of s that remains
+}
+
+exports.fill = fill;
+
+
+
+
+
+
+
+
+
+
+
+
+
+function trim() {}
+/*
+trim
+c trim
+j trim
+js trim
+js trimLeft
+js trimRight
+*/
+
+
+
+
 
 function sort(s1, s2) {}
 /*
@@ -449,25 +520,6 @@ js localeCompare
 
 
 
-
-
-
-function isLetter(c) {}
-function isNumber(c) {}
-/*
-j isLetter
-j isNumber
-*/
-
-function number(s) {}
-function numerals(n) {}
-/*
-c number
-*/
-
-
-//maybe have one that returns strings to define all the ranges of ascii and beyond
-//like whitespace, punctuation, letter, number, beyond
 
 
 
@@ -509,17 +561,6 @@ js valueOf
 
 
 */
-
-
-
-
-
-//write fill, a really easy simple format
-//like c's sprintf, but much simpler
-//fill("Tom is # years old #.", 7, "Tuesday");
-
-// It's like C's famous , but simpler and more in the style of dynamic types
-// What if you want to include a # that doesn't get replaces? Assemble your string the old fasioned way with "# of kittens: " + kittens + ";"
 
 
 
