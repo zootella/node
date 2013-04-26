@@ -624,50 +624,68 @@ exports.testOff = function(test) {
 
 
 
+
+
+
+
 var number = text.number;
 var number16 = text.number16;
 var _number = text._number;
 
 var numerals = text.numerals;
 var numerals16 = text.numerals16;
+var _numerals = text._numerals;
 
 exports.testNumberNumerals = function(test) {
 
-	test.ok(numerals(123) === "123");
-	test.ok(number("123") === 123);
+	function cycle(n, s10, s16) {
+		test.ok(numerals(n) === s10);//number to text
+		test.ok(numerals16(n) === s16);
 
-	test.ok(numerals16(255) === "ff");
-	test.ok(number16("ff") === 255);
-
-	function run(n, s) {
-		test.ok(numerals(n) === s);//use triple equals here
-		test.ok(number(s) === n);
-	}
-	function run16(n, s) {
-		test.ok(numerals16(n) === s);
-		test.ok(number16(s) === n);
+		test.ok(number(s10) === n);//text to number
+		test.ok(number16(s16) === n);
 	}
 
-	//basic use
-	run(123, "123");
-	run16(255, "ff");
+	//confirm we can turn numbers into text and back again
+	cycle(0, "0", "0");//zero and one
+	cycle(1, "1", "1");
+	cycle(10, "10", "a");//ten, note how base16 output is lower case
+	cycle(789456123, "789456123", "2f0e24fb");
+	cycle(-5, "-5", "-5");//negative
+	cycle(-11, "-11", "-b");
+	cycle(0xff, "255", "ff");//0x number literal, note how output text doesn't include the "0x" prefix
+	cycle(-0x2f0e24fb, "-789456123", "-2f0e24fb");
 
+	test.ok(numerals(123.456) === "123.456");//decimal
+	test.ok(numerals(-123.456) === "-123.456");
 
+	function bad(s) {
+		try { number(s); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { number16(s); test.fail(); } catch (e) { test.ok(e == "data"); }
+	}
 
+	//make sure text that isn't a perfect number can't become one
+	bad("");//blank
+	bad(" ");//space
+	bad("potato");//a word
+	bad("-");//punctuation
+	bad(".");
+	bad("k");
 
+	bad("05");//leading zero
 
-
-
-	//have it do
-	//integer
-	//decimal
-	//negative
-	//base16 like "ff" is 255
-	//and have it throw data on anything that doesn't look quite right
-	//there is lots of custom work to do with this one
+	bad(" 5");//spaces
+	bad("5 ");
+	bad(" 5 ");
+	bad("5 6");
 
 	test.done();
 }
+
+
+
+
+
 
 
 
@@ -695,7 +713,16 @@ exports.testFill = function(test) {
 
 
 
+var widen = text.widen;
 
+exports.testWiden = function(test) {
+
+	test.ok(widen("1", 4) == "0001");//add leading zeros
+	test.ok(widen("12345", 4) == "12345");//already longer than that
+	test.ok(widen("1", 4, " ") == "   1");//spaces instead
+
+	test.done();
+}
 
 
 

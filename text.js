@@ -264,7 +264,6 @@ exports._cut = _cut;
 
 
 
-
 // In a single pass through s, replace whole instances of t1 with t2, like swap("a-b-c", "-", "_") is "a_b_c"
 function swap(s, t1, t2)      { return _swap(s, t1, t2, false); } // Case sensitive
 function swapMatch(s, t1, t2) { return _swap(s, t1, t2, true);  } // Matches cases
@@ -428,21 +427,23 @@ exports.off = off;
 
 
 
-//move these to a section other than String called Number or Convert
 
 function number(s) { return _number(s, 10); }
 function number16(s) { return _number(s, 16); }
 function _number(s, base) {
+	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
+	if (_numerals(n, base) !== s) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes exactly the same text we made it from
 	return n;
 }
 
-function numerals(n) { return n.toString(10); }
-function numerals16(n) { return n.toString(16); }
-/*
-c number
-*/
+function numerals(n) { return _numerals(n, 10); }
+function numerals16(n) { return _numerals(n, 16); }
+function _numerals(n, base) {
+	if (typeof n !== "number") throw "type";
+	return n.toString(base);
+}
 
 exports.number = number;
 exports.number16 = number16;
@@ -450,25 +451,23 @@ exports._number = _number;
 
 exports.numerals = numerals;
 exports.numerals16 = numerals16;
+exports._numerals = _numerals;
 
 
 
 
 
-//write the function that adds leading zeros until its a given length
 
 
 
 
 
-//write fill, a really easy simple format
-//like c's sprintf, but much simpler
-//fill("Tom is # years old #.", 7, "Tuesday");
 
-// It's like C's famous , but simpler and more in the style of dynamic types
+
+// Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
+// Like C's famous sprintf, but simpler and more in the style of a dynamically typed language
+// You only really need one format specifier, #
 // What if you want to include a # that doesn't get replaces? Assemble your string the old fasioned way with "# of kittens: " + kittens + ";"
-
-
 function fill(s) {
 	var t = "";
 	for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
@@ -480,6 +479,37 @@ function fill(s) {
 }
 
 exports.fill = fill;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function widen(s, width, c) {
+	if (!c) c = "0";
+	while (s.length < width) s = c + s;
+	return s;
+}
+
+exports.widen = widen;
+
+
+
+
+
+
+
+
+
+
 
 
 
