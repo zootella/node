@@ -679,6 +679,9 @@ exports.testNumberNumerals = function(test) {
 	bad(" 5 ");
 	bad("5 6");
 
+	//allow uppercase base16 as input
+	test.ok(number16("A") == 10);
+
 	test.done();
 }
 
@@ -734,10 +737,95 @@ var commas = text.commas;
 exports.testCommas = function(test) {
 
 	test.ok(commas("") == "");
+	test.ok(commas("1") == "1");
+	test.ok(commas("12") == "12");
+	test.ok(commas("123") == "123");
+	test.ok(commas("1234") == "1,234");
+	test.ok(commas("12345") == "12,345");
+	test.ok(commas("123456") == "123,456");
+	test.ok(commas("1234567") == "1,234,567");
 
+	test.ok(commas("1234567", ".") == "1.234.567");
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

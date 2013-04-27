@@ -427,6 +427,24 @@ exports.off = off;
 
 
 
+//the round trip strict trick is really cool
+//you could use it for base16, 32, 62 also
+//and also maybe generalize it so you can call one function that does it
+
+//s is the text we parsed
+//o is the object we parsed it into
+//f is the function that turns o back into text
+function parseCheck(s, t) { if (s !== t) throw "data"; }
+function parseCheckMatch(s, t) { if (!match(s, t)) throw "data"; }
+//call this in number, base16, 32, 62
+//this is a great idea
+
+
+
+
+
+
+
 
 function number(s) { return _number(s, 10); }
 function number16(s) { return _number(s, 16); }
@@ -434,7 +452,8 @@ function _number(s, base) {
 	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
-	if (_numerals(n, base) !== s) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes exactly the same text we made it from
+	parseCheckMatch(s, _numerals(n, base));
+//	if (_numerals(n, base) !== s) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes exactly the same text we made it from
 	return n;
 }
 
@@ -456,7 +475,8 @@ exports._numerals = _numerals;
 
 
 
-
+//wait, number16("A") will fail--write a test that demonstrates this first, then adjust the code to make it pass by calling lower on each before the comparison, or by using match()
+//and build that feature into parseCheck, have parseCheck and parseCheckMatch
 
 
 
@@ -537,10 +557,52 @@ exports.commas = commas;
 
 
 
+/** Format the given list of strings into a fixed width text table with the given number of columns. *
+public static String table(int columns, String... cells) {
+	
+	int[] widths = new int[columns]; // Loop to determine how wide each column needs to be
+	for (int i = 0; i < cells.length; i++) {
+		if (widths[i % columns] < cells[i].length())
+			widths[i % columns] = cells[i].length();
+	}
+	
+	StringBuffer b = new StringBuffer(); // Loop for each cell to assemble the table
+	for (int i = 0; i < cells.length; i++) {
+		String s = cells[i];
+
+		if (i % columns != columns - 1) {            // Before the last column
+			while (s.length() < widths[i % columns]) // Make this cell wide enough for the column it's in
+				s += " ";
+			b.append(s + "  ");
+		} else {                                     // Last column
+			b.append(s + "\r\n");
+		}
+	}
+	return b.toString();
+}
+*/
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+function trimStart() {}
+function trimEnd() {}
 function trim() {}
+function _trim() {}
+function _trimPlatform() {}
+function _trimCustom() {}
 /*
 trim
 c trim
@@ -581,12 +643,10 @@ js split
 c parse
 c words
 c SayNumber
-c InsertCommas
 
 c UriDecode, UriEncode
 c SafeFileName
 
-j table
 j group, line
 j lines, words, words
 j line
@@ -697,8 +757,16 @@ String.prototype.distance = function (arg) {
 
 
 
+//yes, move Encode into text.js
+//the parts of text.js will then be
+
+//String
+//Number
+//Encode
 
 
+
+//add to string's prototype at the bottom of each exports bunch, just doing the ones that make sense, obviously
 
 
 
