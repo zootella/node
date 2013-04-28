@@ -28,6 +28,9 @@ if(!('contains' in String.prototype))
 //don't polyfill, exactly, rather if something is already defined, throw "platform"
 
 
+//you need to add the throw "platform" if any of the methods you're going to add are already present
+
+
 /*
  * These are a few of my favorite strings.
  */
@@ -217,6 +220,18 @@ exports._find = _find;
 exports._findPlatform = _findPlatform;
 exports._findCustom = _findCustom;
 
+String.prototype.starts      = function(tag) { return starts(this, tag); }
+String.prototype.startsMatch = function(tag) { return startsMatch(this, tag); }
+String.prototype.ends        = function(tag) { return ends(this, tag); }
+String.prototype.endsMatch   = function(tag) { return endsMatch(this, tag); }
+String.prototype.has         = function(tag) { return has(this, tag); }
+String.prototype.hasMatch    = function(tag) { return hasMatch(this, tag); }
+
+String.prototype.find      = function(tag) { return find(this, tag); }
+String.prototype.findMatch = function(tag) { return findMatch(this, tag); }
+String.prototype.last      = function(tag) { return last(this, tag); }
+String.prototype.lastMatch = function(tag) { return lastMatch(this, tag); }
+
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
 function beforeLast(s, tag)      { return _cut(s, tag, false, false).before; } // The part of s before the last place tag appears, s if not found, case sensitive
@@ -271,6 +286,21 @@ exports.cutLastMatch = cutLastMatch;
 
 exports._cut = _cut;
 
+String.prototype.before = function(tag) { return before(this, tag); }
+String.prototype.beforeMatch = function(tag) { return beforeMatch(this, tag); }
+String.prototype.beforeLast = function(tag) { return beforeLast(this, tag); }
+String.prototype.beforeLastMatch = function(tag) { return beforeLastMatch(this, tag); }
+
+String.prototype.after = function(tag) { return after(this, tag); }
+String.prototype.afterMatch = function(tag) { return afterMatch(this, tag); }
+String.prototype.afterLast = function(tag) { return afterLast(this, tag); }
+String.prototype.afterLastMatch = function(tag) { return afterLastMatch(this, tag); }
+
+String.prototype.cut = function(tag) { return cut(this, tag); }
+String.prototype.cutMatch = function(tag) { return cutMatch(this, tag); }
+String.prototype.cutLast = function(tag) { return cutLast(this, tag); }
+String.prototype.cutLastMatch = function(tag) { return cutLastMatch(this, tag); }
+
 //stuff beyond this point isn't in order yet
 
 
@@ -295,6 +325,8 @@ function _swap(s, t1, t2, match) {
 exports.swap = swap;
 exports.swapMatch = swapMatch;
 
+String.prototype.swap = function(t1, t2) { return swap(this, t1, t2); }
+String.prototype.swapMatch = function(t1, t2) { return swapMatch(this, t1, t2); }
 
 
 
@@ -348,6 +380,8 @@ exports.isNumber = isNumber;
 
 String.prototype.code = function() { return code(this); }
 String.prototype.range = function(c1, c2) { return range(this, c1, c2); }
+String.prototype.isLetter = function() { return isLetter(this); }
+String.prototype.isNumber = function() { return isNumber(this); }
 
 
 
@@ -373,6 +407,8 @@ exports.either = either;
 exports.eitherMatch = eitherMatch;
 exports._either = _either;
 
+String.prototype.either = function() { return either(this, tag1, tag2); }
+String.prototype.eitherMatch = function() { return eitherMatch(this, tag1, tag2); }
 
 
 
@@ -438,25 +474,16 @@ exports._off = _off;
 
 exports.off = off;
 
+String.prototype.onStart = function(tag) { return onStart(this, tag); }
+String.prototype.onEnd = function(tag) { return onEnd(this, tag); }
+
+String.prototype.offStart = function(tag) { return offStart(this, tag); }
+String.prototype.offEnd = function(tag) { return offEnd(this, tag); }
+
+String.prototype.off = function() { return off.apply(this, arguments); }
 
 
 
-
-
-
-
-
-//the round trip strict trick is really cool
-//you could use it for base16, 32, 62 also
-//and also maybe generalize it so you can call one function that does it
-
-//s is the text we parsed
-//o is the object we parsed it into
-//f is the function that turns o back into text
-function parseCheck(s, t) { if (s !== t) throw "data"; }
-function parseCheckMatch(s, t) { if (!match(s, t)) throw "data"; }
-//call this in number, base16, 32, 62
-//this is a great idea
 
 
 
@@ -493,10 +520,6 @@ exports._numerals = _numerals;
 
 
 
-//wait, number16("A") will fail--write a test that demonstrates this first, then adjust the code to make it pass by calling lower on each before the comparison, or by using match()
-//and build that feature into parseCheck, have parseCheck and parseCheckMatch
-
-
 
 
 
@@ -518,6 +541,7 @@ function fill(s) {
 
 exports.fill = fill;
 
+String.prototype.fill = function() { return fill.apply(this, arguments); }
 
 
 
@@ -539,6 +563,7 @@ function widen(s, width, c) {
 
 exports.widen = widen;
 
+String.prototype.widen = function(width, c) { return widen(this, width, c); }
 
 
 
@@ -564,6 +589,7 @@ function commas(s, c) {
 
 exports.commas = commas;
 
+String.prototype.commas = function(c) { return commas(this, c); }
 
 
 
@@ -799,6 +825,16 @@ String.prototype.distance = function (arg) {
 
 
 
+
+
+//switch your code and tests from whatever(s) to s.whatever()
+//before you get in trouble, see if you can get in trouble with this
+//you can call a function defined below in a file
+//so can you use something added to string's prototype the same way?
+
+
+
+//along with uri encode and decode, have html escape to make it safe to show in the page
 
 
 
