@@ -3,7 +3,7 @@ var log = console.log;
 
 var div = require("./measure").div;
 
-//var text = require("./text");
+
 
 //TODO move size to the top of measure
 
