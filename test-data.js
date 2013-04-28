@@ -818,11 +818,10 @@ exports.testEncodeInvalid = function(test) {
 
 	bad62("--");//base62 doesn't use any puncutation at all
 
-	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e == "data"); } }//not used, because we cant find anything to make base64 throw
+	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e == "data"); } }//you cant find anything to make node's base64 throw, but the round trip check works wonders
 
-	test.ok(base64("AP8A/w==").base64()    == "AP8A/w==");//valid
-	test.ok(base64("AP8A/w").base64()      == "AP8A/w==");//you don't need the trailing equals
-	test.ok(base64("AP ! 8A/w==").base64() == "AP8A/w==");//you can even insert bad characters throughout
+	bad64("AP8A/w");//require the trailing equals
+	bad64("AP ! 8A/w==");//insert bad characters
 
 	test.done();
 };

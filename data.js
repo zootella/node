@@ -4,6 +4,7 @@ var log = console.log;
 var div = require("./measure").div;
 
 var text = require("./text");
+var match = text.match;
 
 
 
@@ -629,14 +630,15 @@ function toBase64(d) { return d.toBuffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
 function base16(s) {
+	var d;
 	try {
-
-		return Data(new Buffer(s, "hex"));
-
+		d = Data(new Buffer(s, "hex"));
 	} catch (e) {
 		if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
 		else throw e; // Throw up some other exception we didn't expect
 	}
+	if (!match(d.base16(), s)) throw "data"; // Check the data we will return becomes the same text we got, matching cases
+	return d;
 }
 
 // Turn base 32-encoded text back into the data it was made from
@@ -668,7 +670,9 @@ function base32(s) {
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
-	return bay.data();
+	var d = bay.data();
+	if (!match(d.base32(), s)) throw "data"; // Check the data we will return becomes the same text we got, matching cases
+	return d;
 }
 
 // Turn base 62-encoded text back into the data it was made from
@@ -702,15 +706,18 @@ function base62(s) {
 			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 		}
 	}
-	return bay.data();
+	var d = bay.data();
+	if (d.base62() != s) throw "data"; // Check the data we will return becomes the same text we got, case sensitive
+	return d;
 }
 
 // Turn base 64-encoded text back into the data it was made from
 // Doesn't throw on bad input, rather encodes the valid characters you give it into as many bytes as it can
-function base64(s) { return Data(new Buffer(s, "base64")); }
-
-function ascii(c) { return c.charCodeAt(0); } // Turn "A" into 65
-//TODO switch to c.code() once you have the text module done
+function base64(s) {
+	var d = Data(new Buffer(s, "base64"));
+	if (d.base64() != s) throw "data"; // Check the data we will return becomes the same text we got, case sensitive
+	return d;
+}
 
 exports.toByte = toByte;
 exports.base16 = base16;
