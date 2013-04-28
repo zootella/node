@@ -6,17 +6,7 @@ var data = require("./data");
 
 
 
-//String
-//Cut
-//Find
-//Format
-//Describe
-//Number
-//Encode
 
-
-
-/* Warning: This file contains some long lines (Like this one!). So maximize the window or just turn word wrap on, and quit complaining. Screens were 80 characters wide a long, long time ago, and nobody cares anymore. Seriously. */
 
 
 
@@ -26,14 +16,6 @@ if(!('contains' in String.prototype))
   String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
 */
 //don't polyfill, exactly, rather if something is already defined, throw "platform"
-
-
-
-
-
-//Change this next: actually, you just realized you could probably use functionName.apply(this, arguments) for all of the prototypes, and not have to mention the argumetns specifically at all
-//also, you probably don't need to export the functions, just leave them as functions here
-
 //you need to add the throw "platform" if any of the methods you're going to add are already present
 
 
@@ -50,6 +32,13 @@ function argue(t, r) {
 
 
 
+
+
+
+
+
+
+/* Warning: This file contains some long lines (Like this one!). So maximize the window or just turn word wrap on, and quit complaining. Screens were 80 characters wide a long, long time ago, and nobody cares anymore. Seriously. */
 
 
 /*
@@ -70,12 +59,31 @@ function argue(t, r) {
 
 
 
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
+
+
+
+//String
+//Cut
+//Find
+//Format
+//Describe
+//Number
+//Encode
 
 
 
 
 
 
+
+
+// Make
 
 // Concatenate all the given strings together
 // For instance, make("a", "b", "c") is "abc"
@@ -114,7 +122,7 @@ exports.blank = blank;
 
 
 
-
+// Clip
 
 // Get the first character in s
 function first(s) { return get(s, 0); }
@@ -138,7 +146,6 @@ function clip(s, i, n) {                                   // Clip out part of s
 
 String.prototype.first = function() { return first.apply(this, argue(this, arguments)); }
 String.prototype.get = function() { return get.apply(this, argue(this, arguments)); }
-
 String.prototype.start = function() { return start.apply(this, argue(this, arguments)); }
 String.prototype.end = function() { return end.apply(this, argue(this, arguments)); }
 String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
@@ -153,7 +160,7 @@ String.prototype.clip = function() { return clip.apply(this, argue(this, argumen
 
 
 
-
+// Find
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
@@ -242,14 +249,12 @@ function _findCustom(s, tag, forward, scan, match) { // Using our own code
 
 exports.same = same;
 exports.match = match;
-
 String.prototype.starts = function() { return starts.apply(this, argue(this, arguments)); }
 String.prototype.startsMatch = function() { return startsMatch.apply(this, argue(this, arguments)); }
 String.prototype.ends = function() { return ends.apply(this, argue(this, arguments)); }
 String.prototype.endsMatch = function() { return endsMatch.apply(this, argue(this, arguments)); }
 String.prototype.has = function() { return has.apply(this, argue(this, arguments)); }
 String.prototype.hasMatch = function() { return hasMatch.apply(this, argue(this, arguments)); }
-
 String.prototype.find = function() { return find.apply(this, argue(this, arguments)); }
 String.prototype.findMatch = function() { return findMatch.apply(this, argue(this, arguments)); }
 String.prototype.last = function() { return last.apply(this, argue(this, arguments)); }
@@ -263,7 +268,7 @@ String.prototype.lastMatch = function() { return lastMatch.apply(this, argue(thi
 
 
 
-
+// Cut
 
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
@@ -306,12 +311,10 @@ String.prototype.before = function() { return before.apply(this, argue(this, arg
 String.prototype.beforeMatch = function() { return beforeMatch.apply(this, argue(this, arguments)); }
 String.prototype.beforeLast = function() { return beforeLast.apply(this, argue(this, arguments)); }
 String.prototype.beforeLastMatch = function() { return beforeLastMatch.apply(this, argue(this, arguments)); }
-
 String.prototype.after = function() { return after.apply(this, argue(this, arguments)); }
 String.prototype.afterMatch = function() { return afterMatch.apply(this, argue(this, arguments)); }
 String.prototype.afterLast = function() { return afterLast.apply(this, argue(this, arguments)); }
 String.prototype.afterLastMatch = function() { return afterLastMatch.apply(this, argue(this, arguments)); }
-
 String.prototype.cut = function() { return cut.apply(this, argue(this, arguments)); }
 String.prototype.cutMatch = function() { return cutMatch.apply(this, argue(this, arguments)); }
 String.prototype.cutLast = function() { return cutLast.apply(this, argue(this, arguments)); }
@@ -477,10 +480,8 @@ function off(s) {
 
 String.prototype.onStart = function() { return onStart.apply(this, argue(this, arguments)); }
 String.prototype.onEnd = function() { return onEnd.apply(this, argue(this, arguments)); }
-
 String.prototype.offStart = function() { return offStart.apply(this, argue(this, arguments)); }
 String.prototype.offEnd = function() { return offEnd.apply(this, argue(this, arguments)); }
-
 String.prototype.off = function() { return off.apply(this, argue(this, arguments)); }
 
 
@@ -512,11 +513,10 @@ function _numerals(n, base) {
 	return n.toString(base);
 }
 
-exports.numerals = numerals;
-exports.numerals16 = numerals16;
-
 String.prototype.number = function() { return number.apply(this, argue(this, arguments)); }
 String.prototype.number16 = function() { return number16.apply(this, argue(this, arguments)); }
+exports.numerals = numerals;
+exports.numerals16 = numerals16;
 
 
 
