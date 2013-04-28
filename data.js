@@ -3,6 +3,8 @@ var log = console.log;
 
 var div = require("./measure").div;
 
+var text = require("./text");
+
 
 
 //TODO move size to the top of measure
@@ -641,7 +643,7 @@ function base16(s) {
 function base32(s) {
 
 	// Loop for each character in the text
-	var c;           // The ASCII byte value of the character we are converting into bits
+	var c;           // The character we are converting into bits
 	var code;        // The bits the character gets turned into
 	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
 	var bits = 0;    // The number of bits stored in the right side of hold right now
@@ -649,10 +651,10 @@ function base32(s) {
 	for (var i = 0; i < s.length; i++) {
 
 		// Get a character from the text, and convert it into its code
-		c = ascii(s.charAt(i).toUpperCase());                                    // Accept uppercase and lowercase letters
-		if      (c >= ascii("A") && c <= ascii("Z")) code = c - ascii("A");      // 'A'  0 00000 through 'Z' 25 11001
-		else if (c >= ascii("2") && c <= ascii("7")) code = c - ascii("2") + 26; // '2' 26 11010 through '7' 31 11111
-		else throw "data";                                                       // Invalid character
+		c = s.get(i).upper();                                          // Accept uppercase and lowercase letters
+		if      (c.range("A", "Z")) code = c.code() - "A".code();      // 'A'  0 00000 through 'Z' 25 11001
+		else if (c.range("2", "7")) code = c.code() - "2".code() + 26; // '2' 26 11010 through '7' 31 11111
+		else throw "data";                                             // Invalid character
 
 		// Insert the bits from code into hold
 		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
@@ -673,20 +675,20 @@ function base32(s) {
 function base62(s) {
 
 	// Loop for each character in the text
-	var c;           // The ASCII byte value of the character we are converting into bits
+	var c;           // The character we are converting into bits
 	var code;        // The bits the character gets turned into
 	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
 	var bits = 0;    // The number of bits stored in the right side of hold right now
 	var bay = Bay(); // Empty bay for decoded bytes
 	for (var i = 0; i < s.length; i++) {
 
-		// Get a character from the text, and convert it into its code
-		c = ascii(s.charAt(i));
-		if      (c >= ascii("0") && c <= ascii("9")) code = c - ascii("0");      // '0'  0 000000 through '9'  9 001001
-		else if (c >= ascii("a") && c <= ascii("z")) code = c - ascii("a") + 10; // 'a' 10 001010 through 'z' 35 100011
-		else if (c >= ascii("A") && c <= ascii("Y")) code = c - ascii("A") + 36; // 'A' 36 100100 through 'Y' 60 111100
-		else if (c == ascii("Z"))                    code = 61;                  // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
-		else throw "data";                                                       // Invalid character
+		// Get a character from the text
+		c = s.get(i);
+		if      (c.range("0", "9")) code = c.code() - "0".code();      // '0'  0 000000 through '9'  9 001001
+		else if (c.range("a", "z")) code = c.code() - "a".code() + 10; // 'a' 10 001010 through 'z' 35 100011
+		else if (c.range("A", "Y")) code = c.code() - "A".code() + 36; // 'A' 36 100100 through 'Y' 60 111100
+		else if (c == "Z")          code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
+		else throw "data";                                             // Invalid character
 
 		// Insert the bits from code into hold
 		if (code == 61) { hold = (hold << 4) | 15;   bits += 4; } // Insert 1111 for 'Z'

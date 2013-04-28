@@ -26,7 +26,6 @@ var text = require("./text");
 var make = text.make;
 var is = text.is;
 var blank = text.blank;
-var size = text.size;
 
 exports.testMake = function(test) {
 
@@ -84,20 +83,20 @@ exports.testLengthSize = function(test) {
 
 	s = "a";//ascii
 	test.ok(s.length == 1);
-	test.ok(size(s) == 1);
+	test.ok(Data(s).size() == 1);
 
 	s = "ö";//umlaut
 	test.ok(s.length == 1);
-	test.ok(size(s) == 2);//two bytes
+	test.ok(Data(s).size() == 2);//two bytes
 	test.ok(Data(s).base16() == "c3b6");
 
 	s = "خ";//arabic ha
 	test.ok(s.length == 1);
-	test.ok(size(s) == 2);//two bytes
+	test.ok(Data(s).size() == 2);//two bytes
 
 	s = "の";//hiragana no
 	test.ok(s.length == 1);
-	test.ok(size(s) == 3);//three bytes
+	test.ok(Data(s).size() == 3);//three bytes
 	test.ok(Data(s).base16() == "e381ae");
 
 	// The number of characters in string s is s.length

@@ -3,7 +3,6 @@
 var log = console.log;
 
 var data = require("./data");
-var Data = data.Data;
 
 
 
@@ -68,15 +67,9 @@ function blank(s) {
 	return false;
 }
 
-// How many bytes the given text take up encoded into UTF-8
-function size(s) {
-	return Data(s).size();
-}
-
 exports.make = make;
 exports.is = is;
 exports.blank = blank;
-exports.size = size;
 
 // Get the first character in s
 function first(s) { return get(s, 0); }
@@ -100,11 +93,21 @@ function clip(s, i, n) {                                   // Clip out part of s
 
 exports.first = first;
 exports.get = get;
+
 exports.start = start;
 exports.end = end;
 exports.beyond = beyond;
 exports.chop = chop;
 exports.clip = clip;
+
+String.prototype.first  = function()     { return first(this);        }
+String.prototype.get    = function(i)    { return get(this,    i);    }
+
+String.prototype.start  = function(n)    { return start(this,  n);    }
+String.prototype.end    = function(n)    { return end(this,    n);    }
+String.prototype.beyond = function(i)    { return beyond(this, i);    }
+String.prototype.chop   = function(n)    { return chop(this,   n);    }
+String.prototype.clip   = function(i, n) { return clip(this,   i, n); }
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
@@ -314,6 +317,8 @@ function lower(s) {
 exports.upper = upper;
 exports.lower = lower;
 
+String.prototype.upper = function() { return upper(this); }
+String.prototype.lower = function() { return lower(this); }
 
 
 
@@ -340,6 +345,10 @@ exports.code = code;
 exports.range = range;
 exports.isLetter = isLetter;
 exports.isNumber = isNumber;
+
+String.prototype.code = function() { return code(this); }
+String.prototype.range = function(c1, c2) { return range(this, c1, c2); }
+
 
 
 
