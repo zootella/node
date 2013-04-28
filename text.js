@@ -7,6 +7,16 @@ var Data = data.Data;
 
 
 
+//String
+//Cut
+//Find
+//Format
+//Describe
+//Number
+//Encode
+
+
+
 /* Warning: This file contains some long lines (Like this one!). So maximize the window or just turn word wrap on, and quit complaining. Screens were 80 characters wide a long, long time ago, and nobody cares anymore. Seriously. */
 
 
@@ -452,8 +462,7 @@ function _number(s, base) {
 	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
-	parseCheckMatch(s, _numerals(n, base));
-//	if (_numerals(n, base) !== s) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes exactly the same text we made it from
+	if (!match(_numerals(n, base), s)) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
 	return n;
 }
 
@@ -772,6 +781,12 @@ String.prototype.distance = function (arg) {
 
 
 
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
 
 
 

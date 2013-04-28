@@ -679,7 +679,7 @@ exports.testNumberNumerals = function(test) {
 	bad(" 5 ");
 	bad("5 6");
 
-	//allow uppercase base16 as input
+	//allow uppercase base16 as input, even though output is lowercase
 	test.ok(number16("A") == 10);
 
 	test.done();
@@ -757,6 +757,12 @@ exports.testCommas = function(test) {
 
 
 
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
 
 
 
