@@ -112,6 +112,10 @@ exports.blank = blank;
 
 
 
+
+
+
+
 // Get the first character in s
 function first(s) { return get(s, 0); }
 // Get the character a distance i in characters into the string s
@@ -140,6 +144,11 @@ String.prototype.end = function() { return end.apply(this, argue(this, arguments
 String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
 String.prototype.chop = function() { return chop.apply(this, argue(this, arguments)); }
 String.prototype.clip = function() { return clip.apply(this, argue(this, arguments)); }
+
+
+
+
+
 
 
 
@@ -259,6 +268,11 @@ exports._findCustom = _findCustom;
 
 
 
+
+
+
+
+
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
 function beforeLast(s, tag)      { return _cut(s, tag, false, false).before; } // The part of s before the last place tag appears, s if not found, case sensitive
@@ -311,7 +325,8 @@ String.prototype.cutMatch = function() { return cutMatch.apply(this, argue(this,
 String.prototype.cutLast = function() { return cutLast.apply(this, argue(this, arguments)); }
 String.prototype.cutLastMatch = function() { return cutLastMatch.apply(this, argue(this, arguments)); }
 
-exports._cut = _cut;
+
+
 
 
 
@@ -468,16 +483,6 @@ function off(s) {
 	return s;
 }
 
-exports.onStart = onStart;
-exports.onEnd = onEnd;
-exports._on = _on;
-
-exports.offStart = offStart;
-exports.offEnd = offEnd;
-exports._off = _off;
-
-exports.off = off;
-
 String.prototype.onStart = function() { return onStart.apply(this, argue(this, arguments)); }
 String.prototype.onEnd = function() { return onEnd.apply(this, argue(this, arguments)); }
 
@@ -515,13 +520,8 @@ function _numerals(n, base) {
 	return n.toString(base);
 }
 
-exports.number = number;
-exports.number16 = number16;
-exports._number = _number;
-
 exports.numerals = numerals;
 exports.numerals16 = numerals16;
-exports._numerals = _numerals;
 
 String.prototype.number = function() { return number.apply(this, argue(this, arguments)); }
 String.prototype.number16 = function() { return number16.apply(this, argue(this, arguments)); }
@@ -549,8 +549,6 @@ function fill(s) {
 	return t + s; // Include any part of s that remains
 }
 
-exports.fill = fill;
-
 String.prototype.fill = function() { return fill.apply(this, argue(this, arguments)); }
 
 
@@ -570,8 +568,6 @@ function widen(s, width, c) {
 	while (s.length < width) s = c + s;
 	return s;
 }
-
-exports.widen = widen;
 
 String.prototype.widen = function() { return widen.apply(this, argue(this, arguments)); }
 
@@ -596,8 +592,6 @@ function commas(s, c) {
 	}
 	return s + t; // Move the leading gorup of up to 3 characters
 }
-
-exports.commas = commas;
 
 String.prototype.commas = function() { return commas.apply(this, argue(this, arguments)); }
 
