@@ -69,14 +69,14 @@ function blank(s) {
 }
 
 // How many bytes the given text take up encoded into UTF-8
-function size(s) {
+function textSize(s) {
 	return Data(s).size();
 }
 
 exports.make = make;
 exports.is = is;
 exports.blank = blank;
-exports.size = size;
+exports.textSize = textSize;
 
 // Get the first character in s
 function first(s) { return get(s, 0); }
