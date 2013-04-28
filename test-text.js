@@ -23,6 +23,26 @@ var text = require("./text");
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
 
+
+
+
+
+
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
+
+
+
+
+
+
+
+
+
 var make = text.make;
 var is = text.is;
 var blank = text.blank;
@@ -77,6 +97,11 @@ exports.testIsBlank = function(test) {
 	test.done();
 }
 
+
+
+
+
+
 exports.testLengthSize = function(test) {
 
 	var s;
@@ -106,13 +131,11 @@ exports.testLengthSize = function(test) {
 	test.done();
 }
 
-var first = text.first;
-var get = text.get;
-var start = text.start;
-var end = text.end;
-var beyond = text.beyond;
-var chop = text.chop;
-var clip = text.clip;
+
+
+
+
+
 
 exports.testFirst = function(test) {
 
@@ -206,6 +229,11 @@ exports.testClip = function(test) {
 
 	test.done();
 }
+
+
+
+
+
 
 var same = text.same;
 var _samePlatform = text._samePlatform;
@@ -322,7 +350,10 @@ exports.testFindPlatformCustom = function(test) {
 	test.done();
 }
 
-var _cut = text._cut;
+
+
+
+
 
 exports.testCut = function(test) {
 
@@ -567,18 +598,6 @@ exports.testOff = function(test) {
 
 
 
-var sample = text.sample;
-
-exports.testSample = function(test) {
-
-//	log(sample("hi", "a", "b"));
-
-	"hi".sample("a", "b", "c");
-
-
-
-	test.done();
-}
 
 
 
@@ -586,18 +605,9 @@ exports.testSample = function(test) {
 
 
 
-
-
-
-
-
-var number = text.number;
-var number16 = text.number16;
-var _number = text._number;
 
 var numerals = text.numerals;
 var numerals16 = text.numerals16;
-var _numerals = text._numerals;
 
 exports.testNumberNumerals = function(test) {
 
@@ -605,8 +615,8 @@ exports.testNumberNumerals = function(test) {
 		test.ok(numerals(n) === s10);//number to text
 		test.ok(numerals16(n) === s16);
 
-		test.ok(number(s10) === n);//text to number
-		test.ok(number16(s16) === n);
+		test.ok(s10.number() === n);//text to number
+		test.ok(s16.number16() === n);
 	}
 
 	//confirm we can turn numbers into text and back again
@@ -623,8 +633,8 @@ exports.testNumberNumerals = function(test) {
 	test.ok(numerals(-123.456) === "-123.456");
 
 	function bad(s) {
-		try { number(s); test.fail(); } catch (e) { test.ok(e == "data"); }
-		try { number16(s); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { s.number(); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { s.number16(); test.fail(); } catch (e) { test.ok(e == "data"); }
 	}
 
 	//make sure text that isn't a perfect number can't become one
@@ -643,7 +653,7 @@ exports.testNumberNumerals = function(test) {
 	bad("5 6");
 
 	//allow uppercase base16 as input, even though output is lowercase
-	test.ok(number16("A") == 10);
+	test.ok("A".number16() == 10);
 
 	test.done();
 }
@@ -655,20 +665,19 @@ exports.testNumberNumerals = function(test) {
 
 
 
-var fill = text.fill;
 
 exports.testFill = function(test) {
 	
-	test.ok(fill("") == "");//blank
-	test.ok(fill("hello") == "hello");//no tags
+	test.ok("".fill() == "");//blank
+	test.ok("hello".fill() == "hello");//no tags
 
-	test.ok(fill("#ab", 7) == "7ab");//start
-	test.ok(fill("a#b", 7) == "a7b");//middle
-	test.ok(fill("ab#", 7) == "ab7");//end
+	test.ok("#ab".fill(7) == "7ab");//start
+	test.ok("a#b".fill(7) == "a7b");//middle
+	test.ok("ab#".fill(7) == "ab7");//end
 
-	test.ok(fill("###", "a", "b", "c")      == "abc");//multiple
-	test.ok(fill("###", "a", "b", "c", "d") == "abcd");//too many
-	test.ok(fill("###", "a", "b")           == "ab#");//too few
+	test.ok("###".fill("a", "b", "c")      == "abc");//multiple
+	test.ok("###".fill("a", "b", "c", "d") == "abcd");//too many
+	test.ok("###".fill("a", "b")           == "ab#");//too few
 
 	test.done();
 }
@@ -679,13 +688,12 @@ exports.testFill = function(test) {
 
 
 
-var widen = text.widen;
 
 exports.testWiden = function(test) {
 
-	test.ok(widen("1", 4) == "0001");//add leading zeros
-	test.ok(widen("12345", 4) == "12345");//already longer than that
-	test.ok(widen("1", 4, " ") == "   1");//spaces instead
+	test.ok("1".widen(4) == "0001");//add leading zeros
+	test.ok("12345".widen(4) == "12345");//already longer than that
+	test.ok("1".widen(4, " ") == "   1");//spaces instead
 
 	test.done();
 }
@@ -695,37 +703,25 @@ exports.testWiden = function(test) {
 
 
 
-var commas = text.commas;
 
 exports.testCommas = function(test) {
 
-	test.ok(commas("") == "");
-	test.ok(commas("1") == "1");
-	test.ok(commas("12") == "12");
-	test.ok(commas("123") == "123");
-	test.ok(commas("1234") == "1,234");
-	test.ok(commas("12345") == "12,345");
-	test.ok(commas("123456") == "123,456");
-	test.ok(commas("1234567") == "1,234,567");
+	test.ok("".commas() == "");
+	test.ok("1".commas() == "1");
+	test.ok("12".commas() == "12");
+	test.ok("123".commas() == "123");
+	test.ok("1234".commas() == "1,234");
+	test.ok("12345".commas() == "12,345");
+	test.ok("123456".commas() == "123,456");
+	test.ok("1234567".commas() == "1,234,567");
 
-	test.ok(commas("1234567", ".") == "1.234.567");
+	test.ok("1234567".commas(".") == "1.234.567");
 
 	test.done();
 }
 
 
 
-
-
-
-
-
-//   _   _                 _               
-//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
-//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
-//  | |\  | |_| | | | | | | |_) |  __/ |   
-//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
-//                                         
 
 
 

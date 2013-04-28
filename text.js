@@ -132,14 +132,14 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-String.prototype.first  = function()     { return first(this);        }
-String.prototype.get    = function(i)    { return get(this,    i);    }
+String.prototype.first = function() { return first.apply(this, argue(this, arguments)); }
+String.prototype.get = function() { return get.apply(this, argue(this, arguments)); }
 
-String.prototype.start  = function(n)    { return start(this,  n);    }
-String.prototype.end    = function(n)    { return end(this,    n);    }
-String.prototype.beyond = function(i)    { return beyond(this, i);    }
-String.prototype.chop   = function(n)    { return chop(this,   n);    }
-String.prototype.clip   = function(i, n) { return clip(this,   i, n); }
+String.prototype.start = function() { return start.apply(this, argue(this, arguments)); }
+String.prototype.end = function() { return end.apply(this, argue(this, arguments)); }
+String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
+String.prototype.chop = function() { return chop.apply(this, argue(this, arguments)); }
+String.prototype.clip = function() { return clip.apply(this, argue(this, arguments)); }
 
 
 
@@ -238,17 +238,17 @@ exports.match = match;
 exports._matchPlatform = _matchPlatform;
 exports._matchCustom = _matchCustom;
 
-String.prototype.starts      = function(tag) { return starts(this, tag); }
-String.prototype.startsMatch = function(tag) { return startsMatch(this, tag); }
-String.prototype.ends        = function(tag) { return ends(this, tag); }
-String.prototype.endsMatch   = function(tag) { return endsMatch(this, tag); }
-String.prototype.has         = function(tag) { return has(this, tag); }
-String.prototype.hasMatch    = function(tag) { return hasMatch(this, tag); }
+String.prototype.starts = function() { return starts.apply(this, argue(this, arguments)); }
+String.prototype.startsMatch = function() { return startsMatch.apply(this, argue(this, arguments)); }
+String.prototype.ends = function() { return ends.apply(this, argue(this, arguments)); }
+String.prototype.endsMatch = function() { return endsMatch.apply(this, argue(this, arguments)); }
+String.prototype.has = function() { return has.apply(this, argue(this, arguments)); }
+String.prototype.hasMatch = function() { return hasMatch.apply(this, argue(this, arguments)); }
 
-String.prototype.find      = function(tag) { return find(this, tag); }
-String.prototype.findMatch = function(tag) { return findMatch(this, tag); }
-String.prototype.last      = function(tag) { return last(this, tag); }
-String.prototype.lastMatch = function(tag) { return lastMatch(this, tag); }
+String.prototype.find = function() { return find.apply(this, argue(this, arguments)); }
+String.prototype.findMatch = function() { return findMatch.apply(this, argue(this, arguments)); }
+String.prototype.last = function() { return last.apply(this, argue(this, arguments)); }
+String.prototype.lastMatch = function() { return lastMatch.apply(this, argue(this, arguments)); }
 
 exports._find = _find;
 exports._findPlatform = _findPlatform;
@@ -296,20 +296,20 @@ function _cut(s, tag, forward, match) {
 	}
 }
 
-String.prototype.before = function(tag) { return before(this, tag); }
-String.prototype.beforeMatch = function(tag) { return beforeMatch(this, tag); }
-String.prototype.beforeLast = function(tag) { return beforeLast(this, tag); }
-String.prototype.beforeLastMatch = function(tag) { return beforeLastMatch(this, tag); }
+String.prototype.before = function() { return before.apply(this, argue(this, arguments)); }
+String.prototype.beforeMatch = function() { return beforeMatch.apply(this, argue(this, arguments)); }
+String.prototype.beforeLast = function() { return beforeLast.apply(this, argue(this, arguments)); }
+String.prototype.beforeLastMatch = function() { return beforeLastMatch.apply(this, argue(this, arguments)); }
 
-String.prototype.after = function(tag) { return after(this, tag); }
-String.prototype.afterMatch = function(tag) { return afterMatch(this, tag); }
-String.prototype.afterLast = function(tag) { return afterLast(this, tag); }
-String.prototype.afterLastMatch = function(tag) { return afterLastMatch(this, tag); }
+String.prototype.after = function() { return after.apply(this, argue(this, arguments)); }
+String.prototype.afterMatch = function() { return afterMatch.apply(this, argue(this, arguments)); }
+String.prototype.afterLast = function() { return afterLast.apply(this, argue(this, arguments)); }
+String.prototype.afterLastMatch = function() { return afterLastMatch.apply(this, argue(this, arguments)); }
 
-String.prototype.cut = function(tag) { return cut(this, tag); }
-String.prototype.cutMatch = function(tag) { return cutMatch(this, tag); }
-String.prototype.cutLast = function(tag) { return cutLast(this, tag); }
-String.prototype.cutLastMatch = function(tag) { return cutLastMatch(this, tag); }
+String.prototype.cut = function() { return cut.apply(this, argue(this, arguments)); }
+String.prototype.cutMatch = function() { return cutMatch.apply(this, argue(this, arguments)); }
+String.prototype.cutLast = function() { return cutLast.apply(this, argue(this, arguments)); }
+String.prototype.cutLastMatch = function() { return cutLastMatch.apply(this, argue(this, arguments)); }
 
 exports._cut = _cut;
 
@@ -338,8 +338,8 @@ function _swap(s, t1, t2, match) {
 	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
 }
 
-String.prototype.swap = function(t1, t2) { return swap(this, t1, t2); }
-String.prototype.swapMatch = function(t1, t2) { return swapMatch(this, t1, t2); }
+String.prototype.swap = function() { return swap.apply(this, argue(this, arguments)); }
+String.prototype.swapMatch = function() { return swapMatch.apply(this, argue(this, arguments)); }
 
 
 
@@ -359,8 +359,8 @@ function lower(s) {
 	return l;
 }
 
-String.prototype.upper = function() { return upper(this); }
-String.prototype.lower = function() { return lower(this); }
+String.prototype.upper = function() { return upper.apply(this, argue(this, arguments)); }
+String.prototype.lower = function() { return lower.apply(this, argue(this, arguments)); }
 
 
 
@@ -383,10 +383,12 @@ function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)
 function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
 function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
 
-String.prototype.code = function(i) { return code(this, i); }
-String.prototype.range = function(c1, c2) { return range(this, c1, c2); }
-String.prototype.isLetter = function() { return isLetter(this); }
-String.prototype.isNumber = function() { return isNumber(this); }
+String.prototype.code = function() { return code.apply(this, argue(this, arguments)); }
+String.prototype.range = function() { return range.apply(this, argue(this, arguments)); }
+String.prototype.isLetter = function() { return isLetter.apply(this, argue(this, arguments)); }
+String.prototype.isNumber = function() { return isNumber.apply(this, argue(this, arguments)); }
+
+
 
 
 
@@ -408,8 +410,9 @@ function _either(s, tag1, tag2, match) {
 	else return Math.min(i1, i2); // Both found, return the one that appears first
 }
 
-String.prototype.either = function(tag1, tag2) { return either(this, tag1, tag2); }
-String.prototype.eitherMatch = function(tag1, tag2) { return eitherMatch(this, tag1, tag2); }
+String.prototype.either = function() { return either.apply(this, argue(this, arguments)); }
+String.prototype.eitherMatch = function() { return eitherMatch.apply(this, argue(this, arguments)); }
+
 
 
 
@@ -475,36 +478,17 @@ exports._off = _off;
 
 exports.off = off;
 
-String.prototype.onStart = function(tag) { return onStart(this, tag); }
-String.prototype.onEnd = function(tag) { return onEnd(this, tag); }
+String.prototype.onStart = function() { return onStart.apply(this, argue(this, arguments)); }
+String.prototype.onEnd = function() { return onEnd.apply(this, argue(this, arguments)); }
 
-String.prototype.offStart = function(tag) { return offStart(this, tag); }
-String.prototype.offEnd = function(tag) { return offEnd(this, tag); }
+String.prototype.offStart = function() { return offStart.apply(this, argue(this, arguments)); }
+String.prototype.offEnd = function() { return offEnd.apply(this, argue(this, arguments)); }
 
 String.prototype.off = function() { return off.apply(this, argue(this, arguments)); }
 
 
 
 
-
-function sample(s) {
-	log(s);
-	for (var i = 1; i < arguments.length; i++)
-		log(arguments[i]);
-}
-
-exports.sample = sample;
-
-String.prototype.sample = function() {
-
-/*
-	var a = [this + ""];
-	for (var i = 0; i < arguments.length; i++)
-		a.push(arguments[i]);
-	*/
-
-	return sample.apply(this, argue(this, arguments));
-}
 
 
 
@@ -539,6 +523,10 @@ exports.numerals = numerals;
 exports.numerals16 = numerals16;
 exports._numerals = _numerals;
 
+String.prototype.number = function() { return number.apply(this, argue(this, arguments)); }
+String.prototype.number16 = function() { return number16.apply(this, argue(this, arguments)); }
+
+
 
 
 
@@ -563,7 +551,7 @@ function fill(s) {
 
 exports.fill = fill;
 
-String.prototype.fill = function() { return fill.apply(this, arguments); }
+String.prototype.fill = function() { return fill.apply(this, argue(this, arguments)); }
 
 
 
@@ -585,7 +573,7 @@ function widen(s, width, c) {
 
 exports.widen = widen;
 
-String.prototype.widen = function(width, c) { return widen(this, width, c); }
+String.prototype.widen = function() { return widen.apply(this, argue(this, arguments)); }
 
 
 
@@ -611,7 +599,7 @@ function commas(s, c) {
 
 exports.commas = commas;
 
-String.prototype.commas = function(c) { return commas(this, c); }
+String.prototype.commas = function() { return commas.apply(this, argue(this, arguments)); }
 
 
 
