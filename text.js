@@ -39,6 +39,16 @@ if(!('contains' in String.prototype))
 
 
 
+// Given a this string t and arguments r from a string prototype function, assemble arguments for a regular function
+// For example, use this to have "hi".custom("a", "b") call custom("hi", "a", "b")
+function argue(t, r) {
+	var a = [t + ""]; // Coax the given this into a string, rather than an array of characters
+	for (var i = 0; i < r.length; i++) // After t, add all the arguments in r
+		a.push(r[i]);
+	return a; // Return the arguments ready to call the regular function
+}
+
+
 
 
 
@@ -56,6 +66,16 @@ if(!('contains' in String.prototype))
 //   ___) | |_| |  | | | | | (_| |
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
+
+
+
+
+
+
+
+
+
+
 
 // Concatenate all the given strings together
 // For instance, make("a", "b", "c") is "abc"
@@ -87,6 +107,11 @@ exports.make = make;
 exports.is = is;
 exports.blank = blank;
 
+
+
+
+
+
 // Get the first character in s
 function first(s) { return get(s, 0); }
 // Get the character a distance i in characters into the string s
@@ -107,15 +132,6 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-exports.first = first;
-exports.get = get;
-
-exports.start = start;
-exports.end = end;
-exports.beyond = beyond;
-exports.chop = chop;
-exports.clip = clip;
-
 String.prototype.first  = function()     { return first(this);        }
 String.prototype.get    = function(i)    { return get(this,    i);    }
 
@@ -124,6 +140,11 @@ String.prototype.end    = function(n)    { return end(this,    n);    }
 String.prototype.beyond = function(i)    { return beyond(this, i);    }
 String.prototype.chop   = function(n)    { return chop(this,   n);    }
 String.prototype.clip   = function(i, n) { return clip(this,   i, n); }
+
+
+
+
+
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
@@ -217,22 +238,6 @@ exports.match = match;
 exports._matchPlatform = _matchPlatform;
 exports._matchCustom = _matchCustom;
 
-exports.starts = starts;
-exports.startsMatch = startsMatch;
-exports.ends = ends;
-exports.endsMatch = endsMatch;
-exports.has = has;
-exports.hasMatch = hasMatch;
-
-exports.find = find;
-exports.findMatch = findMatch;
-exports.last = last;
-exports.lastMatch = lastMatch;
-
-exports._find = _find;
-exports._findPlatform = _findPlatform;
-exports._findCustom = _findCustom;
-
 String.prototype.starts      = function(tag) { return starts(this, tag); }
 String.prototype.startsMatch = function(tag) { return startsMatch(this, tag); }
 String.prototype.ends        = function(tag) { return ends(this, tag); }
@@ -244,6 +249,15 @@ String.prototype.find      = function(tag) { return find(this, tag); }
 String.prototype.findMatch = function(tag) { return findMatch(this, tag); }
 String.prototype.last      = function(tag) { return last(this, tag); }
 String.prototype.lastMatch = function(tag) { return lastMatch(this, tag); }
+
+exports._find = _find;
+exports._findPlatform = _findPlatform;
+exports._findCustom = _findCustom;
+
+
+
+
+
 
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
@@ -282,23 +296,6 @@ function _cut(s, tag, forward, match) {
 	}
 }
 
-exports.before = before;
-exports.beforeMatch = beforeMatch;
-exports.beforeLast = beforeLast;
-exports.beforeLastMatch = beforeLastMatch;
-
-exports.after = after;
-exports.afterMatch = afterMatch;
-exports.afterLast = afterLast;
-exports.afterLastMatch = afterLastMatch;
-
-exports.cut = cut;
-exports.cutMatch = cutMatch;
-exports.cutLast = cutLast;
-exports.cutLastMatch = cutLastMatch;
-
-exports._cut = _cut;
-
 String.prototype.before = function(tag) { return before(this, tag); }
 String.prototype.beforeMatch = function(tag) { return beforeMatch(this, tag); }
 String.prototype.beforeLast = function(tag) { return beforeLast(this, tag); }
@@ -314,7 +311,13 @@ String.prototype.cutMatch = function(tag) { return cutMatch(this, tag); }
 String.prototype.cutLast = function(tag) { return cutLast(this, tag); }
 String.prototype.cutLastMatch = function(tag) { return cutLastMatch(this, tag); }
 
-//stuff beyond this point isn't in order yet
+exports._cut = _cut;
+
+
+
+
+
+
 
 
 
@@ -325,7 +328,7 @@ function swap(s, t1, t2)      { return _swap(s, t1, t2, false); } // Case sensit
 function swapMatch(s, t1, t2) { return _swap(s, t1, t2, true);  } // Matches cases
 function _swap(s, t1, t2, match) {
 	var s2 = "";                        // Target string to fill with text as we break off parts and make the replacement
-	while (is(s)) {                     // Loop until s is blank, also makes sure it's a string
+	while (s.length) {                  // Loop until s is blank, also makes sure it's a string
 		var c = _cut(s, t1, true, match); // Cut s around the first instance of the tag in it
 		s2 += c.before;                   // Move the part before from s to done
 		if (c.found) s2 += t2;
@@ -334,9 +337,6 @@ function _swap(s, t1, t2, match) {
 	return s2;
 	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
 }
-
-exports.swap = swap;
-exports.swapMatch = swapMatch;
 
 String.prototype.swap = function(t1, t2) { return swap(this, t1, t2); }
 String.prototype.swapMatch = function(t1, t2) { return swapMatch(this, t1, t2); }
@@ -358,9 +358,6 @@ function lower(s) {
 	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
 	return l;
 }
-
-exports.upper = upper;
-exports.lower = lower;
 
 String.prototype.upper = function() { return upper(this); }
 String.prototype.lower = function() { return lower(this); }
@@ -386,12 +383,7 @@ function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)
 function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
 function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
 
-exports.code = code;
-exports.range = range;
-exports.isLetter = isLetter;
-exports.isNumber = isNumber;
-
-String.prototype.code = function() { return code(this); }
+String.prototype.code = function(i) { return code(this, i); }
 String.prototype.range = function(c1, c2) { return range(this, c1, c2); }
 String.prototype.isLetter = function() { return isLetter(this); }
 String.prototype.isNumber = function() { return isNumber(this); }
@@ -415,10 +407,6 @@ function _either(s, tag1, tag2, match) {
 	else if (i2 == -1) return i1;
 	else return Math.min(i1, i2); // Both found, return the one that appears first
 }
-
-exports.either = either;
-exports.eitherMatch = eitherMatch;
-exports._either = _either;
 
 String.prototype.either = function(tag1, tag2) { return either(this, tag1, tag2); }
 String.prototype.eitherMatch = function(tag1, tag2) { return eitherMatch(this, tag1, tag2); }
@@ -493,9 +481,30 @@ String.prototype.onEnd = function(tag) { return onEnd(this, tag); }
 String.prototype.offStart = function(tag) { return offStart(this, tag); }
 String.prototype.offEnd = function(tag) { return offEnd(this, tag); }
 
-String.prototype.off = function() { return off.apply(this, arguments); }
+String.prototype.off = function() { return off.apply(this, argue(this, arguments)); }
 
 
+
+
+
+function sample(s) {
+	log(s);
+	for (var i = 1; i < arguments.length; i++)
+		log(arguments[i]);
+}
+
+exports.sample = sample;
+
+String.prototype.sample = function() {
+
+/*
+	var a = [this + ""];
+	for (var i = 0; i < arguments.length; i++)
+		a.push(arguments[i]);
+	*/
+
+	return sample.apply(this, argue(this, arguments));
+}
 
 
 

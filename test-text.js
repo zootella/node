@@ -117,9 +117,9 @@ var clip = text.clip;
 exports.testFirst = function(test) {
 
 	var s = "abc";
-	test.ok(first(s) == "a");
-	test.ok(get(s, 0) == "a");
-	test.ok(get(s) == "a");//you can also just omit the 0
+	test.ok(s.first() == "a");
+	test.ok(s.get(0) == "a");
+	test.ok(s.get() == "a");//you can also just omit the 0
 
 	test.done();
 }
@@ -129,19 +129,19 @@ exports.testLengthGet = function(test) {
 	var s;
 	s = "abc";
 	test.ok(s.length == 3);
-	test.ok(get(s, 0) == "a");
-	test.ok(get(s, 1) == "b");
-	test.ok(get(s, 2) == "c");
-	try { get(s, -1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
-	try { get(s, 3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(0) == "a");
+	test.ok(s.get(1) == "b");
+	test.ok(s.get(2) == "c");
+	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	try { s.get(3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
 
 	s = "一二三";
 	test.ok(s.length == 3);
-	test.ok(get(s, 0) == "一");
-	test.ok(get(s, 1) == "二");
-	test.ok(get(s, 2) == "三");
-	try { get(s, -1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
-	try { get(s, 3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(0) == "一");
+	test.ok(s.get(1) == "二");
+	test.ok(s.get(2) == "三");
+	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	try { s.get(3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
 
 	s = "中文 español English हिन्दी العربية português বাংলা русский 日本語 ਪੰਜਾਬੀ";//international string literal
 	s64 = "5Lit5paHIGVzcGHDsW9sIEVuZ2xpc2gg4KS54KS/4KSo4KWN4KSm4KWAINin2YTYudix2KjZitipIHBvcnR1Z3XDqnMg4Kas4Ka+4KaC4Kay4Ka+INGA0YPRgdGB0LrQuNC5IOaXpeacrOiqniDgqKrgqbDgqJzgqL7gqKzgqYA=";//same text as utf8 bytes encoded as base64
@@ -149,27 +149,27 @@ exports.testLengthGet = function(test) {
 	test.ok(Data(s).same(base64(s64)));//turn text into data and compare
 
 	test.ok(s.length == 68);
-	test.ok(get(s, 0) == "中");
-	test.ok(get(s, 1) == "文");
-	test.ok(get(s, 41) == "ê");
-	test.ok(get(s, 66) == "ਬ");
-	test.ok(get(s, 67) == "ੀ");
+	test.ok(s.get(0) == "中");
+	test.ok(s.get(1) == "文");
+	test.ok(s.get(41) == "ê");
+	test.ok(s.get(66) == "ਬ");
+	test.ok(s.get(67) == "ੀ");
 
 	s = "español 中文 বাংলা português";
 	test.ok(s.length == 26);
-	test.ok(get(s, 0) == "e");
-	test.ok(get(s, 4) == "ñ");
+	test.ok(s.get(0) == "e");
+	test.ok(s.get(4) == "ñ");
 
-	test.ok(get(s, 8) == "中");
-	test.ok(get(s, 9) == "文");
+	test.ok(s.get(8) == "中");
+	test.ok(s.get(9) == "文");
 
-	test.ok(get(s, 11) == "ব");//the closing quotes may not line up vertically, because a fixed width font isn't fixed width for international characters
-	test.ok(get(s, 12) == "া");
-	test.ok(get(s, 13) == "ং");
-	test.ok(get(s, 14) == "ল");
-	test.ok(get(s, 15) == "া");
+	test.ok(s.get(11) == "ব");//the closing quotes may not line up vertically, because a fixed width font isn't fixed width for international characters
+	test.ok(s.get(12) == "া");
+	test.ok(s.get(13) == "ং");
+	test.ok(s.get(14) == "ল");
+	test.ok(s.get(15) == "া");
 
-	test.ok(get(s, 24) == "ê");
+	test.ok(s.get(24) == "ê");
 
 	test.done();
 }
@@ -177,10 +177,10 @@ exports.testLengthGet = function(test) {
 exports.testStartEndBeyondChop = function(test) {
 
 	var s = "abcdefgh";
-	test.ok( start(s, 3) == "abc");
-	test.ok(   end(s, 3) ==      "fgh");
-	test.ok(beyond(s, 3) ==    "defgh");
-	test.ok(  chop(s, 3) == "abcde");
+	test.ok(s.start(3)  == "abc");
+	test.ok(s.end(3)    ==      "fgh");
+	test.ok(s.beyond(3) ==    "defgh");
+	test.ok(s.chop(3)   == "abcde");
 
 	test.done();
 }
@@ -188,21 +188,21 @@ exports.testStartEndBeyondChop = function(test) {
 exports.testClip = function(test) {
 
 	var s = "abcdefgh";
-	test.ok(clip(s, 1, 2) == "bc");//middle
-	test.ok(clip(s, 0, 2) == "ab");//start
-	test.ok(clip(s, 6, 2) == "gh");//end
-	test.ok(clip(s, 0, 8) == "abcdefgh");//everything
-	test.ok(clip(s, 0, 0) == "");//nothing start
-	test.ok(clip(s, 8, 0) == "");//nothing end
-	test.ok(clip(s, 4, 0) == "");//nothing middle
+	test.ok(s.clip(1, 2) == "bc");//middle
+	test.ok(s.clip(0, 2) == "ab");//start
+	test.ok(s.clip(6, 2) == "gh");//end
+	test.ok(s.clip(0, 8) == "abcdefgh");//everything
+	test.ok(s.clip(0, 0) == "");//nothing start
+	test.ok(s.clip(8, 0) == "");//nothing end
+	test.ok(s.clip(4, 0) == "");//nothing middle
 
-	test.ok(typeof clip(s, 0, 0) === "string");//make sure nothing gives us ""
+	test.ok(typeof s.clip(0, 0) === "string");//make sure nothing gives us ""
 
-	try { clip(s, -1, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//before start
-	try { clip(s, 8, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//beyond end
+	try { s.clip(-1, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//before start
+	try { s.clip(8, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//beyond end
 
-	try { clip(s, -1, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing before start
-	try { clip(s, 9, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing beyond end
+	try { s.clip(-1, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing before start
+	try { s.clip(9, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing beyond end
 
 	test.done();
 }
@@ -213,18 +213,6 @@ var _sameCustom = text._sameCustom;
 var match = text.match;
 var _matchPlatform = text._matchPlatform;
 var _matchCustom = text._matchCustom;
-
-var starts = text.starts;
-var startsMatch = text.startsMatch;
-var ends = text.ends;
-var endsMatch = text.endsMatch;
-var has = text.has;
-var hasMatch = text.hasMatch;
-
-var find = text.find;
-var findMatch = text.findMatch;
-var last = text.last;
-var lastMatch = text.lastMatch;
 
 var _find = text._find;
 var _findPlatform = text._findPlatform;
@@ -269,9 +257,9 @@ exports.testSamePlatformCustom = function(test) {
 
 exports.testStartsEndsHas = function(test) {
 
-	test.ok(starts("abcd", "ab"));
-	test.ok(ends("abcd", "cd"));
-	test.ok(has("abcd", "bc"));
+	test.ok("abcd".starts("ab"));
+	test.ok("abcd".ends("cd"));
+	test.ok("abcd".has("bc"));
 
 	test.done();
 }
@@ -334,21 +322,6 @@ exports.testFindPlatformCustom = function(test) {
 	test.done();
 }
 
-var before = text.before;
-var beforeMatch = text.beforeMatch;
-var beforeLast = text.beforeLast;
-var beforeLastMatch = text.beforeLastMatch;
-
-var after = text.after;
-var afterMatch = text.afterMatch;
-var afterLast = text.afterLast;
-var afterLastMatch = text.afterLastMatch;
-
-var cut = text.cut;
-var cutMatch = text.cutMatch;
-var cutLast = text.cutLast;
-var cutLastMatch = text.cutLastMatch;
-
 var _cut = text._cut;
 
 exports.testCut = function(test) {
@@ -356,13 +329,13 @@ exports.testCut = function(test) {
 	var s = "apple<tag>banana<tag>carrot";
 
 	//before and after
-	test.ok(before(s,     "<tag>") == "apple");
-	test.ok(after(s,      "<tag>") ==           "banana<tag>carrot");
-	test.ok(beforeLast(s, "<tag>") == "apple<tag>banana");
-	test.ok(afterLast(s,  "<tag>") ==                      "carrot");
+	test.ok(s.before(    "<tag>") == "apple");
+	test.ok(s.after(     "<tag>") ==           "banana<tag>carrot");
+	test.ok(s.beforeLast("<tag>") == "apple<tag>banana");
+	test.ok(s.afterLast( "<tag>") ==                      "carrot");
 
 	//cut
-	var c = cutLastMatch(s, "<TAG>");//tag uppercase, matching on
+	var c = s.cutLastMatch("<TAG>");//tag uppercase, matching on
 	test.ok(c.found);
 	test.ok(c.before == "apple<tag>banana");
 	test.ok(c.tag    == "<tag>");//tag lowercase from s
@@ -371,21 +344,20 @@ exports.testCut = function(test) {
 	s = "Sample text";
 
 	//not found
-	test.ok(before(s,          "E") == "Sample text");//not found, all before
-	test.ok(after(s,           "E") == "");
-	test.ok(beforeLast(s,      "E") == "Sample text");
-	test.ok(afterLast(s,       "E") == "");
+	test.ok(s.before(         "E") == "Sample text");//not found, all before
+	test.ok(s.after(          "E") == "");
+	test.ok(s.beforeLast(     "E") == "Sample text");
+	test.ok(s.afterLast(      "E") == "");
 
 	//case matching
-	test.ok(beforeMatch(s,     "E") == "Sampl");
-	test.ok(afterMatch(s,      "E") ==       " text");
-	test.ok(beforeLastMatch(s, "E") == "Sample t");
-	test.ok(afterLastMatch(s,  "E") ==          "xt");
+	test.ok(s.beforeMatch(    "E") == "Sampl");
+	test.ok(s.afterMatch(     "E") ==       " text");
+	test.ok(s.beforeLastMatch("E") == "Sample t");
+	test.ok(s.afterLastMatch( "E") ==          "xt");
 
 	test.done();
 }
 
-//stuff beyond this point isn't in order yet
 
 
 
@@ -394,20 +366,17 @@ exports.testCut = function(test) {
 
 
 
-
-var swap = text.swap;
-var swapMatch = text.swapMatch;
 
 exports.testSwap = function(test) {
 
 	var s = "Abacore tuna is absolutely the best.";
-	test.ok(swapMatch(s, "ab", "Ba") == "Baacore tuna is Basolutely the best.");
+	test.ok(s.swapMatch("ab", "Ba") == "Baacore tuna is Basolutely the best.");
 
 	s = "Yesterday. Bill said it. That's when Bill was in here.";
-	test.ok(swapMatch(s, "bill", "REDACTED") == "Yesterday. REDACTED said it. That's when REDACTED was in here.");
+	test.ok(s.swapMatch("bill", "REDACTED") == "Yesterday. REDACTED said it. That's when REDACTED was in here.");
 
-	test.ok(swap("aaaaa", "aa", "bb") == "bbbba");//replaced 2 whole instances
-	test.ok(swap("aaaaa", "aa", "bbb") == "bbbbbba");
+	test.ok("aaaaa".swap("aa", "bb") == "bbbba");//replaced 2 whole instances
+	test.ok("aaaaa".swap("aa", "bbb") == "bbbbbba");
 
 	test.done();
 }
@@ -419,23 +388,20 @@ exports.testSwap = function(test) {
 
 
 
-
-var upper = text.upper;
-var lower = text.lower;
 
 exports.testUpperLower = function(test) {
 
 	//use
-	test.ok(lower("A") == "a");
-	test.ok(upper("a") == "A");
-	test.ok(lower("Shhhh. Whisper, please.") == "shhhh. whisper, please.");
-	test.ok(upper("Do you want to buy a duck?") == "DO YOU WANT TO BUY A DUCK?");
+	test.ok("A".lower() == "a");
+	test.ok("a".upper() == "A");
+	test.ok("Shhhh. Whisper, please.".lower() == "shhhh. whisper, please.");
+	test.ok("Do you want to buy a duck?".upper() == "DO YOU WANT TO BUY A DUCK?");
 
 	//greek alphabet
 	var greekLower = "αβγδεζηθικλμνξοπρστυφχψω";
 	var greekUpper = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ";
-	test.ok(upper(greekLower) == greekUpper);
-	test.ok(lower(greekUpper) == greekLower);
+	test.ok(greekLower.upper() == greekUpper);
+	test.ok(greekUpper.lower() == greekLower);
 
 	test.done();
 }
@@ -446,95 +412,90 @@ exports.testUpperLower = function(test) {
 
 
 
-var code = text.code;
-var range = text.range;
-var isLetter = text.isLetter;
-var isNumber = text.isNumber;
-
 exports.testCode = function(test) {
 
-	test.ok(code("A") == 65);//you can omit i to get the first character
+	test.ok("A".code() == 65);//you can omit i to get the first character
 
 	var s = "\0\r\n\x0d\x0a\t\"";//control characters
 	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 0);//null
-	test.ok(code(s, 1) == 0x0d);//r
-	test.ok(code(s, 2) == 0x0a);//n
-	test.ok(code(s, 3) == 0x0d);//r
-	test.ok(code(s, 4) == 0x0a);//n
-	test.ok(code(s, 5) == 9);//tab
-	test.ok(code(s, 6) == 34);//quote
+	test.ok(s.code(0) == 0);//null
+	test.ok(s.code(1) == 0x0d);//r
+	test.ok(s.code(2) == 0x0a);//n
+	test.ok(s.code(3) == 0x0d);//r
+	test.ok(s.code(4) == 0x0a);//n
+	test.ok(s.code(5) == 9);//tab
+	test.ok(s.code(6) == 34);//quote
 
 	s = "09AZaz";//letters and numbers
-	test.ok(code(s, 0) == 48);
-	test.ok(code(s, 1) == 57);
-	test.ok(code(s, 2) == 65);
-	test.ok(code(s, 3) == 90);
-	test.ok(code(s, 4) == 97);
-	test.ok(code(s, 5) == 122);
+	test.ok(s.code(0) == 48);
+	test.ok(s.code(1) == 57);
+	test.ok(s.code(2) == 65);
+	test.ok(s.code(3) == 90);
+	test.ok(s.code(4) == 97);
+	test.ok(s.code(5) == 122);
 
 	s = " !.^_";//punctuation
-	test.ok(code(s, 0) == 32);
-	test.ok(code(s, 1) == 33);
-	test.ok(code(s, 2) == 46);
-	test.ok(code(s, 3) == 94);
-	test.ok(code(s, 4) == 95);
+	test.ok(s.code(0) == 32);
+	test.ok(s.code(1) == 33);
+	test.ok(s.code(2) == 46);
+	test.ok(s.code(3) == 94);
+	test.ok(s.code(4) == 95);
 
 	s = "español";//europe
 	test.ok(s.length == 7);
-	test.ok(code(s, 0) == 101);
-	test.ok(code(s, 4) == 241);//beyond the ascii table
-	test.ok(code(s, 6) == 108);
+	test.ok(s.code(0) == 101);
+	test.ok(s.code(4) == 241);//beyond the ascii table
+	test.ok(s.code(6) == 108);
 
 	s = "中文";//asia
 	test.ok(s.length == 2);
-	test.ok(code(s, 0) == 20013);//tens of thousands
-	test.ok(code(s, 1) == 25991);
+	test.ok(s.code(0) == 20013);//tens of thousands
+	test.ok(s.code(1) == 25991);
 
 	s = "مرحبا";//arabic
 	test.ok(s.length == 5);
-	test.ok(code(s, 0) == 1605);//just thousands
-	test.ok(code(s, 1) == 1585);
-	test.ok(code(s, 2) == 1581);
-	test.ok(code(s, 3) == 1576);
-	test.ok(code(s, 4) == 1575);
+	test.ok(s.code(0) == 1605);//just thousands
+	test.ok(s.code(1) == 1585);
+	test.ok(s.code(2) == 1581);
+	test.ok(s.code(3) == 1576);
+	test.ok(s.code(4) == 1575);
 
 	test.done();
 }
 
 exports.testRange = function(test) {
 
-	test.ok(range("a", "a", "z"));//first
-	test.ok(range("z", "a", "z"));//last
-	test.ok(range("k", "a", "z"));//middle
-	test.ok(range("5", "5", "5"));//only
+	test.ok("a".range("a", "z"));//first
+	test.ok("z".range("a", "z"));//last
+	test.ok("k".range("a", "z"));//middle
+	test.ok("5".range("5", "5"));//only
 
-	test.ok(!range("0", "a", "z"));//outside
-	test.ok(!range("A", "a", "z"));
+	test.ok(!"0".range("a", "z"));//outside
+	test.ok(!"A".range("a", "z"));
 
 	test.done();
 }
 
 exports.testIsLetterIsNumber = function(test) {
 
-	test.ok(isLetter("a"));//lower
-	test.ok(isLetter("b"));
-	test.ok(isLetter("z"));
+	test.ok("a".isLetter());//lower
+	test.ok("b".isLetter());
+	test.ok("z".isLetter());
 
-	test.ok(isLetter("A"));//upper
-	test.ok(isLetter("K"));
-	test.ok(isLetter("Z"));
+	test.ok("A".isLetter());//upper
+	test.ok("K".isLetter());
+	test.ok("Z".isLetter());
 
-	test.ok(isNumber("0"));//number
-	test.ok(isNumber("2"));
-	test.ok(isNumber("9"));
+	test.ok("0".isNumber());//number
+	test.ok("2".isNumber());
+	test.ok("9".isNumber());
 
 	//blank throws bounds
-	try { isLetter(""); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	try { "".isLetter(); test.fail(); } catch (e) { test.ok(e == "bounds"); }
 
 	function neither(c) {
-		test.ok(!isLetter(c));
-		test.ok(!isNumber(c));
+		test.ok(!c.isLetter());
+		test.ok(!c.isNumber());
 	}
 
 	neither(" ");
@@ -552,20 +513,16 @@ exports.testIsLetterIsNumber = function(test) {
 
 
 
-var either = text.either;
-var eitherMatch = text.eitherMatch;
-var _either = text._either;
-
 exports.testEither = function(test) {
 
 	var s = "sample abc text def and more";
 
-	test.ok(either(s, "abc", "xyz") == 7);//first found
-	test.ok(either(s, "xyz", "abc") == 7);//second found
+	test.ok(s.either("abc", "xyz") == 7);//first found
+	test.ok(s.either("xyz", "abc") == 7);//second found
 
-	test.ok(either(s, "abc", "def") == 7);//both found
-	test.ok(either(s, "aBC", "def") == 16);//first case mismatch
-	test.ok(eitherMatch(s, "aBC", "def") == 7);//matching cases
+	test.ok(s.either("abc", "def") == 7);//both found
+	test.ok(s.either("aBC", "def") == 16);//first case mismatch
+	test.ok(s.eitherMatch("aBC", "def") == 7);//matching cases
 
 	test.done();
 }
@@ -576,47 +533,54 @@ exports.testEither = function(test) {
 
 
 
-
-var onStart = text.onStart;
-var onEnd = text.onEnd;
-var _on = text._on;
-
-var offStart = text.offStart;
-var offEnd = text.offEnd;
-var _off = text._off;
-
-var off = text.off;
 
 exports.testOff = function(test) {
 
 	//on start and end
-	test.ok(onStart("/folder", "/") == "/folder");//already there
-	test.ok(onStart("folder", "/") == "/folder");//added it
+	test.ok("/folder".onStart("/") == "/folder");//already there
+	test.ok("folder".onStart("/") == "/folder");//added it
 
-	test.ok(onEnd("folder/", "/") == "folder/");//already there
-	test.ok(onEnd("folder", "/") == "folder/");//added it
+	test.ok("folder/".onEnd("/") == "folder/");//already there
+	test.ok("folder".onEnd("/") == "folder/");//added it
 
-	test.ok(onEnd("folder///", "//") == "folder///");//already there
-	test.ok(onEnd("folderABC", "AB") == "folderABCAB");//added it
+	test.ok("folder///".onEnd("//") == "folder///");//already there
+	test.ok("folderABC".onEnd("AB") == "folderABCAB");//added it
 
 	//off start and end
-	test.ok(offStart("/folder", "/") == "folder");//removed it
-	test.ok(offStart("folder", "/") == "folder");//didn't need to
-	test.ok(offStart("///folder", "/") == "folder");//removed multiple
+	test.ok("/folder".offStart("/") == "folder");//removed it
+	test.ok("folder".offStart("/") == "folder");//didn't need to
+	test.ok("///folder".offStart("/") == "folder");//removed multiple
 
-	test.ok(offEnd("folder/", "/") == "folder");//removed it
-	test.ok(offEnd("folder", "/") == "folder");//didn't need to
-	test.ok(offEnd("folder///", "/") == "folder");//removed multiple
+	test.ok("folder/".offEnd("/") == "folder");//removed it
+	test.ok("folder".offEnd("/") == "folder");//didn't need to
+	test.ok("folder///".offEnd("/") == "folder");//removed multiple
 
 	//off
 	var s = " --_ folder-_-- -";
-	test.ok(off(s, " ") == "--_ folder-_-- -");
-	test.ok(off(s, "-") == " --_ folder-_-- ");
-	test.ok(off(s, " ", "-") == "_ folder-_");
-	test.ok(off(s, " ", "-", "_") == "folder");
+	test.ok(s.off(" ") == "--_ folder-_-- -");
+	test.ok(s.off("-") == " --_ folder-_-- ");
+	test.ok(s.off(" ", "-") == "_ folder-_");
+	test.ok(s.off(" ", "-", "_") == "folder");
 
 	test.done();
 }
+
+
+
+var sample = text.sample;
+
+exports.testSample = function(test) {
+
+//	log(sample("hi", "a", "b"));
+
+	"hi".sample("a", "b", "c");
+
+
+
+	test.done();
+}
+
+
 
 
 
