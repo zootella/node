@@ -241,11 +241,7 @@ function _findCustom(s, tag, forward, scan, match) { // Using our own code
 }
 
 exports.same = same;
-exports._samePlatform = _samePlatform;
-exports._sameCustom = _sameCustom;
 exports.match = match;
-exports._matchPlatform = _matchPlatform;
-exports._matchCustom = _matchCustom;
 
 String.prototype.starts = function() { return starts.apply(this, argue(this, arguments)); }
 String.prototype.startsMatch = function() { return startsMatch.apply(this, argue(this, arguments)); }
@@ -258,10 +254,6 @@ String.prototype.find = function() { return find.apply(this, argue(this, argumen
 String.prototype.findMatch = function() { return findMatch.apply(this, argue(this, arguments)); }
 String.prototype.last = function() { return last.apply(this, argue(this, arguments)); }
 String.prototype.lastMatch = function() { return lastMatch.apply(this, argue(this, arguments)); }
-
-exports._find = _find;
-exports._findPlatform = _findPlatform;
-exports._findCustom = _findCustom;
 
 
 
@@ -814,7 +806,6 @@ String.prototype.distance = function (arg) {
 
 
 
-//add to string's prototype at the bottom of each exports bunch, just doing the ones that make sense, obviously
 
 
 

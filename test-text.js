@@ -236,29 +236,19 @@ exports.testClip = function(test) {
 
 
 var same = text.same;
-var _samePlatform = text._samePlatform;
-var _sameCustom = text._sameCustom;
 var match = text.match;
-var _matchPlatform = text._matchPlatform;
-var _matchCustom = text._matchCustom;
-
-var _find = text._find;
-var _findPlatform = text._findPlatform;
-var _findCustom = text._findCustom;
 
 exports.testSamePlatformCustom = function(test) {
 
 	function run(answerMatch, answerCase, s1, s2) {
 
-		test.ok(answerMatch == _matchPlatform(s1, s2));
-		test.ok(answerMatch == _matchCustom(s1, s2));
-		test.ok(answerCase == _samePlatform(s1, s2));
-		test.ok(answerCase == _sameCustom(s1, s2));
+		test.ok(answerMatch == match(s1, s2));
+		test.ok(answerCase == same(s1, s2));
+		test.ok(answerCase == (s1 == s2));
 
-		test.ok(answerMatch == _matchPlatform(s2, s1));//flip inputs
-		test.ok(answerMatch == _matchCustom(s2, s1));
-		test.ok(answerCase == _samePlatform(s2, s1));
-		test.ok(answerCase == _sameCustom(s2, s1));
+		test.ok(answerMatch == match(s2, s1));//flip inputs
+		test.ok(answerCase == same(s2, s1));
+		test.ok(answerCase == (s2 == s1));
 	}
 
 	//same
@@ -295,8 +285,7 @@ exports.testStartsEndsHas = function(test) {
 exports.testFindPlatformCustom = function(test) {
 
 	//no tag
-	try { _findPlatform("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
-	try {   _findCustom("abcd", "", true, true, false); test.fail(); } catch (e) { test.ok(e == "argument"); }
+	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e == "argument"); }
 
 	function both(found, s, tag, forward, match) {
 		test.ok(found == _findPlatform(s, tag, forward, true, match));
@@ -304,48 +293,48 @@ exports.testFindPlatformCustom = function(test) {
 	}
 
 	//basic use
-	both(0,  "abcd",   "ab",     true, false);//first
-	both(2,  "abcd",     "cd",   true, false);//last
-	both(1,  "abcd",    "bc",    true, false);//middle
-	both(-1, "abcd", "YZ",       true, false);//not found
+	test.ok(0  == "abcd".find(  "ab"));//first
+	test.ok(2  == "abcd".find(    "cd"));//last
+	test.ok(1  == "abcd".find(   "bc"));//middle
+	test.ok(-1 == "abcd".find("YZ"));//not found
 
 	//tag longer
-	both(-1, "abcd",   "abcdef", true, false);//tag matches but longer beyond end
-	both(-1, "abcd", "YZabcd",   true, false);//tag matches but longer before start
-	both(-1, "abcd",   "abcE",   true, false);//tag matches at start
+	test.ok(-1 == "abcd".find(  "abcdef"));//tag matches but longer beyond end
+	test.ok(-1 == "abcd".find("YZabcd"));//tag matches but longer before start
+	test.ok(-1 == "abcd".find(  "abcE"));//tag matches at start
 
 	//forward and reverse
-	both(1,  " abc ab bcde abcd ", "ab", true,  false);
-	both(13, " abc ab bcde abcd ", "ab", false, false);
-	both(2,  " abc ab bcde abcd ", "bc", true,  false);
-	both(14, " abc ab bcde abcd ", "bc", false, false);
-	both(9,  " abc ab bcde abcd ", "cd", true,  false);
-	both(15, " abc ab bcde abcd ", "cd", false, false);
-	both(10, " abc ab bcde abcd ", "de", true,  false);
-	both(10, " abc ab bcde abcd ", "de", false, false);
+	test.ok( 1 == " abc ab bcde abcd ".find("ab"));
+	test.ok(13 == " abc ab bcde abcd ".last("ab"));
+	test.ok( 2 == " abc ab bcde abcd ".find("bc"));
+	test.ok(14 == " abc ab bcde abcd ".last("bc"));
+	test.ok( 9 == " abc ab bcde abcd ".find("cd"));
+	test.ok(15 == " abc ab bcde abcd ".last("cd"));
+	test.ok(10 == " abc ab bcde abcd ".find("de"));
+	test.ok(10 == " abc ab bcde abcd ".last("de"));
 
 	//matching cases
-	both(0,  "abcd",   "AB",     true, true);//first
-	both(2,  "abcd",     "cD",   true, true);//last
-	both(1,  "abcd",    "Bc",    true, true);//middle
+	test.ok(0 == "abcd".findMatch("AB"));//first
+	test.ok(2 == "abcd".findMatch(  "cD"));//last
+	test.ok(1 == "abcd".findMatch( "Bc"));//middle
 
 	//international
 	var s = "español 中文 বাংলা português";
-	both(0, s, "español", true, false);
-	both(8, s, "中文", true, false);
-	both(11, s, "বাংলা", true, false);
-	both(17, s, "português", true, false);
+	test.ok( 0 == s.find("español"));
+	test.ok( 8 == s.find("中文"));
+	test.ok(11 == s.find("বাংলা"));
+	test.ok(17 == s.find("português"));
 
 	//international matching cases
-	both(-1, s, "ESPAÑOL", true, false);
-	both(0,  s, "ESPAÑOL", true, true);
-	both(-1, s, "PORTUGUÊS", true, false);
-	both(17, s, "PORTUGUÊS", true, true);
+	test.ok(-1 == s.find(     "ESPAÑOL"));
+	test.ok( 0 == s.findMatch("ESPAÑOL"));
+	test.ok(-1 == s.find(     "PORTUGUÊS"));
+	test.ok(17 == s.findMatch("PORTUGUÊS"));
 
 	//international forward and reverse
 	s = " X বাংলা X বাংলা X ";
-	both(3,  s, "বাংলা", true,  false);
-	both(11, s, "বাংলা", false, false);
+	test.ok( 3 == s.find("বাংলা"));
+	test.ok(11 == s.last("বাংলা"));
 
 	test.done();
 }
