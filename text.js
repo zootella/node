@@ -28,10 +28,23 @@ if(!('contains' in String.prototype))
 //don't polyfill, exactly, rather if something is already defined, throw "platform"
 
 
+
+
+
+//Change this next: actually, you just realized you could probably use functionName.apply(this, arguments) for all of the prototypes, and not have to mention the argumetns specifically at all
+//also, you probably don't need to export the functions, just leave them as functions here
+
 //you need to add the throw "platform" if any of the methods you're going to add are already present
 
 
+
+
+
+
+
 /*
+ * whiskers on mittens
+ * 
  * These are a few of my favorite strings.
  */
 
@@ -407,8 +420,8 @@ exports.either = either;
 exports.eitherMatch = eitherMatch;
 exports._either = _either;
 
-String.prototype.either = function() { return either(this, tag1, tag2); }
-String.prototype.eitherMatch = function() { return eitherMatch(this, tag1, tag2); }
+String.prototype.either = function(tag1, tag2) { return either(this, tag1, tag2); }
+String.prototype.eitherMatch = function(tag1, tag2) { return eitherMatch(this, tag1, tag2); }
 
 
 
