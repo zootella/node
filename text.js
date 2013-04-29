@@ -35,6 +35,28 @@ function argue(t, r) {
 
 
 
+/*
+function unify(f, name) {
+	if (name in String.prototype)
+		throw "program";
+
+	String.prototype[name] = function() {
+		return f.apply(this, argue(this, arguments));
+	}
+}
+*/
+
+function augment(f, name) {
+	if (name in String.prototype)
+		throw "program";
+
+	String.prototype[name] = function() {
+		var a = [this + ""]; // Coax the given this into a string, rather than an array of characters
+		for (var i = 0; i < arguments.length; i++) // After t, add all the arguments in r
+			a.push(arguments[i]);
+		return f.apply(this, a);
+	}
+}
 
 
 
@@ -150,8 +172,13 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
+/*
 clear("first"); String.prototype.first = function() { return first.apply(this, argue(this, arguments)); }
 clear("get"); String.prototype.get = function() { return get.apply(this, argue(this, arguments)); }
+*/
+
+augment(first, "first");
+augment(get, "get");
 clear("start"); String.prototype.start = function() { return start.apply(this, argue(this, arguments)); }
 clear("end"); String.prototype.end = function() { return end.apply(this, argue(this, arguments)); }
 clear("beyond"); String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
@@ -162,18 +189,7 @@ clear("clip"); String.prototype.clip = function() { return clip.apply(this, argu
 
 
 
-function unify(name, f) {
-	if (name in String.prototype)
-		throw "program";
-
-	String.prototype[name] = function() {
-		return f.apply(this, argue(this, arguments));
-	}
-}
-
-
-
-
+/*
 function example(s, tag) {
 	return s + ":" + tag;
 }
@@ -181,6 +197,7 @@ exports.example = example;
 
 //clear("example"); String.prototype.example = function() { return example.apply(this, argue(this, arguments)); }
 unify("example", example);
+*/
 
 
 
