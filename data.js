@@ -691,7 +691,7 @@ function base62(s) {
 		if      (c.range("0", "9")) code = c.code() - "0".code();      // '0'  0 000000 through '9'  9 001001
 		else if (c.range("a", "z")) code = c.code() - "a".code() + 10; // 'a' 10 001010 through 'z' 35 100011
 		else if (c.range("A", "Y")) code = c.code() - "A".code() + 36; // 'A' 36 100100 through 'Y' 60 111100
-		else if (c == "Z")          code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
+		else if (c.range("Z", "Z")) code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
 		else throw "data";                                             // Invalid character
 
 		// Insert the bits from code into hold
