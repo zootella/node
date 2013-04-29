@@ -21,6 +21,9 @@ if(!('contains' in String.prototype))
 
 
 
+function clear(name) { if (name in String.prototype) throw "program"; }
+
+
 // Given a this string t and arguments r from a string prototype function, assemble arguments for a regular function
 // For example, use this to have "hi".custom("a", "b") call custom("hi", "a", "b")
 function argue(t, r) {
@@ -29,6 +32,7 @@ function argue(t, r) {
 		a.push(r[i]);
 	return a; // Return the arguments ready to call the regular function
 }
+
 
 
 
@@ -72,6 +76,7 @@ function argue(t, r) {
 //Cut
 //Find
 //Format
+//More (this is where you put new random stuff you'r enot sure if it deserves to exist, this is a mess where you can just play around)
 //Describe
 //Number
 //Encode
@@ -122,6 +127,7 @@ exports.blank = blank;
 
 
 
+
 // Clip
 
 // Get the first character in s
@@ -144,13 +150,39 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-String.prototype.first = function() { return first.apply(this, argue(this, arguments)); }
-String.prototype.get = function() { return get.apply(this, argue(this, arguments)); }
-String.prototype.start = function() { return start.apply(this, argue(this, arguments)); }
-String.prototype.end = function() { return end.apply(this, argue(this, arguments)); }
-String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
-String.prototype.chop = function() { return chop.apply(this, argue(this, arguments)); }
-String.prototype.clip = function() { return clip.apply(this, argue(this, arguments)); }
+clear("first"); String.prototype.first = function() { return first.apply(this, argue(this, arguments)); }
+clear("get"); String.prototype.get = function() { return get.apply(this, argue(this, arguments)); }
+clear("start"); String.prototype.start = function() { return start.apply(this, argue(this, arguments)); }
+clear("end"); String.prototype.end = function() { return end.apply(this, argue(this, arguments)); }
+clear("beyond"); String.prototype.beyond = function() { return beyond.apply(this, argue(this, arguments)); }
+clear("chop"); String.prototype.chop = function() { return chop.apply(this, argue(this, arguments)); }
+clear("clip"); String.prototype.clip = function() { return clip.apply(this, argue(this, arguments)); }
+
+
+
+
+
+function unify(name, f) {
+	if (name in String.prototype)
+		throw "program";
+
+	String.prototype[name] = function() {
+		return f.apply(this, argue(this, arguments));
+	}
+}
+
+
+
+
+function example(s, tag) {
+	return s + ":" + tag;
+}
+exports.example = example;
+
+//clear("example"); String.prototype.example = function() { return example.apply(this, argue(this, arguments)); }
+unify("example", example);
+
+
 
 
 
@@ -249,16 +281,16 @@ function _findCustom(s, tag, forward, scan, match) { // Using our own code
 
 exports.same = same;
 exports.match = match;
-String.prototype.starts = function() { return starts.apply(this, argue(this, arguments)); }
-String.prototype.startsMatch = function() { return startsMatch.apply(this, argue(this, arguments)); }
-String.prototype.ends = function() { return ends.apply(this, argue(this, arguments)); }
-String.prototype.endsMatch = function() { return endsMatch.apply(this, argue(this, arguments)); }
-String.prototype.has = function() { return has.apply(this, argue(this, arguments)); }
-String.prototype.hasMatch = function() { return hasMatch.apply(this, argue(this, arguments)); }
-String.prototype.find = function() { return find.apply(this, argue(this, arguments)); }
-String.prototype.findMatch = function() { return findMatch.apply(this, argue(this, arguments)); }
-String.prototype.last = function() { return last.apply(this, argue(this, arguments)); }
-String.prototype.lastMatch = function() { return lastMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.starts = function() { return starts.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.startsMatch = function() { return startsMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.ends = function() { return ends.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.endsMatch = function() { return endsMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.has = function() { return has.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.hasMatch = function() { return hasMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.find = function() { return find.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.findMatch = function() { return findMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.last = function() { return last.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.lastMatch = function() { return lastMatch.apply(this, argue(this, arguments)); }
 
 
 
@@ -307,18 +339,18 @@ function _cut(s, tag, forward, match) {
 	}
 }
 
-String.prototype.before = function() { return before.apply(this, argue(this, arguments)); }
-String.prototype.beforeMatch = function() { return beforeMatch.apply(this, argue(this, arguments)); }
-String.prototype.beforeLast = function() { return beforeLast.apply(this, argue(this, arguments)); }
-String.prototype.beforeLastMatch = function() { return beforeLastMatch.apply(this, argue(this, arguments)); }
-String.prototype.after = function() { return after.apply(this, argue(this, arguments)); }
-String.prototype.afterMatch = function() { return afterMatch.apply(this, argue(this, arguments)); }
-String.prototype.afterLast = function() { return afterLast.apply(this, argue(this, arguments)); }
-String.prototype.afterLastMatch = function() { return afterLastMatch.apply(this, argue(this, arguments)); }
-String.prototype.cut = function() { return cut.apply(this, argue(this, arguments)); }
-String.prototype.cutMatch = function() { return cutMatch.apply(this, argue(this, arguments)); }
-String.prototype.cutLast = function() { return cutLast.apply(this, argue(this, arguments)); }
-String.prototype.cutLastMatch = function() { return cutLastMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.before = function() { return before.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.beforeMatch = function() { return beforeMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.beforeLast = function() { return beforeLast.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.beforeLastMatch = function() { return beforeLastMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.after = function() { return after.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.afterMatch = function() { return afterMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.afterLast = function() { return afterLast.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.afterLastMatch = function() { return afterLastMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.cut = function() { return cut.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.cutMatch = function() { return cutMatch.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.cutLast = function() { return cutLast.apply(this, argue(this, arguments)); }
+clear(""); String.prototype.cutLastMatch = function() { return cutLastMatch.apply(this, argue(this, arguments)); }
 
 
 

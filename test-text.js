@@ -689,8 +689,10 @@ exports.testCommas = function(test) {
 
 
 
+var example = text.example;
 
-
+log(example("hello", "you"));
+log("hello".example("you"));
 
 
 
