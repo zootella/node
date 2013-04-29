@@ -111,47 +111,10 @@ function augment(f, name) {
 
 
 
-// Make
-
-// Concatenate all the given strings together
-// For instance, make("a", "b", "c") is "abc"
-// Instead of make(), you can also just use "a" + "b" + "c"
-function make() {
-	var s = "";
-	for (var i = 0; i < arguments.length; i++)
-		s += arguments[i]; // Using + is actually must faster than s.concat() or [].join()
-	return s;
-}
-
-// True if s is a string with some text
-// Instead of is(), you can also just use s == ""
-function is(s) {
-	if (typeof s !== "string") throw "type";
-	if (s.length === 0) return false;
-	return true;
-}
-
-// True if s is a string that's blank
-// Instead of blank, you can also just use s != ""
-function blank(s) {
-	if (typeof s !== "string") throw "type";
-	if (s.length === 0) return true;
-	return false;
-}
-
-exports.make = make;
-exports.is = is;
-exports.blank = blank;
 
 
 
 
-
-
-
-
-
-// Clip
 
 // Get the first character in s
 function first(s) { return get(s, 0); }
@@ -173,7 +136,7 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-augment(first, "first");
+augment(first, "first"); // Clip
 augment(get, "get");
 augment(start, "start");
 augment(end, "end");
@@ -189,7 +152,6 @@ augment(clip, "clip");
 
 
 
-// Find
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
@@ -276,7 +238,19 @@ function _findCustom(s, tag, forward, scan, match) { // Using our own code
 	return -1; // Not found
 }
 
-exports.same = same;
+// Find where tag1 or tag2 first appears in s, -1 if neither found
+function either(s, tag1, tag2) { return _either(s, tag1, tag2, false); } // Case sensitive
+function eitherMatch(s, tag1, tag2) { return _either(s, tag1, tag2, true); } // Matches cases
+function _either(s, tag1, tag2, match) {
+	var i1 = _find(s, tag1, true, true, match); // Search for both
+	var i2 = _find(s, tag2, true, true, match);
+	if (i1 == -1 && i2 == -1) return -1; // Both not found
+	else if (i1 == -1) return i2; // One found, but not the other
+	else if (i2 == -1) return i1;
+	else return Math.min(i1, i2); // Both found, return the one that appears first
+}
+
+exports.same = same; // Find
 exports.match = match;
 augment(starts, "starts");
 augment(startsMatch, "startsMatch");
@@ -288,6 +262,8 @@ augment(find, "find");
 augment(findMatch, "findMatch");
 augment(last, "last");
 augment(lastMatch, "lastMatch");
+augment(either, "either");
+augment(eitherMatch, "eitherMatch");
 
 
 
@@ -297,7 +273,9 @@ augment(lastMatch, "lastMatch");
 
 
 
-// Cut
+
+
+
 
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
@@ -336,31 +314,6 @@ function _cut(s, tag, forward, match) {
 	}
 }
 
-augment(before, "before");
-augment(beforeMatch, "beforeMatch");
-augment(beforeLast, "beforeLast");
-augment(beforeLastMatch, "beforeLastMatch");
-augment(after, "after");
-augment(afterMatch, "afterMatch");
-augment(afterLast, "afterLast");
-augment(afterLastMatch, "afterLastMatch");
-augment(cut, "cut");
-augment(cutMatch, "cutMatch");
-augment(cutLast, "cutLast");
-augment(cutLastMatch, "cutLastMatch");
-
-
-
-
-
-
-
-
-
-
-
-
-
 // In a single pass through s, replace whole instances of t1 with t2, like swap("a-b-c", "-", "_") is "a_b_c"
 function swap(s, t1, t2)      { return _swap(s, t1, t2, false); } // Case sensitive
 function swapMatch(s, t1, t2) { return _swap(s, t1, t2, true);  } // Matches cases
@@ -376,6 +329,18 @@ function _swap(s, t1, t2, match) {
 	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
 }
 
+augment(before, "before"); // Cut
+augment(beforeMatch, "beforeMatch");
+augment(beforeLast, "beforeLast");
+augment(beforeLastMatch, "beforeLastMatch");
+augment(after, "after");
+augment(afterMatch, "afterMatch");
+augment(afterLast, "afterLast");
+augment(afterLastMatch, "afterLastMatch");
+augment(cut, "cut");
+augment(cutMatch, "cutMatch");
+augment(cutLast, "cutLast");
+augment(cutLastMatch, "cutLastMatch");
 augment(swap, "swap");
 augment(swapMatch, "swapMatch");
 
@@ -383,6 +348,33 @@ augment(swapMatch, "swapMatch");
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+// True if s is a string with some text
+// Instead of is(), you can also just use s == ""
+function is(s) {
+	if (typeof s !== "string") throw "type";
+	if (s.length === 0) return false;
+	return true;
+}
+
+// True if s is a string that's blank
+// Instead of blank, you can also just use s != ""
+function blank(s) {
+	if (typeof s !== "string") throw "type";
+	if (s.length === 0) return true;
+	return false;
+}
 
 // Convert lower case characters in s to upper case
 function upper(s) {
@@ -397,16 +389,6 @@ function lower(s) {
 	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
 	return l;
 }
-
-augment(upper, "upper");
-augment(lower, "lower");
-
-
-
-
-
-
-
 
 // The Unicode number value of the character a distance i characters into s
 // Also gets ASCII codes, code("A") is 65
@@ -424,6 +406,10 @@ function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)
 function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
 function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
 
+exports.is = is; // Character
+exports.blank = blank;
+augment(upper, "upper");
+augment(lower, "lower");
 augment(code, "code");
 augment(range, "range");
 augment(isLetter, "isLetter");
@@ -434,25 +420,6 @@ augment(isNumber, "isNumber");
 
 
 
-
-
-
-
-
-// Find where tag1 or tag2 first appears in s, -1 if neither found
-function either(s, tag1, tag2) { return _either(s, tag1, tag2, false); } // Case sensitive
-function eitherMatch(s, tag1, tag2) { return _either(s, tag1, tag2, true); } // Matches cases
-function _either(s, tag1, tag2, match) {
-	var i1 = _find(s, tag1, true, true, match); // Search for both
-	var i2 = _find(s, tag2, true, true, match);
-	if (i1 == -1 && i2 == -1) return -1; // Both not found
-	else if (i1 == -1) return i2; // One found, but not the other
-	else if (i2 == -1) return i1;
-	else return Math.min(i1, i2); // Both found, return the one that appears first
-}
-
-augment(either, "either");
-augment(eitherMatch, "eitherMatch");
 
 
 
@@ -509,12 +476,11 @@ function off(s) {
 	return s;
 }
 
-augment(onStart, "onStart");
+augment(onStart, "onStart"); // Off
 augment(onEnd, "onEnd");
 augment(offStart, "offStart");
 augment(offEnd, "offEnd");
 augment(off, "off");
-
 
 
 
@@ -544,7 +510,7 @@ function _numerals(n, base) {
 	return n.toString(base);
 }
 
-augment(number, "number");
+augment(number, "number"); // Number
 augment(number16, "number16");
 exports.numerals = numerals;
 exports.numerals16 = numerals16;
@@ -557,6 +523,25 @@ exports.numerals16 = numerals16;
 
 
 
+
+
+
+
+
+
+
+
+
+
+// Concatenate all the given strings together
+// For instance, make("a", "b", "c") is "abc"
+// Instead of make(), you can also just use "a" + "b" + "c"
+function make() {
+	var s = "";
+	for (var i = 0; i < arguments.length; i++)
+		s += arguments[i]; // Using + is actually must faster than s.concat() or [].join()
+	return s;
+}
 
 // Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
 // Like C's famous sprintf, but simpler and more in the style of a dynamically typed language
@@ -572,34 +557,11 @@ function fill(s) {
 	return t + s; // Include any part of s that remains
 }
 
-augment(fill, "fill");
-
-
-
-
-
-
-
-
-
-
-
-
-
 function widen(s, width, c) {
 	if (!c) c = "0";
 	while (s.length < width) s = c + s;
 	return s;
 }
-
-augment(widen, "widen");
-
-
-
-
-
-
-
 
 // Insert commas between groups of three characters
 // For example, commas("12345") == "12,345"
@@ -616,7 +578,16 @@ function commas(s, c) {
 	return s + t; // Move the leading gorup of up to 3 characters
 }
 
+exports.make = make; // Format
+augment(fill, "fill");
+augment(widen, "widen");
 augment(commas, "commas");
+
+
+
+
+
+
 
 
 
