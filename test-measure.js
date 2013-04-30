@@ -2,11 +2,186 @@
 var log = console.log;
 
 var measure = require("./measure");
-var div     = measure.div;
+var Time = measure.Time;
+var Size = measure.Size;
 var Average = measure.Average;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var multiply = measure.multiply;
+var divide = measure.divide;
+var scale = measure.scale;
+var check = measure.check;
+
+exports.testNumberNanInfinity = function(test) {
+
+	var n;
+
+	n = 1 / 1;//number
+	test.ok(typeof n == "number");
+	test.ok(!isNaN(n));
+	test.ok(isFinite(n));
+	test.ok(n + "" == "1");
+
+	n = 0 / 0;//nan
+	test.ok(typeof n == "number");
+	test.ok(isNaN(n));
+	test.ok(!isFinite(n));
+	test.ok(n + "" == "NaN");
+
+	n = 1 / 0;//infinity
+	test.ok(typeof n == "number");
+	test.ok(!isNaN(n));
+	test.ok(!isFinite(n));
+	test.ok(n + "" == "Infinity");
+
+	test.done();
+}
+
+exports.testNumberBig = function(test) {
+
+	var n;
+
+	n = Number.MAX_VALUE;
+	test.ok(n + "" == "1.7976931348623157e+308");//largest value that a number can hold, not an integer
+
+	n = n * 2;
+	test.ok(typeof n == "number");
+	test.ok(!isNaN(n));
+	test.ok(!isFinite(n));
+	test.ok(n + "" == "Infinity");
+
+	n = 9007199254740992;//largest number that javascript can handle as an integer, 2^53
+	test.ok( n - 1      ==  9007199254740991);//subtracting works
+	test.ok( n + 0      ==  9007199254740992);
+	test.ok( n + 1      ==  9007199254740992);//adding doesn't, no change, doesn't throw
+	test.ok( n * 1      ==  9007199254740992);
+	test.ok( n * 2      == 18014398509481984);//multiplying does work, somehow
+	test.ok((n * 2) + 1 == 18014398509481984);//but then adding doesn't change it
+
+	//clever code you came up with to detect this problem
+	test.ok(n + 1 === n);
+
+	//example of working with a very large file size
+	var d = divide(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
+	test.ok(d.whole == 8191);// the size limit is 8191 terabytes
+	test.ok(d.remainder == 1099511627775);//and this remainder of bytes
+	test.ok(divide(d.remainder, Size.gb).whole == 1023);//which is 1023 gigabytes
+	test.ok(multiply(8191, Size.tb) + 1099511627775 == 9007199254740992 - 1);//put the number back together again
+
+	test.done();
+}
+
+exports.testCheck = function(test) {
+
+	//hit each of the 7 exceptions in check
+	try { check("1", 0); test.fail() } catch (e) { test.ok(e == "type"); }//make sure i is a number
+	try { check(0 / 0, 0); test.fail() } catch (e) { test.ok(e == "bounds"); }//not the weird not a number thing
+	try { check(1 / 0, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for floating point
+	try { check(9007199254740992 * 2, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for int
+	try { check(9007199254740900 + 92, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for addition to work
+	try { check(1.5, 0); test.fail() } catch (e) { test.ok(e == "type"); }//a whole number
+	try { check(0, 1); test.fail() } catch (e) { test.ok(e == "bounds"); }//with the minimum value or larger
+
+	test.done();
+}
+
+exports.testMultiply = function(test) {
+
+	var a;
+
+	test.ok(multiply(3, 4) == 12);
+	test.ok(multiply(3, 0) == 0);
+	test.ok(multiply(1, 1) == 1);
+
+	var n = 9007199254740992 - 1;//largest possible int, minus 1 so our functions will work with it
+	test.ok(n == 9007199254740991);
+	var d = divide(n, 1000);
+	test.ok(d.whole == 9007199254740);//easy enough to see the whole and remainder
+	test.ok(d.remainder == 991);
+
+	test.ok()
+
+	/*
+
+	try {
+
+
+		//       9007199254740992 is the largest possible int
+		multiply(9007199254740992, 1);
+		test.fail();
+	} catch (e) { test.ok(e == "overflow"); }
+	*/
+
+	test.done();
+}
+
+exports.testDivide = function(test) {
+
+	var a;
+
+	a = divide(10, 3);
+	test.ok(a.whole == 3 && a.remainder == 1);
+	test.ok(a.remainder);//has a remainder
+
+	a = divide(12, 3);
+	test.ok(a.whole == 4 && a.remainder == 0);
+	test.ok(!a.remainder);//doesn't have a remainder
+
+	a = divide(123456789, 555);
+	test.ok(a.whole == 222444 && a.remainder == 369);
+
+	a = divide(789, 1);
+	test.ok(a.whole == 789 && a.remainder == 0);
+
+	a = divide(1, 2);
+	test.ok(a.whole == 0 && a.remainder == 1);
+
+	a = divide(1, 456);
+	test.ok(a.whole == 0 && a.remainder == 1);
+
+	//catch errors
+	try { divide("potato", 1); test.fail(); } catch (e) { test.ok(e == "type");    }//not a number
+	try { divide(1.5, 1);      test.fail(); } catch (e) { test.ok(e == "type");    }//not an integer
+	try { divide(-2, 1);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//negative
+	try { divide(10, 0);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//divide by zero
+
+	test.done();
+}
+exports.testScale = function(test) {
+
+
+
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+var div = measure.div;
 
 exports.testDiv = function(test) {
 
@@ -40,6 +215,42 @@ exports.testDiv = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 exports.testAverage = function(test) {

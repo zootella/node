@@ -688,24 +688,43 @@ exports.testCommas = function(test) {
 
 
 
-/*
-var example = text.example;
-
-log(example("hello", "you"));
-log("hello".example("you"));
-*/
 
 
 
+var _list = text._list;
+
+exports.testWords = function(test) {
+
+	function view(a) {
+		var s = "";
+		for (var i = 0; i < a.length; i++)
+			s += "<" + a[i] + ">";
+		return s;
+	}
+
+	test.ok(view(_list("a b", " ", false, false)) == "<a><b>");
+	test.ok(view(_list("a  b", " ", false, false)) == "<a><><b>");
+	test.ok(view(_list("a  b", " ", false, true)) == "<a><b>");//skip blank words
+	test.ok(view(_list("  a  b  ", " ", false, true)) == "<a><b>");
+	test.ok(view(_list("  a  b  ", " ", true, false)) == "<><><a><><b><>");//trim words instead
+
+	//have test cases that show how things get better when you turn trim on, and when you turn blanks on
+	//this might be an example of exporting _list for testing
+
+
+	test.ok(view(_list("ab", " ", false, false)) == "<ab>");//not found at all
+
+
+	test.done();
+}
 
 
 
 
 
-
-
-
-
+//what you should do with trim is just use it as in javascript
+//and write a test here that demonstrates it correctly does what you want it to do
+//it may do even more, but that's fine to leave unknown
 
 
 

@@ -599,6 +599,157 @@ augment(commas, "commas");
 
 
 
+
+
+
+
+
+
+/*
+js split
+*/
+
+
+
+function lines(s, skipBlankLines) {}//with this one you really have to trim from the right, but not the left
+function words(s, trimWords) {}//with this one you really have to skip blank words
+
+
+
+function _list(s, tag, trimItems, skipBlankItems) {
+
+	var a = []; // The array we will fill and return
+
+	function add(w) { // Add the given word w to the array
+		if (trimItems) w = w.trim(); // Trim the word, if the caller requested this feature
+		if (!skipBlankItems || w != "") a.push(w); // Skip adding a blank word, if the caller requested this feature
+	}
+
+	while (s.length) { // Loop until s is blank
+		var c = s.cut(tag); // Cut around the first instance of the tag
+		add(c.before); // Add the word before to the array
+		s = c.after; // Set s to what's after to loop again
+	}
+
+	return a;
+}
+
+exports._list = _list;
+
+
+
+/*
+
+// Split r into a list of words separated by a tag
+function words(s, tag) {
+
+	CString s;        // The end of the given text that still needs to be processed
+	CString word;           // An individual word the loop has found
+	var v = []; // The list of words we build up and return
+	while (has(s, tag)) {   // There's a tag
+
+		var c = cut(s, tag); // Split off the word before it
+		v.push(c.before);          // Add the word to our list
+		s = c.after;
+	}
+
+	v.push(s); // Everything after the last tag is the last word
+	return v;         // Return the list we built up
+}
+
+
+
+/** Split s like "line1 \n line2 \n line3" into a List of 3 strings. *
+public static List<String> lines(String s) { return words(s, "\n"); } // Splits around "\n" and trims "\r"
+/** Split s like "word1 word2 word3" into a List of 3 strings. *
+public static List<String> words(String s) { return words(s, " "); }
+
+/**
+ * Split s around all the instances of a tag.
+ * For instance, words("a:b:c", ":") returns a List of 3 String objects, "a", "b", and "c".
+ * Trims whitespace characters from the strings in the List, and doesn't include blank strings in the List.
+ * If the tag is not found, returns a List with one String, s.
+ *
+public static List<String> words(String s, String tag) {
+
+	// Make a new empty List of String objects for us to fill and return
+	List<String> list = new ArrayList<String>();
+
+	// Loop until s is blank
+	while (is(s)) {
+		Split<String> split = Text.split(s, tag); // Split s around the first instance of the tag in it
+		String word = split.before.trim();        // Trim spaces from around the word we found before the tag, and save it
+		s = split.after;                          // Next time, we'll split the part that came after
+		if (is(word)) list.add(word);             // If the word isn't blank, add it to the List we're making
+	}
+	return list;
+}
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+j line
+*/
+
+
+
 /** Format the given list of strings into a fixed width text table with the given number of columns. *
 public static String table(int columns, String... cells) {
 	
@@ -679,19 +830,13 @@ js localeCompare
 
 
 
-
-js split
-
 c parse
-c words
 c SayNumber
 
 c UriDecode, UriEncode
 c SafeFileName
 
 j group, line
-j lines, words, words
-j line
 
 
 
@@ -822,6 +967,16 @@ String.prototype.distance = function (arg) {
 
 
 //along with uri encode and decode, have html escape to make it safe to show in the page
+
+
+
+
+
+//you like this idea of islands of code
+//have each titled with a bubble header
+//put them in data and see how much easier it is to scroll through stuff
+
+
 
 
 
