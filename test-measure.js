@@ -106,30 +106,25 @@ exports.testCheck = function(test) {
 
 exports.testMultiply = function(test) {
 
-	var a;
-
 	test.ok(multiply(3, 4) == 12);
 	test.ok(multiply(3, 0) == 0);
 	test.ok(multiply(1, 1) == 1);
 
+	//a big number
 	var n = 9007199254740992 - 1;//largest possible int, minus 1 so our functions will work with it
 	test.ok(n == 9007199254740991);
+
+	//divide
 	var d = divide(n, 1000);
 	test.ok(d.whole == 9007199254740);//easy enough to see the whole and remainder
 	test.ok(d.remainder == 991);
 
-	test.ok()
-
-	/*
-
+	//multiply
+	test.ok(multiply(9007199254740, 1000) == 9007199254740000);//multiply to near, but under the limit
 	try {
-
-
-		//       9007199254740992 is the largest possible int
-		multiply(9007199254740992, 1);
+		multiply(9007199254740, 1001);//over the limit
 		test.fail();
 	} catch (e) { test.ok(e == "overflow"); }
-	*/
 
 	test.done();
 }
@@ -166,10 +161,12 @@ exports.testDivide = function(test) {
 
 	test.done();
 }
+
 exports.testScale = function(test) {
 
-
-
+	var d = scale(5, 10, 3);//multiplies first to not lose accuracy
+	test.ok(d.whole == 16);
+	test.ok(d.remainder == 2);
 
 	test.done();
 }
