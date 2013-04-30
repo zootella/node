@@ -270,6 +270,65 @@ exports.Average = Average;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+function Slice(z) { // Takes the size of the file in bytes
+	if (z < 1) throw "bounds"; // File size must be 1 byte or more
+
+	var _size = z;
+
+	// The file size in bytes
+	function size() { return _size; }
+
+	// How many pieces the file has
+	// Pieces can be 1 MB or smaller, so a file just over 1 MB has 2 pieces
+	function pieces() { return Math.ceil(size() / MB()); }
+
+	// The distance in bytes from the start of the file to the boundary of the given piece index i
+	// For instance, the first piece starts at piece(0), the second starts at piece(1), and so on
+	// If a file has n pieces, piece(n) will be the size of the file
+	function piece(index) {
+		if (index < 0 || index > pieces()) throw "bounds";
+		return Math.floor((index * size()) / pieces()) // Multiply before we divide, and round down to the nearst byte
+	}
+
+	return {
+		size:size,
+		pieces:pieces,
+		piece:piece
+	};
+}
+exports.Slice = Slice;
+//TODO actually write this, it's not good or checked yet
+//obviously use divide, multiply, and scale here
+//also, the whole design is wrong, it should work with Stripe, you have to write Range and Stripe first
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	
 

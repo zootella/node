@@ -4,7 +4,6 @@ var log = console.log;
 var measure = require("./measure");
 var Time = measure.Time;
 var Size = measure.Size;
-var Average = measure.Average;
 
 
 
@@ -188,30 +187,7 @@ exports.testScale = function(test) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+var Average = measure.Average;
 
 exports.testAverage = function(test) {
 
@@ -243,5 +219,76 @@ exports.testAverage = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+var Slice = measure.Slice;
+
+exports.testSlice = function(test) {
+
+	//confirm we're getting as many pieces as we should
+	test.ok(Slice(1).pieces() == 1);//a 1 byte file is 1 piece
+
+	test.ok(Slice(MB() - 1).pieces() == 1);//one less
+	test.ok(Slice(MB()).pieces()     == 1);//and exactly 1 MB are 1 piece, while
+	test.ok(Slice(MB() + 1).pieces() == 2);//one more bumps up to 2 pieces
+
+	test.ok(Slice((2 * MB()) - 1).pieces() == 2);//same thing around 2mb
+	test.ok(Slice((2 * MB())).pieces()     == 2);
+	test.ok(Slice((2 * MB()) + 1).pieces() == 3);
+
+	test.ok(Slice((5 * GB()) - 1).pieces() == 5120);//and around 5gb
+	test.ok(Slice((5 * GB())).pieces()     == 5120);
+	test.ok(Slice((5 * GB()) + 1).pieces() == 5121);
+
+	//make sure we can scan exactly to the end of the file
+	function edge(z) {
+		var s = Slice(z);
+		test.ok(s.piece(s.pieces()) == s.size());//if a file has n pieces, piece(n) should be exactly beyond the final byte
+	}
+	edge(1);//one byte
+	edge(MB() - 1);//around a megabyte
+	edge(MB());
+	edge(MB() + 1);
+	edge((789 * MB()) - (123 * KB()) + 456);//some large files
+	edge((789 * GB()) - (123 * KB()) + 456);
+
+	//make sure the piece boundaries are what we expect
+	var file1 = Slice(1804787);
+	test.ok(file1.pieces() == 2);
+	test.ok(file1.piece(0) == 0);
+	test.ok(file1.piece(1) == 902393);
+	test.ok(file1.piece(2) == 1804787);
+
+	var file2 = Slice(8030559);
+	test.ok(file2.pieces() == 8);
+	test.ok(file2.piece(4) == 4015279);
+	test.ok(file2.piece(5) == 5019099);
+	test.ok(file2.piece(6) == 6022919);
+
+	var file3 = Slice(1417407005);
+	test.ok(file3.pieces() == 1352);
+	test.ok(file3.piece(999)  == 1047329584);
+	test.ok(file3.piece(1000) == 1048377962);
+	test.ok(file3.piece(1001) == 1049426340);
+
+	test.done();
+}
+*/
+
+
+
+
 
 
