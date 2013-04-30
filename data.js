@@ -1,7 +1,10 @@
 
 var log = console.log;
 
-var div = require("./measure").div;
+var measure = require("./measure");
+var multiply = measure.multiply;
+var divide = measure.divide;
+var scale = measure.scale;
 
 var text = require("./text");
 var match = text.match;
@@ -339,8 +342,8 @@ function Bay(a) {
 		} else if (hold + more > buffer.length) {
 
 			// Calculate how big our new buffer should be
-			var c = div((size() + more) * 3, 2).ans; // It will be 2/3rds full
-			if (c < 64) c = 64;                      // At least 64 bytes
+			var c = scale((size() + more), 3, 2).whole; // It will be 2/3rds full
+			if (c < 64) c = 64;                         // At least 64 bytes
 
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
@@ -572,9 +575,9 @@ function toBase32(d) {
 	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
-		var a = div(i, 8);
-		byteIndex = a.ans; // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = a.rem; // The bit index within that byte is the remainder
+		var a = divide(i, 8);
+		byteIndex = a.whole;     // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = a.remainder; // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
@@ -605,9 +608,9 @@ function toBase62(d) {
 	while (i < d.size() * 8) { // When the bit index moves beyond the memory, we're done
 		
 		// Calculate the byte and bit to move to from the bit index
-		var a = div(i, 8);
-		byteIndex = a.ans; // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = a.rem; // The bit index within that byte is the remainder
+		var a = divide(i, 8);
+		byteIndex = a.whole;     // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = a.remainder; // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right

@@ -117,36 +117,6 @@ exports.Size = Size;
 
 
 
-// Make sure n and d are positive integers, and d is not 0
-// Calculate numerator / denominator
-// Return the integer division and remainder
-function div(n, d) {
-
-	function check(i, min) {
-		if (typeof i !== "number") throw "type"; // Make sure i is a number
-		if (Math.floor(i) !== i) throw "integer"; // A whole number
-		if (i < min) throw "bounds"; // With the minimum value or larger
-	}
-
-	check(n, 0);
-	check(d, 1); // Throw before trying to divide by zero
-
-	var a = {};
-	a.ans = Math.floor(n / d); // Answer
-	a.rem = n % d; // Remainder
-
-	check(a.ans, 0);
-	check(a.rem, 0);
-	if ((d * a.ans) + a.rem !== n) throw "impossible"; // Check our answer before returning it
-	return a;
-}
-
-exports.div = div;
-
-
-
-
-
 
 
 
@@ -259,21 +229,21 @@ function Average() {
 	// The current average, rounded down to a whole number, 0 before we have any values
 	function average() {
 		if (!_n) return 0;
-		return div(_total, _n).ans;
+		return divide(_total, _n).whole;
 	}
 
 	// The current average, 0 before we have any values
 	function averageFloat() {
 		if (!_n) return 0;
-		return _total / _n; // Use the division operator to get the floating point result
+		return divide(_total, _n).decimal; // Use the division operator to get the floating point result
 	}
 	
 	// The current average in thousandths, given 4, 5, and 6, the average is 5000
 	function averageThousandths() { return averageMultiply(1000); }
 	// The current average multiplied by the given number. */
-	function averageMultiply(multiply) {
+	function averageMultiply(m) {
 		if (!_n) return 0;
-		return div(multiply * _total, _n).ans;
+		return scale(m, _total, _n).whole;
 	}
 
 	// Text that describes the current average, like "5.000", "Undefined" before we have any values
