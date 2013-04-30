@@ -13,6 +13,15 @@ var Size = measure.Size;
 
 
 
+exports.testUnits = function(test) {
+
+	test.ok(Size.kb == 1024);
+	Size.kb = 5;//this won't change it, but also won't throw an exception
+	test.ok(Size.kb == 1024);//make sure Objet.freeze(Size) worked
+
+	test.done();
+}
+
 
 
 

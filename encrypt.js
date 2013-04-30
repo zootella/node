@@ -6,9 +6,10 @@ var log = console.log;
 var crypto = require("crypto");
 
 var data = require("./data");
-
 var Data = data.Data;
-var Size = data.Size;
+
+var measure = require("./measure");
+var Size = measure.Size;
 
 
 

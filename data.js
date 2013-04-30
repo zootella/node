@@ -2,6 +2,7 @@
 var log = console.log;
 
 var measure = require("./measure");
+var Size = measure.Size;
 var multiply = measure.multiply;
 var divide = measure.divide;
 var scale = measure.scale;
@@ -11,26 +12,17 @@ var match = text.match;
 
 
 
-//TODO move size to the top of measure
 
-//   ____  _         
-//  / ___|(_)_______ 
-//  \___ \| |_  / _ \
-//   ___) | |/ /  __/
-//  |____/|_/___\___|
-//                   
 
-// Size constants
-var Size = {};
-Size.kb = 1024;           // Number of bytes in a kilobyte
-Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
-Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
-Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
-Size.value  = 20;           // A SHA1 hash value is 20 bytes
-Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
-Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
-Object.freeze(Size);
-exports.Size = Size;
+
+
+
+
+
+
+
+
+
 
 //   ____         __  __           
 //  | __ ) _   _ / _|/ _| ___ _ __ 
@@ -56,6 +48,21 @@ function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 	// Copy the memory
 	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   ____        _        
 //  |  _ \  __ _| |_ __ _ 
@@ -296,6 +303,21 @@ function Clip(b) {
 	};
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //   ____              
 //  | __ )  __ _ _   _ 
 //  |  _ \ / _` | | | |
@@ -395,6 +417,25 @@ function Bay(a) {
 	};
 };
 exports.Bay = Bay;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   ____  _       
 //  | __ )(_)_ __  
@@ -542,6 +583,25 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		isBin:function(){}
 	};
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
@@ -727,6 +787,30 @@ exports.base16 = base16;
 exports.base32 = base32;
 exports.base62 = base62;
 exports.base64 = base64;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //    ___        _   _ _            
 //   / _ \ _   _| |_| (_)_ __   ___ 

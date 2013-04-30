@@ -25,6 +25,46 @@ var randomData = encrypt.randomData;
 //and then say, you can make a data object from anything that has binary data inside it
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+exports.testBufferShift = function(test) {
+
+	test.done();
+}
+
+exports.testBufferCopy = function(test) {
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //   ____        _        
 //  |  _ \  __ _| |_ __ _ 
 //  | | | |/ _` | __/ _` |
@@ -42,15 +82,6 @@ exports.testType = function(test) {
 
 	try { d.isBay(); test.fail(); } catch (e) { test.ok(e.name == "TypeError"); }
 	try { b.isData(); test.fail(); } catch (e) { test.ok(e.name == "TypeError"); }
-
-	test.done();
-}
-
-exports.testSizeConstants = function(test) {
-
-	test.ok(Size.kb == 1024);
-	Size.kb = 5;//this won't change it, but also won't throw an exception
-	test.ok(Size.kb == 1024);//make sure Objet.freeze(Size) worked
 
 	test.done();
 }
@@ -330,6 +361,32 @@ exports.testClip = function(test) {
 	test.done();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //   ____              
 //  | __ )  __ _ _   _ 
 //  |  _ \ / _` | | | |
@@ -411,6 +468,29 @@ exports.testBayPrepare = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   ____  _       
 //  | __ )(_)_ __  
@@ -538,6 +618,36 @@ exports.testBinRecycle = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
@@ -825,6 +935,55 @@ exports.testEncodeInvalid = function(test) {
 
 	test.done();
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ___        _   _ _            
+//   / _ \ _   _| |_| (_)_ __   ___ 
+//  | | | | | | | __| | | '_ \ / _ \
+//  | |_| | |_| | |_| | | | | |  __/
+//   \___/ \__,_|\__|_|_|_| |_|\___|
+//                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
