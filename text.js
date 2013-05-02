@@ -113,6 +113,35 @@ function augment(f, name) {
 
 
 
+// Before returning object o we parsed from text s, make sure o turns back into exactly the same text
+// This is a clever way to turn a forgiving parsing function into a very strict one
+function parseSame(o, oToString, s) { // Case sensitive
+	if (oToString != s) throw "data";
+	return o;
+}
+function parseMatch(o, oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
+	if (!match(oToString, s)) throw "data";
+	return o;
+}
+
+exports.parseSame = parseSame;
+exports.parseMatch = parseMatch;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -593,21 +622,6 @@ augment(commas, "commas");
 
 
 
-function parseStrict(o, oToString, s) {
-	if (oToString != s) throw "data";
-	return o;
-}
-
-function parseStrictMatch(o, oToString, s) {
-	if (!match(oToString, s)) throw "data";
-	return o;
-}
-
-//use those like this
-//at teh end, instead of return(d), have return(parseStrictMatch(d, d.base16(), s))
-//where s is the thing you got passed at the start
-//ok, have another one, that you wrap aroudn the outside, rather htan putting at the bottom fo the return
-//this will let you write pairs like parse() and parseLax()
 
 
 

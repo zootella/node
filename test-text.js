@@ -725,6 +725,7 @@ exports.testSplitPlatformCustom = function(test) {
 		log(view(_split(s, ",")));
 	}
 
+/*
 	both("a");
 	both(",a");
 	both("a,");
@@ -754,6 +755,7 @@ exports.testSplitPlatformCustom = function(test) {
 	both(",");
 	both(",,");
 	both(",,,");
+	*/
 
 /*
 	test.ok(view(_list("a b", " ", false, false)) == "<a><b>");
