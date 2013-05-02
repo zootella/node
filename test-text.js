@@ -670,6 +670,9 @@ exports.testWiden = function(test) {
 
 
 
+
+
+
 exports.testCommas = function(test) {
 
 	test.ok("".commas() == "");
@@ -691,24 +694,22 @@ exports.testCommas = function(test) {
 
 
 
-var _split = text._split;
-var _splitPlatform = text._splitPlatform;
-var _splitCustom = text._splitCustom;
 
 
-exports.testLines = function(test) {
+
+
+
+
+exports.testRipProtect = function(test) {
+
+	//have a test where you had split a regular expression and watch it throw
+
 
 
 	test.done();
 }
 
-//write tests up here that cover the most common actual uses, like words and lines
-
-//have a test where you had split a regular expression and watch it throw
-
-
-
-exports.testSplitPlatformCustom = function(test) {
+exports.testRipPatterns = function(test) {
 
 	function view(a) {
 		var s = "";
@@ -716,67 +717,66 @@ exports.testSplitPlatformCustom = function(test) {
 			s += "<" + a[i] + ">";
 		return s;
 	}
+	function check(s, v) { test.ok(view(s.rip(",")) == v); }
 
-	function both(s) {
-		log();
-		log(s);
-		log(view(_splitPlatform(s, ",")));
-		log(view(_splitCustom(s, ",")));
-		log(view(_split(s, ",")));
-	}
+	check("", "<>");//empty
+	check(",", "<><>");
+	check(",,", "<><><>");
+	check(",,,", "<><><><>");
 
-/*
-	both("a");
-	both(",a");
-	both("a,");
-	both(",a,");
+	check("a", "<a>");//one
+	check(",a", "<><a>");
+	check("a,", "<a><>");
+	check(",a,", "<><a><>");
 
-	both("a,b");
-	both(",a,b");
-	both("a,b,");
-	both(",a,b,");
+	check("a,b", "<a><b>");//two
+	check(",a,b", "<><a><b>");
+	check("a,b,", "<a><b><>");
+	check(",a,b,", "<><a><b><>");
 
-	both("a");
-	both(",,a");
-	both("a,,");
-	both(",,a,,");
+	check("a", "<a>");//double
+	check(",,a", "<><><a>");
+	check("a,,", "<a><><>");
+	check(",,a,,", "<><><a><><>");
 
-	both("a,,b");
-	both(",,a,,b");
-	both("a,,b,,");
-	both(",,a,,b,,");
+	check("a,,b", "<a><><b>");//double two
+	check(",,a,,b", "<><><a><><b>");
+	check("a,,b,,", "<a><><b><><>");
+	check(",,a,,b,,", "<><><a><><b><><>");
 
-	both(",a,,b");
-	both(",,a,b");
-	both("a,b,,");
-	both("a,,b,");
+	check(",a,,b", "<><a><><b>");//single and double
+	check(",,a,b", "<><><a><b>");
+	check("a,b,,", "<a><b><><>");
+	check("a,,b,", "<a><><b><>");
 
-	both("");
-	both(",");
-	both(",,");
-	both(",,,");
-	*/
+	test.done();
+}
 
-/*
-	test.ok(view(_list("a b", " ", false, false)) == "<a><b>");
-	test.ok(view(_list("a  b", " ", false, false)) == "<a><><b>");
-	test.ok(view(_list("a  b", " ", false, true)) == "<a><b>");//skip blank words
-	test.ok(view(_list("  a  b  ", " ", false, true)) == "<a><b>");
-	test.ok(view(_list("  a  b  ", " ", true, false)) == "<><><a><><b><>");//trim words instead
+exports.testRipFeatures = function(test) {
 
-	//have test cases that show how things get better when you turn trim on, and when you turn blanks on
-	//this might be an example of exporting _list for testing
+	//turn on trimItems and skipBlankItems
 
-
-	test.ok(view(_list("ab", " ", false, false)) == "<ab>");//not found at all
-*/
-
-
-	//write tests that show the common actual uses
 
 
 	test.done();
 }
+
+exports.testLines = function(test) {
+
+
+
+	test.done();
+}
+
+exports.testWords = function(test) {
+
+
+
+	test.done();
+}
+
+
+
 
 
 

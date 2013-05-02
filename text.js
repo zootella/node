@@ -616,8 +616,6 @@ augment(commas, "commas");
 
 
 
-//everywhere you parse text, you could use the strict pattern and throw data
-//generalize it into a function you can call
 
 
 
@@ -625,194 +623,63 @@ augment(commas, "commas");
 
 
 
-
-
-//you could write an isWhitespace function where you give it a character, it trims it, and tells you if it became blank or not
-
-//below, instead of tag, you could specify a test function to pass in, pass in a tag or a function
-//of course, for that to work, you would have to rewrite find to also work with functions in addition to tags
-//so, this is a crazy weird new feature idea you should not do now
-
-
-
-
-
-
-// js slice -> clip
-//             cut
-// js split -> rip
-
-/*
-
-//in your old stuff
-
-
-//in javascript
-slice
-split
-
-//here
-
-
-
-
-*/
-
-
-
-
-//rename to rip, three letters like cut
-
-
-function lines(s, skipBlankLines) {}//with this one you really have to trim from the right, but not the left
-function words(s, trimWords) {}//with this one you really have to skip blank words
-
-function _split(s, tag, trimItems, skipBlankItems) {
+// Make an array of all the parts of s that remain after ripping away all the instances of tag
+// For instance, "a:b:c".rip(":") is ["a","b","c"]
+// Works like JavaScript's split(), but with two additional features:
+// True to trim whitespace from the start and end of each string in the array
+// True to omit blank strings from the array
+function rip(s, tag, trimItems, skipBlankItems) {
 
 	function sameArrayOfStrings(a1, a2) { // Determine if two arrays of strings are the same
 		if (a1.length != a2.length) return false; // Must have the same length
 		for (var i = 0; i < a1.length; i++)
-			if (a1[i] !== a2[i]) return false; // Must have have the same strings
+			if (a1[i] !== a2[i]) return false; // Each string must be the same
 		return true;
 	}
 
-	var p = _splitPlatform(s, tag, trimItems, skipBlankItems);
-	var c = _splitCustom(s, tag, trimItems, skipBlankItems);
+	var p = _ripPlatform(s, tag, trimItems, skipBlankItems);
+	var c = _ripCustom(s, tag, trimItems, skipBlankItems);
 	if (!sameArrayOfStrings(p, c)) Mistake.log({ name:"split", s:s, tag:tag, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
-
-function _splitPlatform(s, tag, trimItems, skipBlankItems) {
+function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using s.split();
 
 	if (typeof tag !== "string") throw "type"; // Don't pass split a regular expression without realizing it
 	var a = s.split(tag);
 
-	if (trimItems) {
+	if (trimItems) { // Trim each item afterwards
 		for (var i = 0; i < a.length; i++) {
 			a[i] = a[i].trim();
 		}
 	}
-
-	if (skipBlankItems) {
-		for (var i = a.length - 1; i <= 0; i--) {
-			if (a[i] == "") {
-				a.splice(i, 1);
+	if (skipBlankItems) { // Remove blank items
+		for (var i = a.length - 1; i <= 0; i--) { // Loop backwards so removing and item doesn't mess up the index number
+			if (a[i] == "") { // Found a blank
+				a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
 			}
 		}
 	}
-
 	return a;
 }
-
-function _splitCustom(s, tag, trimItems, skipBlankItems) {
+function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without using s.split();
 
 	function add(w) { // Add the given word w to the array
 		if (trimItems) w = w.trim(); // Trim the word, if the caller requested this feature
 		if (!skipBlankItems || w != "") a.push(w); // Skip adding a blank word, if the caller requested this feature
 	}
 
-	/*
-	var a = []; // The array we will fill and return
-	while (s.length) { // Loop until s is blank
-		var c = s.cut(tag); // Cut around the first instance of the tag
-		add(c.before); // Add the word before to the array
-		s = c.after; // Set s to what's after to loop again
-	}
-	return a;
-	*/
-
 	var a = []; // The array we will fill and return
 	while (true) {
 		var c = s.cut(tag); // Cut around the first instance of the tag
-		if (!c.found) break;
+		if (!c.found) break; // Not found, leave the loop
 		add(c.before); // Add the word before to the array
 		s = c.after; // Set s to what's after to loop again
 	}
 	add(s); // Everything after the last tag is the last word
 	return a;
-
 }
 
-exports._split = _split;
-exports._splitPlatform = _splitPlatform;
-exports._splitCustom = _splitCustom;
-
-
-
-/*
-
-// Split r into a list of words separated by a tag
-function words(s, tag) {
-
-	CString s;        // The end of the given text that still needs to be processed
-	CString word;           // An individual word the loop has found
-	var v = []; // The list of words we build up and return
-	while (has(s, tag)) {   // There's a tag
-
-		var c = cut(s, tag); // Split off the word before it
-		v.push(c.before);          // Add the word to our list
-		s = c.after;
-	}
-
-	v.push(s); // Everything after the last tag is the last word
-	return v;         // Return the list we built up
-}
-
-
-
-/** Split s like "line1 \n line2 \n line3" into a List of 3 strings. *
-public static List<String> lines(String s) { return words(s, "\n"); } // Splits around "\n" and trims "\r"
-/** Split s like "word1 word2 word3" into a List of 3 strings. *
-public static List<String> words(String s) { return words(s, " "); }
-
-/**
- * Split s around all the instances of a tag.
- * For instance, words("a:b:c", ":") returns a List of 3 String objects, "a", "b", and "c".
- * Trims whitespace characters from the strings in the List, and doesn't include blank strings in the List.
- * If the tag is not found, returns a List with one String, s.
- *
-public static List<String> words(String s, String tag) {
-
-	// Make a new empty List of String objects for us to fill and return
-	List<String> list = new ArrayList<String>();
-
-	// Loop until s is blank
-	while (is(s)) {
-		Split<String> split = Text.split(s, tag); // Split s around the first instance of the tag in it
-		String word = split.before.trim();        // Trim spaces from around the word we found before the tag, and save it
-		s = split.after;                          // Next time, we'll split the part that came after
-		if (is(word)) list.add(word);             // If the word isn't blank, add it to the List we're making
-	}
-	return list;
-}
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+augment(rip, "rip");
 
 
 
@@ -1076,6 +943,15 @@ String.prototype.distance = function (arg) {
 //you like this idea of islands of code
 //have each titled with a bubble header
 //put them in data and see how much easier it is to scroll through stuff
+
+
+
+
+//you could write an isWhitespace function where you give it a character, it trims it, and tells you if it became blank or not
+
+//below, instead of tag, you could specify a test function to pass in, pass in a tag or a function
+//of course, for that to work, you would have to rewrite find to also work with functions in addition to tags
+//so, this is a crazy weird new feature idea you should not do now
 
 
 
