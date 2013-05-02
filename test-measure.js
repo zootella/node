@@ -240,7 +240,7 @@ exports.testAverage = function(test) {
 
 
 
-
+//write a test for slice that works with some realistic, but very large files, like 9gb and 500gb, see how large a file you have to make to hit javascript's int limit and get overflow
 /*
 var Slice = measure.Slice;
 

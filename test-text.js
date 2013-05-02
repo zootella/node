@@ -691,9 +691,24 @@ exports.testCommas = function(test) {
 
 
 
-var _list = text._list;
+var _split = text._split;
+var _splitPlatform = text._splitPlatform;
+var _splitCustom = text._splitCustom;
 
-exports.testWords = function(test) {
+
+exports.testLines = function(test) {
+
+
+	test.done();
+}
+
+//write tests up here that cover the most common actual uses, like words and lines
+
+//have a test where you had split a regular expression and watch it throw
+
+
+
+exports.testSplitPlatformCustom = function(test) {
 
 	function view(a) {
 		var s = "";
@@ -702,6 +717,45 @@ exports.testWords = function(test) {
 		return s;
 	}
 
+	function both(s) {
+		log();
+		log(s);
+		log(view(_splitPlatform(s, ",")));
+		log(view(_splitCustom(s, ",")));
+		log(view(_split(s, ",")));
+	}
+
+	both("a");
+	both(",a");
+	both("a,");
+	both(",a,");
+
+	both("a,b");
+	both(",a,b");
+	both("a,b,");
+	both(",a,b,");
+
+	both("a");
+	both(",,a");
+	both("a,,");
+	both(",,a,,");
+
+	both("a,,b");
+	both(",,a,,b");
+	both("a,,b,,");
+	both(",,a,,b,,");
+
+	both(",a,,b");
+	both(",,a,b");
+	both("a,b,,");
+	both("a,,b,");
+
+	both("");
+	both(",");
+	both(",,");
+	both(",,,");
+
+/*
 	test.ok(view(_list("a b", " ", false, false)) == "<a><b>");
 	test.ok(view(_list("a  b", " ", false, false)) == "<a><><b>");
 	test.ok(view(_list("a  b", " ", false, true)) == "<a><b>");//skip blank words
@@ -713,6 +767,10 @@ exports.testWords = function(test) {
 
 
 	test.ok(view(_list("ab", " ", false, false)) == "<ab>");//not found at all
+*/
+
+
+	//write tests that show the common actual uses
 
 
 	test.done();

@@ -588,53 +588,141 @@ augment(commas, "commas");
 
 
 
+//everywhere you parse text, you could use the strict pattern and throw data
+//generalize it into a function you can call
+
+
+
+function parseStrict(o, oToString, s) {
+	if (oToString != s) throw "data";
+	return o;
+}
+
+function parseStrictMatch(o, oToString, s) {
+	if (!match(oToString, s)) throw "data";
+	return o;
+}
+
+//use those like this
+//at teh end, instead of return(d), have return(parseStrictMatch(d, d.base16(), s))
+//where s is the thing you got passed at the start
+//ok, have another one, that you wrap aroudn the outside, rather htan putting at the bottom fo the return
+//this will let you write pairs like parse() and parseLax()
 
 
 
 
 
 
+//you could write an isWhitespace function where you give it a character, it trims it, and tells you if it became blank or not
+
+//below, instead of tag, you could specify a test function to pass in, pass in a tag or a function
+//of course, for that to work, you would have to rewrite find to also work with functions in addition to tags
+//so, this is a crazy weird new feature idea you should not do now
 
 
 
 
 
 
-
-
-
-
+// js slice -> clip
+//             cut
+// js split -> rip
 
 /*
-js split
+
+//in your old stuff
+
+
+//in javascript
+slice
+split
+
+//here
+
+
+
+
 */
 
+
+
+
+//rename to rip, three letters like cut
 
 
 function lines(s, skipBlankLines) {}//with this one you really have to trim from the right, but not the left
 function words(s, trimWords) {}//with this one you really have to skip blank words
 
+function _split(s, tag, trimItems, skipBlankItems) {
 
+	function sameArrayOfStrings(a1, a2) { // Determine if two arrays of strings are the same
+		if (a1.length != a2.length) return false; // Must have the same length
+		for (var i = 0; i < a1.length; i++)
+			if (a1[i] !== a2[i]) return false; // Must have have the same strings
+		return true;
+	}
 
-function _list(s, tag, trimItems, skipBlankItems) {
+	var p = _splitPlatform(s, tag, trimItems, skipBlankItems);
+	var c = _splitCustom(s, tag, trimItems, skipBlankItems);
+	if (!sameArrayOfStrings(p, c)) Mistake.log({ name:"split", s:s, tag:tag, p:p, c:c }); //TODO do the way that's faster instead of this check
+	return c; // Return custom
+}
 
-	var a = []; // The array we will fill and return
+function _splitPlatform(s, tag, trimItems, skipBlankItems) {
+
+	if (typeof tag !== "string") throw "type"; // Don't pass split a regular expression without realizing it
+	var a = s.split(tag);
+
+	if (trimItems) {
+		for (var i = 0; i < a.length; i++) {
+			a[i] = a[i].trim();
+		}
+	}
+
+	if (skipBlankItems) {
+		for (var i = a.length - 1; i <= 0; i--) {
+			if (a[i] == "") {
+				a.splice(i, 1);
+			}
+		}
+	}
+
+	return a;
+}
+
+function _splitCustom(s, tag, trimItems, skipBlankItems) {
 
 	function add(w) { // Add the given word w to the array
 		if (trimItems) w = w.trim(); // Trim the word, if the caller requested this feature
 		if (!skipBlankItems || w != "") a.push(w); // Skip adding a blank word, if the caller requested this feature
 	}
 
+	/*
+	var a = []; // The array we will fill and return
 	while (s.length) { // Loop until s is blank
 		var c = s.cut(tag); // Cut around the first instance of the tag
 		add(c.before); // Add the word before to the array
 		s = c.after; // Set s to what's after to loop again
 	}
-
 	return a;
+	*/
+
+	var a = []; // The array we will fill and return
+	while (true) {
+		var c = s.cut(tag); // Cut around the first instance of the tag
+		if (!c.found) break;
+		add(c.before); // Add the word before to the array
+		s = c.after; // Set s to what's after to loop again
+	}
+	add(s); // Everything after the last tag is the last word
+	return a;
+
 }
 
-exports._list = _list;
+exports._split = _split;
+exports._splitPlatform = _splitPlatform;
+exports._splitCustom = _splitCustom;
 
 
 
@@ -975,6 +1063,7 @@ String.prototype.distance = function (arg) {
 //you like this idea of islands of code
 //have each titled with a bubble header
 //put them in data and see how much easier it is to scroll through stuff
+
 
 
 
