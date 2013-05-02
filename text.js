@@ -115,17 +115,17 @@ function augment(f, name) {
 
 // Before returning object o we parsed from text s, make sure o turns back into exactly the same text
 // This is a clever way to turn a forgiving parsing function into a very strict one
-function parseSame(o, oToString, s) { // Case sensitive
+function parseCheck(o, oToString, s) { // Case sensitive
 	if (oToString != s) throw "data";
 	return o;
 }
-function parseMatch(o, oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
+function parseCheckMatch(o, oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
 	if (!match(oToString, s)) throw "data";
 	return o;
 }
 
-exports.parseSame = parseSame;
-exports.parseMatch = parseMatch;
+exports.parseCheck = parseCheck;
+exports.parseCheckMatch = parseCheckMatch;
 
 
 
@@ -528,8 +528,7 @@ function _number(s, base) {
 	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
-	if (!match(_numerals(n, base), s)) throw "data"; // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
-	return n;
+	return parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
 }
 
 function numerals(n) { return _numerals(n, 10); }

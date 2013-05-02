@@ -8,7 +8,8 @@ var divide = measure.divide;
 var scale = measure.scale;
 
 var text = require("./text");
-var match = text.match;
+var parseCheck = text.parseCheck;
+var parseCheckMatch = text.parseCheckMatch;
 
 
 
@@ -700,8 +701,7 @@ function base16(s) {
 		if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
 		else throw e; // Throw up some other exception we didn't expect
 	}
-	if (!match(d.base16(), s)) throw "data"; // Check the data we will return becomes the same text we got, matching cases
-	return d;
+	return parseCheckMatch(d, d.base16(), s);
 }
 
 // Turn base 32-encoded text back into the data it was made from
@@ -734,8 +734,7 @@ function base32(s) {
 		}
 	}
 	var d = bay.data();
-	if (!match(d.base32(), s)) throw "data"; // Check the data we will return becomes the same text we got, matching cases
-	return d;
+	return parseCheckMatch(d, d.base32(), s);
 }
 
 // Turn base 62-encoded text back into the data it was made from
@@ -770,16 +769,14 @@ function base62(s) {
 		}
 	}
 	var d = bay.data();
-	if (d.base62() != s) throw "data"; // Check the data we will return becomes the same text we got, case sensitive
-	return d;
+	return parseCheck(d, d.base62(), s);
 }
 
 // Turn base 64-encoded text back into the data it was made from
 // Doesn't throw on bad input, rather encodes the valid characters you give it into as many bytes as it can
 function base64(s) {
 	var d = Data(new Buffer(s, "base64"));
-	if (d.base64() != s) throw "data"; // Check the data we will return becomes the same text we got, case sensitive
-	return d;
+	return parseCheck(d, d.base64(), s);
 }
 
 exports.toByte = toByte;
