@@ -124,7 +124,7 @@ function parseCheckMatch(o, oToString, s) { // Matches cases, use for things lik
 	return o;
 }
 
-exports.parseCheck = parseCheck;
+exports.parseCheck = parseCheck; // Parse Check
 exports.parseCheckMatch = parseCheckMatch;
 
 
@@ -623,11 +623,14 @@ augment(commas, "commas");
 
 
 
+
 // Make an array of all the parts of s that remain after ripping away all the instances of tag
 // For instance, "a:b:c".rip(":") is ["a","b","c"]
 // Works like JavaScript's split(), but with two additional features:
 // True to trim whitespace from the start and end of each string in the array
 // True to omit blank strings from the array
+function ripWords(s, trimItems, skipBlankItems) { return rip(s, " ", trimItems, skipBlankItems); }
+function ripLines(s, trimItems, skipBlankItems) { return rip(s, "\n", trimItems, skipBlankItems); }
 function rip(s, tag, trimItems, skipBlankItems) {
 
 	function sameArrayOfStrings(a1, a2) { // Determine if two arrays of strings are the same
@@ -653,7 +656,7 @@ function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using 
 		}
 	}
 	if (skipBlankItems) { // Remove blank items
-		for (var i = a.length - 1; i <= 0; i--) { // Loop backwards so removing and item doesn't mess up the index number
+		for (var i = a.length - 1; i >= 0; i--) { // Loop backwards so removing and item doesn't mess up the index number
 			if (a[i] == "") { // Found a blank
 				a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
 			}
@@ -670,16 +673,18 @@ function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without 
 
 	var a = []; // The array we will fill and return
 	while (true) {
-		var c = s.cut(tag); // Cut around the first instance of the tag
+		var c = s.cut(tag);  // Cut around the first instance of the tag
 		if (!c.found) break; // Not found, leave the loop
-		add(c.before); // Add the word before to the array
-		s = c.after; // Set s to what's after to loop again
+		add(c.before);       // Add the word before to the array
+		s = c.after;         // Set s to what's after to loop again
 	}
-	add(s); // Everything after the last tag is the last word
+	add(s); // Everything after the last tag is the last item
 	return a;
 }
 
-augment(rip, "rip");
+augment(ripWords, "ripWords"); // Rip
+augment(ripLines, "ripLines"); // Rip
+augment(rip, "rip"); // Rip
 
 
 
@@ -712,9 +717,7 @@ augment(rip, "rip");
 
 
 
-/*
-j line
-*/
+
 
 
 
@@ -760,10 +763,6 @@ public static String table(int columns, String... cells) {
 
 function trimStart() {}
 function trimEnd() {}
-function trim() {}
-function _trim() {}
-function _trimPlatform() {}
-function _trimCustom() {}
 /*
 trim
 c trim
@@ -777,12 +776,52 @@ js trimRight
 
 
 
+
+
+
+
+
+
+
+
 function sort(s1, s2) {}
 /*
 c same, compare
 j same, sameCase
 js localeCompare
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+j group, line
+*/
+
+
+
+
+
+
+
+
+
+
 
 
 

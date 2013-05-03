@@ -673,6 +673,9 @@ exports.testWiden = function(test) {
 
 
 
+
+
+
 exports.testCommas = function(test) {
 
 	test.ok("".commas() == "");
@@ -700,16 +703,17 @@ exports.testCommas = function(test) {
 
 
 
-exports.testRipProtect = function(test) {
-
-	//have a test where you had split a regular expression and watch it throw
 
 
 
-	test.done();
-}
 
-exports.testRipPatterns = function(test) {
+
+exports.testRip = function(test) {
+
+	// Make sure rip will throw if you try to give it a regular expression
+	try {
+		"hello".rip(/abc/);
+	} catch (e) { test.ok(e == "type"); }
 
 	function view(a) {
 		var s = "";
@@ -718,6 +722,8 @@ exports.testRipPatterns = function(test) {
 		return s;
 	}
 	function check(s, v) { test.ok(view(s.rip(",")) == v); }
+
+	//patterns
 
 	check("", "<>");//empty
 	check(",", "<><>");
@@ -749,31 +755,70 @@ exports.testRipPatterns = function(test) {
 	check("a,b,,", "<a><b><><>");
 	check("a,,b,", "<a><><b><>");
 
+	//features
+
+	test.ok(view("a , ,,b".rip(",", false, false)) == "<a >< ><><b>");
+	test.ok(view("a , ,,b".rip(",", true,  false)) == "<a><><><b>");//trim items
+	test.ok(view("a , ,,b".rip(",", false, true))  == "<a >< ><b>");//skip blanks
+	test.ok(view("a , ,,b".rip(",", true,  true))  == "<a><b>");//both
+
+	//words
+
+	var s = "  somewhere here  is  my tulip";
+
+	test.ok(view(s.ripWords(false, false)) == "<><><somewhere><here><><is><><my><tulip>");
+	test.ok(view(s.ripWords(true,  false)) == "<><><somewhere><here><><is><><my><tulip>");//trim
+	test.ok(view(s.ripWords(false, true))  == "<somewhere><here><is><my><tulip>");//skip
+	test.ok(view(s.ripWords(true,  true))  == "<somewhere><here><is><my><tulip>");//both
+
+	//lines
+
+	var du = "One\nTwo\nThree";//unix
+	var dw = "One\r\nTwo\r\nThree";//windows
+
+	var d1 = "\r\nOne\r\nTwo\r\nThree";//blank line at start
+	var d2 = "One\r\nTwo\r\n\r\nThree";//blank line in middle
+	var d3 = "One\r\nTwo\r\nThree\r\n";//blank line at end
+
+	var da = "<One><Two><Three>";
+
+	test.ok(view(du.ripLines(false, false)) == da);
+	test.ok(view(dw.ripLines(true,  false)) == da);//trim windows line endings
+
+	test.ok(view(d1.ripLines(true, true)) == da);//trim and skip
+	test.ok(view(d2.ripLines(true, true)) == da);
+	test.ok(view(d3.ripLines(true, true)) == da);
+
+	test.ok(view(d1.ripLines(true, false)) == "<><One><Two><Three>");//just trim
+	test.ok(view(d2.ripLines(true, false)) == "<One><Two><><Three>");
+	test.ok(view(d3.ripLines(true, false)) == "<One><Two><Three><>");
+
 	test.done();
 }
 
-exports.testRipFeatures = function(test) {
-
-	//turn on trimItems and skipBlankItems
 
 
 
-	test.done();
-}
-
-exports.testLines = function(test) {
 
 
 
-	test.done();
-}
-
-exports.testWords = function(test) {
 
 
 
-	test.done();
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
