@@ -859,17 +859,28 @@ js localeCompare
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
+// URI encode s, replacing reserved characters with percent codes
+// Encodes every UTF-8 byte of the text except A-Z a-z 0-9 -_.!~*'()
+// Encodes " " to "+" instead of "%20", which is ok when encoding the part of the URI after the "?"
 function encode(s) {
-
-	//also replace spaces with +
-
-	return s.encodeURIComponent();
+	return encodeURIComponent(s).swap("%20", "+"); // Encode, then turn spaces into plusses
 }
 
+// URI decode s, decoding percent sequences like "%3F" into the characters they represent
+// Decodes both "%20" and "+" into " " in case spaces got encoded into plusses, ok because "+" would have gotten encoded into "%2B"
 function decode(s) {
-
-	return s.decodeURIComponent();
+	try {
+		return decodeURIComponent(s.swap("+", "%20")); // Decode plusses, then everything
+	} catch (e) {
+		if (e.name == "URIError") throw "data"; // Turn URIError into data
+		else throw e; // Throw something else we didn't expect
+	}
 }
+
+
+
+
+
 
 function safeFileName(s) {
 

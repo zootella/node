@@ -955,6 +955,114 @@ exports.testLinesTable = function(test) {
 
 
 
+//   _____                     _      
+//  | ____|_ __   ___ ___   __| | ___ 
+//  |  _| | '_ \ / __/ _ \ / _` |/ _ \
+//  | |___| | | | (_| (_) | (_| |  __/
+//  |_____|_| |_|\___\___/ \__,_|\___|
+//                                    
+
+exports.testEncodeDecodeUriComponent = function(test) {
+
+	//encode characters
+	test.ok(encodeURIComponent("A") == "A");//lets A pass through
+	test.ok(encodeURIComponent("-") == "-");//lets hyphen pass through
+	test.ok(encodeURIComponent(" ") == "%20");//turns space into %20
+	test.ok(encodeURIComponent("%") == "%25");
+	test.ok(encodeURIComponent("&") == "%26");
+	test.ok(encodeURIComponent("+") == "%2B");//writes base16 in upper case
+	test.ok(encodeURIComponent(",") == "%2C");
+	test.ok(encodeURIComponent("\r\n") == "%0D%0A");
+
+	//decode them back
+	test.ok(decodeURIComponent("A")   == "A");
+	test.ok(decodeURIComponent("-")   == "-");
+	test.ok(decodeURIComponent("%20") == " ");
+	test.ok(decodeURIComponent("%25") == "%");
+	test.ok(decodeURIComponent("%26") == "&");
+	test.ok(decodeURIComponent("%2B") == "+");
+	test.ok(decodeURIComponent("%2C") == ",");
+	test.ok(decodeURIComponent("%0D%0A") == "\r\n");
+
+	//double space and double encode
+	test.ok(encodeURIComponent("  ") == "%20%20");//two spaces
+	test.ok(encodeURIComponent(encodeURIComponent(" ")) == "%2520");//double encode
+
+	//see if it can decode lowercase base 16
+	test.ok(decodeURIComponent("%2C") == ",");//uppercase, what it produces
+	test.ok(decodeURIComponent("%2c") == ",");//lowercase, it accepts that also
+
+	//see what happens if you give decode characters that should have been encoded
+	test.ok(decodeURIComponent(" ") == " ");//these pass through
+	test.ok(decodeURIComponent("&") == "&");
+	test.ok(decodeURIComponent("+") == "+");//plus stays plus, doesn't become space
+	try {
+		decodeURIComponent("%");//just a percent throws URIError
+		tst.fail();
+	} catch (e) { test.ok(e.name == "URIError"); }
+
+	//looking at plus and space
+	test.ok(encodeURIComponent("hello you")   == "hello%20you");//encode
+	test.ok(decodeURIComponent("hello%20you") == "hello you");//decode
+	test.ok(decodeURIComponent("hello+you")   == "hello+you");//doesn't decode spaces
+
+	test.done();
+}
+
+exports.testEncodeDecode = function(test) {
+
+	function round(plain, encoded) {
+		test.ok(plain.encode() == encoded);//confirm plain encodes into encoded
+		test.ok(encoded.decode() == plain);//confirm encoded decodes back into plain
+	}
+	function unchanged(plain) { round(plain, plain); }//confirm encoding and decoding plain doesn't change it
+	function decodeInvalid(encoded) {
+		try {
+			encoded.decode();
+			test.fail();
+		} catch (e) { test.ok(e == "data"); }
+	}
+
+	//blank
+	round("", "");//blank is ok
+
+	//characters that don't get changed
+	unchanged("abcABC");//alphabetic
+	unchanged("0123456789");//decimal numerals
+	unchanged("-_.!~*'()");//these puncutation marks
+
+	//characters that get encoded
+	round("?", "%3F");
+	round("&", "%26");
+	round(",", "%2C");//encode writes base 16 in uppercase
+	test.ok("%2c".decode() == ",");//decode accepts lowercase also
+
+	//space, plus, and %20
+	round("a b", "a+b");//custom enhancement encodes space into + instead of %20
+	round("a+b", "a%2Bb");//plus gets encoded into %2B
+	test.ok("a+b".decode()   == "a b");//decodes both plus and %20 back to space
+	test.ok("a%20b".decode() == "a b");
+
+	//percent and decoding a fragment
+	round("%", "%25");//percent becomes %25, and back again
+	decodeInvalid("%");//trying to decode an incomplete code throws data
+	decodeInvalid("%2");
+	decodeInvalid("%0G");//invalid base16 code
+
+	//international
+	function roundData(plain, encoded, base16) {
+		round(plain, encoded);//confirm encoding works both ways
+		test.ok(Data(plain).base16() == base16);//and the bytes in base16 match
+	}
+	roundData("a", "a", "61");
+	roundData("ö", "%C3%B6", "c3b6");
+	roundData("خ", "%D8%AE", "d8ae");
+	roundData("の", "%E3%81%AE", "e381ae");
+	roundData("一二三", "%E4%B8%80%E4%BA%8C%E4%B8%89", "e4b880e4ba8ce4b889");
+
+	test.done();
+}
+
 
 
 
@@ -1001,7 +1109,9 @@ exports.testLinesTable = function(test) {
 
 
 
-
+//write a test where you turn unicode characters into data, look at just the first part of them, turn that back into text, and then see what they look like
+//figure out if there is a parsing danger here, for instance, can the first half or third of a unicode character look like another character
+//hopefully not, but you need to check it out
 
 
 
