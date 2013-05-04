@@ -962,6 +962,8 @@ exports.testLinesTable = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
+var safeFileName = text.safeFileName;
+
 exports.testEncodeDecodeUriComponent = function(test) {
 
 	//encode characters
@@ -1059,6 +1061,14 @@ exports.testEncodeDecode = function(test) {
 	roundData("خ", "%D8%AE", "d8ae");
 	roundData("の", "%E3%81%AE", "e381ae");
 	roundData("一二三", "%E4%B8%80%E4%BA%8C%E4%B8%89", "e4b880e4ba8ce4b889");
+
+	test.done();
+}
+
+exports.testSafeFileName = function(test) {
+
+	test.ok(safeFileName("normal") == "normal");
+	test.ok(safeFileName('"\\/:*?<>|') == '”﹨⁄։﹡﹖‹›।');
 
 	test.done();
 }

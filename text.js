@@ -815,30 +815,6 @@ exports.table = table;
 
 
 
-//   ____             _   
-//  / ___|  ___  _ __| |_ 
-//  \___ \ / _ \| '__| __|
-//   ___) | (_) | |  | |_ 
-//  |____/ \___/|_|   \__|
-//                        
-
-
-
-function sort(s1, s2) {}
-/*
-c same, compare
-j same, sameCase
-js localeCompare
-*/
-
-
-
-
-
-
-
-
-
 
 
 
@@ -877,54 +853,66 @@ function decode(s) {
 	}
 }
 
-
-
-
-
-
+// Replace characters not allowed in Windows file names with acceptable ones
 function safeFileName(s) {
-
-	/*
-	// Replace characters not allowed in windows file names with acceptable ones
-	CString SafeFileName(read r) {
-	CString s = r;
-	s = replace(s, L"\"", L"'"); // Turn double quotes into single ones
-	s = replace(s, L"\\", L"-"); // Turn other characters that aren't allowed into hyphens
-	s = replace(s,  L"/", L"-");
-	s = replace(s,  L":", L"-");
-	s = replace(s,  L"*", L"-");
-	s = replace(s,  L"?", L"-");
-	s = replace(s,  L"<", L"-");
-	s = replace(s,  L">", L"-");
-	s = replace(s,  L"|", L"-");
-	return s;
-	}
-	*/
-
+	s = s.swap("\"", "”"); // Pick Unicode characters that look similar
+	s = s.swap("\\", "﹨");
+	s = s.swap("/",  "⁄");
+	s = s.swap(":",  "։");
+	s = s.swap("*",  "﹡");
+	s = s.swap("?",  "﹖");
+	s = s.swap("<",  "‹");
+	s = s.swap(">",  "›");
+	s = s.swap("|",  "।");
 	return s;
 }
 
 augment(encode, "encode");
 augment(decode, "decode");
-augment(safeFileName, "safeFileName");
+exports.safeFileName = safeFileName;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   ____             _   
+//  / ___|  ___  _ __| |_ 
+//  \___ \ / _ \| '__| __|
+//   ___) | (_) | |  | |_ 
+//  |____/ \___/|_|   \__|
+//                        
+
+
+
+function sort(s1, s2) {}
 /*
-
-c UriDecode, UriEncode
-c SafeFileName
-
-
+c same, compare
+j same, sameCase
+js localeCompare
 */
-
-
-
-
-
-
-
-
-
 
 
 
