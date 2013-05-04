@@ -10,59 +10,6 @@ var data = require("./data");
 
 
 
-//how to polyfill
-/*
-if(!('contains' in String.prototype))
-  String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
-*/
-//don't polyfill, exactly, rather if something is already defined, throw "platform"
-//you need to add the throw "platform" if any of the methods you're going to add are already present
-
-
-
-/*
-function clear(name) { if (name in String.prototype) throw "program"; }
-
-
-// Given a this string t and arguments r from a string prototype function, assemble arguments for a regular function
-// For example, use this to have "hi".custom("a", "b") call custom("hi", "a", "b")
-function argue(t, r) {
-	var a = [t + ""]; // Coax the given this into a string, rather than an array of characters
-	for (var i = 0; i < r.length; i++) // After t, add all the arguments in r
-		a.push(r[i]);
-	return a; // Return the arguments ready to call the regular function
-}
-*/
-
-
-
-/*
-function unify(f, name) {
-	if (name in String.prototype)
-		throw "program";
-
-	String.prototype[name] = function() {
-		return f.apply(this, argue(this, arguments));
-	}
-}
-*/
-
-function augment(f, name) {
-	if (name in String.prototype)
-		throw "program"; // Don't add a method to String over one already there
-
-	String.prototype[name] = function() {
-		var a = [this + ""]; // Coax the given this into a string, rather than an array of characters
-		for (var i = 0; i < arguments.length; i++) // After t, add all the arguments in r
-			a.push(arguments[i]);
-		return f.apply(this, a);
-	}
-}
-
-
-
-
-
 
 
 /* Warning: This file contains some long lines (Like this one!). So maximize the window or just turn word wrap on, and quit complaining. Screens were 80 characters wide a long, long time ago, and nobody cares anymore. Seriously. */
@@ -76,12 +23,126 @@ function augment(f, name) {
 
 
 
+
+
+
+
+
+
+
+
+
 //   ____  _        _             
 //  / ___|| |_ _ __(_)_ __   __ _ 
 //  \___ \| __| '__| | '_ \ / _` |
 //   ___) | |_| |  | | | | | (_| |
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
+
+// Add function f to the String type so that s.name(a, b) calls and returns name(s, a, b)
+function augment(f, name) {
+	if (name in String.prototype)
+		throw "program"; // Don't add a method to String over one already there
+
+	String.prototype[name] = function() { // Call this function when you call s.name()
+		var a = [this + ""]; // Coax the given this into a string, rather than an array of characters
+		for (var i = 0; i < arguments.length; i++) // After this, add all the arguments from name(s)
+			a.push(arguments[i]);
+		return f.apply(this, a); // Call name(s, a) and return the result
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ____ _                          _            
+//   / ___| |__   __ _ _ __ __ _  ___| |_ ___ _ __ 
+//  | |   | '_ \ / _` | '__/ _` |/ __| __/ _ \ '__|
+//  | |___| | | | (_| | | | (_| | (__| ||  __/ |   
+//   \____|_| |_|\__,_|_|  \__,_|\___|\__\___|_|   
+//                                                 
+
+// True if s is a string with some text
+// Instead of is(), you can also just use s == ""
+function is(s) {
+	if (typeof s !== "string") throw "type";
+	if (s.length === 0) return false;
+	return true;
+}
+
+// True if s is a string that's blank
+// Instead of blank, you can also just use s != ""
+function blank(s) {
+	if (typeof s !== "string") throw "type";
+	if (s.length === 0) return true;
+	return false;
+}
+
+// Convert lower case characters in s to upper case
+function upper(s) {
+	var u = s.toLocaleUpperCase(); // Use instead of toUpperCase() to work for locales without the default Unicode case mappings
+	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure the case change didn't change the length
+	return u;
+}
+
+// Convert upper case characters in s to lower case
+function lower(s) {
+	var l = s.toLocaleLowerCase();
+	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
+	return l;
+}
+
+// The Unicode number value of the character a distance i characters into s
+// Also gets ASCII codes, code("A") is 65
+// You can omit i to get the code of the first character
+function code(s, i) {
+	if (!i) i = 0; // Turn undefined into 0 so the math below works
+	if (i < 0 || i > s.length - 1) throw "bounds";
+	return s.charCodeAt(i);
+}
+
+// True if s has a code in the range of c1 through c2
+// For instance, range("m", "a", "z") == true
+// Takes three strings to look at the first character of each
+function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)); }
+function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
+function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
+
+// True if the given character or string is blank or entirely made up of whitespace characters
+function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
+
+exports.is = is;
+exports.blank = blank;
+augment(upper, "upper");
+augment(lower, "lower");
+augment(code, "code");
+augment(range, "range");
+augment(isLetter, "isLetter");
+augment(isNumber, "isNumber");
+augment(isSpace, "isSpace");
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,26 +153,6 @@ function augment(f, name) {
 //  | |\  | |_| | | | | | | |_) |  __/ |   
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
-
-
-
-//String
-//Cut
-//Find
-//Format
-//More (this is where you put new random stuff you'r enot sure if it deserves to exist, this is a mess where you can just play around)
-//Describe
-//Number
-//Encode
-
-
-
-
-
-
-
-
-
 
 // Before returning object o we parsed from text s, make sure o turns back into exactly the same text
 // This is a clever way to turn a forgiving parsing function into a very strict one
@@ -124,8 +165,30 @@ function parseCheckMatch(o, oToString, s) { // Matches cases, use for things lik
 	return o;
 }
 
-exports.parseCheck = parseCheck; // Parse Check
+// Turn a string like "123" into the number 123
+function number(s) { return _number(s, 10); }
+function number16(s) { return _number(s, 16); } // Base 16, turn "A" into 10
+function _number(s, base) {
+	if (typeof s !== "string") throw "type";
+	var n = parseInt(s, base);
+	if (isNaN(n)) throw "data";
+	return parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
+}
+
+// Turn a number like 123 into a string like "123"
+function numerals(n) { return _numerals(n, 10); }
+function numerals16(n) { return _numerals(n, 16); } // Base 16, turn 10 into "A"
+function _numerals(n, base) {
+	if (typeof n !== "number") throw "type";
+	return n.toString(base);
+}
+
+exports.parseCheck = parseCheck;
 exports.parseCheckMatch = parseCheckMatch;
+augment(number, "number");
+augment(number16, "number16");
+exports.numerals = numerals;
+exports.numerals16 = numerals16;
 
 
 
@@ -140,10 +203,12 @@ exports.parseCheckMatch = parseCheckMatch;
 
 
 
-
-
-
-
+//    ____ _ _       
+//   / ___| (_)_ __  
+//  | |   | | | '_ \ 
+//  | |___| | | |_) |
+//   \____|_|_| .__/ 
+//            |_|    
 
 // Get the first character in s
 function first(s) { return get(s, 0); }
@@ -165,7 +230,7 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-augment(first, "first"); // Clip
+augment(first, "first");
 augment(get, "get");
 augment(start, "start");
 augment(end, "end");
@@ -181,6 +246,15 @@ augment(clip, "clip");
 
 
 
+
+
+
+//   _____ _           _ 
+//  |  ___(_)_ __   __| |
+//  | |_  | | '_ \ / _` |
+//  |  _| | | | | | (_| |
+//  |_|   |_|_| |_|\__,_|
+//                       
 
 // Compare two strings, case sensitive, or just use s1 == s2 instead
 function same(s1, s2) {
@@ -279,7 +353,7 @@ function _either(s, tag1, tag2, match) {
 	else return Math.min(i1, i2); // Both found, return the one that appears first
 }
 
-exports.same = same; // Find
+exports.same = same;
 exports.match = match;
 augment(starts, "starts");
 augment(startsMatch, "startsMatch");
@@ -305,6 +379,14 @@ augment(eitherMatch, "eitherMatch");
 
 
 
+
+
+//    ____      _   
+//   / ___|   _| |_ 
+//  | |  | | | | __|
+//  | |__| |_| | |_ 
+//   \____\__,_|\__|
+//                  
 
 function before(s, tag)          { return _cut(s, tag, true,  false).before; } // The part of s before tag, s if not found, case sensitive
 function beforeMatch(s, tag)     { return _cut(s, tag, true,  true ).before; } // The part of s before tag, s if not found, matches cases
@@ -358,7 +440,17 @@ function _swap(s, t1, t2, match) {
 	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
 }
 
-augment(before, "before"); // Cut
+// Parse out the part of s between t1 and t2
+function parse(s, t1, t2) { return _parse(s, t1, t2, false); }
+function parseMatch(s, t1, t2) { return _parse(s, t1, t2, true); }
+function _parse(s, t1, t2, match) {
+	s = _cut(s, t1, true, match).after;
+	if (has(s, t2, match)) s = _cut(s, t2, true, match).before;
+	else s = "";
+	return s;
+}
+
+augment(before, "before");
 augment(beforeMatch, "beforeMatch");
 augment(beforeLast, "beforeLast");
 augment(beforeLastMatch, "beforeLastMatch");
@@ -372,6 +464,8 @@ augment(cutLast, "cutLast");
 augment(cutLastMatch, "cutLastMatch");
 augment(swap, "swap");
 augment(swapMatch, "swapMatch");
+augment(parse, "parse");
+augment(parseMatch, "parseMatch");
 
 
 
@@ -389,60 +483,6 @@ augment(swapMatch, "swapMatch");
 
 
 
-// True if s is a string with some text
-// Instead of is(), you can also just use s == ""
-function is(s) {
-	if (typeof s !== "string") throw "type";
-	if (s.length === 0) return false;
-	return true;
-}
-
-// True if s is a string that's blank
-// Instead of blank, you can also just use s != ""
-function blank(s) {
-	if (typeof s !== "string") throw "type";
-	if (s.length === 0) return true;
-	return false;
-}
-
-// Convert lower case characters in s to upper case
-function upper(s) {
-	var u = s.toLocaleUpperCase(); // Use instead of toUpperCase() to work for locales without the default Unicode case mappings
-	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure the case change didn't change the length
-	return u;
-}
-
-// Convert upper case characters in s to lower case
-function lower(s) {
-	var l = s.toLocaleLowerCase();
-	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
-	return l;
-}
-
-// The Unicode number value of the character a distance i characters into s
-// Also gets ASCII codes, code("A") is 65
-// You can omit i to get the code of the first character
-function code(s, i) {
-	if (!i) i = 0; // Turn undefined into 0 so the math below works
-	if (i < 0 || i > s.length - 1) throw "bounds";
-	return s.charCodeAt(i);
-}
-
-// True if s has a code in the range of c1 through c2
-// For instance, range("m", "a", "z") == true
-// Takes three strings to look at the first character of each
-function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)); }
-function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
-function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
-
-exports.is = is; // Character
-exports.blank = blank;
-augment(upper, "upper");
-augment(lower, "lower");
-augment(code, "code");
-augment(range, "range");
-augment(isLetter, "isLetter");
-augment(isNumber, "isNumber");
 
 
 
@@ -450,12 +490,16 @@ augment(isNumber, "isNumber");
 
 
 
+//   _____     _           
+//  |_   _| __(_)_ __ ___  
+//    | || '__| | '_ ` _ \ 
+//    | || |  | | | | | | |
+//    |_||_|  |_|_| |_| |_|
+//                         
 
-
-
-
-
-
+// Use JavaScript's s.trim() to remove whitespace characters from both ends of s
+function trimStart(s) { return s.trimLeft(); } // Remove whitespace characters from the start of s
+function trimEnd(s) { return s.trimRight(); } // Remove whitespace characters from the end of s
 
 // Confirm s starts or ends with tag, inserting it if necessary
 function onStart(s, tag)      { return _on(s, tag, true); }
@@ -505,7 +549,9 @@ function off(s) {
 	return s;
 }
 
-augment(onStart, "onStart"); // Off
+augment(trimStart, "trimStart");
+augment(trimEnd, "trimEnd");
+augment(onStart, "onStart");
 augment(onEnd, "onEnd");
 augment(offStart, "offStart");
 augment(offEnd, "offEnd");
@@ -522,26 +568,6 @@ augment(off, "off");
 
 
 
-function number(s) { return _number(s, 10); }
-function number16(s) { return _number(s, 16); }
-function _number(s, base) {
-	if (typeof s !== "string") throw "type";
-	var n = parseInt(s, base);
-	if (isNaN(n)) throw "data";
-	return parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
-}
-
-function numerals(n) { return _numerals(n, 10); }
-function numerals16(n) { return _numerals(n, 16); }
-function _numerals(n, base) {
-	if (typeof n !== "number") throw "type";
-	return n.toString(base);
-}
-
-augment(number, "number"); // Number
-augment(number16, "number16");
-exports.numerals = numerals;
-exports.numerals16 = numerals16;
 
 
 
@@ -561,68 +587,12 @@ exports.numerals16 = numerals16;
 
 
 
-// Concatenate all the given strings together
-// For instance, make("a", "b", "c") is "abc"
-// Instead of make(), you can also just use "a" + "b" + "c"
-function make() {
-	var s = "";
-	for (var i = 0; i < arguments.length; i++)
-		s += arguments[i]; // Using + is actually must faster than s.concat() or [].join()
-	return s;
-}
-
-// Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
-// Like C's famous sprintf, but simpler and more in the style of a dynamically typed language
-// You only really need one format specifier, #
-// What if you want to include a # that doesn't get replaces? Assemble your string the old fasioned way with "# of kittens: " + kittens + ";"
-function fill(s) {
-	var t = "";
-	for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
-		var c = cut(s, "#");
-		t += c.before + (arguments[i] + ""); // Turn the argument into a string
-		s = c.after;
-	}
-	return t + s; // Include any part of s that remains
-}
-
-function widen(s, width, c) {
-	if (!c) c = "0";
-	while (s.length < width) s = c + s;
-	return s;
-}
-
-// Insert commas between groups of three characters
-// For example, commas("12345") == "12,345"
-// In Europe, specify a custom separator like commas(s, ".")
-function commas(s, c) {
-	if (!c) c = ","; // Separate with comma by default
-	var u = ""; // Temporary string
-	var t = ""; // Target text to build and return
-	while (s.length > 3) {// Move commas and groups of 3 characters from s to t
-		u = end(s, 3);
-		s = chop(s, 3);
-		t = c + u + t;
-	}
-	return s + t; // Move the leading gorup of up to 3 characters
-}
-
-exports.make = make; // Format
-augment(fill, "fill");
-augment(widen, "widen");
-augment(commas, "commas");
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   ____  _       
+//  |  _ \(_)_ __  
+//  | |_) | | '_ \ 
+//  |  _ <| | |_) |
+//  |_| \_\_| .__/ 
+//          |_|    
 
 // Make an array of all the parts of s that remain after ripping away all the instances of tag
 // For instance, "a:b:c".rip(":") is ["a","b","c"]
@@ -682,9 +652,9 @@ function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without 
 	return a;
 }
 
-augment(ripWords, "ripWords"); // Rip
-augment(ripLines, "ripLines"); // Rip
-augment(rip, "rip"); // Rip
+augment(ripWords, "ripWords");
+augment(ripLines, "ripLines");
+augment(rip, "rip");
 
 
 
@@ -714,37 +684,106 @@ augment(rip, "rip"); // Rip
 
 
 
+//    ____                                     
+//   / ___|___  _ __ ___  _ __   ___  ___  ___ 
+//  | |   / _ \| '_ ` _ \| '_ \ / _ \/ __|/ _ \
+//  | |__| (_) | | | | | | |_) | (_) \__ \  __/
+//   \____\___/|_| |_| |_| .__/ \___/|___/\___|
+//                       |_|                   
 
+function widen(s, width, c) {
+	if (!c) c = "0";
+	while (s.length < width) s = c + s;
+	return s;
+}
 
-
-
-
-
-
-/** Format the given list of strings into a fixed width text table with the given number of columns. *
-public static String table(int columns, String... cells) {
-	
-	int[] widths = new int[columns]; // Loop to determine how wide each column needs to be
-	for (int i = 0; i < cells.length; i++) {
-		if (widths[i % columns] < cells[i].length())
-			widths[i % columns] = cells[i].length();
+// Insert commas between groups of three characters
+// For example, commas("12345") == "12,345"
+// In Europe, specify a custom separator like commas(s, ".")
+function commas(s, c) {
+	if (!c) c = ","; // Separate with comma by default
+	var u = ""; // Temporary string
+	var t = ""; // Target text to build and return
+	while (s.length > 3) {// Move commas and groups of 3 characters from s to t
+		u = end(s, 3);
+		s = chop(s, 3);
+		t = c + u + t;
 	}
-	
-	StringBuffer b = new StringBuffer(); // Loop for each cell to assemble the table
-	for (int i = 0; i < cells.length; i++) {
-		String s = cells[i];
+	return s + t; // Move the leading gorup of up to 3 characters
+}
 
-		if (i % columns != columns - 1) {            // Before the last column
-			while (s.length() < widths[i % columns]) // Make this cell wide enough for the column it's in
-				s += " ";
-			b.append(s + "  ");
-		} else {                                     // Last column
-			b.append(s + "\r\n");
+// Given a number and the name of a unit, compose text like "14 apples"
+function sayNumber(n, unit) {
+	if      (n == 0) return "no " + unit + "s";                      // Zero yields "no [unit]s"
+	else if (n == 1) return "1 " + unit;                             // One yields "1 [unit]"
+	else             return numerals(n).commas() + " " + unit + "s"; // Greater yields "[n] [unit]s"
+}
+
+// Use this line separator when composing text
+var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows
+
+// Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
+// Like C's famous sprintf, but simpler and more in the style of a dynamically typed language
+// You only really need one format specifier, #
+function fill(s) {
+	var t = "";
+	for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
+		var c = cut(s, "#");
+		t += c.before + (arguments[i] + ""); // Add blank to convert the argument into a string
+		s = c.after;
+	}
+	return t + s; // Include any part of s that remains
+}
+
+// Concatenate all the given strings together
+// For instance, make("a", "b", "c") is "abc"
+// Instead of make(), you can also just use "a" + "b" + "c"
+function make() {
+	var t = "";
+	for (var i = 0; i < arguments.length; i++)
+		t += (arguments[i] + ""); // Using + is actually must faster than s.concat() or [].join()
+	return t;
+}
+
+// Concatenate the given strings together with a newline after each one
+function lines() {
+	var t = "";
+	for (var i = 0; i < arguments.length; i++)
+		t += (arguments[i] + "") + newline;
+	return t;
+}
+
+// Format list of rows like table(["head1", "head2"], ["value1", "value2"]) into a fixed width text table
+function table() {
+
+	var width = []; // Find the longest cell to calculate the width of each column
+	for (var r = 0; r < arguments.length; r++)
+		for (var c = 0; c < arguments[0].length; c++)
+			if (!width[c] || width[c] < arguments[r][c].length) // Undefined or smaller
+				width[c] = arguments[r][c].length;
+
+	var t = "";
+	for (var r = 0; r < arguments.length; r++) {      // Within each row
+		for (var c = 0; c < arguments[0].length; c++) { // Loop for each column
+			var cell = (arguments[r][c] + "");            // Add blank to convert the argument into a string
+			if (c == arguments[0].length - 1) {           // Last column
+				t += cell + newline;                          // Add the cell text and newline characters
+			} else {                                      // Column before the last column
+				while (cell.length < width[c]) cell += " ";   // Pad the cell
+				t += cell + "  ";                             // Add the cell and the separator for the next column
+			}
 		}
 	}
-	return b.toString();
+	return t;
 }
-*/
+
+augment(widen, "widen");
+augment(commas, "commas");
+exports.sayNumber = sayNumber;
+augment(fill, "fill");
+exports.make = make;
+exports.lines = lines;
+exports.table = table;
 
 
 
@@ -761,16 +800,6 @@ public static String table(int columns, String... cells) {
 
 
 
-function trimStart() {}
-function trimEnd() {}
-/*
-trim
-c trim
-j trim
-js trim
-js trimLeft
-js trimRight
-*/
 
 
 
@@ -781,6 +810,17 @@ js trimRight
 
 
 
+
+
+
+
+
+//   ____             _   
+//  / ___|  ___  _ __| |_ 
+//  \___ \ / _ \| '__| __|
+//   ___) | (_) | |  | |_ 
+//  |____/ \___/|_|   \__|
+//                        
 
 
 
@@ -809,8 +849,61 @@ js localeCompare
 
 
 
+
+
+
+//   _____                     _      
+//  | ____|_ __   ___ ___   __| | ___ 
+//  |  _| | '_ \ / __/ _ \ / _` |/ _ \
+//  | |___| | | | (_| (_) | (_| |  __/
+//  |_____|_| |_|\___\___/ \__,_|\___|
+//                                    
+
+function encode(s) {
+
+	//also replace spaces with +
+
+	return s.encodeURIComponent();
+}
+
+function decode(s) {
+
+	return s.decodeURIComponent();
+}
+
+function safeFileName(s) {
+
+	/*
+	// Replace characters not allowed in windows file names with acceptable ones
+	CString SafeFileName(read r) {
+	CString s = r;
+	s = replace(s, L"\"", L"'"); // Turn double quotes into single ones
+	s = replace(s, L"\\", L"-"); // Turn other characters that aren't allowed into hyphens
+	s = replace(s,  L"/", L"-");
+	s = replace(s,  L":", L"-");
+	s = replace(s,  L"*", L"-");
+	s = replace(s,  L"?", L"-");
+	s = replace(s,  L"<", L"-");
+	s = replace(s,  L">", L"-");
+	s = replace(s,  L"|", L"-");
+	return s;
+	}
+	*/
+
+	return s;
+}
+
+augment(encode, "encode");
+augment(decode, "decode");
+augment(safeFileName, "safeFileName");
+
+
 /*
-j group, line
+
+c UriDecode, UriEncode
+c SafeFileName
+
+
 */
 
 
@@ -833,21 +926,23 @@ j group, line
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
-
-
-c parse
-c SayNumber
-
-c UriDecode, UriEncode
-c SafeFileName
-
+(do in data because you need to use clip)
 j group, line
-
-
-
-
 
 
 (dont do)
@@ -991,6 +1086,53 @@ String.prototype.distance = function (arg) {
 //below, instead of tag, you could specify a test function to pass in, pass in a tag or a function
 //of course, for that to work, you would have to rewrite find to also work with functions in addition to tags
 //so, this is a crazy weird new feature idea you should not do now
+
+
+
+
+
+
+
+//how to polyfill
+/*
+if(!('contains' in String.prototype))
+  String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
+*/
+//don't polyfill, exactly, rather if something is already defined, throw "platform"
+//you need to add the throw "platform" if any of the methods you're going to add are already present
+
+
+
+/*
+function clear(name) { if (name in String.prototype) throw "program"; }
+
+
+// Given a this string t and arguments r from a string prototype function, assemble arguments for a regular function
+// For example, use this to have "hi".custom("a", "b") call custom("hi", "a", "b")
+function argue(t, r) {
+	var a = [t + ""]; // Coax the given this into a string, rather than an array of characters
+	for (var i = 0; i < r.length; i++) // After t, add all the arguments in r
+		a.push(r[i]);
+	return a; // Return the arguments ready to call the regular function
+}
+*/
+
+
+
+/*
+function unify(f, name) {
+	if (name in String.prototype)
+		throw "program";
+
+	String.prototype[name] = function() {
+		return f.apply(this, argue(this, arguments));
+	}
+}
+*/
+
+
+
+
 
 
 

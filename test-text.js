@@ -19,15 +19,41 @@ var text = require("./text");
 
 
 
+//    ____ _                          _            
+//   / ___| |__   __ _ _ __ __ _  ___| |_ ___ _ __ 
+//  | |   | '_ \ / _` | '__/ _` |/ __| __/ _ \ '__|
+//  | |___| | | | (_| | | | (_| | (__| ||  __/ |   
+//   \____|_| |_|\__,_|_|  \__,_|\___|\__\___|_|   
+//                                                 
 
-var make = text.make;
 var is = text.is;
 var blank = text.blank;
 
-exports.testMake = function(test) {
+exports.testLengthSize = function(test) {
 
-	test.ok(make("a", "b", "cd") == "abcd");
-	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
+	var s;
+
+	s = "a";//ascii
+	test.ok(s.length == 1);
+	test.ok(Data(s).size() == 1);
+
+	s = "ö";//umlaut
+	test.ok(s.length == 1);
+	test.ok(Data(s).size() == 2);//two bytes
+	test.ok(Data(s).base16() == "c3b6");
+
+	s = "خ";//arabic ha
+	test.ok(s.length == 1);
+	test.ok(Data(s).size() == 2);//two bytes
+
+	s = "の";//hiragana no
+	test.ok(s.length == 1);
+	test.ok(Data(s).size() == 3);//three bytes
+	test.ok(Data(s).base16() == "e381ae");
+
+	// The number of characters in string s is s.length
+	// MDN warns: This property returns the number of code units in the string. UTF-16, the string format used by JavaScript, uses a single 16-bit code unit to represent the most common characters, but needs to use two code units for less commonly-used characters, so it's possible for the value returned by length to not match the actual number of characters in the string.
+	//TODO write a test that demonstrates how s.length fails, then a function that corrects it
 
 	test.done();
 }
@@ -74,36 +100,125 @@ exports.testIsBlank = function(test) {
 	test.done();
 }
 
+exports.testUpperLower = function(test) {
 
+	//use
+	test.ok("A".lower() == "a");
+	test.ok("a".upper() == "A");
+	test.ok("Shhhh. Whisper, please.".lower() == "shhhh. whisper, please.");
+	test.ok("Do you want to buy a duck?".upper() == "DO YOU WANT TO BUY A DUCK?");
 
+	//greek alphabet
+	var greekLower = "αβγδεζηθικλμνξοπρστυφχψω";
+	var greekUpper = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ";
+	test.ok(greekLower.upper() == greekUpper);
+	test.ok(greekUpper.lower() == greekLower);
 
+	test.done();
+}
 
+exports.testCode = function(test) {
 
-exports.testLengthSize = function(test) {
+	test.ok("A".code() == 65);//you can omit i to get the first character
 
-	var s;
+	var s = "\0\r\n\x0d\x0a\t\"";//control characters
+	test.ok(s.length == 7);
+	test.ok(s.code(0) == 0);//null
+	test.ok(s.code(1) == 0x0d);//r
+	test.ok(s.code(2) == 0x0a);//n
+	test.ok(s.code(3) == 0x0d);//r
+	test.ok(s.code(4) == 0x0a);//n
+	test.ok(s.code(5) == 9);//tab
+	test.ok(s.code(6) == 34);//quote
 
-	s = "a";//ascii
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 1);
+	s = "09AZaz";//letters and numbers
+	test.ok(s.code(0) == 48);
+	test.ok(s.code(1) == 57);
+	test.ok(s.code(2) == 65);
+	test.ok(s.code(3) == 90);
+	test.ok(s.code(4) == 97);
+	test.ok(s.code(5) == 122);
 
-	s = "ö";//umlaut
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 2);//two bytes
-	test.ok(Data(s).base16() == "c3b6");
+	s = " !.^_";//punctuation
+	test.ok(s.code(0) == 32);
+	test.ok(s.code(1) == 33);
+	test.ok(s.code(2) == 46);
+	test.ok(s.code(3) == 94);
+	test.ok(s.code(4) == 95);
 
-	s = "خ";//arabic ha
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 2);//two bytes
+	s = "español";//europe
+	test.ok(s.length == 7);
+	test.ok(s.code(0) == 101);
+	test.ok(s.code(4) == 241);//beyond the ascii table
+	test.ok(s.code(6) == 108);
 
-	s = "の";//hiragana no
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 3);//three bytes
-	test.ok(Data(s).base16() == "e381ae");
+	s = "中文";//asia
+	test.ok(s.length == 2);
+	test.ok(s.code(0) == 20013);//tens of thousands
+	test.ok(s.code(1) == 25991);
 
-	// The number of characters in string s is s.length
-	// MDN warns: This property returns the number of code units in the string. UTF-16, the string format used by JavaScript, uses a single 16-bit code unit to represent the most common characters, but needs to use two code units for less commonly-used characters, so it's possible for the value returned by length to not match the actual number of characters in the string.
-	//TODO write a test that demonstrates how s.length fails, then a function that corrects it
+	s = "مرحبا";//arabic
+	test.ok(s.length == 5);
+	test.ok(s.code(0) == 1605);//just thousands
+	test.ok(s.code(1) == 1585);
+	test.ok(s.code(2) == 1581);
+	test.ok(s.code(3) == 1576);
+	test.ok(s.code(4) == 1575);
+
+	test.done();
+}
+
+exports.testRange = function(test) {
+
+	test.ok("a".range("a", "z"));//first
+	test.ok("z".range("a", "z"));//last
+	test.ok("k".range("a", "z"));//middle
+	test.ok("5".range("5", "5"));//only
+
+	test.ok(!"0".range("a", "z"));//outside
+	test.ok(!"A".range("a", "z"));
+
+	test.done();
+}
+
+exports.testIsLetterIsNumber = function(test) {
+
+	test.ok("a".isLetter());//lower
+	test.ok("b".isLetter());
+	test.ok("z".isLetter());
+
+	test.ok("A".isLetter());//upper
+	test.ok("K".isLetter());
+	test.ok("Z".isLetter());
+
+	test.ok("0".isNumber());//number
+	test.ok("2".isNumber());
+	test.ok("9".isNumber());
+
+	//blank throws bounds
+	try { "".isLetter(); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+
+	function neither(c) {
+		test.ok(!c.isLetter());
+		test.ok(!c.isNumber());
+	}
+
+	neither(" ");
+	neither(":");
+	neither("/");
+	neither("!");
+	neither("\0");
+	neither("\r");
+
+	test.done();
+}
+
+exports.testIsSpace = function(test) {
+
+	test.ok("".isSpace());
+	test.ok(" ".isSpace());
+	test.ok("\r\n".isSpace());
+	test.ok(!"a".isSpace());
 
 	test.done();
 }
@@ -113,6 +228,92 @@ exports.testLengthSize = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
+
+var numerals = text.numerals;
+var numerals16 = text.numerals16;
+
+exports.testNumberNumerals = function(test) {
+
+	function cycle(n, s10, s16) {
+		test.ok(numerals(n) === s10);//number to text
+		test.ok(numerals16(n) === s16);
+
+		test.ok(s10.number() === n);//text to number
+		test.ok(s16.number16() === n);
+	}
+
+	//confirm we can turn numbers into text and back again
+	cycle(0, "0", "0");//zero and one
+	cycle(1, "1", "1");
+	cycle(10, "10", "a");//ten, note how base16 output is lower case
+	cycle(789456123, "789456123", "2f0e24fb");
+	cycle(-5, "-5", "-5");//negative
+	cycle(-11, "-11", "-b");
+	cycle(0xff, "255", "ff");//0x number literal, note how output text doesn't include the "0x" prefix
+	cycle(-0x2f0e24fb, "-789456123", "-2f0e24fb");
+
+	test.ok(numerals(123.456) === "123.456");//decimal
+	test.ok(numerals(-123.456) === "-123.456");
+
+	function bad(s) {
+		try { s.number(); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { s.number16(); test.fail(); } catch (e) { test.ok(e == "data"); }
+	}
+
+	//make sure text that isn't a perfect number can't become one
+	bad("");//blank
+	bad(" ");//space
+	bad("potato");//a word
+	bad("-");//punctuation
+	bad(".");
+	bad("k");
+
+	bad("05");//leading zero
+
+	bad(" 5");//spaces
+	bad("5 ");
+	bad(" 5 ");
+	bad("5 6");
+
+	//allow uppercase base16 as input, even though output is lowercase
+	test.ok("A".number16() == 10);
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ____ _ _       
+//   / ___| (_)_ __  
+//  | |   | | | '_ \ 
+//  | |___| | | |_) |
+//   \____|_|_| .__/ 
+//            |_|    
 
 exports.testFirst = function(test) {
 
@@ -212,10 +413,31 @@ exports.testClip = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   _____ _           _ 
+//  |  ___(_)_ __   __| |
+//  | |_  | | '_ \ / _` |
+//  |  _| | | | | | (_| |
+//  |_|   |_|_| |_|\__,_|
+//                       
+
 var same = text.same;
 var match = text.match;
 
-exports.testSamePlatformCustom = function(test) {
+exports.testSame = function(test) {
 
 	function run(answerMatch, answerCase, s1, s2) {
 
@@ -259,15 +481,10 @@ exports.testStartsEndsHas = function(test) {
 	test.done();
 }
 
-exports.testFindPlatformCustom = function(test) {
+exports.testFind = function(test) {
 
 	//no tag
 	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e == "argument"); }
-
-	function both(found, s, tag, forward, match) {
-		test.ok(found == _findPlatform(s, tag, forward, true, match));
-		test.ok(found == _findCustom(s, tag, forward, true, match));
-	}
 
 	//basic use
 	test.ok(0  == "abcd".find(  "ab"));//first
@@ -316,10 +533,35 @@ exports.testFindPlatformCustom = function(test) {
 	test.done();
 }
 
+exports.testEither = function(test) {
+
+	var s = "sample abc text def and more";
+
+	test.ok(s.either("abc", "xyz") == 7);//first found
+	test.ok(s.either("xyz", "abc") == 7);//second found
+
+	test.ok(s.either("abc", "def") == 7);//both found
+	test.ok(s.either("aBC", "def") == 16);//first case mismatch
+	test.ok(s.eitherMatch("aBC", "def") == 7);//matching cases
+
+	test.done();
+}
 
 
 
 
+
+
+
+
+
+
+//    ____      _   
+//   / ___|   _| |_ 
+//  | |  | | | | __|
+//  | |__| |_| | |_ 
+//   \____\__,_|\__|
+//                  
 
 exports.testCut = function(test) {
 
@@ -355,15 +597,6 @@ exports.testCut = function(test) {
 	test.done();
 }
 
-
-
-
-
-
-
-
-
-
 exports.testSwap = function(test) {
 
 	var s = "Abacore tuna is absolutely the best.";
@@ -378,27 +611,9 @@ exports.testSwap = function(test) {
 	test.done();
 }
 
+exports.testParse = function(test) {
 
-
-
-
-
-
-
-
-exports.testUpperLower = function(test) {
-
-	//use
-	test.ok("A".lower() == "a");
-	test.ok("a".upper() == "A");
-	test.ok("Shhhh. Whisper, please.".lower() == "shhhh. whisper, please.");
-	test.ok("Do you want to buy a duck?".upper() == "DO YOU WANT TO BUY A DUCK?");
-
-	//greek alphabet
-	var greekLower = "αβγδεζηθικλμνξοπρστυφχψω";
-	var greekUpper = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ";
-	test.ok(greekLower.upper() == greekUpper);
-	test.ok(greekUpper.lower() == greekLower);
+	test.ok("He <b>really</b> wants to go.".parse("<b>", "</b>") == "really");
 
 	test.done();
 }
@@ -409,127 +624,38 @@ exports.testUpperLower = function(test) {
 
 
 
-exports.testCode = function(test) {
 
-	test.ok("A".code() == 65);//you can omit i to get the first character
 
-	var s = "\0\r\n\x0d\x0a\t\"";//control characters
-	test.ok(s.length == 7);
-	test.ok(s.code(0) == 0);//null
-	test.ok(s.code(1) == 0x0d);//r
-	test.ok(s.code(2) == 0x0a);//n
-	test.ok(s.code(3) == 0x0d);//r
-	test.ok(s.code(4) == 0x0a);//n
-	test.ok(s.code(5) == 9);//tab
-	test.ok(s.code(6) == 34);//quote
 
-	s = "09AZaz";//letters and numbers
-	test.ok(s.code(0) == 48);
-	test.ok(s.code(1) == 57);
-	test.ok(s.code(2) == 65);
-	test.ok(s.code(3) == 90);
-	test.ok(s.code(4) == 97);
-	test.ok(s.code(5) == 122);
 
-	s = " !.^_";//punctuation
-	test.ok(s.code(0) == 32);
-	test.ok(s.code(1) == 33);
-	test.ok(s.code(2) == 46);
-	test.ok(s.code(3) == 94);
-	test.ok(s.code(4) == 95);
 
-	s = "español";//europe
-	test.ok(s.length == 7);
-	test.ok(s.code(0) == 101);
-	test.ok(s.code(4) == 241);//beyond the ascii table
-	test.ok(s.code(6) == 108);
 
-	s = "中文";//asia
-	test.ok(s.length == 2);
-	test.ok(s.code(0) == 20013);//tens of thousands
-	test.ok(s.code(1) == 25991);
 
-	s = "مرحبا";//arabic
-	test.ok(s.length == 5);
-	test.ok(s.code(0) == 1605);//just thousands
-	test.ok(s.code(1) == 1585);
-	test.ok(s.code(2) == 1581);
-	test.ok(s.code(3) == 1576);
-	test.ok(s.code(4) == 1575);
+
+
+
+//   _____     _           
+//  |_   _| __(_)_ __ ___  
+//    | || '__| | '_ ` _ \ 
+//    | || |  | | | | | | |
+//    |_||_|  |_|_| |_| |_|
+//                         
+
+exports.testTrim = function(test) {
+
+	test.ok("hi".trim() == "hi");
+	test.ok(" hi ".trim() == "hi");//spaces
+	test.ok("\rhi\r".trim() == "hi");//single newline characters
+	test.ok("\nhi\n".trim() == "hi");
+	test.ok("\r\nhi\r\n".trim() == "hi");//windows newlines
+	test.ok("\thi\t".trim() == "hi");//tabs
+	test.ok(" \t\r\nwords inside\r \n\t".trim() == "words inside");//everything
+
+	test.ok(" hi ".trimStart() == "hi ");
+	test.ok(" hi ".trimEnd()   == " hi");
 
 	test.done();
 }
-
-exports.testRange = function(test) {
-
-	test.ok("a".range("a", "z"));//first
-	test.ok("z".range("a", "z"));//last
-	test.ok("k".range("a", "z"));//middle
-	test.ok("5".range("5", "5"));//only
-
-	test.ok(!"0".range("a", "z"));//outside
-	test.ok(!"A".range("a", "z"));
-
-	test.done();
-}
-
-exports.testIsLetterIsNumber = function(test) {
-
-	test.ok("a".isLetter());//lower
-	test.ok("b".isLetter());
-	test.ok("z".isLetter());
-
-	test.ok("A".isLetter());//upper
-	test.ok("K".isLetter());
-	test.ok("Z".isLetter());
-
-	test.ok("0".isNumber());//number
-	test.ok("2".isNumber());
-	test.ok("9".isNumber());
-
-	//blank throws bounds
-	try { "".isLetter(); test.fail(); } catch (e) { test.ok(e == "bounds"); }
-
-	function neither(c) {
-		test.ok(!c.isLetter());
-		test.ok(!c.isNumber());
-	}
-
-	neither(" ");
-	neither(":");
-	neither("/");
-	neither("!");
-	neither("\0");
-	neither("\r");
-
-	test.done();
-}
-
-
-
-
-
-
-exports.testEither = function(test) {
-
-	var s = "sample abc text def and more";
-
-	test.ok(s.either("abc", "xyz") == 7);//first found
-	test.ok(s.either("xyz", "abc") == 7);//second found
-
-	test.ok(s.either("abc", "def") == 7);//both found
-	test.ok(s.either("aBC", "def") == 16);//first case mismatch
-	test.ok(s.eitherMatch("aBC", "def") == 7);//matching cases
-
-	test.done();
-}
-
-
-
-
-
-
-
 
 exports.testOff = function(test) {
 
@@ -572,141 +698,15 @@ exports.testOff = function(test) {
 
 
 
-var numerals = text.numerals;
-var numerals16 = text.numerals16;
 
-exports.testNumberNumerals = function(test) {
 
-	function cycle(n, s10, s16) {
-		test.ok(numerals(n) === s10);//number to text
-		test.ok(numerals16(n) === s16);
 
-		test.ok(s10.number() === n);//text to number
-		test.ok(s16.number16() === n);
-	}
-
-	//confirm we can turn numbers into text and back again
-	cycle(0, "0", "0");//zero and one
-	cycle(1, "1", "1");
-	cycle(10, "10", "a");//ten, note how base16 output is lower case
-	cycle(789456123, "789456123", "2f0e24fb");
-	cycle(-5, "-5", "-5");//negative
-	cycle(-11, "-11", "-b");
-	cycle(0xff, "255", "ff");//0x number literal, note how output text doesn't include the "0x" prefix
-	cycle(-0x2f0e24fb, "-789456123", "-2f0e24fb");
-
-	test.ok(numerals(123.456) === "123.456");//decimal
-	test.ok(numerals(-123.456) === "-123.456");
-
-	function bad(s) {
-		try { s.number(); test.fail(); } catch (e) { test.ok(e == "data"); }
-		try { s.number16(); test.fail(); } catch (e) { test.ok(e == "data"); }
-	}
-
-	//make sure text that isn't a perfect number can't become one
-	bad("");//blank
-	bad(" ");//space
-	bad("potato");//a word
-	bad("-");//punctuation
-	bad(".");
-	bad("k");
-
-	bad("05");//leading zero
-
-	bad(" 5");//spaces
-	bad("5 ");
-	bad(" 5 ");
-	bad("5 6");
-
-	//allow uppercase base16 as input, even though output is lowercase
-	test.ok("A".number16() == 10);
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-
-exports.testFill = function(test) {
-	
-	test.ok("".fill() == "");//blank
-	test.ok("hello".fill() == "hello");//no tags
-
-	test.ok("#ab".fill(7) == "7ab");//start
-	test.ok("a#b".fill(7) == "a7b");//middle
-	test.ok("ab#".fill(7) == "ab7");//end
-
-	test.ok("###".fill("a", "b", "c")      == "abc");//multiple
-	test.ok("###".fill("a", "b", "c", "d") == "abcd");//too many
-	test.ok("###".fill("a", "b")           == "ab#");//too few
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-exports.testWiden = function(test) {
-
-	test.ok("1".widen(4) == "0001");//add leading zeros
-	test.ok("12345".widen(4) == "12345");//already longer than that
-	test.ok("1".widen(4, " ") == "   1");//spaces instead
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.testCommas = function(test) {
-
-	test.ok("".commas() == "");
-	test.ok("1".commas() == "1");
-	test.ok("12".commas() == "12");
-	test.ok("123".commas() == "123");
-	test.ok("1234".commas() == "1,234");
-	test.ok("12345".commas() == "12,345");
-	test.ok("123456".commas() == "123,456");
-	test.ok("1234567".commas() == "1,234,567");
-
-	test.ok("1234567".commas(".") == "1.234.567");
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   ____  _       
+//  |  _ \(_)_ __  
+//  | |_) | | '_ \ 
+//  |  _ <| | |_) |
+//  |_| \_\_| .__/ 
+//          |_|    
 
 exports.testRip = function(test) {
 
@@ -809,6 +809,159 @@ exports.testRip = function(test) {
 
 
 
+//    ____                                     
+//   / ___|___  _ __ ___  _ __   ___  ___  ___ 
+//  | |   / _ \| '_ ` _ \| '_ \ / _ \/ __|/ _ \
+//  | |__| (_) | | | | | | |_) | (_) \__ \  __/
+//   \____\___/|_| |_| |_| .__/ \___/|___/\___|
+//                       |_|                   
+
+var sayNumber = text.sayNumber;
+var make = text.make;
+var lines = text.lines;
+var table = text.table;
+
+exports.testWiden = function(test) {
+
+	test.ok("1".widen(4) == "0001");//add leading zeros
+	test.ok("12345".widen(4) == "12345");//already longer than that
+	test.ok("1".widen(4, " ") == "   1");//spaces instead
+
+	test.done();
+}
+
+exports.testCommas = function(test) {
+
+	test.ok("".commas() == "");
+	test.ok("1".commas() == "1");
+	test.ok("12".commas() == "12");
+	test.ok("123".commas() == "123");
+	test.ok("1234".commas() == "1,234");
+	test.ok("12345".commas() == "12,345");
+	test.ok("123456".commas() == "123,456");
+	test.ok("1234567".commas() == "1,234,567");
+
+	test.ok("1234567".commas(".") == "1.234.567");
+
+	test.done();
+}
+
+exports.testSayNumber = function(test) {
+
+	test.ok(sayNumber(   0, "file") == "no files");
+	test.ok(sayNumber(   1, "file") == "1 file");
+	test.ok(sayNumber(   2, "file") == "2 files");
+	test.ok(sayNumber(1234, "file") == "1,234 files");
+
+	test.done();
+}
+
+exports.testFill = function(test) {
+	
+	test.ok("".fill() == "");//blank
+	test.ok("hello".fill() == "hello");//no tags
+
+	test.ok("#ab".fill(7) == "7ab");//start
+	test.ok("a#b".fill(7) == "a7b");//middle
+	test.ok("ab#".fill(7) == "ab7");//end
+
+	test.ok("###".fill("a", "b", "c")      == "abc");//multiple
+	test.ok("###".fill("a", "b", "c", "d") == "abcd");//too many
+	test.ok("###".fill("a", "b")           == "ab#");//too few
+
+	// What if you want to include a # that doesn't get replaced? Assemble your string the old fasioned way, or replace a # in the format string with "#" as an additional argument, like this:
+	test.ok("Assumed # of kittens: #.".fill("#", 4) == "Assumed # of kittens: 4.");
+
+	test.done();
+}
+
+exports.testMake = function(test) {
+
+	test.ok(make("a", "b", "cd") == "abcd");
+	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
+
+	test.done();
+}
+
+exports.testLinesTable = function(test) {
+
+	//check formatting
+	test.ok(table(
+		["a",     "b",      "c"],
+		["apple", "banana", "carrot"]) ==
+	lines(
+		"a      b       c",
+		"apple  banana  carrot"));
+	test.ok(table(
+		["Item",   "Color"],
+		["-",      "-"],
+		["leaf",   "green"],
+		["apple",  "red"],
+		["banana", "yellow"]) ==
+	lines(
+		"Item    Color",
+		"-       -",
+		"leaf    green",
+		"apple   red",
+		"banana  yellow"));
+
+	//cells with more than just string literals
+	function fun() { return "answer"; }
+	test.ok(table(
+		["Name",   "Value"],
+		["-",      "-"],
+		["number", 7], // A number instead of a string literal
+		["return", fun()]) == // A function call instead
+	lines(
+		"Name    Value",
+		"-       -",
+		"number  7",
+		"return  answer"));
+
+	//string output
+	test.ok(table(["A", "B"], ["CC", "DD"]) == "A   B\r\nCC  DD\r\n");
+	test.ok(table(["AA", "B"], ["C", "DD"]) == "AA  B\r\nC   DD\r\n");
+
+	//blank cells	
+	test.ok(table(
+		["apple apricot", "", "c"],//cell b is blank
+		["dictionary", "eggs earth eager", "f"]) ==
+	lines(
+		"apple apricot                    c",
+		"dictionary     eggs earth eager  f"));
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -837,7 +990,11 @@ exports.testRip = function(test) {
 
 
 
-
+//put this in measure number to watch out for it
+/*
+	test.ok((0 < 1) == true);
+	test.ok((undefined < 1) == false);
+*/
 
 
 
