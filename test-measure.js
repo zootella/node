@@ -301,3 +301,28 @@ exports.testSlice = function(test) {
 
 
 
+
+
+
+//put this in measure number to watch out for it
+/*
+	test.ok((0 < 1) == true);
+	test.ok((undefined < 1) == false);
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -946,8 +946,7 @@ j group, line
 
 (dont do)
 j quote, because javascript allows single quotes
-c SayTime, because these will be methods on time objects
-c SayNow
+c SayTime, SayNow, because these will be methods on time objects
 
 (regular expressions)
 js match
@@ -962,110 +961,19 @@ js valueOf
 
 
 
-//write tests for these, confirm they throw on undefined and null
-//or just write s.hasText() and s.isBlank(), and confirm those throw if s is undefined or null
-//unlike previous code, don't treat s = null as a valid blank string
 
 
 
 
-/*
-
-if (!('trim' in String.prototype)) {
-}
-
-
-//read to find out when you should use in, and when hasOwnProperty
-//maybe use in instead of hasOwnProperty in Bin, for instance
-
-String.prototype.distance = function (arg) {
-    alert(arg);
-};
-
-*/
 
 
 
-//write them all as functions
-//in a separate section, add them to String prototype
 
-//add parse, it's not here for some reason
 
 //write sortData(a, b) as a separate function
 
 //watch rock dots go between upper and lower case
 //watch french accents get alphebetized correctly
-
-//write make safe for windows file name
-//write url encode and decode parts
-
-//look in cpp text code, this is the most recent and complete job you did with parse() and uri encoding of international characters 
-
-
-
-
-
-
-
-
-//maybe you should also make your own StringBuffer in here
-//and then use it in encode, rather than the weird thing you have there
-//call it TextBay, for instance, and have an add() method, and say()
-//no, they made + the fastest thing ever
-
-
-
-//TODO add tests to confirm you can find international characters in text, split on them, and so on
-
-
-
-//here's a weird idea
-//what if you replaced characters illegal for windows filenames with unicode characters that look similar
-
-
-
-//go to and from data
-//go to and from number, base 10 and base 16
-
-//move Encode from data to text, but leave them as separate functions
-
-
-
-
-
-
-
-
-
-
-
-
-
-//after String in this file is where you'll put Describe
-
-
-
-//yes, move Encode into text.js
-//the parts of text.js will then be
-
-//String
-//Number
-//Encode
-
-
-
-
-
-
-
-
-
-//switch your code and tests from whatever(s) to s.whatever()
-//before you get in trouble, see if you can get in trouble with this
-//you can call a function defined below in a file
-//so can you use something added to string's prototype the same way?
-
-
 
 //along with uri encode and decode, have html escape to make it safe to show in the page
 
@@ -1073,61 +981,16 @@ String.prototype.distance = function (arg) {
 
 
 
-//you like this idea of islands of code
-//have each titled with a bubble header
-//put them in data and see how much easier it is to scroll through stuff
 
-
-
-
-//you could write an isWhitespace function where you give it a character, it trims it, and tells you if it became blank or not
-
-//below, instead of tag, you could specify a test function to pass in, pass in a tag or a function
-//of course, for that to work, you would have to rewrite find to also work with functions in addition to tags
-//so, this is a crazy weird new feature idea you should not do now
+//write a test where you turn unicode characters into data, look at just the first part of them, turn that back into text, and then see what they look like
+//figure out if there is a parsing danger here, for instance, can the first half or third of a unicode character look like another character
+//hopefully not, but you need to check it out
 
 
 
 
 
 
-
-//how to polyfill
-/*
-if(!('contains' in String.prototype))
-  String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
-*/
-//don't polyfill, exactly, rather if something is already defined, throw "platform"
-//you need to add the throw "platform" if any of the methods you're going to add are already present
-
-
-
-/*
-function clear(name) { if (name in String.prototype) throw "program"; }
-
-
-// Given a this string t and arguments r from a string prototype function, assemble arguments for a regular function
-// For example, use this to have "hi".custom("a", "b") call custom("hi", "a", "b")
-function argue(t, r) {
-	var a = [t + ""]; // Coax the given this into a string, rather than an array of characters
-	for (var i = 0; i < r.length; i++) // After t, add all the arguments in r
-		a.push(r[i]);
-	return a; // Return the arguments ready to call the regular function
-}
-*/
-
-
-
-/*
-function unify(f, name) {
-	if (name in String.prototype)
-		throw "program";
-
-	String.prototype[name] = function() {
-		return f.apply(this, argue(this, arguments));
-	}
-}
-*/
 
 
 

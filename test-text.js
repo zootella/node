@@ -19,6 +19,8 @@ var text = require("./text");
 
 
 
+
+
 //    ____ _                          _            
 //   / ___| |__   __ _ _ __ __ _  ___| |_ ___ _ __ 
 //  | |   | '_ \ / _` | '__/ _` |/ __| __/ _ \ '__|
@@ -1097,31 +1099,6 @@ exports.testSafeFileName = function(test) {
 
 
 
-
-//what you should do with trim is just use it as in javascript
-//and write a test here that demonstrates it correctly does what you want it to do
-//it may do even more, but that's fine to leave unknown
-
-
-
-
-
-
-
-//put this in measure number to watch out for it
-/*
-	test.ok((0 < 1) == true);
-	test.ok((undefined < 1) == false);
-*/
-
-
-
-
-
-
-//write a test where you turn unicode characters into data, look at just the first part of them, turn that back into text, and then see what they look like
-//figure out if there is a parsing danger here, for instance, can the first half or third of a unicode character look like another character
-//hopefully not, but you need to check it out
 
 
 
