@@ -361,6 +361,16 @@ exports.testClip = function(test) {
 	test.done();
 }
 
+exports.testClipCut = function(test) {
+
+	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
+	var c2 = c.cut(2);//cut the first 2 bytes off
+	test.ok(c2.toString() == "ab");//confirm you got them
+	test.ok(c.data().toString() == "cde");//and the clip is what remains
+
+	test.done();
+}
+
 
 
 
@@ -947,6 +957,96 @@ exports.testEncodeInvalid = function(test) {
 
 
 
+
+var quote = data.quote;
+var unquote = data.unquote;
+var count = data.count;
+var moreText = data.moreText;
+var isText = data.isText;
+
+exports.testQuoteUnquote = function(test) {
+
+	function both(plain, quoted) {
+		test.ok(quote(Data(plain)) == quoted);
+//		test.ok(Data(plain).same(unquote(quoted)));
+	}
+
+	both('hi', '"hi"');
+
+
+
+
+
+	test.done();
+}
+
+exports.testUnquoteInvalid = function(test) {
+
+
+	//confirm common mistakes throw data
+
+
+
+
+	test.done();
+}
+
+exports.testCount = function(test) {
+
+	//confirm s starts with the given number of text bytes or data bytes
+	function both(s, textBytes, dataBytes) {
+		test.ok(count(Data(s), true) == textBytes);
+		test.ok(count(Data(s), false) == dataBytes);
+	}
+
+	both("a",       1, 0);//only text
+	both("abc",     3, 0);
+	both("abc\r\n", 3, 0);//text first
+	both("\r\nabc", 0, 2);//data first
+	both("\r\n",    0, 2);//only data
+
+	test.done();
+}
+
+exports.testMoreText = function(test) {
+
+	function run(s, answer) {
+		test.ok(moreText(Data(s)) == answer);//turn s into data and scan all its bytes
+	}
+
+	run("a", true);//one byte of text has more text
+	run("\0", false);//one byte of data has more data
+
+	run("aa\n", true);//majority rule
+	run("a\r\n", false);
+
+	run("a\n", false);//if its a tie, data wins
+	run("ab\r\n", false);
+
+	run("の", false);//international, treated as data
+
+	test.done();
+}
+
+exports.testIsText = function(test) {
+
+	//turn s into data in utf8, then get the first byte, and see if that byte is ascii space through tilde except quote
+	function confirmText(s) { test.ok(isText(Data(s).first())) }
+	function confirmNotText(s) { test.ok(!isText(Data(s).first())) }
+
+	confirmText(" ");
+	confirmText("a");
+	confirmText("A");
+	confirmText("7");
+	confirmText("~");
+
+	confirmNotText("\r");
+	confirmNotText("\n");
+	confirmNotText("\0");
+	confirmNotText("の");//this splits into 3 bytes, the first of which is not text
+
+	test.done();
+}
 
 
 

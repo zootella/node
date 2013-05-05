@@ -30,6 +30,7 @@ var text = require("./text");
 
 var is = text.is;
 var blank = text.blank;
+var sort = text.sort;
 
 exports.testLengthSize = function(test) {
 
@@ -224,6 +225,50 @@ exports.testIsSpace = function(test) {
 
 	test.done();
 }
+
+exports.testSort = function(test) {
+
+	//make sure we got the sign right
+	test.ok(sort("a", "b") < 0);//negative, correct order
+	test.ok(sort("a", "a") == 0);//zero, tie
+	test.ok(sort("b", "a") > 0);//positive, reverse order
+
+	//but what this is really good for is sorting arrays
+	function run(before, sorted) {
+		var a = before.rip(",");
+		a.sort(sort);
+		if (sorted)
+			test.ok(a + "" == sorted);
+		else
+			log(a + "");
+	}
+	run("b,c,a", "a,b,c");
+	run("c,b,a", "a,b,c");
+	run("a,c,b", "a,b,c");
+
+	run("A,b,a,B", "A,B,a,b");//capitals are first in the ascii table
+
+	run("Bäume,Baume", "Baume,Bäume");//german trees go last
+
+	run("一,二,三", "一,三,二");//this looks wrong, but consistant
+	run("二,一,三", "一,三,二");
+	run("三,一,二", "一,三,二");
+	run("二,三,一", "一,三,二");
+	test.ok("一".code() == 0x4e00);//one is first
+	test.ok("二".code() == 0x4e8c);//two is third
+	test.ok("三".code() == 0x4e09);//three is second
+
+	var greek = "α,β,γ,δ,ε,ζ,η,θ,ι,κ,λ,μ,ν,ξ,ο,π,ρ,σ,τ,υ,φ,χ,ψ,ω";//sort the greek alphabet
+	run("β,γ,δ,ε,φ,ξ,ο,π,ρ,σ,α,θ,χ,ψ,ω,μ,ν,ζ,η,κ,λ,ι,τ,υ", greek);
+	run("α,β,λ,δ,ε,υ,γ,φ,κ,ρ,π,ω,μ,ν,ξ,ο,ζ,η,χ,ψ,σ,τ,θ,ι", greek);
+	run("θ,ι,κ,δ,ε,ω,χ,ψ,β,ξ,ο,ν,τ,υ,α,ζ,ρ,σ,γ,π,λ,η,φ,μ", greek);
+
+	test.done();
+}
+
+
+
+
 
 
 
@@ -1089,57 +1134,6 @@ exports.testSafeFileName = function(test) {
 
 
 
-
-
-
-//   ____             _   
-//  / ___|  ___  _ __| |_ 
-//  \___ \ / _ \| '__| __|
-//   ___) | (_) | |  | |_ 
-//  |____/ \___/|_|   \__|
-//                        
-
-var sort = text.sort;
-
-exports.testSort = function(test) {
-
-	//make sure we got the sign right
-	test.ok(sort("a", "b") < 0);//negative, correct order
-	test.ok(sort("a", "a") == 0);//zero, tie
-	test.ok(sort("b", "a") > 0);//positive, reverse order
-
-	//but what this is really good for is sorting arrays
-	function run(before, sorted) {
-		var a = before.rip(",");
-		a.sort(sort);
-		if (sorted)
-			test.ok(a + "" == sorted);
-		else
-			log(a + "");
-	}
-	run("b,c,a", "a,b,c");
-	run("c,b,a", "a,b,c");
-	run("a,c,b", "a,b,c");
-
-	run("A,b,a,B", "A,B,a,b");//capitals are first in the ascii table
-
-	run("Bäume,Baume", "Baume,Bäume");//german trees go last
-
-	run("一,二,三", "一,三,二");//this looks wrong, but consistant
-	run("二,一,三", "一,三,二");
-	run("三,一,二", "一,三,二");
-	run("二,三,一", "一,三,二");
-	test.ok("一".code() == 0x4e00);//one is first
-	test.ok("二".code() == 0x4e8c);//two is third
-	test.ok("三".code() == 0x4e09);//three is second
-
-	var greek = "α,β,γ,δ,ε,ζ,η,θ,ι,κ,λ,μ,ν,ξ,ο,π,ρ,σ,τ,υ,φ,χ,ψ,ω";//sort the greek alphabet
-	run("β,γ,δ,ε,φ,ξ,ο,π,ρ,σ,α,θ,χ,ψ,ω,μ,ν,ζ,η,κ,λ,ι,τ,υ", greek);
-	run("α,β,λ,δ,ε,υ,γ,φ,κ,ρ,π,ω,μ,ν,ξ,ο,ζ,η,χ,ψ,σ,τ,θ,ι", greek);
-	run("θ,ι,κ,δ,ε,ω,χ,ψ,β,ξ,ο,ν,τ,υ,α,ζ,ρ,σ,γ,π,λ,η,φ,μ", greek);
-
-	test.done();
-}
 
 
 

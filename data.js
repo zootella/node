@@ -296,10 +296,16 @@ function Clip(b) {
 	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip views
 	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip, keeping only the last n bytes
 
+	function cut(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
+		var s = d.start(n);
+		remove(n);
+		return s;
+	}
+
 	return {
 		data:data, copy:copy,
 		size:size, isEmpty:isEmpty, hasData:hasData,
-		remove:remove, keep:keep,
+		remove:remove, keep:keep, cut:cut,
 		isClip:function(){}
 	};
 }
@@ -794,6 +800,154 @@ exports.base64 = base64;
 
 
 
+//why can't d.take() be called d.clip(), that's different than Clip, after all
+
+
+
+
+//before you do outline, do all the parts, like
+//quote and unqoute encoding
+//create and parse length header
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Quote
+
+// Turn data into text using base 16, and put text characters in quotes, --The quote " character\r\n-- becomes --"The quote "22" character"0d0a--
+function quote(d) {
+	
+	if (!moreText(d))    // The given data is mostly data bytes, like random data
+		return d.base16(); // Present it as a single block of base 16 without quoting out the text it may contain
+	
+	var c = d.take();    // Clip around d to remove what we've encoded
+	var t = "";
+	while (c.hasData()) { // Loop until c is empty
+		if (isText(c.data().first()))
+			t += '"' + c.cut(count(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
+		else
+			t += c.cut(count(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
+	}
+	return t;
+}
+
+/*
+// Turn quoted text back into the data it was made from
+public static void unquote(Bay bay, String s) {
+	while (Text.is(s)) { // Loop until we're out of source text
+		
+		Split<String> q1 = Text.split(s, "\""); // Split on the first opening quote to look for bytes before text
+
+		Split<String> c = Text.split(q1.before, "#");        // Look for a comment outside the quotes
+		if (c.found) {                                   // Found a comment
+			bay.add(Encode.fromBase16(c.before.trim())); // Only bytes and spaces can be before the comment
+			return;                                      // Hitting a comment means we're done with the line
+		}
+			
+		bay.add(Encode.fromBase16(q1.before)); // Only bytes can be before the opening quote
+		if (!q1.found) return;                 // No opening quote, so we got it all
+		
+		Split<String> q2 = Text.split(q1.after, "\""); // Split on the closing quote
+		if (!q2.found) throw new DataException();  // Must have closing quote
+		
+		bay.add(q2.before); // Copy the quoted text across
+		s = q2.after;       // The remaining text is after the closing quote
+	}
+}
+*/
+
+//quote cannot fail, but unquote sure can
+//add parseCheck here, this is a great use for it
+//no wait, that won't work because its ok to do more as base16
+
+
+
+
+// Count how many bytes at the start of d are quotable text characters, or false to count data bytes
+function count(d, quotable) {
+	var i = 0;
+	while (i < d.size()) {
+		var y = d.get(i);
+		if (quotable ? !isText(y) : isText(y)) break;
+		i++; // Count this character and check the next one
+	}
+	return i;
+}
+
+// True if d has more text than data bytes
+function moreText(d) {
+	var text = 0; // The number bytes in d we could encode as text or data
+	var data = 0; // The number bytes in d we have to encode as data
+	for (var i = 0; i < d.size(); i++) {
+		var y = d.get(i);
+		if (isText(y)) text++; // 94 of 255 bytes can be encoded as text, that's 37%
+		else           data++;
+	}
+	return text > data; // Picks true for a single byte of text, false for random bytes of data
+}
+
+// True if byte y is a text character " " through "~" but not the double quote character
+function isText(y) {
+	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
+}
+
+/*
+// Strike
+
+/** Turn data into text like "hello--", striking out non-text bytes with hyphens. *
+public static void strike(StringBuffer b, Data d) {
+	for (int i = 0; i < d.size(); i++) {
+		byte y = d.get(i);                           // Loop for each byte of data y in d
+		if (y >= ' ' && y <= '~') b.append((char)y); // If it's " " through "~", include it in the text
+		else                      b.append('-');     // Otherwise, show a "-" in its place
+	}
+}
+*/
+
+exports.quote = quote;
+//exports.unquote = unquote;
+exports.count = count;
+exports.moreText = moreText;
+exports.isText = isText;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -818,6 +972,19 @@ exports.base64 = base64;
 
 
 
+
+// rules for designing your outline
+// tag names can only be numbers and lowercase letters, as short as possible
+// blank ok, duplicate tag names ok
+// order can't matter
+// tag names can't contain data, or be generated from data, that's what values are for
+// values can't contain outline data, that's what contents are for
+// numbers are text numerals in values, no numbers in bits
+// values shouldn't have compression or encoding that requires more transformation, data in its most raw form
+// values shouldn't have structure that requires more parsing, data in its most granular form
+// no version numbers, the outline grows without breaking compatibility
+// no vendor codes, the outline is a single unified common area
+// an outline should be short, 8k or less when turned into data
 
 
 

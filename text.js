@@ -121,6 +121,10 @@ function isNumber(s) { return range(s, "0", "9"); } // True if the first charact
 // True if the given character or string is blank or entirely made up of whitespace characters
 function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
 
+// Determine which should appear first in sorted order
+// Zero if same, negative if s1 then s2, positive if s2 first
+function sort(s1, s2) { return s1.localeCompare(s2); }
+
 exports.is = is;
 exports.blank = blank;
 augment(upper, "upper");
@@ -130,8 +134,7 @@ augment(range, "range");
 augment(isLetter, "isLetter");
 augment(isNumber, "isNumber");
 augment(isSpace, "isSpace");
-
-
+exports.sort = sort;
 
 
 
@@ -811,25 +814,6 @@ exports.table = table;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //   _____                     _      
 //  | ____|_ __   ___ ___   __| | ___ 
 //  |  _| | '_ \ / __/ _ \ / _` |/ _ \
@@ -896,20 +880,6 @@ exports.safeFileName = safeFileName;
 
 
 
-
-
-
-
-//   ____             _   
-//  / ___|  ___  _ __| |_ 
-//  \___ \ / _ \| '__| __|
-//   ___) | (_) | |  | |_ 
-//  |____/ \___/|_|   \__|
-//                        
-
-function sort(s1, s2) { return s1.localeCompare(s2); }
-
-exports.sort = sort;
 
 
 
