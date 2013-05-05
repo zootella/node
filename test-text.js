@@ -439,7 +439,7 @@ exports.testClip = function(test) {
 var same = text.same;
 var match = text.match;
 
-exports.testSame = function(test) {
+exports.testSameMatch = function(test) {
 
 	function run(answerMatch, answerCase, s1, s2) {
 
@@ -483,7 +483,7 @@ exports.testStartsEndsHas = function(test) {
 	test.done();
 }
 
-exports.testFind = function(test) {
+exports.testFindLast = function(test) {
 
 	//no tag
 	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e == "argument"); }
@@ -565,7 +565,7 @@ exports.testEither = function(test) {
 //   \____\__,_|\__|
 //                  
 
-exports.testCut = function(test) {
+exports.testBeforeAfterCut = function(test) {
 
 	var s = "apple<tag>banana<tag>carrot";
 

@@ -73,7 +73,7 @@ function augment(f, name) {
 //                                                 
 
 // True if s is a string with some text
-// Instead of is(), you can also just use s == ""
+// Instead of is(), you can also just use if (s == "") or if (!s.length)
 function is(s) {
 	if (typeof s !== "string") throw "type";
 	if (s.length === 0) return false;
@@ -81,7 +81,7 @@ function is(s) {
 }
 
 // True if s is a string that's blank
-// Instead of blank, you can also just use s != ""
+// Instead of blank, you can also just use if (s != "") or if (s.length)
 function blank(s) {
 	if (typeof s !== "string") throw "type";
 	if (s.length === 0) return true;
@@ -437,7 +437,7 @@ function _swap(s, t1, t2, match) {
 		s = c.after;
 	}
 	return s2;
-	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, /i might not do as good a job as toLocaleLowerCase(), and wrapping input that might be data from a user as a regular expression is a bad idea.
+	// Why not use JavaScript's s.replace() instead? Well, it can't match cases without regular expressions, and wrapping input that might be data from a user as a regular expression is a bad idea. Also, /i might not do as good a job as toLocaleLowerCase().
 }
 
 // Parse out the part of s between t1 and t2
@@ -691,6 +691,8 @@ augment(rip, "rip");
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
+// Add c characters to the start of s until it's width long
+// For instance, widen("1", 3) is "001"
 function widen(s, width, c) {
 	if (!c) c = "0";
 	while (s.length < width) s = c + s;
