@@ -907,16 +907,9 @@ exports.safeFileName = safeFileName;
 //  |____/ \___/|_|   \__|
 //                        
 
+function sort(s1, s2) { return s1.localeCompare(s2); }
 
-
-function sort(s1, s2) {}
-/*
-c same, compare
-j same, sameCase
-js localeCompare
-*/
-
-
+exports.sort = sort;
 
 
 
