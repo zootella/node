@@ -967,15 +967,22 @@ var isText = data.isText;
 exports.testQuoteUnquote = function(test) {
 
 	function both(plain, quoted) {
-		test.ok(quote(Data(plain)) == quoted);
-//		test.ok(Data(plain).same(unquote(quoted)));
+		var p = Data(plain);//encode the given plain text as data using utf8
+		test.ok(quote(p) == quoted);
+//		test.ok(unquote(quoted).same(p));
 	}
 
 	both('hi', '"hi"');
+	both('\r\n', '0d0a');
+	both('Hello\r\n', '"Hello"0d0a');
 
 
 
 
+
+	//try a bunch of international stuff, see if later bytes in multibyte charcters get encoded as ascii or not
+
+	//bring in the tests from junit here also, this is one rare area where you actually have some
 
 	test.done();
 }
