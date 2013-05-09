@@ -174,6 +174,11 @@ exports.scale = scale;
 exports.check = check;
 
 
+//things to change with check
+//name it checkNumber, and use it elsewhere in the code
+//have min be optional, if !min min = 0, change check(n, 0) to just chekc(n)
+
+
 
 
 

@@ -10,7 +10,8 @@ var scale = measure.scale;
 var text = require("./text");
 var parseCheck = text.parseCheck;
 var parseCheckMatch = text.parseCheckMatch;
-
+var number = text.number;
+var numerals = text.numerals;
 
 
 
@@ -77,8 +78,6 @@ function Data(d) {
 
 	var buffer; // Our node buffer which views some binary data
 
-	// ----
-
 	// Try to get the binary data out of b
 	switch (typeof d) {
 		case "undefined": // The call here was Data() with nothing given
@@ -88,7 +87,7 @@ function Data(d) {
 			buffer = new Buffer(d ? "t" : "f"); // Hold the boolean as the text "t" or "f"
 			break;
 		case "number": // Like 5 or -1.1
-			buffer = new Buffer(d + ""); // Hold the number as numerals like "786" or "-3.1"
+			buffer = new Buffer(numerals(d)); // Hold the number as numerals like "786" or "-3.1"
 			break;
 		case "string": // Like "hi"
 			buffer = new Buffer(d, "utf8");
@@ -106,8 +105,6 @@ function Data(d) {
 			break;
 	}
 
-	// ----
-
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
 	// The size of a Data object cannot change, while Clip can.
@@ -115,29 +112,17 @@ function Data(d) {
 
 	// Make a copy of the memory this Data object views
 	// Afterwards, the object that holds the data can close, and the copy will still view it
-	function copyMemory() {
-		return Bay(buffer).data(); // Make a Bay object which will copy the data
-	}
-
-	// ----
+	function copyMemory() { return Bay(buffer).data(); } // Make a Bay object which will copy the data
 
 	// Convert this Data into a node Buffer object
-	function toBuffer() {
-		return buffer; // Let the caller access our internal buffer object, they can't change it
-	}
+	function toBuffer() { return buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
 	// On binary data, toString() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
-	function toString() {
-		return toBuffer().toString("utf8");//TODO confirm the lines of gobbledygook
-	}
+	function toString() { return toBuffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
-	function toNumber() {
-		var i = parseInt(toString(), 10); // Base 10
-		if (isNaN(i)) throw "data";
-		return i;
-	}
+	function toNumber() { return toString().number(); }
 
 	// Get the boolean in this Data, throw if it doesn't view the text "t" or "f"
 	function toBoolean() {
@@ -146,14 +131,10 @@ function Data(d) {
 		else if (s == "f") return false;
 		else throw "data";
 	}
-
-	// ----
 	
 	function size() { return buffer.length; } // The number of bytes of data this Data object views
 	function isEmpty() { return buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
 	function hasData() { return buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
-
-	// ----
 
 	function start(n) { return clip(0, n); }          // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
 	function end(n)   { return clip(size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
@@ -163,8 +144,6 @@ function Data(d) {
 		if (i < 0 || n < 0 || i + n > size()) throw "chop"; // Make sure the requested index and number of bytes fits inside this Data
 		return Data(buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
 	}
-
-	// ----
 	
 	function first() { return get(0); } // Get the first byte in this Data
 	function get(i) {                   // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
@@ -172,32 +151,25 @@ function Data(d) {
 		return buffer.readUInt8(i);
 	}
 
-	// ----
-
 	// True if this Data object views the same data as the given one
 	function same(d) {
 		if (size() != d.size()) return false; // Compare the sizes
 		else if (size() == 0) return true;    // If both are empty, they are the same
-		return search(d, true, false) != -1;  // Search at the start only
+		return _search(d, true, false) != -1; // Search at the start only
 	}
 	
-	function starts(d) { return search(d, true,  false) != -1; } // True if this Data starts with d
-	function ends(d)   { return search(d, false, false) != -1; } // True if this Data ends with d
-	function has(d)    { return search(d, true,  true)  != -1; } // True if this Data contains d
+	function starts(d) { return _search(d, true,  false) != -1; } // True if this Data starts with d
+	function ends(d)   { return _search(d, false, false) != -1; } // True if this Data ends with d
+	function has(d)    { return _search(d, true,  true)  != -1; } // True if this Data contains d
 
-	function find(d) { return search(d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
-	function last(d) { return search(d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
+	function find(d) { return _search(d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
+	function last(d) { return _search(d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
 
 	// Find where in this Data d appears
-	// 
-	// d       The tag to search for
-	// forward true to search forwards from the start
-	//         false to search backwards from the end
-	// scan    true to scan across all the positions possible in this Data
-	//         false to only look at the starting position
-	// return  The byte index in this Data where d starts
-	//         -1 if not found
-	function search(d, forward, scan) {
+	// forward true to search forwards from the start, false to search backwards from the end
+	// scan true to scan across all the positions possible in this Data, false to only look at the starting position
+	// return the byte index in this Data where d starts, -1 if not found
+	function _search(d, forward, scan) {
 		if (!d.size() || size() < d.size()) return -1; // Check the sizes
 		
 		var start = forward ? 0                 : size() - d.size(); // Our search will scan this Data from the start index through the end index
@@ -214,24 +186,14 @@ function Data(d) {
 		return -1; // Not found
 	}
 
-	// ----
-	
-	function split(d)     { return searchSplit(d, true);  } // Split this Data around d, clipping out the parts before and after it
-	function splitLast(d) { return searchSplit(d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
-	
-	// Split this Data around d, clipping out the parts before and after it.
-	// 
-	// d       The tag to search for
-	// forward true to find the first place d appears
-	//         false to search backwards from the end
-	// return  A Split object that tells if d was found, and clips out the parts of this Data before and after it
-	//         If d is not found, split.before will clip out all our data, and split.after will be empty
-	function searchSplit(d, forward) {
+	function cut(d)     { return _cut(d, true);  } // Split this Data around d, clipping out the parts before and after it
+	function cutLast(d) { return _cut(d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
+	function _cut(d, forward) { // Cut this Data around d, separating the parts before and after it
 
-		var i = search(d, forward, true); // Search this Data for d
+		var i = _search(d, forward, true); // Search this Data for d
 		if (i == -1)
 			return {
-				found:  false,        // Not found
+				found:  false,        // Not found, make before this and after blank
 				before: Data(buffer), // Copy this Data object
 				tag:    Data(),       // Two empty Data objects
 				after:  Data()
@@ -244,12 +206,6 @@ function Data(d) {
 				after:  after(i + d.size())
 			};
 	}
-
-	// ----
-
-	function compare(d) { throw "todo"; }//should the data be sorted before or after, or 0 for same
-
-	// ----
 	
 	function base16() { return toBase16(Data(buffer)); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
 	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
@@ -258,11 +214,8 @@ function Data(d) {
 
 	function quote()  { return toQuote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
 	function strike() { return toStrike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
-
-	// Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
-	function hash() {
-		throw "todo";
-	}
+	
+	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 
 	return {
 		take:take, copyMemory:copyMemory,
@@ -271,8 +224,7 @@ function Data(d) {
 		start:start, end:end, after:after, chop:chop, clip:clip,
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
-		split:split, splitLast:splitLast,
-		compare:compare,
+		cut:cut, cutLast:cutLast,
 		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, hash:hash,
 		isData:function(){}
 	};

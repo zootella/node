@@ -27,6 +27,11 @@ var data = require("./data");
 
 
 
+//Array
+//add add(o) and remove(i)
+//with those and length and [], and loops, that's all you need
+
+
 
 
 
@@ -406,7 +411,7 @@ function cutMatch(s, tag)     { return _cut(s, tag, true,  true ); } // Cut s ar
 function cutLast(s, tag)      { return _cut(s, tag, false, false); } // Cut s around the last place tag appears to get what's before and after, case sensitive
 function cutLastMatch(s, tag) { return _cut(s, tag, false, true ); } // Cut s around the last place tag appears to get what's before and after, matches cases
 
-// Cut s around tag, finding the parts before and after it
+// Cut s around tag, separating the parts before and after it
 // forward: true to find the first place the tag appears, false to search backwards from the end
 // match:   true to match upper and lower case characters, false to be case-sensitive
 function _cut(s, tag, forward, match) {

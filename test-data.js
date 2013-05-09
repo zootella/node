@@ -286,26 +286,26 @@ exports.testDataFind = function(test) {
 	test.done();
 }
 
-exports.testDataSplit = function(test) {
+exports.testDataCut = function(test) {
 
 	var d = base16("01aabbcc05060708aabbcc12");
 
 	//first
-	var s = d.split(base16("aabbcc"));
+	var s = d.cut(base16("aabbcc"));
 	test.ok(s.found);
 	test.ok(s.before.same(base16("01")));
 	test.ok(s.tag.same(base16("aabbcc")));
 	test.ok(s.after.same(base16("05060708aabbcc12")));
 
 	//last
-	var s = d.splitLast(base16("aabbcc"));
+	var s = d.cutLast(base16("aabbcc"));
 	test.ok(s.found);
 	test.ok(s.before.same(base16("01aabbcc05060708")));
 	test.ok(s.tag.same(base16("aabbcc")));
 	test.ok(s.after.same(base16("12")));
 
 	//not found
-	var s = d.splitLast(base16("0507"));
+	var s = d.cutLast(base16("0507"));
 	test.ok(!s.found);//not found
 	test.ok(s.before.same(base16("01aabbcc05060708aabbcc12")));//all before
 	test.ok(s.tag.same(base16("")));
