@@ -314,6 +314,25 @@ function Clip(b) {
 
 
 
+//no, instead of cut, have remove and keep return what you removed
+//or just do it for remove, actually, just add that feature to remove
+
+
+
+//don't have d.compare(d2)
+//ratner have a separate function here
+
+function sortData(d1, d2) {
+
+	//compare byte values
+	//if all a tie, then shortest data wins
+
+	throw "todo";
+}
+
+exports.sortData = sortData;
+
+
 
 
 
@@ -800,7 +819,6 @@ exports.base64 = base64;
 
 
 
-//why can't d.take() be called d.clip(), that's different than Clip, after all
 
 
 
