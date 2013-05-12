@@ -122,7 +122,7 @@ function Data(d) {
 	function toString() { return toBuffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
-	function toNumber() { return toString().number(); }
+	function toNumber() { return number(toString()); }
 
 	// Get the boolean in this Data, throw if it doesn't view the text "t" or "f"
 	function toBoolean() {

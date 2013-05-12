@@ -63,8 +63,6 @@ Array.prototype.remove = function(i) { this.splice(i, 1); } // At index i, remov
 
 
 
-
-
 //   ____  _        _             
 //  / ___|| |_ _ __(_)_ __   __ _ 
 //  \___ \| __| '__| | '_ \ / _` |
@@ -677,7 +675,7 @@ function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without 
 
 	function add(w) { // Add the given word w to the array
 		if (trimItems) w = w.trim(); // Trim the word, if the caller requested this feature
-		if (!skipBlankItems || w != "") a.push(w); // Skip adding a blank word, if the caller requested this feature
+		if (!skipBlankItems || w != "") a.add(w); // Skip adding a blank word, if the caller requested this feature
 	}
 
 	var a = []; // The array we will fill and return
@@ -772,7 +770,7 @@ function fill(s) {
 	var t = "";
 	for (var i = 1; i < arguments.length; i++) { // Skip the 0th argument, which is s
 		var c = cut(s, "#");
-		t += c.before + (arguments[i] + ""); // Add blank to convert the argument into a string
+		t += c.before + say(arguments[i]);
 		s = c.after;
 	}
 	return t + s; // Include any part of s that remains
@@ -784,7 +782,7 @@ function fill(s) {
 function make() {
 	var t = "";
 	for (var i = 0; i < arguments.length; i++)
-		t += (arguments[i] + ""); // Using + is actually must faster than s.concat() or [].join()
+		t += say(arguments[i]); // Using + is actually must faster than s.concat() or [].join()
 	return t;
 }
 
@@ -792,7 +790,7 @@ function make() {
 function lines() {
 	var t = "";
 	for (var i = 0; i < arguments.length; i++)
-		t += (arguments[i] + "") + newline;
+		t += say(arguments[i]) + newline;
 	return t;
 }
 
@@ -808,7 +806,7 @@ function table() {
 	var t = "";
 	for (var r = 0; r < arguments.length; r++) {      // Within each row
 		for (var c = 0; c < arguments[0].length; c++) { // Loop for each column
-			var cell = (arguments[r][c] + "");            // Add blank to convert the argument into a string
+			var cell = say(arguments[r][c]);              // Add blank to convert the argument into a string
 			if (c == arguments[0].length - 1) {           // Last column
 				t += cell + newline;                          // Add the cell text and newline characters
 			} else {                                      // Column before the last column
