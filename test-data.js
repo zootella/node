@@ -13,6 +13,7 @@ var Bay = data.Bay;
 var mediumBin = data.mediumBin;
 var bigBin = data.bigBin;
 var testBin = data.testBin;
+var sortData = data.sortData;
 
 var encrypt = require("./encrypt");
 var randomData = encrypt.randomData;
@@ -383,12 +384,47 @@ exports.testClipRemoveData = function(test) {
 
 exports.testSortData = function(test) {
 
-	
+	//first, let's test some get
+	var d = base16("00ff0a05");
+	test.ok(d.get(0) == 0);
+	test.ok(d.get(1) == 255);
+	test.ok(d.get(2) == 10);
+	test.ok(d.get(3) == 5);
 
+	function same(s1, s2) {
+		var d1 = base16(s1);
+		var d2 = base16(s2);
+		test.ok(d1.same(d2));//use find also
+		test.ok(sortData(d1, d2) == 0);
+	}
+	function order(s1, s2) {
+		var d1 = base16(s1);
+		var d2 = base16(s2);
+		test.ok(sortData(d1, d2) < 0);
+		test.ok(sortData(d2, d1) > 0);//reverse the order
+	}
 
+	same("", "");//same
+	same("00", "00");
+	same("00ff", "00ff");
 
+	order("aaaaaa", "aaaabb");//different values, same size
+	order("aaaaaa", "aabbaa");
+	order("aaaaaa", "bbaaaa");
+	order("00aaaa", "aa00aa");//lower bytes before do matter
+	order("aaaaaa", "bb00aa");//lower bytes after don't
 
+	order("", "00");//blank wins
+	order("", "ff");
+	order("", "0507");
 
+	order("00", "0000");//shorter wins on first byte tie
+	order("05", "0505");
+	order("05", "0500");//doesn't matter what the second byte is
+	order("05", "05ff");
+
+	order("04", "0505");
+	order("0505", "06");//smaller byte is more important than smaller size
 
 	test.done();
 }

@@ -247,23 +247,12 @@ function Clip(b) {
 	function isEmpty() { return d.isEmpty(); } // True if this Clip is empty, it has a size of 0 bytes
 	function hasData() { return d.hasData(); } // True if this Clip views some data, it has a size of 1 or more bytes
 
-//	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip views
-	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip, keeping only the last n bytes
-
-/*
-	function cut(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
-		var s = d.start(n);
-		remove(n);
-		return s;
-	}
-*/
-
-	function remove(n) {
+	function remove(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
 		var s = d.start(n);
 		d = d.after(n);
 		return s;
-	} // Remove n bytes from the start of the data this Clip views
-
+	}
+	function keep(n) { d = d.end(n); } // Remove data from the start of this Clip, keeping only the last n bytes
 
 	return {
 		data:data, copy:copy,
@@ -273,28 +262,38 @@ function Clip(b) {
 	};
 }
 
-
-
-
-
-
-//no, instead of cut, have remove and keep return what you removed
-//or just do it for remove, actually, just add that feature to remove
-
-
-
-//don't have d.compare(d2)
-//ratner have a separate function here
-
+// Determine which should appear first in sorted order
+// Zero if same, negative if d1 then d2, positive if d2 first
+// Compare each byte value 0 through 255 to sort the lowest different byte first, or shortest Data if all the bytes are a tie
 function sortData(d1, d2) {
-
-	//compare byte values
-	//if all a tie, then shortest data wins
-
-	throw "todo";
+	var i = 0; // Start at the first byte
+	while (true) {
+		if (i < d1.size() && i < d2.size()) { // Compare two bytes
+			var b = d1.get(i) - d2.get(i);
+			if (b != 0) return b;
+		} else if (i < d2.size()) { // d2 has a byte at i but d1 is shorter
+			return -1; // Negative for d1 then d2
+		} else if (i < d1.size()) { // d1 has a byte at i but d2 is shorter
+			return 1; // Positive to sort d2 first
+		} else { // Both ran out of bytes at the same time
+			return 0; // Same
+		}
+		i++; // Move to the next byte
+	}
 }
 
 exports.sortData = sortData;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
