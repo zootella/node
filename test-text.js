@@ -17,6 +17,48 @@ var text = require("./text");
 
 
 
+//      _                         
+//     / \   _ __ _ __ __ _ _   _ 
+//    / _ \ | '__| '__/ _` | | | |
+//   / ___ \| |  | | | (_| | |_| |
+//  /_/   \_\_|  |_|  \__,_|\__, |
+//                          |___/ 
+
+exports.testArray = function(test) {
+
+	var a = [];
+	a.add("a");//add to the end of the array
+	a.add("b");
+	a.add("c");
+	test.ok(a.length == 3);
+	test.ok(a[2] == "c");
+
+	a.remove(1);//remove b, which is a distance 1 into the array
+	test.ok(a.length == 2);//that changed the length
+	test.ok(a[0] == "a");
+	test.ok(a[1] == "c");//and the index of items afterwards
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -27,16 +27,37 @@ var data = require("./data");
 
 
 
-//Array
-//add add(o) and remove(i)
-//with those and length and [], and loops, that's all you need
 
-/*
-if ("add" in Array.prototype) throw "program";//TODO not sure if add should be in quotes or not
+
+
+
+
+
+
+
+
+//      _                         
+//     / \   _ __ _ __ __ _ _   _ 
+//    / _ \ | '__| '__/ _` | | | |
+//   / ___ \| |  | | | (_| | |_| |
+//  /_/   \_\_|  |_|  \__,_|\__, |
+//                          |___/ 
+
+// Add o to the end of array a with a.add(o)
+if ("add" in Array.prototype) throw "program";
+Array.prototype.add = Array.prototype.push; // Just link to push
+
+// Remove the element at index i in an array with a.remove(i), shift remaining elements forward instead of leaving a hole
 if ("remove" in Array.prototype) throw "program";
-Array.prototype.add = Array.prototype.push;
 Array.prototype.remove = function(i) { this.splice(i, 1); } // At index i, remove 1 item and shift those after it towards the start
-*/
+
+
+
+
+
+
+
+
 
 
 
@@ -66,14 +87,6 @@ function augment(f, name) {
 
 
 
-
-
-//three ways to do this, apparently
-//if ("name" in o)
-//if (typeof o.name == "function")
-//if (o.hasOwnProperty("name")
-//you probalby want to use in all the time
-//and figure out whether name should be in quotes there or not
 
 
 
