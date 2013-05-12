@@ -218,32 +218,14 @@ function _numerals(n, base) {
 
 exports.parseCheck = parseCheck;
 exports.parseCheckMatch = parseCheckMatch;
-augment(number, "number");
-augment(number16, "number16");
+exports.number = number;
+exports.number16 = number16;
 exports.numerals = numerals;
 exports.numerals16 = numerals16;
 
 
 
-//change number and number16 to be functions, not methods
-//this matches base16("") and the other functions that parse strings
 
-
-
-//add function say(o)
-//like in Data, it splits on all different types
-//if o has a method say, use it, try toString after that, then try + ""
-//say replaces numerals, but not numerals16
-//and use it everywhere you're currently using o + "" now
-
-
-function say(o) {
-	if      (typeof o == "string") return o;
-	else if (typeof o == "number") return numerals(o);
-	else if (typeof o.say      == "function") return o.say();
-	else if (typeof o.toString == "function") return o.toString();
-	else                                      return (o + "");
-}
 
 
 
@@ -748,6 +730,15 @@ augment(rip, "rip");
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
+// Turn anything into text the best way possible
+function say(o) {
+	if      (typeof o == "string") return o;                       // Strings pass through
+	else if (typeof o == "number") return numerals(o);             // Convert a number into numerals
+	else if (typeof o.say      == "function") return o.say();      // Call the object's say() method
+	else if (typeof o.toString == "function") return o.toString(); // Use toString() instead
+	else                                      return (o + "");     // Last resort, add to blank
+}
+
 // Add c characters to the start of s until it's width long
 // For instance, widen("1", 3) is "001"
 function widen(s, width, c) {
@@ -756,26 +747,19 @@ function widen(s, width, c) {
 	return s;
 }
 
-// Insert commas between groups of three characters
-// For example, commas("12345") == "12,345"
-// In Europe, specify a custom separator like commas(s, ".")
+// Insert spaces between groups of three characters
+// For example, commas("12345") == "12 345"
+// For a specific region like North America or Europe, specify a custom separator like "," or "."
 function commas(s, c) {
-	if (!c) c = ","; // Separate with comma by default
+	if (!c) c = " "; // Separate with comma by default
 	var u = ""; // Temporary string
 	var t = ""; // Target text to build and return
-	while (s.length > 3) {// Move commas and groups of 3 characters from s to t
+	while (s.length > 3) { // Move commas and groups of 3 characters from s to t
 		u = end(s, 3);
 		s = chop(s, 3);
 		t = c + u + t;
 	}
-	return s + t; // Move the leading gorup of up to 3 characters
-}
-
-// Given a number and the name of a unit, compose text like "14 apples"
-function sayNumber(n, unit) {
-	if      (n == 0) return "no " + unit + "s";                      // Zero yields "no [unit]s"
-	else if (n == 1) return "1 " + unit;                             // One yields "1 [unit]"
-	else             return numerals(n).commas() + " " + unit + "s"; // Greater yields "[n] [unit]s"
+	return s + t; // Move the leading group of up to 3 characters
 }
 
 // Use this line separator when composing text
@@ -836,14 +820,44 @@ function table() {
 	return t;
 }
 
+exports.say = say;
 augment(widen, "widen");
 augment(commas, "commas");
-exports.sayNumber = sayNumber;
 augment(fill, "fill");
 exports.make = make;
 exports.lines = lines;
 exports.table = table;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   ____                      _ _          
+//  |  _ \  ___  ___  ___ _ __(_) |__   ___ 
+//  | | | |/ _ \/ __|/ __| '__| | '_ \ / _ \
+//  | |_| |  __/\__ \ (__| |  | | |_) |  __/
+//  |____/ \___||___/\___|_|  |_|_.__/ \___|
+//                                          
+
+// Given a number and the name of a unit, compose text like "14 apples"
+function sayNumber(n, unit) {
+	if      (n == 0) return "no " + unit + "s";                      // Zero yields "no [unit]s"
+	else if (n == 1) return "1 " + unit;                             // One yields "1 [unit]"
+	else             return numerals(n).commas() + " " + unit + "s"; // Greater yields "[n] [unit]s"
+}
+
+exports.sayNumber = sayNumber;
 
 
 

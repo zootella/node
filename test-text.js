@@ -332,6 +332,8 @@ exports.testSort = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
+var number = text.number;
+var number16 = text.number16;
 var numerals = text.numerals;
 var numerals16 = text.numerals16;
 
@@ -341,8 +343,8 @@ exports.testNumberNumerals = function(test) {
 		test.ok(numerals(n) === s10);//number to text
 		test.ok(numerals16(n) === s16);
 
-		test.ok(s10.number() === n);//text to number
-		test.ok(s16.number16() === n);
+		test.ok(number(s10) === n);//text to number
+		test.ok(number16(s16) === n);
 	}
 
 	//confirm we can turn numbers into text and back again
@@ -359,8 +361,8 @@ exports.testNumberNumerals = function(test) {
 	test.ok(numerals(-123.456) === "-123.456");
 
 	function bad(s) {
-		try { s.number(); test.fail(); } catch (e) { test.ok(e == "data"); }
-		try { s.number16(); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { number(s); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { number16(s); test.fail(); } catch (e) { test.ok(e == "data"); }
 	}
 
 	//make sure text that isn't a perfect number can't become one
@@ -379,7 +381,7 @@ exports.testNumberNumerals = function(test) {
 	bad("5 6");
 
 	//allow uppercase base16 as input, even though output is lowercase
-	test.ok("A".number16() == 10);
+	test.ok(number16("A") == 10);
 
 	test.done();
 }
@@ -905,10 +907,18 @@ exports.testRip = function(test) {
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
-var sayNumber = text.sayNumber;
+var say = text.say;
 var make = text.make;
 var lines = text.lines;
 var table = text.table;
+
+exports.testSay = function(test) {
+
+	test.ok(say("hi") == "hi");
+	test.ok(say(7) == "7");//calls numerals(7) and easier to remember and type
+
+	test.done();
+}
 
 exports.testWiden = function(test) {
 
@@ -925,22 +935,13 @@ exports.testCommas = function(test) {
 	test.ok("1".commas() == "1");
 	test.ok("12".commas() == "12");
 	test.ok("123".commas() == "123");
-	test.ok("1234".commas() == "1,234");
-	test.ok("12345".commas() == "12,345");
-	test.ok("123456".commas() == "123,456");
-	test.ok("1234567".commas() == "1,234,567");
+	test.ok("1234".commas() == "1 234");
+	test.ok("12345".commas() == "12 345");
+	test.ok("123456".commas() == "123 456");
+	test.ok("1234567".commas() == "1 234 567");
 
-	test.ok("1234567".commas(".") == "1.234.567");
-
-	test.done();
-}
-
-exports.testSayNumber = function(test) {
-
-	test.ok(sayNumber(   0, "file") == "no files");
-	test.ok(sayNumber(   1, "file") == "1 file");
-	test.ok(sayNumber(   2, "file") == "2 files");
-	test.ok(sayNumber(1234, "file") == "1,234 files");
+	test.ok("1234567".commas(",") == "1,234,567");//north america
+	test.ok("1234567".commas(".") == "1.234.567");//europe
 
 	test.done();
 }
@@ -1021,6 +1022,49 @@ exports.testLinesTable = function(test) {
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   ____                      _ _          
+//  |  _ \  ___  ___  ___ _ __(_) |__   ___ 
+//  | | | |/ _ \/ __|/ __| '__| | '_ \ / _ \
+//  | |_| |  __/\__ \ (__| |  | | |_) |  __/
+//  |____/ \___||___/\___|_|  |_|_.__/ \___|
+//                                          
+
+var sayNumber = text.sayNumber;
+
+exports.testSayNumber = function(test) {
+
+	test.ok(sayNumber(   0, "file") == "no files");
+	test.ok(sayNumber(   1, "file") == "1 file");
+	test.ok(sayNumber(   2, "file") == "2 files");
+	test.ok(sayNumber(1234, "file") == "1 234 files");
+
+	test.done();
+}
+
+
+
+
+
 
 
 
