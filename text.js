@@ -31,6 +31,13 @@ var data = require("./data");
 //add add(o) and remove(i)
 //with those and length and [], and loops, that's all you need
 
+/*
+if ("add" in Array.prototype) throw "program";//TODO not sure if add should be in quotes or not
+if ("remove" in Array.prototype) throw "program";
+Array.prototype.add = Array.prototype.push;
+Array.prototype.remove = function(i) { this.splice(i, 1); } // At index i, remove 1 item and shift those after it towards the start
+*/
+
 
 
 
@@ -61,7 +68,12 @@ function augment(f, name) {
 
 
 
-
+//three ways to do this, apparently
+//if ("name" in o)
+//if (typeof o.name == "function")
+//if (o.hasOwnProperty("name")
+//you probalby want to use in all the time
+//and figure out whether name should be in quotes there or not
 
 
 
@@ -197,6 +209,30 @@ augment(number, "number");
 augment(number16, "number16");
 exports.numerals = numerals;
 exports.numerals16 = numerals16;
+
+
+
+//change number and number16 to be functions, not methods
+//this matches base16("") and the other functions that parse strings
+
+
+
+//add function say(o)
+//like in Data, it splits on all different types
+//if o has a method say, use it, try toString after that, then try + ""
+//say replaces numerals, but not numerals16
+//and use it everywhere you're currently using o + "" now
+
+
+function say(o) {
+	if      (typeof o == "string") return o;
+	else if (typeof o == "number") return numerals(o);
+	else if (typeof o.say      == "function") return o.say();
+	else if (typeof o.toString == "function") return o.toString();
+	else                                      return (o + "");
+}
+
+
 
 
 
@@ -794,10 +830,6 @@ augment(fill, "fill");
 exports.make = make;
 exports.lines = lines;
 exports.table = table;
-
-
-
-
 
 
 

@@ -147,6 +147,7 @@ function Data(d) {
 	
 	function first() { return get(0); } // Get the first byte in this Data
 	function get(i) {                   // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
+		if (!i) i = 0;                          // Turn undefined into 0 so math below works
 		if (i < 0 || i >= size()) throw "chop"; // Make sure i is in range
 		return buffer.readUInt8(i);
 	}
@@ -189,7 +190,6 @@ function Data(d) {
 	function cut(d)     { return _cut(d, true);  } // Split this Data around d, clipping out the parts before and after it
 	function cutLast(d) { return _cut(d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
 	function _cut(d, forward) { // Cut this Data around d, separating the parts before and after it
-
 		var i = _search(d, forward, true); // Search this Data for d
 		if (i == -1)
 			return {
@@ -212,8 +212,8 @@ function Data(d) {
 	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
 	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
 
-	function quote()  { return toQuote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
-	function strike() { return toStrike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
+	function quote()  { return quote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
+	function strike() { return strike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
 	
 	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 
@@ -263,6 +263,8 @@ function Clip(b) {
 }
 
 
+
+//have data.say() be base16, and data.toString() be utf8
 
 
 
