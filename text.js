@@ -665,7 +665,7 @@ function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using 
 	if (skipBlankItems) { // Remove blank items
 		for (var i = a.length - 1; i >= 0; i--) { // Loop backwards so removing and item doesn't mess up the index number
 			if (a[i] == "") { // Found a blank
-				a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
+				a.remove(i);
 			}
 		}
 	}
