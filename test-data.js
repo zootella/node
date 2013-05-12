@@ -314,6 +314,16 @@ exports.testDataCut = function(test) {
 	test.done();
 }
 
+exports.testDataSay = function(test) {
+
+	var d = Data("\r\n");
+	test.ok(d.toString() == "\r\n");
+	test.ok(d.say() == "0d0a");
+	test.ok(d.base16() == "0d0a");
+
+	test.done();
+}
+
 exports.testClip = function(test) {
 
 	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
@@ -361,12 +371,24 @@ exports.testClip = function(test) {
 	test.done();
 }
 
-exports.testClipCut = function(test) {
+exports.testClipRemoveData = function(test) {
 
 	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
-	var c2 = c.cut(2);//cut the first 2 bytes off
+	var c2 = c.remove(2);//remove the first 2 bytes
 	test.ok(c2.toString() == "ab");//confirm you got them
 	test.ok(c.data().toString() == "cde");//and the clip is what remains
+
+	test.done();
+}
+
+exports.testSortData = function(test) {
+
+	
+
+
+
+
+
 
 	test.done();
 }

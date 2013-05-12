@@ -214,6 +214,7 @@ function Data(d) {
 
 	function quote()  { return quote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
 	function strike() { return strike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
+	function say() { return base16(); } // d.say() is base 16, and d.toString() is UTF8
 	
 	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 
@@ -225,7 +226,8 @@ function Data(d) {
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		cut:cut, cutLast:cutLast,
-		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, hash:hash,
+		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, say:say,
+		hash:hash,
 		isData:function(){}
 	};
 };
@@ -245,26 +247,34 @@ function Clip(b) {
 	function isEmpty() { return d.isEmpty(); } // True if this Clip is empty, it has a size of 0 bytes
 	function hasData() { return d.hasData(); } // True if this Clip views some data, it has a size of 1 or more bytes
 
-	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip views
+//	function remove(n) { d = d.after(n); } // Remove n bytes from the start of the data this Clip views
 	function keep(n)   { d = d.end(n);   } // Remove data from the start of this Clip, keeping only the last n bytes
 
+/*
 	function cut(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
 		var s = d.start(n);
 		remove(n);
 		return s;
 	}
+*/
+
+	function remove(n) {
+		var s = d.start(n);
+		d = d.after(n);
+		return s;
+	} // Remove n bytes from the start of the data this Clip views
+
 
 	return {
 		data:data, copy:copy,
 		size:size, isEmpty:isEmpty, hasData:hasData,
-		remove:remove, keep:keep, cut:cut,
+		remove:remove, keep:keep,
 		isClip:function(){}
 	};
 }
 
 
 
-//have data.say() be base16, and data.toString() be utf8
 
 
 
@@ -460,8 +470,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	// Only call recycle() when the task has finished successfully and as expected
 	// If there was an error or timeout, Node may still use the buffer
 	function recycle() {
-		if      (buffer.length == Size.medium && recycleBin.medium.length < recycleBin.capacity) { recycleBin.medium.push(buffer); buffer = null; }
-		else if (buffer.length == Size.big    && recycleBin.big.length    < recycleBin.capacity) { recycleBin.big.push(buffer);    buffer = null; }
+		if      (buffer.length == Size.medium && recycleBin.medium.length < recycleBin.capacity) { recycleBin.medium.add(buffer); buffer = null; }
+		else if (buffer.length == Size.big    && recycleBin.big.length    < recycleBin.capacity) { recycleBin.big.add(buffer);    buffer = null; }
 	}
 
 	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
@@ -809,9 +819,9 @@ function quote(d) {
 	var t = "";
 	while (c.hasData()) { // Loop until c is empty
 		if (isText(c.data().first()))
-			t += '"' + c.cut(count(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
+			t += '"' + c.remove(count(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
 		else
-			t += c.cut(count(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
+			t += c.remove(count(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
 	}
 	return t;
 }
