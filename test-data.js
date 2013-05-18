@@ -1145,7 +1145,11 @@ exports.testIsText = function(test) {
 
 
 
-
+//a simpler test
+//make a bay
+//put "hi" in it
+//parse some invalid text
+//confirm it's just still "hi" in it
 
 
 

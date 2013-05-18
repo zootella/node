@@ -790,45 +790,31 @@ exports.base64 = base64;
 
 //and, of course, get ready for all of this to change when you want to get it working with node streams, which are likely awesome and whihc you dont' know how they work yet at all
 
-function makeParse(p) {
-	if (!p) p = Parse();//make a new parse object if we don't have one already
-	p.start();//ignore any data added previously that wasn't marked valid at the end
-	return p;
-}
 
-function Parse() {
+function Parse(bay) {
+	if (!bay) bay = Bay();//make a new empty bay if we weren't given one
 
-	var _bay = Bay();
-	var _valid = 0;//the number of valid bytes in our bay
+	var _bay = bay;//save the bay
+	var _existing = bay.size();//remember how much was already in it when we got it
 
-	function start() {
-		//here's where you ignore everything in _bay after _valid
-		//you need a new method of bay to do this
-		_bay.only(_valid);
-	}
-
-	function add(d) {
-		_bay.add(d);
-	}
+	function bay() { return _bay; }
+	function add(d) { _bay.add(d); }//add some data we just parsed
+	function data() { return _bay.data().after(_existing); }//get the data we're holding
+	function reset() { _bay.only(_existing); }//there was a problem parsing data, put bay back the way it was when we got it
 
 	//done parsing, mark everything we hold as valid, and return a data of just what was added
 	//optionally provide two functions and an object to perform a round trip test
 	//m is a function which takes two things and returns true if they are the same
 	//b is a function which converts back
 	//o is the object we parsed from
-	function valid(m, b, o) {
-		var d = _bay.data().after(_valid);//d is the newly potentially valid block of data at the end
+	function check(m, b, o) {
+		var d = data();//d is the newly potentially valid block of data at the end
 		if (m && !m(b(d), o)) throw "data";
-		_valid = _bay.size();//finished and passed the check, mark everything we've got as valid
 		return d;//return the block we just parsed
 	}
 
-	function data() {//all the valid data
-		return _bay.data().start(_valid);
-	}
-
 	return {
-		start:start, add:add, valid:valid, data:data,
+		bay:bay, add:add, data:data, reset:reset, check:check,
 		isParse:function(){}
 	};
 }
@@ -846,13 +832,22 @@ function Parse() {
 //then see if you can store that alongside the parse object somehow, like maybe they're 1 and 2 in an array
 
 //usage looks like this
-function fromBase100(s, p) {
-	p = makeParse(p);//make and start the parse object
+function fromBase100(s, bay) {
+	var p = Parse(bay);
+	try {
+		while (false) {
+			p.add(d);//just parsed another part
+			throw "data";//oops, found a problem, throw data
+		}
+	} catch (e) {
+		if (e == "data") {
 
-	while (false) {
-		p.add(d);//just parsed another part
-		throw "data";//oops, found a problem, throw data
+		}
+		throw e;
 	}
+	return p.data();
+
+
 
 	return p.valid(same, toBase100, s);//say we finished successfully, perform the round trip test, and return just the data this function parsed
 }
@@ -935,6 +930,44 @@ function quote(d) {
 	return t;
 }
 
+
+// Turn quoted text back into the data it was made from
+function unquote(s, bay) {
+	var p = Parse(bay);
+	try {
+
+		while (s.length) {     // Loop until we're out of source text
+
+			var q1 = s.cut('"'); // Split on the first opening quote to look for bytes before text
+
+			var c = q1.before.cut("#");       // Look for a comment outside the quotes
+			if (c.found) {                    // Found a comment
+				p.add(base16(c.before.trim())); // Only bytes and spaces can be before the comment
+				break;                          // Hitting a comment means we're done with the line
+			}
+
+			p.add(base16(q1.before)); // Only bytes can be before the opening quote
+			if (!q1.found) break;     // No opening quote, so we got it all
+
+			var q2 = q1.after.cut('"');  // Split on the closing quote
+			if (!q2.found) throw "data"; // Must have closing quote
+
+			p.add(q2.before); // Copy the quoted text across
+			s = q2.after;     // The remaining text is after the closing quote
+		}
+
+		return p.data();
+
+	} catch (e) {
+		if (e == "data") p.reset();
+		throw e;
+	}
+}
+
+
+
+
+/*
 // Turn quoted text back into the data it was made from
 function unquote(s, bay) {
 	if (!bay) bay = Bay(); // Make a new empty Bay if the caller didn't pass us one
@@ -960,6 +993,7 @@ function unquote(s, bay) {
 	}
 	return bay.data().after(exist); // If you passed us a Bay, ignore the Data we return
 }
+*/
 
 
 
