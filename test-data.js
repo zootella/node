@@ -1018,21 +1018,26 @@ exports.testEncodeInvalid = function(test) {
 
 var quote = data.quote;
 var unquote = data.unquote;
-var count = data.count;
-var moreText = data.moreText;
-var isText = data.isText;
+var quoteCount = data.quoteCount;
+var quoteMore = data.quoteMore;
+var quoteIs = data.quoteIs;
 
 exports.testQuoteUnquote = function(test) {
 
 	function both(plain, quoted) {
 		var p = Data(plain);//encode the given plain text as data using utf8
 		test.ok(quote(p) == quoted);
-//		test.ok(unquote(quoted).same(p));
+		test.ok(unquote(quoted).same(p));
 	}
 
-	both('hi', '"hi"');
-	both('\r\n', '0d0a');
-	both('Hello\r\n', '"Hello"0d0a');
+	both('hi', '"hi"');//text
+	both('\r\n', '0d0a');//binary
+	both('Hello\r\n', '"Hello"0d0a');//mix
+
+	both('"', '22');//quote
+	both('"hello"', '22"hello"22');
+	both('quote " character', '"quote "22" character"');
+
 
 
 
@@ -1040,7 +1045,7 @@ exports.testQuoteUnquote = function(test) {
 
 	//try a bunch of international stuff, see if later bytes in multibyte charcters get encoded as ascii or not
 
-	//bring in the tests from junit here also, this is one rare area where you actually have some
+	//bring in the tests from junit here also, this is one rare area where you actually have some tests to port over
 
 	test.done();
 }
@@ -1060,8 +1065,8 @@ exports.testCount = function(test) {
 
 	//confirm s starts with the given number of text bytes or data bytes
 	function both(s, textBytes, dataBytes) {
-		test.ok(count(Data(s), true) == textBytes);
-		test.ok(count(Data(s), false) == dataBytes);
+		test.ok(quoteCount(Data(s), true) == textBytes);
+		test.ok(quoteCount(Data(s), false) == dataBytes);
 	}
 
 	both("a",       1, 0);//only text
@@ -1076,7 +1081,7 @@ exports.testCount = function(test) {
 exports.testMoreText = function(test) {
 
 	function run(s, answer) {
-		test.ok(moreText(Data(s)) == answer);//turn s into data and scan all its bytes
+		test.ok(quoteMore(Data(s)) == answer);//turn s into data and scan all its bytes
 	}
 
 	run("a", true);//one byte of text has more text
@@ -1096,8 +1101,8 @@ exports.testMoreText = function(test) {
 exports.testIsText = function(test) {
 
 	//turn s into data in utf8, then get the first byte, and see if that byte is ascii space through tilde except quote
-	function confirmText(s) { test.ok(isText(Data(s).first())) }
-	function confirmNotText(s) { test.ok(!isText(Data(s).first())) }
+	function confirmText(s) { test.ok(quoteIs(Data(s).first())) }
+	function confirmNotText(s) { test.ok(!quoteIs(Data(s).first())) }
 
 	confirmText(" ");
 	confirmText("a");
@@ -1109,6 +1114,8 @@ exports.testIsText = function(test) {
 	confirmNotText("\n");
 	confirmNotText("\0");
 	confirmNotText("の");//this splits into 3 bytes, the first of which is not text
+
+	confirmNotText('"');//the quote charcter is special, treat it as data
 
 	test.done();
 }

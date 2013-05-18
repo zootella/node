@@ -780,7 +780,33 @@ exports.base64 = base64;
 
 
 
+//you could add the if (!bay) bay = Bay() pattern to everything that parses text to return a data
+//like base16, 32, 62, 64 above
+//but those are also using parseCheck, so you would have to record the size before at the top, and then after beyond that size at the bottom
+//still, do this, it's a pretty cool pattern
+//just have var exist = bay.size()
 
+//actually, you realize that if you want to do this, you need another important feature
+//a function that's parsing to make data and adding to to a given bay needs to throw halfway through, and not have added half of the data to the bay
+//so, you could make a new Parse object that contains a bay, and a size of valid data within it
+//yeah, and then have functions and methods at the start to create or start it for this parse, and to get the data at the end, to declar that it worked
+//and write tests of course to show how it can be used and works all the different ways, including having it throw halfway through and be able to catch the exception and see that it didn't change
+
+//and, of course, get ready for all of this to change when you want to get it working with node streams, which are likely awesome and whihc you dont' know how they work yet at all
+
+function Parse() {
+
+	var _bay = Bay();
+	var _valid = 0;//the number of valid bytes in our bay
+
+	function add(d) {}
+
+	function valid() {}//done parsing, mark everything we hold as valid, and return a data of just what was added, no round trip test
+	function validSame() {}//same as valid, except with the round trip test, case sensitive
+	function validMatch() {}//matches cases
+
+	function data() {}//all the valid data
+}
 
 
 
@@ -798,7 +824,19 @@ exports.base64 = base64;
 
 
 
+// Size
 
+function makeSize(n, bay) {
+	if (!bay) bay = Bay();
+
+	return bay.data();
+}
+
+function parseSize(clip) {
+	var n;
+
+	return n;
+}
 
 
 
@@ -808,80 +846,78 @@ exports.base64 = base64;
 
 // Quote
 
-// Turn data into text using base 16, and put text characters in quotes, --The quote " character\r\n-- becomes --"The quote "22" character"0d0a--
+// Turn data into text using base 16, and put text characters in quotes
+// 'The quote " character\r\n' becomes '"The quote "22" character"0d0a'
 function quote(d) {
-	
-	if (!moreText(d))    // The given data is mostly data bytes, like random data
-		return d.base16(); // Present it as a single block of base 16 without quoting out the text it may contain
-	
-	var c = d.take();    // Clip around d to remove what we've encoded
+	if (!quoteMore(d))    // The given data is mostly data bytes, like random data
+		return d.base16();  // Present it as a single block of base 16 without quoting out the text it may contain
+
+	var c = d.take();     // Clip around d to remove what we've encoded
 	var t = "";
 	while (c.hasData()) { // Loop until c is empty
-		if (isText(c.data().first()))
-			t += '"' + c.remove(count(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
+		if (quoteIs(c.data().first()))
+			t += '"' + c.remove(quoteCount(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
 		else
-			t += c.remove(count(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
+			t += c.remove(quoteCount(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
 	}
 	return t;
 }
 
-/*
 // Turn quoted text back into the data it was made from
-public static void unquote(Bay bay, String s) {
-	while (Text.is(s)) { // Loop until we're out of source text
-		
-		Split<String> q1 = Text.split(s, "\""); // Split on the first opening quote to look for bytes before text
+function unquote(s, bay) {
+	if (!bay) bay = Bay(); // Make a new empty Bay if the caller didn't pass us one
+	var exist = bay.size();
+	while (s.length) {     // Loop until we're out of source text
 
-		Split<String> c = Text.split(q1.before, "#");        // Look for a comment outside the quotes
-		if (c.found) {                                   // Found a comment
-			bay.add(Encode.fromBase16(c.before.trim())); // Only bytes and spaces can be before the comment
-			return;                                      // Hitting a comment means we're done with the line
+		var q1 = s.cut('"'); // Split on the first opening quote to look for bytes before text
+
+		var c = q1.before.cut("#");         // Look for a comment outside the quotes
+		if (c.found) {                      // Found a comment
+			bay.add(base16(c.before.trim())); // Only bytes and spaces can be before the comment
+			break;                            // Hitting a comment means we're done with the line
 		}
-			
-		bay.add(Encode.fromBase16(q1.before)); // Only bytes can be before the opening quote
-		if (!q1.found) return;                 // No opening quote, so we got it all
-		
-		Split<String> q2 = Text.split(q1.after, "\""); // Split on the closing quote
-		if (!q2.found) throw new DataException();  // Must have closing quote
-		
+
+		bay.add(base16(q1.before)); // Only bytes can be before the opening quote
+		if (!q1.found) break;       // No opening quote, so we got it all
+
+		var q2 = q1.after.cut('"');  // Split on the closing quote
+		if (!q2.found) throw "data"; // Must have closing quote
+
 		bay.add(q2.before); // Copy the quoted text across
 		s = q2.after;       // The remaining text is after the closing quote
 	}
+	return bay.data().after(exist); // If you passed us a Bay, ignore the Data we return
 }
-*/
 
-//quote cannot fail, but unquote sure can
-//add parseCheck here, this is a great use for it
-//no wait, that won't work because its ok to do more as base16
 
 
 
 
 // Count how many bytes at the start of d are quotable text characters, or false to count data bytes
-function count(d, quotable) {
+function quoteCount(d, quotable) {
 	var i = 0;
 	while (i < d.size()) {
 		var y = d.get(i);
-		if (quotable ? !isText(y) : isText(y)) break;
+		if (quotable ? !quoteIs(y) : quoteIs(y)) break;
 		i++; // Count this character and check the next one
 	}
 	return i;
 }
 
 // True if d has more text than data bytes
-function moreText(d) {
+function quoteMore(d) {
 	var text = 0; // The number bytes in d we could encode as text or data
 	var data = 0; // The number bytes in d we have to encode as data
 	for (var i = 0; i < d.size(); i++) {
 		var y = d.get(i);
-		if (isText(y)) text++; // 94 of 255 bytes can be encoded as text, that's 37%
-		else           data++;
+		if (quoteIs(y)) text++; // 94 of 255 bytes can be encoded as text, that's 37%
+		else            data++;
 	}
 	return text > data; // Picks true for a single byte of text, false for random bytes of data
 }
 
 // True if byte y is a text character " " through "~" but not the double quote character
-function isText(y) {
+function quoteIs(y) {
 	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
 }
 
@@ -899,10 +935,10 @@ public static void strike(StringBuffer b, Data d) {
 */
 
 exports.quote = quote;
-//exports.unquote = unquote;
-exports.count = count;
-exports.moreText = moreText;
-exports.isText = isText;
+exports.unquote = unquote;
+exports.quoteCount = quoteCount;
+exports.quoteMore = quoteMore;
+exports.quoteIs = quoteIs;
 
 
 
