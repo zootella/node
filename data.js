@@ -794,19 +794,63 @@ exports.base64 = base64;
 
 //and, of course, get ready for all of this to change when you want to get it working with node streams, which are likely awesome and whihc you dont' know how they work yet at all
 
+function makeParse(p) {
+	if (!p) p = Parse();//make a new parse object if we don't have one already
+	p.start();//ignore any data added previously that wasn't marked valid at the end
+	return p;
+}
+
 function Parse() {
 
 	var _bay = Bay();
 	var _valid = 0;//the number of valid bytes in our bay
 
-	function add(d) {}
+	function start() {
+		//here's where you ignore everything in _bay after _valid
+		//you need a new method of bay to do this
+		_bay.only(_valid);
+	}
 
-	function valid() {}//done parsing, mark everything we hold as valid, and return a data of just what was added, no round trip test
-	function validSame() {}//same as valid, except with the round trip test, case sensitive
-	function validMatch() {}//matches cases
+	function add(d) {
+		_bay.add(d);
+	}
 
-	function data() {}//all the valid data
+	//done parsing, mark everything we hold as valid, and return a data of just what was added
+	//optionally provide two functions and an object to perform a round trip test
+	//m is a function which takes two things and returns true if they are the same
+	//b is a function which converts back
+	//o is the object we parsed from
+	function valid(m, b, o) {
+		var d = _bay.data().after(_valid);
+		if (m && !m(b(d), o)) throw "data";
+		_valid = _bay.size();
+		return d;
+	}
+
+	function data() {//all the valid data
+		return _bay.data().start(_valid);
+	}
+
+	return {
+		start:start, add:add, valid:valid, data:data,
+		isParse:function(){}
+	};
 }
+
+//usage looks like this
+function fromBase100(s, p) {
+	p = makeParse(p);//make and start the parse object
+
+	while (false) {
+		p.add(d);//just parsed another part
+		throw "data";//oops, found a problem, throw data
+	}
+
+	return p.valid(same, toBase100, s);//say we finished successfully, perform the round trip test, and return just the data this function parsed
+}
+//yeah, this is pretty good, actually
+
+
 
 
 
