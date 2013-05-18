@@ -772,7 +772,9 @@ exports.base64 = base64;
 
 
 
-
+//parse below is for parsing things to data, like parsing text to data
+//you also do the direction where you parse data to objects, like parsing an outline from the data in a file
+//you'll probably want to have an object for that one also, and may need to rename them both
 
 //you could add the if (!bay) bay = Bay() pattern to everything that parses text to return a data
 //like base16, 32, 62, 64 above
@@ -831,6 +833,18 @@ function Parse() {
 	};
 }
 
+//no, wait, this isn't going to work at all because of nested calls
+//a parse function that calls another parse function, all with the same p object, that p object will get called start() on it twice in a row, then later, get called valid on it twice in a row
+//start needs to push valid onto a stack, and valid needs to take it back off that stack and combine it together
+//meditate on that, i will
+
+//here's how you do it, it's easy
+//dont' keep _valid in the Parse object
+//rather, keep it in a local object, local to the function
+//that way you don't have to manage the nesting yourself
+//to write this, first have a separate _valid in the function, alongside the parse object
+//then see if you can store that alongside the parse object somehow, like maybe they're 1 and 2 in an array
+
 //usage looks like this
 function fromBase100(s, p) {
 	p = makeParse(p);//make and start the parse object
@@ -846,6 +860,26 @@ function fromBase100(s, p) {
 
 
 
+//usage looks like this
+function fromBase100(s, p) {
+	p = makeParse(p);//make and start the parse object
+	var startingPoint = p.validSize();//keep track locally how many bytes are valid, have it keep it here so nesting works
+
+	while (false) {
+		p.add(d);//just parsed another part
+		throw "data";//oops, found a problem, throw data
+	}
+
+	return p.valid(same, toBase100, s);//say we finished successfully, perform the round trip test, and return just the data this function parsed
+}
+//ok, how does it distinguish a nested start from a retrying start
+//in the retry case, it should throw out the invalid fragment at the end
+//in the nested case, it should build on the partial fragment on the end
+//you dind't have to figur ethis out before because before you were parsing from data, not to data
+//more mediatation required
+
+//well, it works fine when you keep all the bays separate and add them together at the very end
+//so figure out how that works so naturally and then design an object that does the same thing, just while sharing a single bay
 
 
 

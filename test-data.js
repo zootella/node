@@ -1136,6 +1136,23 @@ exports.testIsText = function(test) {
 
 
 
+//here's the test you write for parse
+//make a parse object, then have it parse some base16 text
+//the first one works, confirm it's there
+//the second one works, confirm 1 and 2 are there
+//the third one starts out valid, but then goes invalid halfway through, confirm you get throws data, and 1 and 2 are still there
+//the fourth one is valid, confirm what you have is 1, 2, 4
+
+
+
+
+
+
+
+
+
+
+
 
 //    ___        _   _ _            
 //   / _ \ _   _| |_| (_)_ __   ___ 
