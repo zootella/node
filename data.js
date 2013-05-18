@@ -385,6 +385,8 @@ function Bay(a) {
 		}
 	}
 
+	function only(n) { throw "todo"; }
+
 	// Make this Bay empty of data
 	function clear() {
 		start = 0; // Record that we have no data, capacity is the same, though
@@ -463,8 +465,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	if (c == Size.big    && recycleBin.big.length)    buffer = recycleBin.big.pop();
 	if (!buffer) buffer = new Buffer(c); // Custom size or empty recycle bins
 
-	// ----
-
 	// Recycle our buffer so the program can use it again instead of allocating a new one
 	// Only call recycle() when the task has finished successfully and as expected
 	// If there was an error or timeout, Node may still use the buffer
@@ -476,8 +476,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
 	function setBuffer(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
 
-	// ----
-
 	function data() { return Data(buffer.slice(0, hold)); } // Look at the Data in this Bin
 	
 	function size()     { return hold;                 } // The number of bytes of data in this Bin, 0 if empty
@@ -488,8 +486,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function isEmpty()  { return hold == 0;             } // True if this Bin has no data, not even 1 byte
 	function hasSpace() { return hold != buffer.length; } // True if this Bin has at least 1 byte of space
 	function isFull()   { return hold == buffer.length; } // True if this Bin is completely full of data, with no space for even 1 more byte
-
-	// ----
 
 	// Move as much data as fits from b to this Bin
 	function add(b) {
@@ -544,8 +540,6 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 	// Remove all the data this Bin is holding, leaving it empty
 	function clear() { hold = 0; }
-
-	// ----
 
 	//TODO
 	function inPrepare(space) {} // Copy our buffer clipped around space bytes of space for moving data in
@@ -821,10 +815,10 @@ function Parse() {
 	//b is a function which converts back
 	//o is the object we parsed from
 	function valid(m, b, o) {
-		var d = _bay.data().after(_valid);
+		var d = _bay.data().after(_valid);//d is the newly potentially valid block of data at the end
 		if (m && !m(b(d), o)) throw "data";
-		_valid = _bay.size();
-		return d;
+		_valid = _bay.size();//finished and passed the check, mark everything we've got as valid
+		return d;//return the block we just parsed
 	}
 
 	function data() {//all the valid data
