@@ -772,109 +772,118 @@ exports.base64 = base64;
 
 
 
-//parse below is for parsing things to data, like parsing text to data
-//you also do the direction where you parse data to objects, like parsing an outline from the data in a file
-//you'll probably want to have an object for that one also, and may need to rename them both
-
-//you could add the if (!bay) bay = Bay() pattern to everything that parses text to return a data
-//like base16, 32, 62, 64 above
-//but those are also using parseCheck, so you would have to record the size before at the top, and then after beyond that size at the bottom
-//still, do this, it's a pretty cool pattern
-//just have var exist = bay.size()
-
-//actually, you realize that if you want to do this, you need another important feature
-//a function that's parsing to make data and adding to to a given bay needs to throw halfway through, and not have added half of the data to the bay
-//so, you could make a new Parse object that contains a bay, and a size of valid data within it
-//yeah, and then have functions and methods at the start to create or start it for this parse, and to get the data at the end, to declar that it worked
-//and write tests of course to show how it can be used and works all the different ways, including having it throw halfway through and be able to catch the exception and see that it didn't change
-
-//and, of course, get ready for all of this to change when you want to get it working with node streams, which are likely awesome and whihc you dont' know how they work yet at all
 
 
-function Parse(bay) {
-	if (!bay) bay = Bay();//make a new empty bay if we weren't given one
 
-	var _bay = bay;//save the bay
-	var _existing = bay.size();//remember how much was already in it when we got it
 
-	function bay() { return _bay; }
-	function add(d) { _bay.add(d); }//add some data we just parsed
-	function data() { return _bay.data().after(_existing); }//get the data we're holding
-	function reset() { _bay.only(_existing); }//there was a problem parsing data, put bay back the way it was when we got it
 
-	//done parsing, mark everything we hold as valid, and return a data of just what was added
-	//optionally provide two functions and an object to perform a round trip test
-	//m is a function which takes two things and returns true if they are the same
-	//b is a function which converts back
-	//o is the object we parsed from
-	function check(m, b, o) {
-		var d = data();//d is the newly potentially valid block of data at the end
-		if (m && !m(b(d), o)) throw "data";
-		return d;//return the block we just parsed
-	}
+
+
+
+
+
+
+
+
+
+//   ____                     
+//  |  _ \ __ _ _ __ ___  ___ 
+//  | |_) / _` | '__/ __|/ _ \
+//  |  __/ (_| | |  \__ \  __/
+//  |_|   \__,_|_|  |___/\___|
+//                            
+
+// Parse the data in clip into text or objects
+// If there's an exception, call reset() to put clip back the way it was
+function ParseSource(clip) { throw "todo"; }
+
+// Parse text or objects into data and add it to bay
+// If there's an exception, call reset() to put bay back the way it was
+function ParseTarget(bay) {
+	if (!bay) bay = Bay(); // No bay given, make a new empty one
+
+	var _bay = bay; // Save the given bay
+	var _existing = bay.size(); // Remember how much data was in it before we changed it
+
+	function add(d) { _bay.add(d); } // Add some data we just parsed
+	function bay() { return _bay; } // Get our bay, probably to pass to a function we're calling to parse data into it for us
+	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
+	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
+
+	// Turn the data we parsed back into an object, and confirm that object is the same as the object we parsed the data from
+	// This round trip test is a clever way to be very strict
+	// m matching function, m(o1, o2) == true if the objects are the same
+	// b convert back function, b(data) == o to convert the data back into an object
+	// o original object we turned into data
+	function check(m, b, o) { if (m && !m(b(data()), o)) throw "data"; }
 
 	return {
-		bay:bay, add:add, data:data, reset:reset, check:check,
+		add:add, bay:bay, data:data, reset:reset, check:check,
 		isParse:function(){}
 	};
 }
 
-//no, wait, this isn't going to work at all because of nested calls
-//a parse function that calls another parse function, all with the same p object, that p object will get called start() on it twice in a row, then later, get called valid on it twice in a row
-//start needs to push valid onto a stack, and valid needs to take it back off that stack and combine it together
-//meditate on that, i will
-
-//here's how you do it, it's easy
-//dont' keep _valid in the Parse object
-//rather, keep it in a local object, local to the function
-//that way you don't have to manage the nesting yourself
-//to write this, first have a separate _valid in the function, alongside the parse object
-//then see if you can store that alongside the parse object somehow, like maybe they're 1 and 2 in an array
 
 //usage looks like this
 function fromBase100(s, bay) {
-	var p = Parse(bay);
+	var target = ParseTarget(bay);//make a bay if we weren't given one
 	try {
+
 		while (false) {
-			p.add(d);//just parsed another part
-			throw "data";//oops, found a problem, throw data
+			target.add(d);//add some data we parsed
+			base16(s.before, target.bay());//call a function to parse some more for us
+			throw "data";
 		}
-	} catch (e) {
-		if (e == "data") {
 
-		}
-		throw e;
-	}
-	return p.data();
+		target.check(same, toBase100, s);//do the round trip test
+		return target.data();//return just the new data we parsed
 
-
-
-	return p.valid(same, toBase100, s);//say we finished successfully, perform the round trip test, and return just the data this function parsed
+	} catch (e) { target.reset(); throw e; }//reset bay to the way it was when we got it
 }
-//yeah, this is pretty good, actually
 
 
 
-//usage looks like this
-function fromBase100(s, p) {
-	p = makeParse(p);//make and start the parse object
-	var startingPoint = p.validSize();//keep track locally how many bytes are valid, have it keep it here so nesting works
 
-	while (false) {
-		p.add(d);//just parsed another part
-		throw "data";//oops, found a problem, throw data
-	}
 
-	return p.valid(same, toBase100, s);//say we finished successfully, perform the round trip test, and return just the data this function parsed
-}
-//ok, how does it distinguish a nested start from a retrying start
-//in the retry case, it should throw out the invalid fragment at the end
-//in the nested case, it should build on the partial fragment on the end
-//you dind't have to figur ethis out before because before you were parsing from data, not to data
-//more mediatation required
 
-//well, it works fine when you keep all the bays separate and add them together at the very end
-//so figure out how that works so naturally and then design an object that does the same thing, just while sharing a single bay
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ___        _   _ _            
+//   / _ \ _   _| |_| (_)_ __   ___ 
+//  | | | | | | | __| | | '_ \ / _ \
+//  | |_| | |_| | |_| | | | | |  __/
+//   \___/ \__,_|\__|_|_|_| |_|\___|
+//                                  
+
+// rules for designing your outline
+// tag names can only be numbers and lowercase letters, as short as possible
+// blank ok, duplicate tag names ok
+// order can't matter
+// tag names can't contain data, or be generated from data, that's what values are for
+// values can't contain outline data, that's what contents are for
+// numbers are text numerals in values, no numbers in bits
+// values shouldn't have compression or encoding that requires more transformation, data in its most raw form
+// values shouldn't have structure that requires more parsing, data in its most granular form
+// no version numbers, the outline grows without breaking compatibility
+// no vendor codes, the outline is a single unified common area
+// an outline should be short, 8k or less when turned into data
+
+
+
 
 
 
@@ -882,12 +891,6 @@ function fromBase100(s, p) {
 //before you do outline, do all the parts, like
 //quote and unqoute encoding
 //create and parse length header
-
-
-
-
-
-
 
 
 
@@ -904,8 +907,6 @@ function parseSize(clip) {
 
 	return n;
 }
-
-
 
 
 
@@ -930,48 +931,9 @@ function quote(d) {
 	return t;
 }
 
-
 // Turn quoted text back into the data it was made from
-function unquote(s, bay) {
-	var p = Parse(bay);
-	try {
-
-		while (s.length) {     // Loop until we're out of source text
-
-			var q1 = s.cut('"'); // Split on the first opening quote to look for bytes before text
-
-			var c = q1.before.cut("#");       // Look for a comment outside the quotes
-			if (c.found) {                    // Found a comment
-				p.add(base16(c.before.trim())); // Only bytes and spaces can be before the comment
-				break;                          // Hitting a comment means we're done with the line
-			}
-
-			p.add(base16(q1.before)); // Only bytes can be before the opening quote
-			if (!q1.found) break;     // No opening quote, so we got it all
-
-			var q2 = q1.after.cut('"');  // Split on the closing quote
-			if (!q2.found) throw "data"; // Must have closing quote
-
-			p.add(q2.before); // Copy the quoted text across
-			s = q2.after;     // The remaining text is after the closing quote
-		}
-
-		return p.data();
-
-	} catch (e) {
-		if (e == "data") p.reset();
-		throw e;
-	}
-}
-
-
-
-
-/*
-// Turn quoted text back into the data it was made from
-function unquote(s, bay) {
-	if (!bay) bay = Bay(); // Make a new empty Bay if the caller didn't pass us one
-	var exist = bay.size();
+function unquote(s) {
+	var bay = Bay(); // Make a new empty Bay if the caller didn't pass us one
 	while (s.length) {     // Loop until we're out of source text
 
 		var q1 = s.cut('"'); // Split on the first opening quote to look for bytes before text
@@ -991,9 +953,10 @@ function unquote(s, bay) {
 		bay.add(q2.before); // Copy the quoted text across
 		s = q2.after;       // The remaining text is after the closing quote
 	}
-	return bay.data().after(exist); // If you passed us a Bay, ignore the Data we return
+	return bay.data(); // If you passed us a Bay, ignore the Data we return
 }
-*/
+
+
 
 
 
@@ -1082,32 +1045,6 @@ exports.quoteIs = quoteIs;
 
 
 
-
-
-
-
-//    ___        _   _ _            
-//   / _ \ _   _| |_| (_)_ __   ___ 
-//  | | | | | | | __| | | '_ \ / _ \
-//  | |_| | |_| | |_| | | | | |  __/
-//   \___/ \__,_|\__|_|_|_| |_|\___|
-//                                  
-
-
-
-
-// rules for designing your outline
-// tag names can only be numbers and lowercase letters, as short as possible
-// blank ok, duplicate tag names ok
-// order can't matter
-// tag names can't contain data, or be generated from data, that's what values are for
-// values can't contain outline data, that's what contents are for
-// numbers are text numerals in values, no numbers in bits
-// values shouldn't have compression or encoding that requires more transformation, data in its most raw form
-// values shouldn't have structure that requires more parsing, data in its most granular form
-// no version numbers, the outline grows without breaking compatibility
-// no vendor codes, the outline is a single unified common area
-// an outline should be short, 8k or less when turned into data
 
 
 

@@ -1016,6 +1016,66 @@ exports.testEncodeInvalid = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+//   ____                     
+//  |  _ \ __ _ _ __ ___  ___ 
+//  | |_) / _` | '__/ __|/ _ \
+//  |  __/ (_| | |  \__ \  __/
+//  |_|   \__,_|_|  |___/\___|
+//                            
+
+//here's the test you write for parse
+//make a parse object, then have it parse some base16 text
+//the first one works, confirm it's there
+//the second one works, confirm 1 and 2 are there
+//the third one starts out valid, but then goes invalid halfway through, confirm you get throws data, and 1 and 2 are still there
+//the fourth one is valid, confirm what you have is 1, 2, 4
+
+//a simpler test
+//make a bay
+//put "hi" in it
+//parse some invalid text
+//confirm it's just still "hi" in it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ___        _   _ _            
+//   / _ \ _   _| |_| (_)_ __   ___ 
+//  | | | | | | | __| | | '_ \ / _ \
+//  | |_| | |_| | |_| | | | | |  __/
+//   \___/ \__,_|\__|_|_|_| |_|\___|
+//                                  
+
 var quote = data.quote;
 var unquote = data.unquote;
 var quoteCount = data.quoteCount;
@@ -1136,34 +1196,12 @@ exports.testIsText = function(test) {
 
 
 
-//here's the test you write for parse
-//make a parse object, then have it parse some base16 text
-//the first one works, confirm it's there
-//the second one works, confirm 1 and 2 are there
-//the third one starts out valid, but then goes invalid halfway through, confirm you get throws data, and 1 and 2 are still there
-//the fourth one is valid, confirm what you have is 1, 2, 4
-
-
-
-//a simpler test
-//make a bay
-//put "hi" in it
-//parse some invalid text
-//confirm it's just still "hi" in it
 
 
 
 
 
 
-
-
-//    ___        _   _ _            
-//   / _ \ _   _| |_| (_)_ __   ___ 
-//  | | | | | | | __| | | '_ \ / _ \
-//  | |_| | |_| | |_| | | | | |  __/
-//   \___/ \__,_|\__|_|_|_| |_|\___|
-//                                  
 
 
 
