@@ -1084,11 +1084,31 @@ var quoteIs = data.quoteIs;
 
 exports.testQuoteUnquote = function(test) {
 
+	//make sure it works both ways
 	function both(plain, quoted) {
 		var p = Data(plain);//encode the given plain text as data using utf8
 		test.ok(quote(p) == quoted);
 		test.ok(unquote(quoted).same(p));
 	}
+
+	//unquote quoted into plain, comments or non default quoting means this has to be a one way test
+	function un(plain, quoted) {
+		var p = Data(plain);
+		test.ok(unquote(quoted).same(p));
+	}
+
+	//make sure that if you try to unquote s, you get thrown data
+	function invalid(s) {
+		try {
+			unquote(s);
+			test.fail();
+		} catch (e) { test.ok(e == "data"); }
+	}
+
+	both('',   '');//blank
+	both('a',  '"a"');//single text
+	both('\r', '0d');//single data
+	both('"',  '22');//special character
 
 	both('hi', '"hi"');//text
 	both('\r\n', '0d0a');//binary
@@ -1097,15 +1117,56 @@ exports.testQuoteUnquote = function(test) {
 	both('"', '22');//quote
 	both('"hello"', '22"hello"22');
 	both('quote " character', '"quote "22" character"');
+	
+	invalid('poop');//invalid
+	invalid('"value');
+	invalid('0a0b"value');
+	invalid('"hello you"0d0a poop#comment');
+	invalid('"hello you"0d0apoop#comment');
+	invalid('poop"hello you"0d0a');
+	invalid('poop"hello you"');
+
+	un('value\r\n',     '"value"0d0a #comment');//comment
+	un('hello you\r\n', '"hello you"0d0a');
+	un('hello you\r\n', '"hello you"0d0a#comment');
+	un('hello you\r\n', '"hello you"0d0a #comment');
+	un('room #9\r\n',   '"room #9"0d0a');
+	un('room #9\r\n',   '"room #9"0d0a#comment');
+	un('room #9\r\n',   '"room #9"0d0a #comment');
+
+	un('hello\r\n', '"hello"0d0a #note, with "quotes" and stuff');//a comment can say whatever
+
+	un('\r\n', '0d0a #note');//comments different places
+	un('\r\n', '0d0a#note');
+	un('', '#note');
+	un('', ' #note'); //TODO works but maybe shouldn't
+	un('\r\n', ' 0d0a #note'); //this one too, leading space is wrong but allowed
+
+	both('', '');//another batch
+	both('a', '"a"');
+	both(' ', '" "');
+	both('\0', '00');
+	both('Hello', '"Hello"');
+	both('Hello You\r\n', '"Hello You"0d0a');
+	both('He only says "Yes" once a year.\r\n', '"He only says "22"Yes"22" once a year."0d0a');
+
+	both(  'aaa\tbbb\tccc',     '"aaa"09"bbb"09"ccc"');//lots of tabs
+	both('\taaa\tbbb\tccc',   '09"aaa"09"bbb"09"ccc"');
+	both(  'aaa\tbbb\tccc\t',   '"aaa"09"bbb"09"ccc"09');
+	both('\taaa\tbbb\tccc\t', '09"aaa"09"bbb"09"ccc"09');
+
+	both('The quote " character\r\n', '"The quote "22" character"0d0a');//the quote character
+
+	un('car #1\r\n', '"car #1"0d0a #comment');//pound is ok in a quote
+
+
+	//TODO try a bunch of international stuff, see if later bytes in multibyte charcters get encoded as ascii or not
 
 
 
 
 
 
-	//try a bunch of international stuff, see if later bytes in multibyte charcters get encoded as ascii or not
-
-	//bring in the tests from junit here also, this is one rare area where you actually have some tests to port over
 
 	test.done();
 }
@@ -1179,8 +1240,6 @@ exports.testIsText = function(test) {
 
 	test.done();
 }
-
-
 
 
 

@@ -795,11 +795,11 @@ exports.base64 = base64;
 
 // Parse the data in clip into text or objects
 // If there's an exception, call reset() to put clip back the way it was
-function ParseSource(clip) { throw "todo"; }
+function ParseFromClip(clip) { throw "todo"; }
 
 // Parse text or objects into data and add it to bay
 // If there's an exception, call reset() to put bay back the way it was
-function ParseTarget(bay) {
+function ParseToBay(bay) {
 	if (!bay) bay = Bay(); // No bay given, make a new empty one
 
 	var _bay = bay; // Save the given bay
@@ -826,7 +826,7 @@ function ParseTarget(bay) {
 
 //usage looks like this
 function fromBase100(s, bay) {
-	var target = ParseTarget(bay);//make a bay if we weren't given one
+	var target = ParseToBay(bay);//make a bay if we weren't given one
 	try {
 
 		while (false) {
