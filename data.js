@@ -12,6 +12,7 @@ var parseCheck = text.parseCheck;
 var parseCheckMatch = text.parseCheckMatch;
 var number = text.number;
 var numerals = text.numerals;
+var numerals16 = text.numerals16;
 
 
 
@@ -213,7 +214,6 @@ function Data(d) {
 	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
 
 	function quote()  { return quote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
-	function strike() { return strike(Data(buffer)); } // Turn this Data into text like "hello--" striking out non-text bytes with hyphens
 	function say() { return base16(); } // d.say() is base 16, and d.toString() is UTF8
 	
 	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
@@ -226,7 +226,7 @@ function Data(d) {
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		cut:cut, cutLast:cutLast,
-		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, strike:strike, say:say,
+		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, say:say,
 		hash:hash,
 		isData:function(){}
 	};
@@ -373,6 +373,7 @@ function Bay(a) {
 
 	// Remove data from the start of this Bay, keeping only the last n bytes
 	function keep(n) { remove(hold - n); }
+
 	// Remove n bytes from the start of the data this Bay holds
 	function remove(n) {
 		if (!n) return; // No remove requested
@@ -385,7 +386,12 @@ function Bay(a) {
 		}
 	}
 
-	function only(n) { throw "todo"; }
+	// Remove data from the end of this Bay, keeping only the first n bytes
+	function only(n) {
+		if (!n) { clear(); return; } // Only nothing
+		if (n < 0 || n > hold) throw "chop";
+		hold = n; // Remove from the end
+	}
 
 	// Make this Bay empty of data
 	function clear() {
@@ -402,7 +408,7 @@ function Bay(a) {
 	return {
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		add:add, prepare:prepare,
-		keep:keep, remove:remove, clear:clear,
+		keep:keep, remove:remove, only:only, clear:clear,
 		data:data,
 		isBay:function(){}
 	};
@@ -785,7 +791,6 @@ exports.base64 = base64;
 
 
 
-
 //   ____                     
 //  |  _ \ __ _ _ __ ___  ___ 
 //  | |_) / _` | '__/ __|/ _ \
@@ -793,56 +798,39 @@ exports.base64 = base64;
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-// Parse the data in clip into text or objects
-// If there's an exception, call reset() to put clip back the way it was
-function ParseFromClip(clip) { throw "todo"; }
-
 // Parse text or objects into data and add it to bay
+// Give it a bay you've alrady been parsing into, or leave b blank and it will make a new bay
 // If there's an exception, call reset() to put bay back the way it was
-function ParseToBay(bay) {
-	if (!bay) bay = Bay(); // No bay given, make a new empty one
+function ParseToBay(b) {
+	if (!b) b = Bay(); // No bay given, make a new empty one
 
-	var _bay = bay; // Save the given bay
-	var _existing = bay.size(); // Remember how much data was in it before we changed it
+	var _bay = b; // Save the given bay
+	var _existing = b.size(); // Remember how much data was in it before we changed it
 
 	function add(d) { _bay.add(d); } // Add some data we just parsed
 	function bay() { return _bay; } // Get our bay, probably to pass to a function we're calling to parse data into it for us
 	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
 	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
 
-	// Turn the data we parsed back into an object, and confirm that object is the same as the object we parsed the data from
-	// This round trip test is a clever way to be very strict
-	// m matching function, m(o1, o2) == true if the objects are the same
-	// b convert back function, b(data) == o to convert the data back into an object
-	// o original object we turned into data
-	function check(m, b, o) { if (m && !m(b(data()), o)) throw "data"; }
-
-	return {
-		add:add, bay:bay, data:data, reset:reset, check:check,
-		isParse:function(){}
-	};
+	return { add:add, bay:bay, data:data, reset:reset };
 }
 
+// Parse the data in clip into text or objects
+// When you're done without exception, call valid() to remove the parsed data from clip
+function ParseFromClip(clip) {
 
-//usage looks like this
-function fromBase100(s, bay) {
-	var target = ParseToBay(bay);//make a bay if we weren't given one
-	try {
+	var _clip = clip; // Save the given clip
+	var _edit = clip.copy(); // Make a copy we will change
 
-		while (false) {
-			target.add(d);//add some data we parsed
-			base16(s.before, target.bay());//call a function to parse some more for us
-			throw "data";
-		}
+	function remove(n) { return _edit.remove(n); } // Remove n bytes we parsed from the start
+	function removed() { return _clip.data().start(_clip.size() - _edit.size()); } // All the data we removed
+	function valid() { _clip.keep(_edit.size()); } // Parsed valid data, remove it from clip
 
-		target.check(same, toBase100, s);//do the round trip test
-		return target.data();//return just the new data we parsed
-
-	} catch (e) { target.reset(); throw e; }//reset bay to the way it was when we got it
+	return { remove:remove, removed:removed, valid:valid }
 }
 
-
-
+exports.ParseToBay = ParseToBay;
+exports.ParseFromClip = ParseFromClip;
 
 
 
@@ -888,31 +876,98 @@ function fromBase100(s, bay) {
 
 
 
-//before you do outline, do all the parts, like
-//quote and unqoute encoding
-//create and parse length header
 
 
 
-// Size
 
-function makeSize(n, bay) {
-	if (!bay) bay = Bay();
 
-	return bay.data();
+
+
+
+
+
+
+
+
+
+//   ____                    
+//  / ___| _ __   __ _ _ __  
+//  \___ \| '_ \ / _` | '_ \ 
+//   ___) | |_) | (_| | | | |
+//  |____/| .__/ \__,_|_| |_|
+//        |_|                
+
+// Turn n into 1 or more bytes of data added to bay
+function spanMake(n, bay) {
+	var t = ParseToBay(bay);
+	try {
+
+		for (var height = (spanSize(n) - 1) * 7; height >= 0; height -= 7) { // Loop up to 4 times with height 21, 14, 7, 0
+			var y = ((0x7f << height) & n) >> height;                          // Clip out 7 bits in n
+			if (height) y = y | 0x80;                                          // Mark bytes up to the last one with a leading 1
+			t.add(toByte(y & 0xff));                                           // Add the byte we made to the target bay
+		}
+		return t.data();
+
+	} catch (e) { t.reset(); throw e; }
 }
 
-function parseSize(clip) {
-	var n;
+// Parse 1 or more bytes at the start of clip into a number, remove them from clip, and return the number
+function spanParse(clip) {
+	var c = ParseFromClip(clip);
 
+	var n = 0;
+	for (var i = 0; i < 4; i++) {  // Loop up to 4 times
+		var y = c.remove(1).first(); // Cut one byte from the start of d, or throw chop if there isn't one
+		n = (n << 7) | (y & 0x7f);   // Move 7 bits into the bottom of n
+		if ((y & 0x80) == 0) break;  // If the leading bit is 0, we're done
+	}
+	if (n < 0 || n > 0x0fffffff) throw "data";
+	if (!spanMake(n).same(c.removed())) throw "data"; // Round trip check
+	c.valid();
 	return n;
 }
 
+// Predict how big the number n will be turned into data, 1 or more bytes
+// While the span format is unlimited, JavaScript does bit manipulation on 32 bit integers
+function spanSize(n) {
+	if (n < 0) throw "bounds";
+	if (n <       0x80) return 1; //  7 1s will fit in 1 byte
+	if (n <     0x4000) return 2; // 14 1s will fit in 2 bytes
+	if (n <   0x200000) return 3; // 21 1s will fit in 3 bytes
+	if (n < 0x10000000) return 4; // 28 1s will fit in 4 bytes
+	throw "bounds";
+}
+
+exports.spanMake = spanMake;
+exports.spanParse = spanParse;
+exports.spanSize = spanSize;
 
 
 
 
-// Quote
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ___              _       
+//   / _ \ _   _  ___ | |_ ___ 
+//  | | | | | | |/ _ \| __/ _ \
+//  | |_| | |_| | (_) | ||  __/
+//   \__\_\\__,_|\___/ \__\___|
+//                             
 
 // Turn data into text using base 16, and put text characters in quotes
 // 'The quote " character\r\n' becomes '"The quote "22" character"0d0a'
@@ -950,17 +1005,11 @@ function unquote(s) {
 		var q2 = q1.after.cut('"');  // Split on the closing quote
 		if (!q2.found) throw "data"; // Must have closing quote
 
-		bay.add(q2.before); // Copy the quoted text across
+		bay.add(q2.before); // Copy the quoted text across, using UTF8 encoding
 		s = q2.after;       // The remaining text is after the closing quote
 	}
 	return bay.data(); // If you passed us a Bay, ignore the Data we return
 }
-
-
-
-
-
-
 
 // Count how many bytes at the start of d are quotable text characters, or false to count data bytes
 function quoteCount(d, quotable) {
@@ -989,19 +1038,6 @@ function quoteMore(d) {
 function quoteIs(y) {
 	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
 }
-
-/*
-// Strike
-
-/** Turn data into text like "hello--", striking out non-text bytes with hyphens. *
-public static void strike(StringBuffer b, Data d) {
-	for (int i = 0; i < d.size(); i++) {
-		byte y = d.get(i);                           // Loop for each byte of data y in d
-		if (y >= ' ' && y <= '~') b.append((char)y); // If it's " " through "~", include it in the text
-		else                      b.append('-');     // Otherwise, show a "-" in its place
-	}
-}
-*/
 
 exports.quote = quote;
 exports.unquote = unquote;

@@ -48,10 +48,68 @@ exports.testBufferCopy = function(test) {
 	test.done();
 }
 
+//move in some tests you wrote in a yX.js pad
 
 
+/*
 
 
+//make sure you understand how buffer.copy works
+exports.testBufferCopy = function(test) {
+
+	var source = new Buffer(8);
+	var target = new Buffer(8);
+
+	source[0] = 97;//ascii a
+	source[1] = 97;//ascii a
+	source[2] = 97 + 1;//ascii b
+	source[3] = 97 + 2;//ascii c
+	source[4] = 97 + 2;//ascii c
+	source[5] = 97 + 2;//ascii c
+	source[6] = 97 + 1;//ascii b
+	source[7] = 97;//ascii a
+
+	var start = 2;
+	var hold = 5;
+	source.copy(target, 0, start, start + hold);
+
+	test.equal(target[0], 97 + 1);
+	test.equal(target[1], 97 + 2);
+	test.equal(target[2], 97 + 2);
+	test.equal(target[3], 97 + 2);
+	test.equal(target[4], 97 + 1);
+
+	test.done();
+};
+
+exports.testBufferCompact = function(test) {
+
+	var b = new Buffer(8);
+
+	b[0] = 97;//ascii a
+	b[1] = 97;//ascii a
+	b[2] = 97 + 1;//ascii b
+	b[3] = 97 + 2;//ascii c
+	b[4] = 97 + 2;//ascii c
+	b[5] = 97 + 2;//ascii c
+	b[6] = 97 + 1;//ascii b
+	b[7] = 97;//ascii a
+
+	var start = 2;
+	var hold = 5;
+	b.copy(b, 0, start, start + hold);
+
+	test.equal(b[0], 97 + 1);
+	test.equal(b[1], 97 + 2);
+	test.equal(b[2], 97 + 2);
+	test.equal(b[3], 97 + 2);
+	test.equal(b[4], 97 + 1);
+
+	test.done();
+};
+
+
+*/
 
 
 
@@ -533,6 +591,26 @@ exports.testBayPrepare = function(test) {
 	test.ok(!b.size());
 	test.ok(!b.hasData());
 	test.ok(b.data().same(Data()));
+
+	test.done();
+}
+
+exports.testBayRemove = function(test) {
+
+	var b = Bay("abcdefgh");
+	b.remove(3);
+	test.ok(b.data().toString() == "defgh");
+	b.keep(4);
+	test.ok(b.data().toString() == "efgh");
+	b.only(2);
+	test.ok(b.data().toString() == "ef");
+	b.clear();
+	test.ok(b.data().toString() == "");
+
+	try {
+		b.remove(1);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
 
 	test.done();
 }
@@ -1035,20 +1113,69 @@ exports.testEncodeInvalid = function(test) {
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-//here's the test you write for parse
-//make a parse object, then have it parse some base16 text
-//the first one works, confirm it's there
-//the second one works, confirm 1 and 2 are there
-//the third one starts out valid, but then goes invalid halfway through, confirm you get throws data, and 1 and 2 are still there
-//the fourth one is valid, confirm what you have is 1, 2, 4
+var ParseToBay = data.ParseToBay;
+var ParseFromClip = data.ParseFromClip;
 
-//a simpler test
-//make a bay
-//put "hi" in it
-//parse some invalid text
-//confirm it's just still "hi" in it
+exports.testParseToBay = function(test) {
 
+	//you can give it a bay
+	var b1 = Bay("Existing");
+	b1.add("Contents");
+	var t1 = ParseToBay(b1);
+	t1.add("Additional");
+	t1.add("Data");
+	test.ok(t1.data().toString() == "AdditionalData");//get just what we added
+	test.ok(t1.bay().data().toString() == "ExistingContentsAdditionalData");//or everything in there
+	//or it will make one for you
+	var t2 = ParseToBay();
+	t2.add("Additional");
+	t2.add("Data");
+	test.ok(t2.bay().data().toString() == "AdditionalData");
 
+	//imagine we parse something bad, and want to go back
+	var b3 = Bay();
+	b3.add("ExistingContents");
+	var t3 = ParseToBay(b3);
+	t3.add("InvalidFragment");//in parsing, we add some invalid data
+	test.ok(b3.data().toString() == "ExistingContentsInvalidFragment");//it's all in the bay
+	t3.reset();//and then realize the mistake, and want to go back
+	test.ok(b3.data().toString() == "ExistingContents");
+	//later, we parse correct data
+	var t4 = ParseToBay(b3);
+	t4.add("Valid");
+	t4.add("Data");
+	test.ok(b3.data().toString() == "ExistingContentsValidData");
+
+	test.done();
+}
+
+exports.testParseFromClip = function(test) {
+
+	var d = Data("abcdefgh");
+
+	//parse something good
+	var clip = d.take();
+	var s = ParseFromClip(clip);
+	test.ok(s.remove(3).toString() == "abc");
+	test.ok(s.remove(2).toString() == "de");
+	test.ok(s.removed().toString() == "abcde");//get a data of everything we removed
+	s.valid();//apply the changes s made to clip
+	test.ok(clip.data().toString() == "fgh");
+
+	//parse something bad
+	clip = d.take();//clip around the whole thing again
+	s = ParseFromClip(clip);
+	s.remove(1);
+	s.remove(2);//then we realize it's no good, so we don't call valid()
+	test.ok(clip.data().toString() == "abcdefgh");//clip is unchanged
+	//parse something good again
+	s = ParseFromClip(clip);
+	s.remove(6);
+	s.valid();
+	test.ok(clip.data().toString() == "gh");
+
+	test.done();
+}
 
 
 
@@ -1075,6 +1202,202 @@ exports.testEncodeInvalid = function(test) {
 //  | |_| | |_| | |_| | | | | |  __/
 //   \___/ \__,_|\__|_|_|_| |_|\___|
 //                                  
+
+
+
+
+
+
+
+
+
+// 0000 0
+// 0001 1
+// 0010 2
+// 0011 3
+
+// 0100 4
+// 0101 5
+// 0110 6
+// 0111 7
+
+// 1000 8
+// 1001 9
+// 1010 a
+// 1011 b
+
+// 1100 c
+// 1101 d
+// 1110 e
+// 1111 f
+
+//turn that into art and place it near here, actually
+
+
+
+
+
+
+
+
+//   ____                    
+//  / ___| _ __   __ _ _ __  
+//  \___ \| '_ \ / _` | '_ \ 
+//   ___) | |_) | (_| | | | |
+//  |____/| .__/ \__,_|_| |_|
+//        |_|                
+
+var spanMake = data.spanMake;
+var spanParse = data.spanParse;
+var spanSize = data.spanSize;
+
+exports.testSpan = function(test) {
+
+	function both(n, s) {
+		test.ok(spanMake(n).base16() == s);//make
+		test.ok(spanParse(base16(s).take()) == n);//parse
+		test.ok(spanSize(n) == spanMake(n).size());//size
+	}
+
+	//small numbers
+	both(0, "00");
+	both(1, "01");
+	both(10, "0a");
+
+	//around the boundary between 1 and 2 bytes
+	both(126, "7e");
+	both(127, "7f");
+	both(128, "8100");
+	both(129, "8101");
+
+	//largest numbers that fit
+	both(0x0000007f,       "7f"); //  7 1s will fit in 1 byte
+	both(0x00003fff,     "ff7f"); // 14 1s will fit in 2 bytes
+	both(0x001fffff,   "ffff7f"); // 21 1s will fit in 3 bytes
+	both(0x0fffffff, "ffffff7f"); // 28 1s will fit in 4 bytes, this is the largest possible n
+
+	//next numbers that need one more byte
+	both(0x00000080,     "8100");
+	both(0x00004000,   "818000");
+	both(0x00200000, "81808000");
+
+	//a big example number
+	both(0xc571e8, "8695e368");
+	//       c    5    7    1    e    8
+	//       1100 0101 0111 0001 1110 1000  start with c5 71 e8
+	//      110  0010101  1100011  1101000  group into 7s
+	// 10000110 10010101 11100011 01101000  add leading bits
+	// 8   6    9   5    e   3    6   8     result
+
+	//another big number
+	both(268000001, "ffe5b601");
+
+	test.done();
+}
+
+exports.testSpanParse = function(test) {
+
+	//make up some data
+	var bay = Bay();
+	bay.add(spanMake(52));
+	bay.add(spanMake(7889));
+	bay.add(spanMake(0));
+	bay.add(spanMake(1));
+	bay.add(spanMake(0));
+	bay.add(spanMake(268000000));
+	bay.add("hello");//             5 7   0 1 0 2       h e l l o
+	test.ok(bay.data().base16() == "34bd51000100ffe5b60068656c6c6f");
+
+	//parse it back out
+	var clip = bay.data().take();
+	test.ok(spanParse(clip) == 52);
+	test.ok(spanParse(clip) == 7889);
+	test.ok(spanParse(clip) == 0);
+	test.ok(spanParse(clip) == 1);
+	test.ok(spanParse(clip) == 0);
+	test.ok(spanParse(clip) == 268000000);
+	test.ok(clip.data().toString() == "hello");//and all that's left is the text at the end
+
+	test.done();
+}
+
+exports.testSpanParseInvalid = function(test) {
+
+	function invalid(s, expect, remain) {
+		var c = base16(s).take();//clip around the data of s
+		try {
+			spanParse(c);//try parsing it
+			test.fail();//make sure we get an exception
+		} catch (e) { test.ok(e == expect); }//of the kind we expect
+		test.ok(c.data().base16() == remain);//and check what's still in the clip
+	}
+
+	//would be valid, but fails on round trip test
+	invalid("8001", "data", "8001");//number 1 encoded into 2 bytes
+
+	//would be valid, but too long
+	invalid("8180808000", "data", "8180808000");//valid, but 5 bytes instead of 4
+
+	test.done();
+}
+
+exports.testSpanParseChop = function(test) {
+
+	//make up some data
+	var bay = Bay();
+	bay.add(spanMake(258000001));
+	bay.add("hello");//             2       h e l l o
+	test.ok(bay.data().base16() == "fb83890168656c6c6f");
+
+	//imagine we're receiving the data, and only the first 3 bytes arrive
+	var clip = bay.data().start(3).take();
+	test.ok(clip.data().base16() == "fb8389");
+	try {
+		spanParse(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }//we get a chop exception
+	test.ok(clip.data().base16() == "fb8389");//and the clip is unchanged
+
+	//after that, all the data arrives
+	clip = bay.data().take();
+	test.ok(clip.data().base16() == "fb83890168656c6c6f");
+	test.ok(spanParse(clip) == 258000001);//the parse doesn't throw
+	test.ok(clip.data().toString() == "hello");//and removes the 4 byte span from the start of clip
+
+	test.done();
+}
+
+
+
+
+//seems like a working attack on this could be to hand it infinite bytes of 80, sending us bad data forever without us ever noticing anything's wrong
+
+//have a test where you try to parse 8080808001, have that throw because it's too long in size
+//have a test where you try to parse 8001, have that throw because it's longer than it needs to be
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    ___              _       
+//   / _ \ _   _  ___ | |_ ___ 
+//  | | | | | | |/ _ \| __/ _ \
+//  | |_| | |_| | (_) | ||  __/
+//   \__\_\\__,_|\___/ \__\___|
+//                             
 
 var quote = data.quote;
 var unquote = data.unquote;
@@ -1159,30 +1482,10 @@ exports.testQuoteUnquote = function(test) {
 
 	un('car #1\r\n', '"car #1"0d0a #comment');//pound is ok in a quote
 
-
-	//TODO try a bunch of international stuff, see if later bytes in multibyte charcters get encoded as ascii or not
-
-
-
-
-
-
-
 	test.done();
 }
 
-exports.testUnquoteInvalid = function(test) {
-
-
-	//confirm common mistakes throw data
-
-
-
-
-	test.done();
-}
-
-exports.testCount = function(test) {
+exports.testQuoteCount = function(test) {
 
 	//confirm s starts with the given number of text bytes or data bytes
 	function both(s, textBytes, dataBytes) {
@@ -1199,7 +1502,7 @@ exports.testCount = function(test) {
 	test.done();
 }
 
-exports.testMoreText = function(test) {
+exports.testQuoteMoreText = function(test) {
 
 	function run(s, answer) {
 		test.ok(quoteMore(Data(s)) == answer);//turn s into data and scan all its bytes
@@ -1219,7 +1522,7 @@ exports.testMoreText = function(test) {
 	test.done();
 }
 
-exports.testIsText = function(test) {
+exports.testQuoteIsText = function(test) {
 
 	//turn s into data in utf8, then get the first byte, and see if that byte is ascii space through tilde except quote
 	function confirmText(s) { test.ok(quoteIs(Data(s).first())) }
@@ -1241,24 +1544,41 @@ exports.testIsText = function(test) {
 	test.done();
 }
 
+exports.testQuoteInternational = function(test) {
 
+	//quoted is valid quoted text
+	//unquoted16 is the data it should turn into, written as base16
+	//quotedAgain is, in these examples, not the same as quoted
+	function process(quoted, unquoted16, quotedAgain) {
+		var d = unquote(quoted);
+		var s = quote(d);
 
+		test.ok(d.base16() == unquoted16);
+		test.ok(s == quotedAgain);
+	}
 
+	process('"AAA"0d0a', '4141410d0a', '"AAA"0d0a');//symmetric normal
+	process('414141', '414141', '"AAA"');//more in base16 than necessary is ok
+	process(
 
+		//valid quoted text, quoted portions can contain ASCII and Unicode characters
+		'"Quoted text is brought in as UTF 8, but exported as base16: 中文 español português русский 日本語 as you can see here"0d0a',
 
+		//the binary data it gets unquoted to, quoted parts are turned into UTF8 binary data
+		'51756f74656420746578742069732062726f7567687420696e2061732055544620382c20627574206578706f72746564206173206261736531363a20e4b8ade696872065737061c3b16f6c20706f7274756775c3aa7320d180d183d181d181d0bad0b8d0b920e697a5e69cace8aa9e20617320796f752063616e2073656520686572650d0a',
 
+		//quote that binary data, and only the ASCII characters get quoted, the unicode parts are outside the quotes in base 16
+		'"Quoted text is brought in as UTF 8, but exported as base16: "e4b8ade69687" espa"c3b1"ol portugu"c3aa"s "d180d183d181d181d0bad0b8d0b9" "e697a5e69cace8aa9e" as you can see here"0d0a');
 
+	//here are some of those parts so you can see how they all appear
+	test.ok(Data('中文').base16() == "e4b8ade69687");
+	test.ok(Data('ñ').base16() == "c3b1");
+	test.ok(Data('ê').base16() == "c3aa");
+	test.ok(Data('русский').base16() == "d180d183d181d181d0bad0b8d0b9");
+	test.ok(Data('日本語').base16() == "e697a5e69cace8aa9e");
 
-
-
-
-
-
-
-
-
-
-
+	test.done();
+}
 
 
 
