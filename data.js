@@ -6,6 +6,7 @@ var Size = measure.Size;
 var multiply = measure.multiply;
 var divide = measure.divide;
 var scale = measure.scale;
+var isType = measure.isType;
 
 var text = require("./text");
 var parseCheck = text.parseCheck;
@@ -228,7 +229,7 @@ function Data(d) {
 		cut:cut, cutLast:cutLast,
 		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, say:say,
 		hash:hash,
-		isData:function(){}
+		type:function(){ return "Data"; }
 	};
 };
 exports.Data = Data;
@@ -258,7 +259,7 @@ function Clip(b) {
 		data:data, copy:copy,
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		remove:remove, keep:keep,
-		isClip:function(){}
+		type:function(){ return "Clip"; }
 	};
 }
 
@@ -266,11 +267,7 @@ function Clip(b) {
 // Zero if same, negative if d1 then d2, positive if d2 first
 // Compare each byte value 0 through 255 to sort the lowest different byte first, or shortest Data if all the bytes are a tie
 function sortData(d1, d2) {
-//	if (d1.type() != "Data" || d2.type() != "Data") throw "type";
-
-
-	d1.isData();
-	d2.isData();
+	if (d1.type() != "Data" || d2.type() != "Data") throw "type";
 	var i = 0; // Start at the first byte
 	while (true) {
 		if (i < d1.size() && i < d2.size()) { // Compare two bytes
@@ -415,7 +412,7 @@ function Bay(a) {
 		add:add, prepare:prepare,
 		keep:keep, remove:remove, only:only, clear:clear,
 		data:data,
-		isBay:function(){}
+		type:function(){ return "Bay"; }
 	};
 };
 exports.Bay = Bay;
@@ -502,7 +499,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function add(b) {
 
 		// Move as much data as fits from bin to this one
-		if (b.hasOwnProperty("isBin")) {
+		if (isType(b, "Bin")) {
 
 			if (b.isEmpty() || isFull()) {                        // Nothing given or no space here
 			} else if (isEmpty() && capacity() == b.capacity()) { // We're empty and have the same capacity
@@ -516,14 +513,14 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 			}
 
 		// Move as much data as fits from bay to this Bin, removing what we take from bay
-		} else if (b.hasOwnProperty("isBay")) {
+		} else if (isType(b, "Bay")) {
 
 			var clip = b.data().take();
 			add(clip);           // Call this same function with the Clip
 			b.keep(clip.size()); // Have b keep only what add didn't take
 
 		// Move as much data as fits from data to this Bin, removing what we take from data
-		} else if (b.hasOwnProperty("isClip")) {
+		} else if (isType(b, "Clip")) {
 
 			if (b.isEmpty() || isFull()) return;          // Nothing given or no space here
 			var n = Math.min(b.size(), space());          // Figure out how many bytes we can move
@@ -574,7 +571,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
 		add:add, remove:remove, keep:keep, clear:clear,
-		isBin:function(){}
+		type:function(){ return "Bin"; }
 	};
 }
 

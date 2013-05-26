@@ -5,6 +5,8 @@ var measure = require("./measure");
 var Time = measure.Time;
 var Size = measure.Size;
 
+var data = require("./data");
+var Bay = data.Bay;
 
 
 
@@ -313,7 +315,23 @@ exports.testSlice = function(test) {
 
 
 
+var isType = measure.isType;
 
+exports.testIsType = function(test) {
+
+	//platform types
+	test.ok(isType("hi", "string"));
+	test.ok(isType(7, "number"));
+	test.ok(isType(true, "boolean"));
+
+	//custom types
+	var bay = Bay("hi");
+	test.ok(isType(bay, "Bay"));
+	test.ok(isType(bay.data(), "Data"));
+	test.ok(isType(bay.data().take(), "Clip"));
+
+	test.done();
+}
 
 
 

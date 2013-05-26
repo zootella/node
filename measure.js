@@ -42,6 +42,11 @@ exports.Size = Size;
 
 
 
+
+
+
+
+
 /*
  __  __       _   _     
 |  \/  | __ _| |_| |__  
@@ -263,7 +268,7 @@ function Average() {
 		add:add,
 		average:average, averageFloat:averageFloat, averageThousandths:averageThousandths, averageMultiply:averageMultiply,
 		say:say,
-		isAverage:function(){}
+		type:function(){ return "Average"; }
 	};
 }
 
@@ -325,6 +330,15 @@ exports.Slice = Slice;
 
 
 
+// Determine if object o is of type name
+function isType(o, name) {
+	if (typeof o.type == "function")
+		return o.type() == name; // One of our objects, with a type() method
+	else
+		return typeof o == name; // A platform type, use the typeof operator
+}
+
+exports.isType = isType;
 
 
 
