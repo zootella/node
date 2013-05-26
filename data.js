@@ -7,6 +7,7 @@ var multiply = requireMeasure.multiply;
 var divide = requireMeasure.divide;
 var scale = requireMeasure.scale;
 var isType = requireMeasure.isType;
+var checkType = requireMeasure.checkType;
 
 var requireText = require("./text");
 var parseCheck = requireText.parseCheck;
@@ -267,7 +268,8 @@ function Clip(b) {
 // Zero if same, negative if d1 then d2, positive if d2 first
 // Compare each byte value 0 through 255 to sort the lowest different byte first, or shortest Data if all the bytes are a tie
 function sortData(d1, d2) {
-	if (d1.type() != "Data" || d2.type() != "Data") throw "type";
+	checkType(d1, "Data");
+	checkType(d2, "Data");
 	var i = 0; // Start at the first byte
 	while (true) {
 		if (i < d1.size() && i < d2.size()) { // Compare two bytes
@@ -894,6 +896,50 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
+
+function validOutlineName(name) {
+	//if not a-z0-9, throw "data"
+}
+
+
+
+
+function Outline(n, v, c) {
+
+	var _name = "";
+	var _value = Data();
+	var _contents = [];
+
+	if (n != undefined) setName(n);
+	if (v != undefined) setValue(v);
+	if (c != undefined) setContents(c);
+
+	function name() { return _name; }
+	function value() { return _value; }
+	function contents() { return _contents; }
+
+	function setName(_n) {
+		checkType(_n, "string");
+		if (!validOutlineName(_n)) throw "data";
+		_name = _n;
+	}
+
+	function setValue(_v) {
+		checkType(_v, "Data");
+		_value = _v;
+	}
+
+	function setContents(_c) {
+		for (var i = 0; i < _c.length; i++) { checkType(_c[i], "Outline"); }
+		_contents = _c;
+	}
+
+
+
+}
+
+
+
 //here's where you could actually use isData() and isOutline to check the inputs when building an outline
 //also do this in sortText, sortData, sortOutline so you make sure you know what you're sorting
 
@@ -903,19 +949,26 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
-//Outline
-//Outline and Text
-//Outline and Data
-//Span
-//Quote
+
+
+
+//    ___        _   _ _                              _   _____         _   
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |_   _|____  _| |_ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` |   | |/ _ \ \/ / __|
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
+//                                                                          
 
 
 
 
 
-
-
-
+//    ___        _   _ _                              _   ____        _        
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
+//                                                                             
 
 
 
