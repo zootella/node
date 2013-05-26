@@ -1571,11 +1571,11 @@ exports.testQuoteInternational = function(test) {
 		'"Quoted text is brought in as UTF 8, but exported as base16: "e4b8ade69687" espa"c3b1"ol portugu"c3aa"s "d180d183d181d181d0bad0b8d0b9" "e697a5e69cace8aa9e" as you can see here"0d0a');
 
 	//here are some of those parts so you can see how they all appear
-	test.ok(Data('中文').base16() == "e4b8ade69687");
-	test.ok(Data('ñ').base16() == "c3b1");
-	test.ok(Data('ê').base16() == "c3aa");
-	test.ok(Data('русский').base16() == "d180d183d181d181d0bad0b8d0b9");
-	test.ok(Data('日本語').base16() == "e697a5e69cace8aa9e");
+	test.ok(Data('中文').base16() == 'e4b8ade69687');
+	test.ok(Data('ñ').base16() == 'c3b1');
+	test.ok(Data('ê').base16() == 'c3aa');
+	test.ok(Data('русский').base16() == 'd180d183d181d181d0bad0b8d0b9');
+	test.ok(Data('日本語').base16() == 'e697a5e69cace8aa9e');
 
 	test.done();
 }

@@ -872,10 +872,22 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
+//here's where you could actually use isData() and isOutline to check the inputs when building an outline
+//also do this in sortText, sortData, sortOutline so you make sure you know what you're sorting
+
+//make the outline object really small, just the members, and the functions
+//and have the functions defined seprately outside
 
 
+//use ParseToBay in base16, 32, 62, 64, it should be easy to start using it, and you won't need to change any of the tests
+//but you could add a test that demonstrates using the same bay multiple times, getting thrown data, and the invalid fragment not being there
 
 
+//Outline
+//Outline and Text
+//Outline and Data
+//Span
+//Quote
 
 
 
