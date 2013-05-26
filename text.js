@@ -189,11 +189,9 @@ exports.sort = sort;
 // This is a clever way to turn a forgiving parsing function into a very strict one
 function parseCheck(o, oToString, s) { // Case sensitive
 	if (oToString != s) throw "data";
-	return o;
 }
 function parseCheckMatch(o, oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
 	if (!match(oToString, s)) throw "data";
-	return o;
 }
 
 // Turn a string like "123" into the number 123
@@ -203,7 +201,8 @@ function _number(s, base) {
 	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
-	return parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
+	parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
+	return n;
 }
 
 // Turn a number like 123 into a string like "123"

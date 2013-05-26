@@ -692,7 +692,8 @@ function base16(s, bay) {
 			if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
 			else throw e; // Throw up some other exception we didn't expect
 		}
-		return parseCheckMatch(d, d.base16(), s);
+		parseCheckMatch(d, d.base16(), s);
+		return d;
 
 	} catch (e) { t.reset(); throw e; }
 }
@@ -728,7 +729,8 @@ function base32(s, bay) {
 			}
 		}
 		var d = t.data();
-		return parseCheckMatch(d, d.base32(), s);
+		parseCheckMatch(d, d.base32(), s);
+		return d;
 
 	} catch (e) { t.reset(); throw e; }
 }
@@ -766,7 +768,8 @@ function base62(s, bay) {
 			}
 		}
 		var d = t.data();
-		return parseCheck(d, d.base62(), s);
+		parseCheck(d, d.base62(), s);
+		return d;
 
 	} catch (e) { t.reset(); throw e; }
 }
@@ -778,7 +781,8 @@ function base64(s, bay) {
 	try {
 
 		var d = Data(new Buffer(s, "base64"));
-		return parseCheck(d, d.base64(), s);
+		parseCheck(d, d.base64(), s);
+		return d;
 
 	} catch (e) { t.reset(); throw e; }
 }
