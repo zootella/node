@@ -1,12 +1,12 @@
 
 var log = console.log;
 
-var measure = require("./measure");
-var Time = measure.Time;
-var Size = measure.Size;
+var requireMeasure = require("./measure");
+var Time = requireMeasure.Time;
+var Size = requireMeasure.Size;
 
-var data = require("./data");
-var Bay = data.Bay;
+var requireData = require("./data");
+var Bay = requireData.Bay;
 
 
 
@@ -36,10 +36,10 @@ exports.testUnits = function(test) {
 
 
 
-var multiply = measure.multiply;
-var divide = measure.divide;
-var scale = measure.scale;
-var check = measure.check;
+var multiply = requireMeasure.multiply;
+var divide = requireMeasure.divide;
+var scale = requireMeasure.scale;
+var check = requireMeasure.check;
 
 exports.testNumberNanInfinity = function(test) {
 
@@ -198,7 +198,7 @@ exports.testScale = function(test) {
 
 
 
-var Average = measure.Average;
+var Average = requireMeasure.Average;
 
 exports.testAverage = function(test) {
 
@@ -315,7 +315,7 @@ exports.testSlice = function(test) {
 
 
 
-var isType = measure.isType;
+var isType = requireMeasure.isType;
 
 exports.testIsType = function(test) {
 

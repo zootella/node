@@ -2,11 +2,11 @@
 
 var log = console.log;
 
-var data = require("./data");
-var Data = data.Data;
-var base64 = data.base64;
+var requireData = require("./data");
+var Data = requireData.Data;
+var base64 = requireData.base64;
 
-var text = require("./text");
+var requireText = require("./text");
 
 
 
@@ -70,9 +70,9 @@ exports.testArray = function(test) {
 //   \____|_| |_|\__,_|_|  \__,_|\___|\__\___|_|   
 //                                                 
 
-var is = text.is;
-var blank = text.blank;
-var sort = text.sort;
+var is = requireText.is;
+var blank = requireText.blank;
+var sort = requireText.sort;
 
 exports.testLengthSize = function(test) {
 
@@ -332,10 +332,10 @@ exports.testSort = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
-var number = text.number;
-var number16 = text.number16;
-var numerals = text.numerals;
-var numerals16 = text.numerals16;
+var number = requireText.number;
+var number16 = requireText.number16;
+var numerals = requireText.numerals;
+var numerals16 = requireText.numerals16;
 
 exports.testNumberNumerals = function(test) {
 
@@ -525,8 +525,8 @@ exports.testClip = function(test) {
 //  |_|   |_|_| |_|\__,_|
 //                       
 
-var same = text.same;
-var match = text.match;
+var same = requireText.same;
+var match = requireText.match;
 
 exports.testSameMatch = function(test) {
 
@@ -907,10 +907,10 @@ exports.testRip = function(test) {
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
-var say = text.say;
-var make = text.make;
-var lines = text.lines;
-var table = text.table;
+var say = requireText.say;
+var make = requireText.make;
+var lines = requireText.lines;
+var table = requireText.table;
 
 exports.testSay = function(test) {
 
@@ -1049,7 +1049,7 @@ exports.testLinesTable = function(test) {
 //  |____/ \___||___/\___|_|  |_|_.__/ \___|
 //                                          
 
-var sayNumber = text.sayNumber;
+var sayNumber = requireText.sayNumber;
 
 exports.testSayNumber = function(test) {
 
@@ -1095,7 +1095,7 @@ exports.testSayNumber = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
-var safeFileName = text.safeFileName;
+var safeFileName = requireText.safeFileName;
 
 exports.testEncodeDecodeUriComponent = function(test) {
 

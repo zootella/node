@@ -1,19 +1,19 @@
 
 var log = console.log;
 
-var measure = require("./measure");
-var Size = measure.Size;
-var multiply = measure.multiply;
-var divide = measure.divide;
-var scale = measure.scale;
-var isType = measure.isType;
+var requireMeasure = require("./measure");
+var Size = requireMeasure.Size;
+var multiply = requireMeasure.multiply;
+var divide = requireMeasure.divide;
+var scale = requireMeasure.scale;
+var isType = requireMeasure.isType;
 
-var text = require("./text");
-var parseCheck = text.parseCheck;
-var parseCheckMatch = text.parseCheckMatch;
-var number = text.number;
-var numerals = text.numerals;
-var numerals16 = text.numerals16;
+var requireText = require("./text");
+var parseCheck = requireText.parseCheck;
+var parseCheckMatch = requireText.parseCheckMatch;
+var number = requireText.number;
+var numerals = requireText.numerals;
+var numerals16 = requireText.numerals16;
 
 
 

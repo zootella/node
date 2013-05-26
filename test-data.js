@@ -1,19 +1,19 @@
 
 var log = console.log;
 
-var data = require("./data");//functions
-var Size = data.Size;
-var Data = data.Data;
-var toByte = data.toByte;
-var base16 = data.base16;
-var base32 = data.base32;
-var base62 = data.base62;
-var base64 = data.base64;
-var Bay = data.Bay;
-var mediumBin = data.mediumBin;
-var bigBin = data.bigBin;
-var testBin = data.testBin;
-var sortData = data.sortData;
+var requireData = require("./data");//functions
+var Size = requireData.Size;
+var Data = requireData.Data;
+var toByte = requireData.toByte;
+var base16 = requireData.base16;
+var base32 = requireData.base32;
+var base62 = requireData.base62;
+var base64 = requireData.base64;
+var Bay = requireData.Bay;
+var mediumBin = requireData.mediumBin;
+var bigBin = requireData.bigBin;
+var testBin = requireData.testBin;
+var sortData = requireData.sortData;
 
 var encrypt = require("./encrypt");
 var randomData = encrypt.randomData;
@@ -1111,8 +1111,8 @@ exports.testEncodeInvalid = function(test) {
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-var ParseToBay = data.ParseToBay;
-var ParseFromClip = data.ParseFromClip;
+var ParseToBay = requireData.ParseToBay;
+var ParseFromClip = requireData.ParseFromClip;
 
 exports.testParseToBay = function(test) {
 
@@ -1269,9 +1269,9 @@ exports.testParseBase16 = function(test) {
 //  |____/| .__/ \__,_|_| |_|
 //        |_|                
 
-var spanMake = data.spanMake;
-var spanParse = data.spanParse;
-var spanSize = data.spanSize;
+var spanMake = requireData.spanMake;
+var spanParse = requireData.spanParse;
+var spanSize = requireData.spanSize;
 
 exports.testSpan = function(test) {
 
@@ -1421,11 +1421,11 @@ exports.testSpanParseChop = function(test) {
 //   \__\_\\__,_|\___/ \__\___|
 //                             
 
-var quote = data.quote;
-var unquote = data.unquote;
-var quoteCount = data.quoteCount;
-var quoteMore = data.quoteMore;
-var quoteIs = data.quoteIs;
+var quote = requireData.quote;
+var unquote = requireData.unquote;
+var quoteCount = requireData.quoteCount;
+var quoteMore = requireData.quoteMore;
+var quoteIs = requireData.quoteIs;
 
 exports.testQuoteUnquote = function(test) {
 

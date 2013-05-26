@@ -2,7 +2,6 @@
 
 var log = console.log;
 
-var data = require("./data");
 
 
 
