@@ -775,7 +775,6 @@ function base62(s, bay) {
 }
 
 // Turn base 64-encoded text back into the data it was made from
-// Doesn't throw on bad input, rather encodes the valid characters you give it into as many bytes as it can
 function base64(s, bay) {
 	var t = ParseToBay(bay);
 	try {
