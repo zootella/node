@@ -151,7 +151,10 @@ function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
 
 // Determine which should appear first in sorted order
 // Zero if same, negative if s1 then s2, positive if s2 first
-function sort(s1, s2) { return s1.localeCompare(s2); }
+function sort(s1, s2) {
+	if (typeof s1 != "string" || typeof s2 != "string") throw "type";
+	return s1.localeCompare(s2);
+}
 
 exports.is = is;
 exports.blank = blank;

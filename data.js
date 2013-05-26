@@ -266,6 +266,11 @@ function Clip(b) {
 // Zero if same, negative if d1 then d2, positive if d2 first
 // Compare each byte value 0 through 255 to sort the lowest different byte first, or shortest Data if all the bytes are a tie
 function sortData(d1, d2) {
+//	if (d1.type() != "Data" || d2.type() != "Data") throw "type";
+
+
+	d1.isData();
+	d2.isData();
 	var i = 0; // Start at the first byte
 	while (true) {
 		if (i < d1.size() && i < d2.size()) { // Compare two bytes
@@ -899,8 +904,6 @@ exports.ParseFromClip = ParseFromClip;
 //and have the functions defined seprately outside
 
 
-//use ParseToBay in base16, 32, 62, 64, it should be easy to start using it, and you won't need to change any of the tests
-//but you could add a test that demonstrates using the same bay multiple times, getting thrown data, and the invalid fragment not being there
 
 
 //Outline
