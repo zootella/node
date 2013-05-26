@@ -906,31 +906,33 @@ function validOutlineName(name) {
 
 function Outline(n, v, c) {
 
-	var _name = "";
-	var _value = Data();
-	var _contents = [];
+	// Members
+	var _name = ""; // Blank string
+	var _value = Data(); // Empty data
+	var _contents = []; // Empty array
 
-	if (n != undefined) setName(n);
-	if (v != undefined) setValue(v);
-	if (c != undefined) setContents(c);
+	// Set given initial values
+	if (n !== undefined) setName(n);
+	if (v !== undefined) setValue(v);
+	if (c !== undefined) setContents(c);
 
+	// Get members
 	function name() { return _name; }
 	function value() { return _value; }
 	function contents() { return _contents; }
 
+	// Set members
 	function setName(_n) {
-		checkType(_n, "string");
-		if (!validOutlineName(_n)) throw "data";
+		checkType(_n, "string"); // Name must be a string
+		if (!validOutlineName(_n)) throw "data"; // That only has the characters a-z and 0-9
 		_name = _n;
 	}
-
 	function setValue(_v) {
-		checkType(_v, "Data");
+		checkType(_v, "Data"); // Value must be data
 		_value = _v;
 	}
-
 	function setContents(_c) {
-		for (var i = 0; i < _c.length; i++) { checkType(_c[i], "Outline"); }
+		for (var i = 0; i < _c.length; i++) { checkType(_c[i], "Outline"); } // Contents must be an array of Outline objects
 		_contents = _c;
 	}
 
