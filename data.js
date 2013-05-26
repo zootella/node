@@ -232,7 +232,7 @@ function Data(d) {
 		hash:hash,
 		type:function(){ return "Data"; }
 	};
-};
+}
 exports.Data = Data;
 
 // Clip around some data to remove bytes you're done with from the start until it's empty
@@ -416,7 +416,7 @@ function Bay(a) {
 		data:data,
 		type:function(){ return "Bay"; }
 	};
-};
+}
 exports.Bay = Bay;
 
 
@@ -904,42 +904,101 @@ function validOutlineName(name) {
 
 
 
+
+
+
 function Outline(n, v, c) {
 
-	// Members
-	var _name = ""; // Blank string
-	var _value = Data(); // Empty data
-	var _contents = []; // Empty array
+	// Members and default empty values
+	var _name     = "";     // Blank string
+	var _value    = Data(); // Empty data
+	var _contents = [];     // Empty array
 
 	// Set given initial values
-	if (n !== undefined) setName(n);
-	if (v !== undefined) setValue(v);
-	if (c !== undefined) setContents(c);
+	name(n);
+	value(v);
+	contents(c);
 
-	// Get members
-	function name() { return _name; }
-	function value() { return _value; }
-	function contents() { return _contents; }
-
-	// Set members
-	function setName(_n) {
-		checkType(_n, "string"); // Name must be a string
-		if (!validOutlineName(_n)) throw "data"; // That only has the characters a-z and 0-9
-		_name = _n;
+	// Set and get members
+	function name(_n) {
+		if (_n !== undefined) {
+			checkType(_n, "string"); // Name must be a string
+			if (!validOutlineName(_n)) throw "data"; // That only has the characters a-z and 0-9
+			_name = _n;
+		}
+		return _name;
 	}
-	function setValue(_v) {
-		checkType(_v, "Data"); // Value must be data
-		_value = _v;
+	function value(_v) {
+		if (_v !== undefined) {
+			checkType(_v, "Data"); // Value must be data
+			_value = _v;
+		}
+		return _value;
 	}
-	function setContents(_c) {
-		for (var i = 0; i < _c.length; i++) { checkType(_c[i], "Outline"); } // Contents must be an array of Outline objects
-		_contents = _c;
+	function contents(_c) {
+		if (_c !== undefined) {
+			for (var i = 0; i < _c.length; i++) {
+				checkType(_c[i], "Outline"); // Contents must be an array of Outline objects
+			}
+			_contents = _c;
+		}
+		return _contents;
 	}
 
 
 
+	/** Add o to this Outline object's contents. */
+	function add(o) {
+		checkType(o, "Outline");
+		contents.add(o); // Add the given Outline object to our contents List of them
+	}
+
+	/** True if this Outline contains name. */
+	function has(_n) {
+		for (var i = 0; i < _contents.length; i++)
+			if (_contents[i].name() == _n) return true; // Found an Outline object in our contents with the given name
+		return false; // Not found
+	}
+
+	/** Remove all the Outline objects in our contents that have the given name. */
+	function remove(_n) {
+		for (var i = _contents.length - 1; i >= 0; i--)
+			if (_contents[i].name() == _n) _contents.remove(i); // Found name, remove it
+	}
+
+	/** Get a List of the Outline objects within this one that have the name "", the default list. */
+	/** Get a List of the Outline objects within this one that have the given name. */
+	function list(_n) {
+		if (_n === undefined) _n = "";
+		var a = [];
+		for (var i = 0; i < _contents.length; i++)
+			if (_contents[i].name() == _n) a.add(_contents[i]); // We found one with a matching name, add it to the list we'll return
+		return a;
+	}
+
+
+
+	/** Move down from this Outline object to name within it, throw DataException if name is not found. */
+	function o(_n) {
+		for (var i = 0; i < _contents.length; i++)
+			if (_contents[i].name() == _n) return _contents[i]; // Return the first Outline in our contents that has a matching name
+		throw "data";
+	}
+
+	/** Move down from this Outline object to name within it, make name if it doesn't exist yet. */
+	function m(_n) {
+		if (!has(_n)) add(Outline(_n)); // If name isn't there, make it
+		return o(_n);
+	}
+
+
+	return {
+		name:name, value:value, contents:contents,
+		add:add, has:has, remove:remove, list:list,
+		o:o, m:m,
+		type:function(){ return "Outline"; }
+	};
 }
-
 
 
 //here's where you could actually use isData() and isOutline to check the inputs when building an outline
