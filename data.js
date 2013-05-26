@@ -681,90 +681,106 @@ function toBase62(d) {
 function toBase64(d) { return d.toBuffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
-function base16(s) {
-	var d;
+function base16(s, bay) {
+	var t = ParseToBay(bay);
 	try {
-		d = Data(new Buffer(s, "hex"));
-	} catch (e) {
-		if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
-		else throw e; // Throw up some other exception we didn't expect
-	}
-	return parseCheckMatch(d, d.base16(), s);
+
+		var d;
+		try {
+			d = Data(new Buffer(s, "hex"));
+		} catch (e) {
+			if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
+			else throw e; // Throw up some other exception we didn't expect
+		}
+		return parseCheckMatch(d, d.base16(), s);
+
+	} catch (e) { t.reset(); throw e; }
 }
 
 // Turn base 32-encoded text back into the data it was made from
-function base32(s) {
+function base32(s, bay) {
+	var t = ParseToBay(bay);
+	try {
 
-	// Loop for each character in the text
-	var c;           // The character we are converting into bits
-	var code;        // The bits the character gets turned into
-	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
-	var bits = 0;    // The number of bits stored in the right side of hold right now
-	var bay = Bay(); // Empty bay for decoded bytes
-	for (var i = 0; i < s.length; i++) {
+		// Loop for each character in the text
+		var c;           // The character we are converting into bits
+		var code;        // The bits the character gets turned into
+		var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
+		var bits = 0;    // The number of bits stored in the right side of hold right now
+		for (var i = 0; i < s.length; i++) {
 
-		// Get a character from the text, and convert it into its code
-		c = s.get(i).upper();                                          // Accept uppercase and lowercase letters
-		if      (c.range("A", "Z")) code = c.code() - "A".code();      // 'A'  0 00000 through 'Z' 25 11001
-		else if (c.range("2", "7")) code = c.code() - "2".code() + 26; // '2' 26 11010 through '7' 31 11111
-		else throw "data";                                             // Invalid character
+			// Get a character from the text, and convert it into its code
+			c = s.get(i).upper();                                          // Accept uppercase and lowercase letters
+			if      (c.range("A", "Z")) code = c.code() - "A".code();      // 'A'  0 00000 through 'Z' 25 11001
+			else if (c.range("2", "7")) code = c.code() - "2".code() + 26; // '2' 26 11010 through '7' 31 11111
+			else throw "data";                                             // Invalid character
 
-		// Insert the bits from code into hold
-		hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
-		bits += 5;                 // Record that there are now 5 more bits being held
+			// Insert the bits from code into hold
+			hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
+			bits += 5;                 // Record that there are now 5 more bits being held
 
-		// If we have enough bits in hold to write a byte
-		if (bits >= 8) {
+			// If we have enough bits in hold to write a byte
+			if (bits >= 8) {
 
-			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add(toByte((hold >>> (bits - 8)) & 0xff));
-			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
+				// Move the 8 leftmost bits in hold to our Bay object
+				t.add(toByte((hold >>> (bits - 8)) & 0xff));
+				bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
+			}
 		}
-	}
-	var d = bay.data();
-	return parseCheckMatch(d, d.base32(), s);
+		var d = t.data();
+		return parseCheckMatch(d, d.base32(), s);
+
+	} catch (e) { t.reset(); throw e; }
 }
 
 // Turn base 62-encoded text back into the data it was made from
-function base62(s) {
+function base62(s, bay) {
+	var t = ParseToBay(bay);
+	try {
 
-	// Loop for each character in the text
-	var c;           // The character we are converting into bits
-	var code;        // The bits the character gets turned into
-	var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
-	var bits = 0;    // The number of bits stored in the right side of hold right now
-	var bay = Bay(); // Empty bay for decoded bytes
-	for (var i = 0; i < s.length; i++) {
+		// Loop for each character in the text
+		var c;           // The character we are converting into bits
+		var code;        // The bits the character gets turned into
+		var hold = 0;    // A place to hold bits from several characters until we have 8 and can write a byte
+		var bits = 0;    // The number of bits stored in the right side of hold right now
+		for (var i = 0; i < s.length; i++) {
 
-		// Get a character from the text
-		c = s.get(i);
-		if      (c.range("0", "9")) code = c.code() - "0".code();      // '0'  0 000000 through '9'  9 001001
-		else if (c.range("a", "z")) code = c.code() - "a".code() + 10; // 'a' 10 001010 through 'z' 35 100011
-		else if (c.range("A", "Y")) code = c.code() - "A".code() + 36; // 'A' 36 100100 through 'Y' 60 111100
-		else if (c.range("Z", "Z")) code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
-		else throw "data";                                             // Invalid character
+			// Get a character from the text
+			c = s.get(i);
+			if      (c.range("0", "9")) code = c.code() - "0".code();      // '0'  0 000000 through '9'  9 001001
+			else if (c.range("a", "z")) code = c.code() - "a".code() + 10; // 'a' 10 001010 through 'z' 35 100011
+			else if (c.range("A", "Y")) code = c.code() - "A".code() + 36; // 'A' 36 100100 through 'Y' 60 111100
+			else if (c.range("Z", "Z")) code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
+			else throw "data";                                             // Invalid character
 
-		// Insert the bits from code into hold
-		if (code == 61) { hold = (hold << 4) | 15;   bits += 4; } // Insert 1111 for 'Z'
-		else            { hold = (hold << 6) | code; bits += 6; } // Insert 000000 for '0' through 111100 for 'Y'
+			// Insert the bits from code into hold
+			if (code == 61) { hold = (hold << 4) | 15;   bits += 4; } // Insert 1111 for 'Z'
+			else            { hold = (hold << 6) | code; bits += 6; } // Insert 000000 for '0' through 111100 for 'Y'
 
-		// If we have enough bits in hold to write a byte
-		if (bits >= 8) {
+			// If we have enough bits in hold to write a byte
+			if (bits >= 8) {
 
-			// Move the 8 leftmost bits in hold to our Bay object
-			bay.add(toByte((hold >>> (bits - 8)) & 0xff));
-			bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
+				// Move the 8 leftmost bits in hold to our Bay object
+				t.add(toByte((hold >>> (bits - 8)) & 0xff));
+				bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
+			}
 		}
-	}
-	var d = bay.data();
-	return parseCheck(d, d.base62(), s);
+		var d = t.data();
+		return parseCheck(d, d.base62(), s);
+
+	} catch (e) { t.reset(); throw e; }
 }
 
 // Turn base 64-encoded text back into the data it was made from
 // Doesn't throw on bad input, rather encodes the valid characters you give it into as many bytes as it can
-function base64(s) {
-	var d = Data(new Buffer(s, "base64"));
-	return parseCheck(d, d.base64(), s);
+function base64(s, bay) {
+	var t = ParseToBay(bay);
+	try {
+
+		var d = Data(new Buffer(s, "base64"));
+		return parseCheck(d, d.base64(), s);
+
+	} catch (e) { t.reset(); throw e; }
 }
 
 exports.toByte = toByte;
