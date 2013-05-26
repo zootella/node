@@ -187,10 +187,10 @@ exports.sort = sort;
 
 // Before returning object o we parsed from text s, make sure o turns back into exactly the same text
 // This is a clever way to turn a forgiving parsing function into a very strict one
-function parseCheck(o, oToString, s) { // Case sensitive
+function parseCheck(oToString, s) { // Case sensitive
 	if (oToString != s) throw "data";
 }
-function parseCheckMatch(o, oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
+function parseCheckMatch(oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
 	if (!match(oToString, s)) throw "data";
 }
 
@@ -201,7 +201,7 @@ function _number(s, base) {
 	if (typeof s !== "string") throw "type";
 	var n = parseInt(s, base);
 	if (isNaN(n)) throw "data";
-	parseCheckMatch(n, _numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
+	parseCheckMatch(_numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
 	return n;
 }
 

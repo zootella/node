@@ -1177,6 +1177,30 @@ exports.testParseFromClip = function(test) {
 	test.done();
 }
 
+exports.testParseBase16 = function(test) {
+
+	//suppose you're parsing base 16 text into a bay
+	var bay = Bay();
+	base16("0001", bay);
+	base16("02030405", bay);
+	test.ok(bay.data().base16() == "000102030405");
+
+	//so far so good, but then, you try to parse the next part, and it's invalid because it's a fragment
+	try {
+		base16("0607080", bay);//missing the 9
+		test.fail();
+	} catch (e) { test.ok(e == "data"); }
+
+	//it's ok, bay didn't change
+	test.ok(bay.data().base16() == "000102030405");
+
+	//then the rest arrives, and you can parse it successfully again
+	base16("060708090a0b0c0d0e0f", bay);
+	test.ok(bay.data().base16() == "000102030405060708090a0b0c0d0e0f");
+
+	test.done();
+}
+
 
 
 
