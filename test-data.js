@@ -1228,7 +1228,8 @@ exports.testParseBase16 = function(test) {
 
 
 
-
+//like dracula, outline has three forms
+//they are easy-to-use objects in code for the programmer, human and machine readable text for configuration files and blogs, and compact binary data for the disk and wire
 
 
 

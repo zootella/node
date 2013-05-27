@@ -324,6 +324,9 @@ exports.Slice = Slice;
 //also, the whole design is wrong, it should work with Stripe, you have to write Range and Stripe first
 */
 
+//if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
+//you could hash it right in memory, for instance
+//or maybe this isn't necessary, you need to think about it some more
 
 
 

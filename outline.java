@@ -1,25 +1,6 @@
 
 
 
-package org.zootella.base.data;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.zootella.base.exception.DataException;
-
-// rules for designing your outline
-// tag names can only be numbers and lowercase letters, as short as possible
-// blank ok, duplicate tag names ok
-// order can't matter
-// tag names can't contain data, or be generated from data, that's what values are for
-// values can't contain outline data, that's what contents are for
-// numbers are text numerals in values, no numbers in bits
-// values shouldn't have compression or encoding that requires more transformation, data in its most raw form
-// values shouldn't have structure that requires more parsing, data in its most granular form
-// no version numbers, the outline grows without breaking compatibility
-// no vendor codes, the outline is a single unified common area
-// an outline should be short, 8k or less when turned into data
 
 public class Outline {
 
@@ -32,6 +13,15 @@ public class Outline {
 	/** The contents of this Outline object, a List of more Outline objects beneath it in the outline. */
 	private List<Outline> contents;
 
+
+
+
+
+
+
+
+
+
 	// Value
 	
 	/** Get this Outline object's data value. */
@@ -43,12 +33,16 @@ public class Outline {
 	public void set(Data d) {
 		this.value = d.copyData(); // Copy the value data into this new Outline object
 	}
-	
-	/** Clear the value and contents of this Outline object. */
-	public void clear() {
-		set(Data.empty()); // No value
-		contents.clear(); // Remove all the Outline objects in our contents list
-	}
+
+
+
+
+
+
+
+
+
+
 
 	// Make
 	
@@ -66,6 +60,17 @@ public class Outline {
 	/** Make a new Outline object with the given name and String value. */
 	public Outline(String name, String value) { this(name, new Data(value)); }
 	
+
+
+
+
+
+
+
+
+
+
+
 	// Contents
 
 	/** Add a new Outline to this one, with the given name and no value. */
@@ -106,6 +111,18 @@ public class Outline {
 		return list;
 	}
 	
+
+
+
+
+
+
+
+
+
+
+
+
 	// Navigate
 
 	/** Move down from this Outline object to name within it, throw DataException if name is not found. */
@@ -121,6 +138,17 @@ public class Outline {
 			add(name); // If name isn't there, make it
 		return o(name);
 	}
+
+
+
+
+
+
+
+
+
+
+
 
 	// Convert to text
 	
@@ -144,6 +172,19 @@ public class Outline {
 		for (Outline o : contents)        // Loop for each Outline in our contents
 			o.toString(b, indent + "  "); // Have it describe itself, indented more than we are
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// Parse from text
 
@@ -197,6 +238,19 @@ public class Outline {
 	/** If this Outline was parsed from a line of text in a text outline, the number of indent spaces it had, like 2 in "  name:value". */
 	private int indent;
 	
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Convert to data
 	
 	/** Turn this Outline into data. */
@@ -245,6 +299,18 @@ public class Outline {
 		else if (n <= 0x001fffff) return 3; // 21 1s will fit in 3 bytes
 		else                      return 4; // 28 1s will fit in 4 bytes
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// Parse from data
 	

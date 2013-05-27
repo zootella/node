@@ -897,7 +897,7 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
-function validOutlineName(name) {
+function checkOutlineName(name) {
 	//if not a-z0-9, throw "data"
 }
 
@@ -923,7 +923,7 @@ function Outline(n, v, c) {
 	function name(_n) {
 		if (_n !== undefined) {
 			checkType(_n, "string"); // Name must be a string
-			if (!validOutlineName(_n)) throw "data"; // That only has the characters a-z and 0-9
+			checkOutlineName(_n);    // with only the characters a-z and 0-9
 			_name = _n;
 		}
 		return _name;
@@ -937,9 +937,7 @@ function Outline(n, v, c) {
 	}
 	function contents(_c) {
 		if (_c !== undefined) {
-			for (var i = 0; i < _c.length; i++) {
-				checkType(_c[i], "Outline"); // Contents must be an array of Outline objects
-			}
+			for (var i = 0; i < _c.length; i++) checkType(_c[i], "Outline"); // Contents must be an array of Outline objects
 			_contents = _c;
 		}
 		return _contents;
@@ -950,7 +948,7 @@ function Outline(n, v, c) {
 	/** Add o to this Outline object's contents. */
 	function add(o) {
 		checkType(o, "Outline");
-		contents.add(o); // Add the given Outline object to our contents List of them
+		_contents.add(o); // Add the given Outline object to our contents List of them
 	}
 
 	/** True if this Outline contains name. */
@@ -969,7 +967,7 @@ function Outline(n, v, c) {
 	/** Get a List of the Outline objects within this one that have the name "", the default list. */
 	/** Get a List of the Outline objects within this one that have the given name. */
 	function list(_n) {
-		if (_n === undefined) _n = "";
+		if (_n === undefined) _n = ""; // o.list() returns the default list, contained outlines with the blank name
 		var a = [];
 		for (var i = 0; i < _contents.length; i++)
 			if (_contents[i].name() == _n) a.add(_contents[i]); // We found one with a matching name, add it to the list we'll return
@@ -992,10 +990,29 @@ function Outline(n, v, c) {
 	}
 
 
+	function sort() {}//sort the contents in place
+
+
+
+	function toText() { return outlineToText(Outline(_name, _value, _contents)); }
+	function toData() { return outlineToData(Outline(_name, _value, _contents)); }
+	//actually, these are pretty deterministic and straightforward, it may make sense to put them inline, and keep the parsing functions outside
+
+
 	return {
 		name:name, value:value, contents:contents,
 		add:add, has:has, remove:remove, list:list,
 		o:o, m:m,
+
+		sort:sort,
+
+		toText:toText, toString:toText, say:toText, // o.toText(), o.toString(), and o.say() are the same
+		toData:toData, data:toData,                 // o.toData(), and o.data() are the same
+		//no, this is silly, only have .text() and .data()
+		//don't have say(), that's the function that calls text or toString or +""
+		//and search your entire project for toString to replace it with text everywhere
+		//and data has text() that's utf8, and base16() that's base16, and that's it
+
 		type:function(){ return "Outline"; }
 	};
 }
@@ -1006,6 +1023,14 @@ function Outline(n, v, c) {
 
 //make the outline object really small, just the members, and the functions
 //and have the functions defined seprately outside
+
+
+//rename sort() to sortText() to have sortText(), sortData(), and sortOutline()
+//o.toText() [same as toString() and say()], o.toData()
+//outlineFromText(s), outlineFromData(clip)
+//
+
+
 
 
 
@@ -1019,6 +1044,8 @@ function Outline(n, v, c) {
 //  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
 //                                                                          
+function outlineToText(o) { return s; }
+function outlineFromText(s) { return o; }
 
 
 
@@ -1030,6 +1057,8 @@ function Outline(n, v, c) {
 //  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
 //                                                                             
+function outlineToData(o, bay) { return t.data(); }
+function outlineFromData(clip) { return o; }
 
 
 
