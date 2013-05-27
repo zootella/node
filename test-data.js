@@ -1,6 +1,9 @@
 
 var log = console.log;
 
+var requireMeasure = require("./measure");
+var checkType = requireMeasure.checkType;
+
 var requireData = require("./data");//functions
 var Size = requireData.Size;
 var Data = requireData.Data;
@@ -1224,6 +1227,235 @@ exports.testParseBase16 = function(test) {
 //  | |_| | |_| | |_| | | | | |  __/
 //   \___/ \__,_|\__|_|_|_| |_|\___|
 //                                  
+
+
+
+
+var Outline = requireData.Outline;
+
+exports.testOutlineName = function(test) {
+
+	function valid(name) {
+		var o2 = Outline();
+		o2.name(name);//put it in
+		test.ok(o2.name() == name);//get it out again
+	}
+
+	function invalid(exception, name) {
+		try {
+			Outline().name(name);
+		} catch (e) { test.ok(e == exception); }//get thrown the exception we expect
+	}
+
+	valid("");//outline names can only be lowercase letters and numbers
+	valid("abc");
+	valid("012");
+	valid("name2");
+
+	invalid("data", "Name");
+	invalid("data", "sector-7");
+	invalid("data", "α5");
+
+	invalid("type", undefined);//they must be strings
+	invalid("type", []);
+	invalid("type", Data());
+
+	test.done();
+}
+
+exports.testOutlineNameValue = function(test) {
+
+	//set and get name
+	var o = Outline();
+	o.name("key");//set the name
+	test.ok(o.name() == "key");//get the name
+	try {
+		o.name(" ");//invalid name
+		test.fail();
+	} catch (e) { test.ok(e) == "data"; }
+	test.ok(o.name() == "key");//name unchanged
+
+	//set and get value
+	checkType(o.value(), "Data");//default value is blank data
+	o.value(base16("0d0a"));//set value
+	test.ok(o.value().same(Data("\r\n")));//get value
+	try {
+		o.value(7);
+		test.fail();
+	} catch (e) { test.ok(e) == "type"; }//values must be data
+	test.ok(o.value().same(Data("\r\n")));//value unchanged
+
+	test.done();
+}
+
+exports.testOutlineValue = function(test) {
+
+	//the value() method can do 3 things
+	var o = Outline("name1", Data("initial value"));
+	test.ok(o.value().toString() == "initial value");//first, just get a value
+
+	//second, set a different value
+	o.value(Data("modified value"));
+	test.ok(o.value().toString() == "modified value");
+
+	//third, give value() a string to get the value of the contained outline with the given name
+	o.add(Outline("contained", Data("contained value")));
+	test.ok(o.o("contained").value().toString() == "contained value");//long form
+	test.ok(o.value("contained").toString() == "contained value");//shortcut form
+
+	test.done();
+}
+
+exports.testOutlineContents = function(test) {
+
+	var o = Outline();
+	test.ok(o.contents().length == 0);
+	o.add(Outline("a"));
+	test.ok(o.contents().length == 1);
+	o.contents([]);
+	test.ok(o.contents().length == 0);
+
+	var a = [];
+	a.add(Outline("a"));
+	a.add(Outline("b"));
+	a.add(Outline("c"));
+	o.contents(a);
+	test.ok(o.contents().length == 3);
+
+	//if you change the array, the outline doesn't change, because we copied the array
+	a[1] = Outline("b2");
+	test.ok(a[1].name() == "b2");//changed in array
+	test.ok(o.contents()[1].name() == "b");//didn't change in outline
+
+	test.done();
+}
+
+exports.testOutlineAddHasRemoveList = function(test) {
+
+	var o = Outline();
+	test.ok(!o.has("name1"));//not there yet
+	o.add(Outline("name1"));//add
+	test.ok(o.has("name1"));//now it's there
+	o.remove("name1");//remove
+	test.ok(!o.has("name1"));//not there anymore
+
+	o.add(Outline("name1", base16("0101")));//load up
+	o.add(Outline("",      base16("0001")));
+	o.add(Outline("name2", base16("0201")));
+	o.add(Outline("name2", base16("0202")));
+	o.add(Outline("",      base16("0002")));
+	o.add(Outline("",      base16("0003")));
+	o.add(Outline("name2", base16("0203")));
+	o.add(Outline("",      base16("0004")));
+	o.add(Outline("name1", base16("0102")));
+	o.add(Outline("",      base16("0005")));
+
+	test.ok(o.contents().length == 10);//10 items total
+	test.ok(o.list().length == 5);//default list has 5 items
+	test.ok(o.list("name1").length == 2);//named lists
+	test.ok(o.list("name2").length == 3);
+
+	o.remove("name2");
+	test.ok(o.contents().length == 7);
+	test.ok(o.list().length == 5);
+	test.ok(o.list("name1").length == 2);
+	test.ok(o.list("name2").length == 0);
+
+	test.done();
+}
+
+exports.testOutlineAdd = function(test) {
+
+	//add some stuff
+	var o = Outline();
+	o.add(Outline("a"));//outline
+	o.add("b");//string, becomes name
+	o.add(base16("03"));//data, becomes value, name is blank
+
+	//make sure you can't add other types
+	function cant(a) {
+		try {
+			o.add(a);
+		} catch (e) { test.ok(e == "type"); }
+	}
+	cant(7);
+	cant([1, 2, 3]);
+	cant({ key:"value", key2:"value2" });
+
+	//set values to what you added
+	o.o("a").value(base16("01"));
+	o.o("b").value(base16("02"));
+
+	//get those values
+	test.ok(o.o("a").value().same(base16("01")));
+	test.ok(o.o("b").value().same(base16("02")));
+	test.ok(o.o("").value().same(base16("03")));
+
+	test.done();
+}
+
+exports.testOutlineNavigate = function(test) {
+
+	var o = Outline();
+	try {
+		o.o("name1");//try navigating down to something that doesn't exist
+	} catch (e) { test.ok(e == "data"); }
+
+	o.add("name1");//add it
+	o.o("name1").value(base16("01"));//set its value
+	test.ok(o.o("name1").value().same(base16("01")));//get its value
+
+	var o1 = o.o("name1");//navigate down to it
+	test.ok(o1.value().same(base16("01")));//get its value from the navigated outline
+
+	var o2 = o.m("name2");//make and navigate at the same time
+	o2.value(base16("02"));//set the value on the navigated outline
+	test.ok(o.o("name2").value().same(base16("02")));//get from the root
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -6,6 +6,7 @@ var Size = requireMeasure.Size;
 var multiply = requireMeasure.multiply;
 var divide = requireMeasure.divide;
 var scale = requireMeasure.scale;
+var getType = requireMeasure.getType;
 var isType = requireMeasure.isType;
 var checkType = requireMeasure.checkType;
 
@@ -897,11 +898,6 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
-function checkOutlineName(name) {
-	//if not a-z0-9, throw "data"
-}
-
-
 
 
 
@@ -910,9 +906,9 @@ function checkOutlineName(name) {
 function Outline(n, v, c) {
 
 	// Members and default empty values
-	var _name     = "";     // Blank string
-	var _value    = Data(); // Empty data
-	var _contents = [];     // Empty array
+	var _name     = "";     // The name of this place in the outline, must be a string, blank by default
+	var _value    = Data(); // The value data of this place in the outline, must be data, empty by default
+	var _contents = [];     // The contents within this place in the outline, must be more outline objects
 
 	// Set given initial values
 	name(n);
@@ -920,102 +916,100 @@ function Outline(n, v, c) {
 	contents(c);
 
 	// Set and get members
-	function name(_n) {
-		if (_n !== undefined) {
-			checkType(_n, "string"); // Name must be a string
-			checkOutlineName(_n);    // with only the characters a-z and 0-9
-			_name = _n;
+	function name(p) {
+		if (p) { // We were given a new name
+			checkType(p, "string"); // Name must be a string
+			for (var i = 0; i < p.length; i++)
+				if (!p[i].range("a", "z") && !p[i].range("0", "9")) throw "data"; // With only the characters a-z and 0-9
+			_name = p; // It's good, save it
 		}
-		return _name;
+		return _name; // Return our current name
 	}
-	function value(_v) {
-		if (_v !== undefined) {
-			checkType(_v, "Data"); // Value must be data
-			_value = _v;
+	function value(p) {
+		if (p) { // We were given a new value, or a contained name to get the value of
+			if      (isType(p, "Data"))   _value = p.copyMemory(); // Copy the memory, the given data might view a file which will close
+			else if (isType(p, "string")) return o(p).value(); // Navigate to the contained name and return its value
+			else throw "type";
 		}
-		return _value;
+		return _value; // Return our current value
 	}
-	function contents(_c) {
-		if (_c !== undefined) {
-			for (var i = 0; i < _c.length; i++) checkType(_c[i], "Outline"); // Contents must be an array of Outline objects
-			_contents = _c;
+	function contents(p) {
+		if (p) { // We were given a new array of contents
+			for (var i = 0; i < p.length; i++) checkType(p[i], "Outline"); // Make sure they're all outlines
+			_contents = p.slice(0); // Copy the array, but not the outline objects it contains
 		}
-		return _contents;
+		return _contents; // Return our current contents, but please don't change them
 	}
 
-
-
-	/** Add o to this Outline object's contents. */
+	// Add a name, value, or outline to our contents
+	// Doesn't copy the outline, so if you change it elsewhere, it will be different here	
 	function add(o) {
-		checkType(o, "Outline");
-		_contents.add(o); // Add the given Outline object to our contents List of them
+		if      (isType(o, "Outline")) _contents.add(o);              // Add the given outline within this one
+		else if (isType(o, "string"))  _contents.add(Outline(o));     // Just a string, add a new outline with that name
+		else if (isType(o, "Data"))    _contents.add(Outline("", o)); // Just data, add a new outline with that value
+		else throw "type";
 	}
-
-	/** True if this Outline contains name. */
+	// True if this outline contains an outline with the given name
 	function has(_n) {
 		for (var i = 0; i < _contents.length; i++)
 			if (_contents[i].name() == _n) return true; // Found an Outline object in our contents with the given name
 		return false; // Not found
 	}
-
-	/** Remove all the Outline objects in our contents that have the given name. */
+	// Remove all the outline objects from our contents that have the given name
 	function remove(_n) {
 		for (var i = _contents.length - 1; i >= 0; i--)
 			if (_contents[i].name() == _n) _contents.remove(i); // Found name, remove it
 	}
-
-	/** Get a List of the Outline objects within this one that have the name "", the default list. */
-	/** Get a List of the Outline objects within this one that have the given name. */
+	// Make a list of the outline objects within this one that have the given name
+	// o.list() returns the default list, contained outlines with a blank name
 	function list(_n) {
-		if (_n === undefined) _n = ""; // o.list() returns the default list, contained outlines with the blank name
+		if (_n === undefined) _n = ""; // Get the default list
 		var a = [];
 		for (var i = 0; i < _contents.length; i++)
-			if (_contents[i].name() == _n) a.add(_contents[i]); // We found one with a matching name, add it to the list we'll return
+			if (_contents[i].name() == _n) a.add(_contents[i]); // Found one
 		return a;
 	}
 
-
-
-	/** Move down from this Outline object to name within it, throw DataException if name is not found. */
+	// Move from this outline to name within it, or throw data if name not found
 	function o(_n) {
+		if (_n === undefined) _n = ""; // Get the first item in the default list
 		for (var i = 0; i < _contents.length; i++)
-			if (_contents[i].name() == _n) return _contents[i]; // Return the first Outline in our contents that has a matching name
+			if (_contents[i].name() == _n) return _contents[i]; // Return the first outline in our contents that has a matching name
 		throw "data";
 	}
-
-	/** Move down from this Outline object to name within it, make name if it doesn't exist yet. */
+	// Move from this outline to name within it, make name if it doesn't exist yet
 	function m(_n) {
-		if (!has(_n)) add(Outline(_n)); // If name isn't there, make it
+		if (!has(_n)) add(Outline(_n)); // If we don't have the requested name, add it
 		return o(_n);
 	}
 
+	// Sort this outline
+	function sort() {
+		/*
+		for (var i = 0; i < _contents.length; i++)
+			_contents[i].sort(); // Sort the contents of our contained outlines
+		_contents.sort(sortOutline); // After that, sort our contents
+		*/
+	}
 
-	function sort() {}//sort the contents in place
-
-
-
-	function toText() { return outlineToText(Outline(_name, _value, _contents)); }
-	function toData() { return outlineToData(Outline(_name, _value, _contents)); }
-	//actually, these are pretty deterministic and straightforward, it may make sense to put them inline, and keep the parsing functions outside
-
+	// Convert this outline to text and data
+	function text() { sort(); return outlineToText(Outline(_name, _value, _contents)); }
+	function data() { sort(); return outlineToData(Outline(_name, _value, _contents)); }
+	/*
+	actually, these are pretty deterministic and straightforward, it may make sense to put them inline, and keep the parsing functions outside
+	*/
 
 	return {
 		name:name, value:value, contents:contents,
 		add:add, has:has, remove:remove, list:list,
 		o:o, m:m,
-
 		sort:sort,
-
-		toText:toText, toString:toText, say:toText, // o.toText(), o.toString(), and o.say() are the same
-		toData:toData, data:toData,                 // o.toData(), and o.data() are the same
-		//no, this is silly, only have .text() and .data()
-		//don't have say(), that's the function that calls text or toString or +""
-		//and search your entire project for toString to replace it with text everywhere
-		//and data has text() that's utf8, and base16() that's base16, and that's it
-
+		text:text, data:data,
 		type:function(){ return "Outline"; }
 	};
 }
+
+exports.Outline = Outline;
 
 
 //here's where you could actually use isData() and isOutline to check the inputs when building an outline
@@ -1032,6 +1026,21 @@ function Outline(n, v, c) {
 
 
 
+//strings are immutable, so you don't need to copy them in
+//while data isn't, you need to copy it
+//and you need to copy in all the contents too, so it can't change outside
+
+
+/*
+
+toText:toText, toString:toText, say:toText, // o.toText(), o.toString(), and o.say() are the same
+toData:toData, data:toData,                 // o.toData(), and o.data() are the same
+//no, this is silly, only have .text() and .data()
+//don't have say(), that's the function that calls text or toString or +""
+//and search your entire project for toString to replace it with text everywhere
+//and data has text() that's utf8, and base16() that's base16, and that's it
+
+*/
 
 
 

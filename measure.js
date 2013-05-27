@@ -330,18 +330,15 @@ exports.Slice = Slice;
 
 
 
-
-// True if object o is of type name
-function isType(o, name) {
-	if (typeof o.type == "function")
-		return o.type() == name; // One of our objects, with a type() method
-	else
-		return typeof o == name; // A platform type, use the typeof operator
+// Text that describes the type of o, like "string" or "Data"
+function getType(o) {
+	if (typeof o.type == "function") return o.type(); // One of our objects, with a type() method
+	return typeof o; // A platform type, use the typeof operator
 }
+function isType(o, name) { return getType(o) == name; } // True if object o is of type name
+function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
 
-// Throw type if o is not of type name
-function checkType(o, name) { if (!isType(o, name)) throw "type"; }
-
+exports.getType = getType;
 exports.isType = isType;
 exports.checkType = checkType;
 
