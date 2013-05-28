@@ -949,55 +949,56 @@ function Outline(n, v, c) {
 		else if (isType(o, "Data"))    _contents.add(Outline("", o)); // Just data, add a new outline with that value
 		else throw "type";
 	}
+
 	// True if this outline contains an outline with the given name
-	function has(_n) {
+	function has(k) {
 		for (var i = 0; i < _contents.length; i++)
-			if (_contents[i].name() == _n) return true; // Found an Outline object in our contents with the given name
+			if (_contents[i].name() == k) return true; // Found an Outline object in our contents with the given name
 		return false; // Not found
 	}
+
 	// Remove all the outline objects from our contents that have the given name
-	function remove(_n) {
+	function remove(k) {
 		for (var i = _contents.length - 1; i >= 0; i--)
-			if (_contents[i].name() == _n) _contents.remove(i); // Found name, remove it
+			if (_contents[i].name() == k) _contents.remove(i); // Found name, remove it
 	}
+
 	// Make a list of the outline objects within this one that have the given name
 	// o.list() returns the default list, contained outlines with a blank name
-	function list(_n) {
-		if (_n === undefined) _n = ""; // Get the default list
+	function list(k) {
+		if (k === undefined) k = ""; // Get the default list
 		var a = [];
 		for (var i = 0; i < _contents.length; i++)
-			if (_contents[i].name() == _n) a.add(_contents[i]); // Found one
+			if (_contents[i].name() == k) a.add(_contents[i]); // Found one
 		return a;
 	}
 
 	// Move from this outline to name within it, or throw data if name not found
-	function o(_n) {
-		if (_n === undefined) _n = ""; // Get the first item in the default list
+	function o(k) {
+		if (k === undefined) k = ""; // Get the first item in the default list
 		for (var i = 0; i < _contents.length; i++)
-			if (_contents[i].name() == _n) return _contents[i]; // Return the first outline in our contents that has a matching name
+			if (_contents[i].name() == k) return _contents[i]; // Return the first outline in our contents that has a matching name
 		throw "data";
 	}
+
 	// Move from this outline to name within it, make name if it doesn't exist yet
-	function m(_n) {
-		if (!has(_n)) add(Outline(_n)); // If we don't have the requested name, add it
-		return o(_n);
+	function m(k) {
+		if (!has(k)) add(Outline(k)); // If we don't have the requested name, add it
+		return o(k);
 	}
 
 	// Sort this outline
 	function sort() {
 		/*
 		for (var i = 0; i < _contents.length; i++)
-			_contents[i].sort(); // Sort the contents of our contained outlines
+			_contents[i].sort(); // Sort the contents of our contained outlines, recursively sort from the farthest edges back up
 		_contents.sort(sortOutline); // After that, sort our contents
 		*/
 	}
 
 	// Convert this outline to text and data
-	function text() { sort(); return outlineToText(Outline(_name, _value, _contents)); }
-	function data() { sort(); return outlineToData(Outline(_name, _value, _contents)); }
-	/*
-	actually, these are pretty deterministic and straightforward, it may make sense to put them inline, and keep the parsing functions outside
-	*/
+	function text()    { return outlineToText(Outline(_name, _value, _contents)); }
+	function data(bay) { return outlineToData(Outline(_name, _value, _contents), bay); }
 
 	return {
 		name:name, value:value, contents:contents,
@@ -1008,7 +1009,6 @@ function Outline(n, v, c) {
 		type:function(){ return "Outline"; }
 	};
 }
-
 exports.Outline = Outline;
 
 
@@ -1053,12 +1053,22 @@ toData:toData, data:toData,                 // o.toData(), and o.data() are the 
 //  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
 //                                                                          
-function outlineToText(o) { return s; }
+
+// Convert outline o into text
+function outlineToText(o) {
+
+	// Recursive compose function
+	function compose(indent, s, o) {
+		s += indent + name + ":" + _value.quote() + "\r\n"; // Add a line that describes the name and value here
+		for (var i = 0; i < o.contents().length; i++)       // Loop for each outline in our contents
+			s += compose(indent + "  ", s, o.contents()[i]);  // Have each describe themselves on a line, indented more than we are
+		return s;
+	}
+
+	return compose("", "", o) + "\r\n"; // Mark the end of the text outline with a blank line
+}
+
 function outlineFromText(s) { return o; }
-
-
-
-
 
 //    ___        _   _ _                              _   ____        _        
 //   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
@@ -1066,13 +1076,49 @@ function outlineFromText(s) { return o; }
 //  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
 //                                                                             
-function outlineToData(o, bay) { return t.data(); }
+
+// Convert outline o into data added to bay
+function outlineToData(o, bay) {
+
+	// Size functions
+	function outlineSize(o) {  // How many bytes o will be turned into data
+		return
+			pairSize(Data(o.name()).size()) +
+			pairSize(o.value().size()) +
+			pairSize(contentsSize(o));
+	}
+	function pairSize(n) {     // How many bytes a span followed by its payload of n bytes will be
+		return spanSize(n) + n;
+	}
+	function contentsSize(o) { // How many bytes the contents of o will be turned into data
+		var size = 0;
+		for (var i = 0; i < o.contents().length; i++)
+			size += outlineSize(o.contents()[i]);
+		return size;
+	}
+
+	// Recursive compose function
+	function compose(o, bay) {
+		spanMake(Data(o.name()).size(), bay); bay.add(o.name());  // Add the size of the name, and then the name
+		spanMake(o.value().size(),      bay); bay.add(o.value()); // Add the size of the value data, and then the value data
+		spanMake(contentsSize(o),       bay);                     // Add the size of the contents, and then all the contents
+		for (var i = 0; i < o.contents().length; i++)
+			compose(o.contents()[i], bay);
+	}
+
+	// Sort the contents so outlines with the same information will become identical data
+	o.sort();
+
+	var t = ParseToBay(bay);
+	try {
+
+		compose(o, t.bay());
+		return t.data();
+
+	} catch (e) { t.reset(); throw e; }
+}
+
 function outlineFromData(clip) { return o; }
-
-
-
-
-
 
 //   ____                    
 //  / ___| _ __   __ _ _ __  

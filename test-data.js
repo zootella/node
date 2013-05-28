@@ -1424,6 +1424,52 @@ exports.testOutlineNavigate = function(test) {
 
 
 
+//    ___        _   _ _                              _   _____         _   
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |_   _|____  _| |_ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` |   | |/ _ \ \/ / __|
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
+//                                                                          
+
+exports.testOutlineToText = function(test) {
+
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+//    ___        _   _ _                              _   ____        _        
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
+//                                                                             
+
+exports.testOutlineToData = function(test) {
+
+	var o = Outline("aaa", base16("ff"));
+	test.ok(o.data().base16() == "0361616101ff00");
+
+
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1625,10 +1671,6 @@ exports.testSpanParseChop = function(test) {
 
 
 
-//seems like a working attack on this could be to hand it infinite bytes of 80, sending us bad data forever without us ever noticing anything's wrong
-
-//have a test where you try to parse 8080808001, have that throw because it's too long in size
-//have a test where you try to parse 8001, have that throw because it's longer than it needs to be
 
 
 
