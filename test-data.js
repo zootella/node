@@ -1454,8 +1454,11 @@ exports.testOutlineToText = function(test) {
 
 exports.testOutlineToData = function(test) {
 
-	var o = Outline("aaa", base16("ff"));
-	test.ok(o.data().base16() == "0361616101ff00");
+	var o = Outline("aaa", Data("hello\r\n"));
+	o.add(Outline("bb", Data("you")));
+//	test.ok(o.data().base16() == "0361616101ff00");
+
+	log(o.text());
 
 
 
@@ -1696,7 +1699,7 @@ exports.testSpanParseChop = function(test) {
 //   \__\_\\__,_|\___/ \__\___|
 //                             
 
-var quote = requireData.quote;
+var toquote = requireData.toquote;
 var unquote = requireData.unquote;
 var quoteCount = requireData.quoteCount;
 var quoteMore = requireData.quoteMore;
@@ -1707,7 +1710,7 @@ exports.testQuoteUnquote = function(test) {
 	//make sure it works both ways
 	function both(plain, quoted) {
 		var p = Data(plain);//encode the given plain text as data using utf8
-		test.ok(quote(p) == quoted);
+		test.ok(toquote(p) == quoted);
 		test.ok(unquote(quoted).same(p));
 	}
 
@@ -1848,7 +1851,7 @@ exports.testQuoteInternational = function(test) {
 	//quotedAgain is, in these examples, not the same as quoted
 	function process(quoted, unquoted16, quotedAgain) {
 		var d = unquote(quoted);
-		var s = quote(d);
+		var s = toquote(d);
 
 		test.ok(d.base16() == unquoted16);
 		test.ok(s == quotedAgain);

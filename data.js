@@ -215,8 +215,7 @@ function Data(d) {
 	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
 	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
 	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
-
-	function quote()  { return quote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
+	function quote()  { return toquote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
 	function say() { return base16(); } // d.say() is base 16, and d.toString() is UTF8
 	
 	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
@@ -1058,14 +1057,14 @@ toData:toData, data:toData,                 // o.toData(), and o.data() are the 
 function outlineToText(o) {
 
 	// Recursive compose function
-	function compose(indent, s, o) {
-		s += indent + name + ":" + _value.quote() + "\r\n"; // Add a line that describes the name and value here
-		for (var i = 0; i < o.contents().length; i++)       // Loop for each outline in our contents
-			s += compose(indent + "  ", s, o.contents()[i]);  // Have each describe themselves on a line, indented more than we are
+	function compose(o, indent) {
+		var s = indent + o.name() + ":" + o.value().quote() + "\r\n"; // Add a line that describes the name and value here
+		for (var i = 0; i < o.contents().length; i++)   // Loop for each outline in our contents
+			s += compose(o.contents()[i], indent + "  "); // Have each describe themselves on a line, indented more than we are
 		return s;
 	}
 
-	return compose("", "", o) + "\r\n"; // Mark the end of the text outline with a blank line
+	return compose(o, "") + "\r\n"; // Mark the end of the text outline with a blank line
 }
 
 function outlineFromText(s) { return o; }
@@ -1201,7 +1200,7 @@ exports.spanSize = spanSize;
 
 // Turn data into text using base 16, and put text characters in quotes
 // 'The quote " character\r\n' becomes '"The quote "22" character"0d0a'
-function quote(d) {
+function toquote(d) {
 	if (!quoteMore(d))    // The given data is mostly data bytes, like random data
 		return d.base16();  // Present it as a single block of base 16 without quoting out the text it may contain
 
@@ -1269,7 +1268,7 @@ function quoteIs(y) {
 	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
 }
 
-exports.quote = quote;
+exports.toquote = toquote;
 exports.unquote = unquote;
 exports.quoteCount = quoteCount;
 exports.quoteMore = quoteMore;
