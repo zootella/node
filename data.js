@@ -910,7 +910,7 @@ function Outline(n, v, c) {
 	value(v);
 	contents(c);
 
-	// Set and get members
+	// Set and get name and value
 	function name(p) {
 		if (p) { // We were given a new name
 			checkType(p, "string"); // Name must be a string
@@ -928,6 +928,9 @@ function Outline(n, v, c) {
 		}
 		return _value; // Return our current value
 	}
+
+
+
 	function contents(p) {
 		if (p) { // We were given a new array of contents
 			for (var i = 0; i < p.length; i++) checkType(p[i], "Outline"); // Make sure they're all outlines
@@ -937,22 +940,18 @@ function Outline(n, v, c) {
 	}
 
 
-
-	//no, git rid of contents(p) above
-	//all you need is these two
-	function length() { return _contents.length; }
-	function get(i) {
+	// Access contents
+	function length() { return _contents.length; } // How many outlines this one contains
+	function get(i) {                              // Get the contained outline at index i
 		if (i < 0 || i >= _contents.length) throw "bounds";
 		return _contents[i];
 	}
-	//and throw in clear, why not
 
-
-
-
-
-
-
+	// Clear our value and contents
+	function clear() {
+		_value = Data();
+		_contents = [];
+	}
 
 	// Add a name, value, or outline to our contents
 	// Doesn't copy the outline, so if you change it elsewhere, it will be different here	
