@@ -733,7 +733,7 @@ augment(rip, "rip");
 function say(o) {
 	if      (typeof o == "string") return o;                       // Strings pass through
 	else if (typeof o == "number") return numerals(o);             // Convert a number into numerals
-	else if (typeof o.say      == "function") return o.say();      // Call the object's say() method
+	else if (typeof o.text     == "function") return o.text();     // Call the object's text() method
 	else if (typeof o.toString == "function") return o.toString(); // Use toString() instead
 	else                                      return (o + "");     // Last resort, add to blank
 }

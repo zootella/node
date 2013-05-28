@@ -155,9 +155,9 @@ exports.testDataMake = function(test) {
 
 	//boolean
 	d = Data(true);
-	test.ok(d.toString() == "t");
+	test.ok(d.text() == "t");
 	d = Data(false);
-	test.ok(d.toString() == "f");
+	test.ok(d.text() == "f");
 
 	//byte
 	d = new toByte(0x01);//javascript can't tell the difference between numbers and bytes, so you have to use toByte(), which returns a Data object
@@ -165,11 +165,11 @@ exports.testDataMake = function(test) {
 
 	//number
 	d = Data(123);
-	test.ok(d.toString() == "123");
+	test.ok(d.text() == "123");
 	d = Data(-5);
-	test.ok(d.toString() == "-5");
+	test.ok(d.text() == "-5");
 	d = Data(1.20);
-	test.ok(d.toString() == "1.2");//note how it chops off the unnecessary trailing zero
+	test.ok(d.text() == "1.2");//note how it chops off the unnecessary trailing zero
 
 	//string
 	d = Data("ab\r\n");
@@ -207,7 +207,7 @@ exports.testDataOut = function(test) {
 
 	//string
 	d = Data("hello");
-	var s = d.toString();
+	var s = d.text();
 	test.ok(s == "hello");
 
 	//number
@@ -377,8 +377,7 @@ exports.testDataCut = function(test) {
 exports.testDataSay = function(test) {
 
 	var d = Data("\r\n");
-	test.ok(d.toString() == "\r\n");
-	test.ok(d.say() == "0d0a");
+	test.ok(d.text() == "\r\n");
 	test.ok(d.base16() == "0d0a");
 
 	test.done();
@@ -387,7 +386,7 @@ exports.testDataSay = function(test) {
 exports.testClip = function(test) {
 
 	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
-	test.ok(c.data().toString() == "abcde");//look at them
+	test.ok(c.data().text() == "abcde");//look at them
 	test.ok(c.size() == 5);//check the size
 	test.ok(!c.isEmpty());
 	test.ok(c.hasData());
@@ -395,7 +394,7 @@ exports.testClip = function(test) {
 	var c2 = c.copy();//make a copy that we can change separately
 
 	c.remove(2);//remove the first 2 bytes
-	test.ok(c.data().toString() == "cde");
+	test.ok(c.data().text() == "cde");
 	test.ok(c.size() == 3);
 
 	c.remove(3);//remove all the others
@@ -414,19 +413,19 @@ exports.testClip = function(test) {
 
 	c2.keep(4);//use keep instead of remove
 	test.ok(c2.size() == 4);
-	test.ok(c2.data().toString() == "bcde");
+	test.ok(c2.data().text() == "bcde");
 
 	c2.remove(1);
 	test.ok(c2.size() == 3);
-	test.ok(c2.data().toString() == "cde");
+	test.ok(c2.data().text() == "cde");
 
 	c2.keep(1);
 	test.ok(c2.size() == 1);
-	test.ok(c2.data().toString() == "e");
+	test.ok(c2.data().text() == "e");
 
 	c2.keep(0);
 	test.ok(c2.isEmpty());
-	test.ok(c2.data().toString() == "");
+	test.ok(c2.data().text() == "");
 
 	test.done();
 }
@@ -434,9 +433,9 @@ exports.testClip = function(test) {
 exports.testClipRemoveData = function(test) {
 
 	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
-	var c2 = c.remove(2);//remove the first 2 bytes
-	test.ok(c2.toString() == "ab");//confirm you got them
-	test.ok(c.data().toString() == "cde");//and the clip is what remains
+	var d = c.remove(2);//remove the first 2 bytes
+	test.ok(d.text() == "ab");//confirm you got them
+	test.ok(c.data().text() == "cde");//and the clip is what remains
 
 	test.done();
 }
@@ -600,13 +599,13 @@ exports.testBayRemove = function(test) {
 
 	var b = Bay("abcdefgh");
 	b.remove(3);
-	test.ok(b.data().toString() == "defgh");
+	test.ok(b.data().text() == "defgh");
 	b.keep(4);
-	test.ok(b.data().toString() == "efgh");
+	test.ok(b.data().text() == "efgh");
 	b.only(2);
-	test.ok(b.data().toString() == "ef");
+	test.ok(b.data().text() == "ef");
 	b.clear();
-	test.ok(b.data().toString() == "");
+	test.ok(b.data().text() == "");
 
 	try {
 		b.remove(1);
@@ -681,17 +680,17 @@ exports.testBinAdd = function(test) {
 	test.ok(bin.size() == 2);
 	b.add(bin);//this time, we copy across the memory instead
 	test.ok(b.size() == 5);
-	test.ok(b.data().toString() == "abcde");
+	test.ok(b.data().text() == "abcde");
 	test.ok(bin.size() == 0);
 
 	b.keep(2);
 	test.ok(b.size() == 2);
-	test.ok(b.data().toString() == "de");
+	test.ok(b.data().text() == "de");
 
 	//add from bay
 	var bay = Bay("fgh");
 	b.add(bay);
-	test.ok(b.data().toString() == "defgh");
+	test.ok(b.data().text() == "defgh");
 	test.ok(bay.isEmpty());//add() removed what the bin took from bay
 
 	//add from clip
@@ -701,7 +700,7 @@ exports.testBinAdd = function(test) {
 	test.ok(b.hasSpace());
 	b.add(clip);
 	test.ok(clip.isEmpty());
-	test.ok(b.data().toString() == "defghijk");//8 bytes, no more space
+	test.ok(b.data().text() == "defghijk");//8 bytes, no more space
 	test.ok(b.isFull());
 
 	test.done();
@@ -718,19 +717,19 @@ exports.testBinOverflow = function(test) {
 	bin.add(Data("bbbbbbbb").take());
 	//add from it
 	b.add(bin);
-	test.ok(b.data().toString() == "aaaaabbb");
-	test.ok(bin.data().toString() == "bbbbb");
+	test.ok(b.data().text() == "aaaaabbb");
+	test.ok(bin.data().text() == "bbbbb");
 	//remove some
 	b.remove(4);
-	test.ok(b.data().toString() == "abbb");
+	test.ok(b.data().text() == "abbb");
 	test.ok(b.size() == 4);
 
 	//setup a bay
 	var bay = Bay("cccccc");
 	//add from it
 	b.add(bay);
-	test.ok(b.data().toString() == "abbbcccc");
-	test.ok(bay.data().toString() == "cc");
+	test.ok(b.data().text() == "abbbcccc");
+	test.ok(bay.data().text() == "cc");
 	//remove some
 	b.remove(3);
 	test.ok(b.space() == 3);
@@ -740,7 +739,7 @@ exports.testBinOverflow = function(test) {
 	test.ok(clip.size() == 5);
 	//add from it
 	b.add(clip);
-	test.ok(b.data().toString() == "bccccddd")
+	test.ok(b.data().text() == "bccccddd")
 	test.ok(clip.size() == 2);
 
 	test.done();
@@ -1125,27 +1124,27 @@ exports.testParseToBay = function(test) {
 	var t1 = ParseToBay(b1);
 	t1.add("Additional");
 	t1.add("Data");
-	test.ok(t1.data().toString() == "AdditionalData");//get just what we added
-	test.ok(t1.bay().data().toString() == "ExistingContentsAdditionalData");//or everything in there
+	test.ok(t1.data().text() == "AdditionalData");//get just what we added
+	test.ok(t1.bay().data().text() == "ExistingContentsAdditionalData");//or everything in there
 	//or it will make one for you
 	var t2 = ParseToBay();
 	t2.add("Additional");
 	t2.add("Data");
-	test.ok(t2.bay().data().toString() == "AdditionalData");
+	test.ok(t2.bay().data().text() == "AdditionalData");
 
 	//imagine we parse something bad, and want to go back
 	var b3 = Bay();
 	b3.add("ExistingContents");
 	var t3 = ParseToBay(b3);
 	t3.add("InvalidFragment");//in parsing, we add some invalid data
-	test.ok(b3.data().toString() == "ExistingContentsInvalidFragment");//it's all in the bay
+	test.ok(b3.data().text() == "ExistingContentsInvalidFragment");//it's all in the bay
 	t3.reset();//and then realize the mistake, and want to go back
-	test.ok(b3.data().toString() == "ExistingContents");
+	test.ok(b3.data().text() == "ExistingContents");
 	//later, we parse correct data
 	var t4 = ParseToBay(b3);
 	t4.add("Valid");
 	t4.add("Data");
-	test.ok(b3.data().toString() == "ExistingContentsValidData");
+	test.ok(b3.data().text() == "ExistingContentsValidData");
 
 	test.done();
 }
@@ -1157,23 +1156,23 @@ exports.testParseFromClip = function(test) {
 	//parse something good
 	var clip = d.take();
 	var s = ParseFromClip(clip);
-	test.ok(s.remove(3).toString() == "abc");
-	test.ok(s.remove(2).toString() == "de");
-	test.ok(s.removed().toString() == "abcde");//get a data of everything we removed
+	test.ok(s.remove(3).text() == "abc");
+	test.ok(s.remove(2).text() == "de");
+	test.ok(s.removed().text() == "abcde");//get a data of everything we removed
 	s.valid();//apply the changes s made to clip
-	test.ok(clip.data().toString() == "fgh");
+	test.ok(clip.data().text() == "fgh");
 
 	//parse something bad
 	clip = d.take();//clip around the whole thing again
 	s = ParseFromClip(clip);
 	s.remove(1);
 	s.remove(2);//then we realize it's no good, so we don't call valid()
-	test.ok(clip.data().toString() == "abcdefgh");//clip is unchanged
+	test.ok(clip.data().text() == "abcdefgh");//clip is unchanged
 	//parse something good again
 	s = ParseFromClip(clip);
 	s.remove(6);
 	s.valid();
-	test.ok(clip.data().toString() == "gh");
+	test.ok(clip.data().text() == "gh");
 
 	test.done();
 }
@@ -1292,16 +1291,16 @@ exports.testOutlineValue = function(test) {
 
 	//the value() method can do 3 things
 	var o = Outline("name1", Data("initial value"));
-	test.ok(o.value().toString() == "initial value");//first, just get a value
+	test.ok(o.value().text() == "initial value");//first, just get a value
 
 	//second, set a different value
 	o.value(Data("modified value"));
-	test.ok(o.value().toString() == "modified value");
+	test.ok(o.value().text() == "modified value");
 
 	//third, give value() a string to get the value of the contained outline with the given name
 	o.add(Outline("contained", Data("contained value")));
-	test.ok(o.o("contained").value().toString() == "contained value");//long form
-	test.ok(o.value("contained").toString() == "contained value");//shortcut form
+	test.ok(o.o("contained").value().text() == "contained value");//long form
+	test.ok(o.value("contained").text() == "contained value");//shortcut form
 
 	test.done();
 }
@@ -1620,7 +1619,7 @@ exports.testSpanParse = function(test) {
 	test.ok(spanParse(clip) == 1);
 	test.ok(spanParse(clip) == 0);
 	test.ok(spanParse(clip) == 268000000);
-	test.ok(clip.data().toString() == "hello");//and all that's left is the text at the end
+	test.ok(clip.data().text() == "hello");//and all that's left is the text at the end
 
 	test.done();
 }
@@ -1666,7 +1665,7 @@ exports.testSpanParseChop = function(test) {
 	clip = bay.data().take();
 	test.ok(clip.data().base16() == "fb83890168656c6c6f");
 	test.ok(spanParse(clip) == 258000001);//the parse doesn't throw
-	test.ok(clip.data().toString() == "hello");//and removes the 4 byte span from the start of clip
+	test.ok(clip.data().text() == "hello");//and removes the 4 byte span from the start of clip
 
 	test.done();
 }

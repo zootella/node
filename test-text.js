@@ -437,7 +437,7 @@ exports.testLengthGet = function(test) {
 
 	s = "中文 español English हिन्दी العربية português বাংলা русский 日本語 ਪੰਜਾਬੀ";//international string literal
 	s64 = "5Lit5paHIGVzcGHDsW9sIEVuZ2xpc2gg4KS54KS/4KSo4KWN4KSm4KWAINin2YTYudix2KjZitipIHBvcnR1Z3XDqnMg4Kas4Ka+4KaC4Kay4Ka+INGA0YPRgdGB0LrQuNC5IOaXpeacrOiqniDgqKrgqbDgqJzgqL7gqKzgqYA=";//same text as utf8 bytes encoded as base64
-	test.ok(s == base64(s64).toString());//turn data into text and compare
+	test.ok(s == base64(s64).text());//turn data into text and compare
 	test.ok(Data(s).same(base64(s64)));//turn text into data and compare
 
 	test.ok(s.length == 68);

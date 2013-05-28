@@ -122,15 +122,15 @@ function Data(d) {
 	function toBuffer() { return buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
-	// On binary data, toString() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
-	function toString() { return toBuffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
+	// On binary data, text() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
+	function text() { return toBuffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
-	function toNumber() { return number(toString()); }
+	function toNumber() { return number(text()); }
 
 	// Get the boolean in this Data, throw if it doesn't view the text "t" or "f"
 	function toBoolean() {
-		var s = toString();
+		var s = text();
 		if      (s == "t") return true;
 		else if (s == "f") return false;
 		else throw "data";
@@ -210,26 +210,22 @@ function Data(d) {
 				after:  after(i + d.size())
 			};
 	}
-	
+
 	function base16() { return toBase16(Data(buffer)); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
 	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
 	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
 	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
 	function quote()  { return toquote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
-	function say() { return base16(); } // d.say() is base 16, and d.toString() is UTF8
-	
-	function hash() { throw "todo"; } // Compute the SHA1 hash of this Data, return the 20-byte, 160-bit hash value
 
 	return {
 		take:take, copyMemory:copyMemory,
-		toBuffer:toBuffer, toString:toString, toNumber:toNumber, toBoolean:toBoolean,
+		toBuffer:toBuffer, text:text, toNumber:toNumber, toBoolean:toBoolean,
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		start:start, end:end, after:after, chop:chop, clip:clip,
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		cut:cut, cutLast:cutLast,
-		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote, say:say,
-		hash:hash,
+		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote,
 		type:function(){ return "Data"; }
 	};
 }
@@ -1019,7 +1015,7 @@ exports.Outline = Outline;
 
 
 //rename sort() to sortText() to have sortText(), sortData(), and sortOutline()
-//o.toText() [same as toString() and say()], o.toData()
+//o.text(), o.data()
 //outlineFromText(s), outlineFromData(clip)
 //
 
@@ -1032,11 +1028,11 @@ exports.Outline = Outline;
 
 /*
 
-toText:toText, toString:toText, say:toText, // o.toText(), o.toString(), and o.say() are the same
+toText:toText, to String:toText, say:toText, // o.toText(), o.to String(), and o.say() are the same
 toData:toData, data:toData,                 // o.toData(), and o.data() are the same
 //no, this is silly, only have .text() and .data()
-//don't have say(), that's the function that calls text or toString or +""
-//and search your entire project for toString to replace it with text everywhere
+//don't have say(), that's the function that calls text or to String or +""
+//and search your entire project for to String to replace it with text everywhere
 //and data has text() that's utf8, and base16() that's base16, and that's it
 
 */
@@ -1208,7 +1204,7 @@ function toquote(d) {
 	var t = "";
 	while (c.hasData()) { // Loop until c is empty
 		if (quoteIs(c.data().first()))
-			t += '"' + c.remove(quoteCount(c.data(), true)).toString() + '"'; // Surround bytes that are text characters with quotes
+			t += '"' + c.remove(quoteCount(c.data(), true)).text() + '"'; // Surround bytes that are text characters with quotes
 		else
 			t += c.remove(quoteCount(c.data(), false)).base16(); // Encode other bytes into base 16 outside the quotes
 	}
