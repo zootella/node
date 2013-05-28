@@ -1041,16 +1041,27 @@ exports.sortOutline = sortOutline;
 // Convert outline o into text
 function outlineToText(o) {
 
-	// Recursive compose function
 	function compose(o, indent) {
 		var s = indent + o.name() + ":" + o.value().quote() + "\r\n"; // Add a line that describes the name and value here
 		for (var i = 0; i < o.contents().length; i++)   // Loop for each outline in our contents
-			s += compose(o.contents()[i], indent + "  "); // Have each describe themselves on a line, indented more than we are
+			s += compose(o.contents()[i], indent + "  "); // Have each describe itself on a line, indented more than we are
 		return s;
 	}
 
-	return compose(o, "") + "\r\n"; // Mark the end of the text outline with a blank line
+	return compose(o, "") + "\r\n"; // Start with no indent, mark the end of the text outline with a blank line
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 function outlineFromText(clip) { return o; }
 
@@ -1064,31 +1075,24 @@ function outlineFromText(clip) { return o; }
 // Convert outline o into data added to bay
 function outlineToData(o, bay) {
 
-	// Size functions
-	function outlineSize(o) {  // How many bytes o will be turned into data
-		return pairSize(Data(o.name()).size()) + pairSize(o.value().size()) + pairSize(contentsSize(o));
-	}
-	function pairSize(n) {     // How many bytes a span followed by its payload of n bytes will be
-		return spanSize(n) + n;
-	}
-	function contentsSize(o) { // How many bytes the contents of o will be turned into data
+	function sizeOutline(o)  { return sizePair(Data(o.name()).size()) + sizePair(o.value().size()) + sizePair(sizeContents(o)); }
+	function sizePair(n)     { return spanSize(n) + n; } // How many bytes a span followed by its payload of n bytes will be
+	function sizeContents(o) { // How many bytes the contents of o will be turned into data
 		var size = 0;
 		for (var i = 0; i < o.contents().length; i++)
-			size += outlineSize(o.contents()[i]);
+			size += sizeOutline(o.contents()[i]);
 		return size;
 	}
 
-	// Recursive compose function
 	function compose(o, bay) {
 		spanMake(Data(o.name()).size(), bay); bay.add(o.name());  // Add the size of the name, and then the name
 		spanMake(o.value().size(),      bay); bay.add(o.value()); // Add the size of the value data, and then the value data
-		spanMake(contentsSize(o),       bay);                     // Add the size of the contents, and then all the contents
+		spanMake(sizeContents(o),       bay);                     // Add the size of the contents, and then all the contents
 		for (var i = 0; i < o.contents().length; i++)
 			compose(o.contents()[i], bay);
 	}
-
-	// Sort the contents so outlines with the same information will become identical data
-	o.sort();
+	
+	o.sort(); // Sort the contents so outlines with the same information will become identical data
 
 	var t = ParseToBay(bay);
 	try {
@@ -1098,6 +1102,14 @@ function outlineToData(o, bay) {
 
 	} catch (e) { t.reset(); throw e; }
 }
+
+
+
+
+
+
+
+
 
 function outlineFromData(clip) { return o; }
 
