@@ -936,6 +936,24 @@ function Outline(n, v, c) {
 		return _contents; // Return our current contents, but please don't change them
 	}
 
+
+
+	//no, git rid of contents(p) above
+	//all you need is these two
+	function length() { return _contents.length; }
+	function get(i) {
+		if (i < 0 || i >= _contents.length) throw "bounds";
+		return _contents[i];
+	}
+	//and throw in clear, why not
+
+
+
+
+
+
+
+
 	// Add a name, value, or outline to our contents
 	// Doesn't copy the outline, so if you change it elsewhere, it will be different here	
 	function add(o) {
