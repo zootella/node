@@ -4,6 +4,9 @@ var log = console.log;
 var requireMeasure = require("./measure");
 var checkType = requireMeasure.checkType;
 
+var requireText = require("./text");
+var lines = requireText.lines;
+
 var requireData = require("./data");//functions
 var Size = requireData.Size;
 var Data = requireData.Data;
@@ -1455,9 +1458,13 @@ exports.testOutlineToData = function(test) {
 
 	var o = Outline("aaa", Data("hello\r\n"));
 	o.add(Outline("bb", Data("you")));
-//	test.ok(o.data().base16() == "0361616101ff00");
 
-	log(o.text());
+	test.ok(o.data().base16() == '036161610768656c6c6f0d0a0802626203796f7500');
+	test.ok(o.text() == lines(
+		'aaa:"hello"0d0a',
+		'  bb:"you"',
+		''));
+
 
 
 

@@ -1006,15 +1006,21 @@ function Outline(n, v, c) {
 }
 exports.Outline = Outline;
 
+// Determine which should appear first in sorted order
+// Zero if same, negative if o1 then o2, positive if o2 first
+function sortOutline(o1, o2) {
+	checkType(d1, "Outline");
+	checkType(d2, "Outline");
 
-//here's where you could actually use isData() and isOutline to check the inputs when building an outline
-//also do this in sortText, sortData, sortOutline so you make sure you know what you're sorting
+	return 0;//TODO
+}
 
-//make the outline object really small, just the members, and the functions
-//and have the functions defined seprately outside
+exports.sortOutline = sortOutline;
 
 
-//rename sort() to sortText() to have sortText(), sortData(), and sortOutline()
+
+
+
 
 
 
@@ -1046,7 +1052,7 @@ function outlineToText(o) {
 	return compose(o, "") + "\r\n"; // Mark the end of the text outline with a blank line
 }
 
-function outlineFromText(s) { return o; }
+function outlineFromText(clip) { return o; }
 
 //    ___        _   _ _                              _   ____        _        
 //   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
@@ -1060,10 +1066,7 @@ function outlineToData(o, bay) {
 
 	// Size functions
 	function outlineSize(o) {  // How many bytes o will be turned into data
-		return
-			pairSize(Data(o.name()).size()) +
-			pairSize(o.value().size()) +
-			pairSize(contentsSize(o));
+		return pairSize(Data(o.name()).size()) + pairSize(o.value().size()) + pairSize(contentsSize(o));
 	}
 	function pairSize(n) {     // How many bytes a span followed by its payload of n bytes will be
 		return spanSize(n) + n;
