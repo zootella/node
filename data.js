@@ -1015,27 +1015,10 @@ exports.Outline = Outline;
 
 
 //rename sort() to sortText() to have sortText(), sortData(), and sortOutline()
-//o.text(), o.data()
-//outlineFromText(s), outlineFromData(clip)
-//
 
 
 
-//strings are immutable, so you don't need to copy them in
-//while data isn't, you need to copy it
-//and you need to copy in all the contents too, so it can't change outside
 
-
-/*
-
-toText:toText, to String:toText, say:toText, // o.toText(), o.to String(), and o.say() are the same
-toData:toData, data:toData,                 // o.toData(), and o.data() are the same
-//no, this is silly, only have .text() and .data()
-//don't have say(), that's the function that calls text or to String or +""
-//and search your entire project for to String to replace it with text everywhere
-//and data has text() that's utf8, and base16() that's base16, and that's it
-
-*/
 
 
 
