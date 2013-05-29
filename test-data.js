@@ -1311,23 +1311,16 @@ exports.testOutlineValue = function(test) {
 exports.testOutlineContents = function(test) {
 
 	var o = Outline();
-	test.ok(o.contents().length == 0);
+	test.ok(o.length() == 0);
 	o.add(Outline("a"));
-	test.ok(o.contents().length == 1);
-	o.contents([]);
-	test.ok(o.contents().length == 0);
+	test.ok(o.length() == 1);
+	o.clear();
+	test.ok(o.length() == 0);
 
-	var a = [];
-	a.add(Outline("a"));
-	a.add(Outline("b"));
-	a.add(Outline("c"));
-	o.contents(a);
-	test.ok(o.contents().length == 3);
-
-	//if you change the array, the outline doesn't change, because we copied the array
-	a[1] = Outline("b2");
-	test.ok(a[1].name() == "b2");//changed in array
-	test.ok(o.contents()[1].name() == "b");//didn't change in outline
+	o.add(Outline("a"));
+	o.add(Outline("b"));
+	o.add(Outline("c"));
+	test.ok(o.length() == 3);
 
 	test.done();
 }
@@ -1352,13 +1345,13 @@ exports.testOutlineAddHasRemoveList = function(test) {
 	o.add(Outline("name1", base16("0102")));
 	o.add(Outline("",      base16("0005")));
 
-	test.ok(o.contents().length == 10);//10 items total
+	test.ok(o.length() == 10);//10 items total
 	test.ok(o.list().length == 5);//default list has 5 items
 	test.ok(o.list("name1").length == 2);//named lists
 	test.ok(o.list("name2").length == 3);
 
 	o.remove("name2");
-	test.ok(o.contents().length == 7);
+	test.ok(o.length() == 7);
 	test.ok(o.list().length == 5);
 	test.ok(o.list("name1").length == 2);
 	test.ok(o.list("name2").length == 0);
@@ -1464,7 +1457,6 @@ exports.testOutlineToData = function(test) {
 		'aaa:"hello"0d0a',
 		'  bb:"you"',
 		''));
-
 
 
 

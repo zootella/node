@@ -898,7 +898,7 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
-function Outline(n, v, c) {
+function Outline(n, v) {
 
 	// Members and default empty values
 	var _name     = "";     // The name of this place in the outline, must be a string, blank by default
@@ -908,7 +908,6 @@ function Outline(n, v, c) {
 	// Set given initial values
 	name(n);
 	value(v);
-	contents(c);
 
 	// Set and get name and value
 	function name(p) {
@@ -929,17 +928,6 @@ function Outline(n, v, c) {
 		return _value; // Return our current value
 	}
 
-
-
-	function contents(p) {
-		if (p) { // We were given a new array of contents
-			for (var i = 0; i < p.length; i++) checkType(p[i], "Outline"); // Make sure they're all outlines
-			_contents = p.slice(0); // Copy the array, but not the outline objects it contains
-		}
-		return _contents; // Return our current contents, but please don't change them
-	}
-
-
 	// Access contents
 	function length() { return _contents.length; } // How many outlines this one contains
 	function get(i) {                              // Get the contained outline at index i
@@ -949,8 +937,8 @@ function Outline(n, v, c) {
 
 	// Clear our value and contents
 	function clear() {
-		_value = Data();
-		_contents = [];
+		_value = Data(); // Blank data
+		_contents = []; // Empty array
 	}
 
 	// Add a name, value, or outline to our contents
@@ -1009,15 +997,17 @@ function Outline(n, v, c) {
 	}
 
 	// Convert this outline to text and data
-	function text()    { return outlineToText(Outline(_name, _value, _contents)); }
-	function data(bay) { return outlineToData(Outline(_name, _value, _contents), bay); }
+	function text()    { var g = Outline(_name, _value); g._setContents(_contents); return outlineToText(g); }
+	function data(bay) { var g = Outline(_name, _value); g._setContents(_contents); return outlineToData(g, bay); }
+	function _setContents(c) { _contents = c; } //TODO figure out how to get the this reference working instead
 
 	return {
-		name:name, value:value, contents:contents,
+		name:name, value:value,
+		length:length, get:get, clear:clear,
 		add:add, has:has, remove:remove, list:list,
 		o:o, m:m,
 		sort:sort,
-		text:text, data:data,
+		text:text, data:data, _setContents:_setContents,
 		type:function(){ return "Outline"; }
 	};
 }
@@ -1060,8 +1050,9 @@ function outlineToText(o) {
 
 	function compose(o, indent) {
 		var s = indent + o.name() + ":" + o.value().quote() + "\r\n"; // Add a line that describes the name and value here
-		for (var i = 0; i < o.contents().length; i++)   // Loop for each outline in our contents
-			s += compose(o.contents()[i], indent + "  "); // Have each describe itself on a line, indented more than we are
+		for (var i = 0; i < o.length(); i++) {   // Loop for each outline in our contents
+			s += compose(o.get(i), indent + "  "); // Have each describe itself on a line, indented more than we are
+		}
 		return s;
 	}
 
@@ -1096,8 +1087,8 @@ function outlineToData(o, bay) {
 	function sizePair(n)     { return spanSize(n) + n; } // How many bytes a span followed by its payload of n bytes will be
 	function sizeContents(o) { // How many bytes the contents of o will be turned into data
 		var size = 0;
-		for (var i = 0; i < o.contents().length; i++)
-			size += sizeOutline(o.contents()[i]);
+		for (var i = 0; i < o.length(); i++)
+			size += sizeOutline(o.get(i));
 		return size;
 	}
 
@@ -1105,8 +1096,8 @@ function outlineToData(o, bay) {
 		spanMake(Data(o.name()).size(), bay); bay.add(o.name());  // Add the size of the name, and then the name
 		spanMake(o.value().size(),      bay); bay.add(o.value()); // Add the size of the value data, and then the value data
 		spanMake(sizeContents(o),       bay);                     // Add the size of the contents, and then all the contents
-		for (var i = 0; i < o.contents().length; i++)
-			compose(o.contents()[i], bay);
+		for (var i = 0; i < o.length(); i++)
+			compose(o.get(i), bay);
 	}
 	
 	o.sort(); // Sort the contents so outlines with the same information will become identical data
