@@ -911,7 +911,7 @@ function Outline(setName, setValue) {
 
 	// Set and get name and value
 	function name(p) {
-		if (p) { // We were given a new name
+		if (p !== undefined) { // We were given a new name
 			checkType(p, "string"); // Name must be a string
 			for (var i = 0; i < p.length; i++)
 				if (!p[i].range("a", "z") && !p[i].range("0", "9")) throw "data"; // With only the characters a-z and 0-9
@@ -920,7 +920,7 @@ function Outline(setName, setValue) {
 		return _name; // Return our current name
 	}
 	function value(p) {
-		if (p) { // We were given a new value, or a contained name to get the value of
+		if (p !== undefined) { // We were given a new value, or a contained name to get the value of
 			if      (isType(p, "Data"))   _value = p.copyMemory(); // Copy the memory, the given data might view a file which will close
 			else if (isType(p, "string")) return n(p).value(); // Navigate to the contained name and return its value
 			else throw "type";
@@ -1060,6 +1060,11 @@ function outlineToText(o) {
 	return compose(o, "") + "\r\n"; // Start with no indent, mark the end of the text outline with a blank line
 }
 
+function outlineFromText(clip) {
+
+
+	return o;
+}
 
 
 
@@ -1070,9 +1075,6 @@ function outlineToText(o) {
 
 
 
-
-
-function outlineFromText(clip) { return o; }
 
 //    ___        _   _ _                              _   ____        _        
 //   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
@@ -1112,6 +1114,11 @@ function outlineToData(o, bay) {
 	} catch (e) { t.reset(); throw e; }
 }
 
+function outlineFromData(clip) {
+
+
+	return o;
+}
 
 
 
@@ -1120,7 +1127,9 @@ function outlineToData(o, bay) {
 
 
 
-function outlineFromData(clip) { return o; }
+
+
+
 
 //   ____                    
 //  / ___| _ __   __ _ _ __  

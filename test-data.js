@@ -1249,10 +1249,10 @@ exports.testOutlineName = function(test) {
 		} catch (e) { test.ok(e == exception); }//get thrown the exception we expect
 	}
 
-	valid("");//outline names can only be lowercase letters and numbers
-	valid("abc");
+	valid("abc");//outline names can only be lowercase letters and numbers
 	valid("012");
 	valid("name2");
+	valid("");
 
 	invalid("data", "Name");
 	invalid("data", "sector-7");
