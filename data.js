@@ -975,7 +975,7 @@ function Outline(setName, setValue) {
 
 	// Navigate from this outline to name within it, or throw data if name not found
 	function n(k) {
-		if (k === undefined) k = ""; // Get the first item in the default list
+		if (k === undefined) throw "invalid";
 		for (var i = 0; i < _contents.length; i++)
 			if (_contents[i].name() == k) return _contents[i]; // Return the first outline in our contents that has a matching name
 		throw "data";
@@ -983,6 +983,7 @@ function Outline(setName, setValue) {
 
 	// Navigate from this outline to name within it, make name if it doesn't exist yet
 	function m(k) {
+		if (k === undefined) throw "invalid";
 		if (!has(k)) add(Outline(k)); // If we don't have the requested name, add it
 		return n(k);
 	}

@@ -1384,7 +1384,11 @@ exports.testOutlineAdd = function(test) {
 	//get those values
 	test.ok(o.n("a").value().same(base16("01")));
 	test.ok(o.n("b").value().same(base16("02")));
-	test.ok(o.n("").value().same(base16("03")));
+	test.ok(o.n("").value().same(base16("03")));//blank is ok
+	try {
+		o.n();//undefined is not
+		test.fail();
+	} catch (e) { test.ok(e) == "invalid"; }
 
 	test.done();
 }
