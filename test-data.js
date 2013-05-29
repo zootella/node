@@ -1252,7 +1252,7 @@ exports.testOutlineName = function(test) {
 	valid("abc");//outline names can only be lowercase letters and numbers
 	valid("012");
 	valid("name2");
-	valid("");
+	valid("");//blank is ok
 
 	invalid("data", "Name");
 	invalid("data", "sector-7");
@@ -1430,6 +1430,8 @@ exports.testOutlineNavigate = function(test) {
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
 //                                                                          
 
+var outlineFromText = requireData.outlineFromText;
+
 exports.testOutlineToText = function(test) {
 
 
@@ -1451,16 +1453,37 @@ exports.testOutlineToText = function(test) {
 //   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
 //                                                                             
 
-exports.testOutlineToData = function(test) {
+var outlineFromData = requireData.outlineFromData;
+
+exports.testOutlineConvertFirstTrys = function(test) {
 
 	var o = Outline("aaa", Data("hello\r\n"));
 	o.add(Outline("bb", Data("you")));
-
-	test.ok(o.data().base16() == '036161610768656c6c6f0d0a0802626203796f7500');
-	test.ok(o.text() == lines(
+	var b = "036161610768656c6c6f0d0a0802626203796f7500";
+	var s = lines(
 		'aaa:"hello"0d0a',
 		'  bb:"you"',
-		''));
+		'');
+
+	test.ok(o.data().base16() == b);
+	test.ok(o.text() == s);
+
+	var d = o.data();
+	var clip = d.take();
+
+	var o2 = outlineFromData(clip);
+	test.ok(o2.text() == s);
+
+	var d2 = o2.data();
+	test.ok(d2.base16() == b);
+
+	//at first blush, data is working in both directions
+	//you still have to write the data and chop tests, though
+
+
+
+
+
 
 
 
@@ -1470,7 +1493,7 @@ exports.testOutlineToData = function(test) {
 
 
 
-
+//obviously, write some tests where the data of an outline starts out ok, but is then invalid or incomplete, and confirm you get chop and data, and the clip is not changed
 
 
 

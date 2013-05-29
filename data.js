@@ -828,7 +828,7 @@ function ParseToBay(b) {
 	var _existing = b.size(); // Remember how much data was in it before we changed it
 
 	function add(d) { _bay.add(d); } // Add some data we just parsed
-	function bay() { return _bay; } // Get our bay, probably to pass to a function we're calling to parse data into it for us
+	function bay() { return _bay; } // Pass our bay with changes to a function that will parse more for us
 	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
 	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
 
@@ -837,16 +837,17 @@ function ParseToBay(b) {
 
 // Parse the data in clip into text or objects
 // When you're done without exception, call valid() to remove the parsed data from clip
-function ParseFromClip(clip) {
+function ParseFromClip(c) {
 
-	var _clip = clip; // Save the given clip
-	var _edit = clip.copy(); // Make a copy we will change
+	var _clip = c; // Save the given clip
+	var _edit = c.copy(); // Make a copy we will change
 
 	function remove(n) { return _edit.remove(n); } // Remove n bytes we parsed from the start
+	function clip() { return _edit; } // Pass our clip with changes to a function that will parse more for us
 	function removed() { return _clip.data().start(_clip.size() - _edit.size()); } // All the data we removed
 	function valid() { _clip.keep(_edit.size()); } // Parsed valid data, remove it from clip
 
-	return { remove:remove, removed:removed, valid:valid }
+	return { remove:remove, clip:clip, removed:removed, valid:valid }
 }
 
 exports.ParseToBay = ParseToBay;
@@ -922,7 +923,7 @@ function Outline(setName, setValue) {
 	function value(p) {
 		if (p !== undefined) { // We were given a new value, or a contained name to get the value of
 			if      (isType(p, "Data"))   _value = p.copyMemory(); // Copy the memory, the given data might view a file which will close
-			else if (isType(p, "string")) return n(p).value(); // Navigate to the contained name and return its value
+			else if (isType(p, "string")) return n(p).value();     // Navigate to the contained name and return its value
 			else throw "type";
 		}
 		return _value; // Return our current value
@@ -1060,14 +1061,132 @@ function outlineToText(o) {
 	return compose(o, "") + "\r\n"; // Start with no indent, mark the end of the text outline with a blank line
 }
 
+
+// Parse the data of a text outline at the start of clip into an outline object
+// There must be a blank line marking the end of the text outline, throws chop if it hasn't arrived yet
+// Returns a new outline object, and removes the data it parsed from clip
+// If the text outline is invalid, removes it from clip and throws data//TODO does it remove it or leave clip unchanged???
 function outlineFromText(clip) {
+	var p = ParseFromClip(clip);
 
-
+	p.valid();
 	return o;
+}
+
+exports.outlineFromText = outlineFromText;
+
+/*
+
+
+
+// Parse from text
+
+/**
+ *
+public static Outline fromText(Clip c) {
+	List<String> lines = Text.group(c); // Remove a group of lines that end with a blank line from the start of c
+	List<Outline> list = new ArrayList<Outline>();
+	for (String line : lines) list.add(parse(line)); // Parse each text line into an Outline object
+	if (list.isEmpty()) throw new DataException(); // Make sure we got at least one line
+	Outline o = group(list); // Look at indent to group the list into a hierarchy
+	if (!list.isEmpty()) throw new DataException(); // Make sure there was just one outline
+	return o;
+}
+
+/** Given a List of Outline objects made from lines of text, look at indent to group them into a hierarchy. *
+private static Outline group(List<Outline> list) {
+	Outline o = list.remove(0); // Pull the first one in the list, this is us
+	while (!list.isEmpty() && o.indent < list.get(0).indent) // Loop while list starts with a line indented more than we are
+		o.add(group(list)); // Have it grab its sub-lines from list, and then add it to our contents
+	return o;
+}
+
+/** Parse a line of text from a text outline like "  name:value" into a new Outline object. *
+private static Outline parse(String s) {
+	try {
+		
+		// Count how many indent spaces s has
+		int indent = 0;
+		while (s.charAt(indent) == ' ') indent++; // Works with spaces only, not tabs
+		s = Text.after(s, indent); // Move beyond them, making s like "name:value"
+		
+		// Split s around ":" to get the name and value
+		Split<String> text = Text.split(s, ":");
+		if (!text.found) throw new DataException(); // Make sure there is a ":"
+		String name = text.before;
+		Data value = Encode.unquote(text.after); // Turn the quoted text back into the data it was made from
+
+		// Make an Outline object and save the indent in it
+		Outline o = new Outline(name, value);
+		o.indent = indent; // Save the number of indent spaces so group() will know what to do
+		return o;
+
+	} catch (IndexOutOfBoundsException e) { throw new DataException(); } // charAt() went beyond the end of s
+}
+
+/** If this Outline was parsed from a line of text in a text outline, the number of indent spaces it had, like 2 in "  name:value". *
+private int indent;
+
+
+*/
+
+//Parse
+
+function parseGroup(clip) {
+	var p = ParseFromClip(clip);
+
+	p.valid();
+	return a;
+}
+
+function parseLine(clip) {
+	var p = ParseFromClip(clip);
+
+	p.valid();
+	return s;
+}
+
+/*
+
+
+// Parse
+
+/**
+ * Remove a group of lines of text from the start of c, and parse them into a List of String objects.
+ * Lines end "\n" or "\r\n", and a blank line marks the end of the group.
+ * Removes the terminating blank line from c, but doesn't include it in the return List.
+ * If c doesn't have a blank line, throws a ChopException without changing c.
+ *
+public static List<String> group(Clip c) {
+	Clip clip = c.copy(); // Make a copy to throw an exception with c unchanged
+	List<String> list = new ArrayList<String>();
+	while (true) {
+		String line = line(clip); // Parse a line from data
+		if (Text.isBlank(line)) break; // We got the blank line that ends the group, done
+		list.add(line); // We got a line, add it to the list we'll return
+	}
+	c.keep(clip.size()); // That worked without an exception, remove the data we parsed from c
+	return list;
+}
+
+/**
+ * Remove one line of text from the start of c, and parse it into a String.
+ * If c doesn't have a "\n", throws a ChopException and doesn't change c.
+ * Works with lines that end with both "\r\n" and just "\n", removes both without trimming the String.
+ *
+public static String line(Clip c) {
+	Split<Data> split = c.data().split((byte)'\n'); // The line ends "\r\n" or just "\n", split around "\n"
+	if (!split.found) throw new ChopException(); // A whole line hasn't arrived yet
+	Data before = split.before;
+	if (before.ends((byte)'\r')) before = before.chop(1); // Remove the "\r"
+	c.keep(split.after.size()); // That all worked, remove the data of the line from c
+	return before.toString();
 }
 
 
 
+
+*/
 
 
 
@@ -1114,13 +1233,24 @@ function outlineToData(o, bay) {
 	} catch (e) { t.reset(); throw e; }
 }
 
+// Parse data at the start of clip into a new outline object, and remove it from clip
 function outlineFromData(clip) {
+	var p = ParseFromClip(clip);
 
+	var o = Outline();                            // Make a new empty outline object to fill and return
+	o.name(p.remove(spanParse(p.clip())).text()); // Parse the name span header, and then the name
+	o.value(p.remove(spanParse(p.clip())));       // Parse the value span header, and then the value
+	var c = p.remove(spanParse(p.clip())).take(); // Parse the contents span header, and clip c around the contents
+	while (c.hasData())                           // Loop until we run c out of data
+		o.add(outlineFromData(c));                  // Parse the outline at the start of c, and add it to our contents
 
+	p.valid();
 	return o;
 }
 
+exports.outlineFromData = outlineFromData;
 
+//you could add the round trip test here, maybe
 
 
 
@@ -1155,17 +1285,18 @@ function spanMake(n, bay) {
 
 // Parse 1 or more bytes at the start of clip into a number, remove them from clip, and return the number
 function spanParse(clip) {
-	var c = ParseFromClip(clip);
+	var p = ParseFromClip(clip);
 
 	var n = 0;
 	for (var i = 0; i < 4; i++) {  // Loop up to 4 times
-		var y = c.remove(1).first(); // Cut one byte from the start of d, or throw chop if there isn't one
+		var y = p.remove(1).first(); // Cut one byte from the start of d, or throw chop if there isn't one
 		n = (n << 7) | (y & 0x7f);   // Move 7 bits into the bottom of n
 		if ((y & 0x80) == 0) break;  // If the leading bit is 0, we're done
 	}
 	if (n < 0 || n > 0x0fffffff) throw "data";
-	if (!spanMake(n).same(c.removed())) throw "data"; // Round trip check
-	c.valid();
+	if (!spanMake(n).same(p.removed())) throw "data"; // Round trip check
+
+	p.valid();
 	return n;
 }
 

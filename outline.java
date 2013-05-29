@@ -79,39 +79,41 @@ private int indent;
 
 
 
+// Parse
 
-
-
-
-
-
-
-
-// Parse from data
-
-/** Parse data at the start of c into this new Outline object, and remove it from d. */
-public Outline(Clip c) {
-	this.contents = new ArrayList<Outline>();
-	Clip clip = c.copy();                           // Copy d so if we throw an exception, it won't be changed
-	name = clip.cut(numberParse(clip)).toString();  // Parse the name size, and then the name
-	value = clip.cut(numberParse(clip)).copyData(); // Copy the value data into this new Outline object
-	Clip d = clip.cut(numberParse(clip)).clip();    // Clip c around the data of the contents
-	while (d.hasData())                             // Loop until c runs out of data
-		contents.add(new Outline(d));               // Parse the Outline at the start of c, and add it to our list
-	c.keep(clip.size());                            // Done without an exception, remove what we parsed from d
-}
-
-/** Parse 1 or more bytes at the start of d into a number, remove them from d, and return the number. */
-private static int numberParse(Clip c) {
-	int n = 0;
+/**
+ * Remove a group of lines of text from the start of c, and parse them into a List of String objects.
+ * Lines end "\n" or "\r\n", and a blank line marks the end of the group.
+ * Removes the terminating blank line from c, but doesn't include it in the return List.
+ * If c doesn't have a blank line, throws a ChopException without changing c.
+ */
+public static List<String> group(Clip c) {
+	Clip clip = c.copy(); // Make a copy to throw an exception with c unchanged
+	List<String> list = new ArrayList<String>();
 	while (true) {
-		byte y = c.cut(1).first();  // Cut one byte from the start of d
-		n = (n << 7) | (y & 0x7f);  // Move 7 bits into the bottom of n
-		if ((y & 0x80) == 0) break; // If the leading bit is 0, we're done
+		String line = line(clip); // Parse a line from data
+		if (Text.isBlank(line)) break; // We got the blank line that ends the group, done
+		list.add(line); // We got a line, add it to the list we'll return
 	}
-	if (n < 0) throw new DataException(); // Don't allow a negative size
-	return n;
+	c.keep(clip.size()); // That worked without an exception, remove the data we parsed from c
+	return list;
 }
+
+/**
+ * Remove one line of text from the start of c, and parse it into a String.
+ * If c doesn't have a "\n", throws a ChopException and doesn't change c.
+ * Works with lines that end with both "\r\n" and just "\n", removes both without trimming the String.
+ */
+public static String line(Clip c) {
+	Split<Data> split = c.data().split((byte)'\n'); // The line ends "\r\n" or just "\n", split around "\n"
+	if (!split.found) throw new ChopException(); // A whole line hasn't arrived yet
+	Data before = split.before;
+	if (before.ends((byte)'\r')) before = before.chop(1); // Remove the "\r"
+	c.keep(split.after.size()); // That all worked, remove the data of the line from c
+	return before.toString();
+}
+
+
 
 
 
