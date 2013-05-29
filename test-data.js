@@ -1302,7 +1302,7 @@ exports.testOutlineValue = function(test) {
 
 	//third, give value() a string to get the value of the contained outline with the given name
 	o.add(Outline("contained", Data("contained value")));
-	test.ok(o.o("contained").value().text() == "contained value");//long form
+	test.ok(o.n("contained").value().text() == "contained value");//long form
 	test.ok(o.value("contained").text() == "contained value");//shortcut form
 
 	test.done();
@@ -1378,13 +1378,13 @@ exports.testOutlineAdd = function(test) {
 	cant({ key:"value", key2:"value2" });
 
 	//set values to what you added
-	o.o("a").value(base16("01"));
-	o.o("b").value(base16("02"));
+	o.n("a").value(base16("01"));
+	o.n("b").value(base16("02"));
 
 	//get those values
-	test.ok(o.o("a").value().same(base16("01")));
-	test.ok(o.o("b").value().same(base16("02")));
-	test.ok(o.o("").value().same(base16("03")));
+	test.ok(o.n("a").value().same(base16("01")));
+	test.ok(o.n("b").value().same(base16("02")));
+	test.ok(o.n("").value().same(base16("03")));
 
 	test.done();
 }
@@ -1393,19 +1393,19 @@ exports.testOutlineNavigate = function(test) {
 
 	var o = Outline();
 	try {
-		o.o("name1");//try navigating down to something that doesn't exist
+		o.n("name1");//try navigating down to something that doesn't exist
 	} catch (e) { test.ok(e == "data"); }
 
 	o.add("name1");//add it
-	o.o("name1").value(base16("01"));//set its value
-	test.ok(o.o("name1").value().same(base16("01")));//get its value
+	o.n("name1").value(base16("01"));//set its value
+	test.ok(o.n("name1").value().same(base16("01")));//get its value
 
-	var o1 = o.o("name1");//navigate down to it
+	var o1 = o.n("name1");//navigate down to it
 	test.ok(o1.value().same(base16("01")));//get its value from the navigated outline
 
 	var o2 = o.m("name2");//make and navigate at the same time
 	o2.value(base16("02"));//set the value on the navigated outline
-	test.ok(o.o("name2").value().same(base16("02")));//get from the root
+	test.ok(o.n("name2").value().same(base16("02")));//get from the root
 
 	test.done();
 }

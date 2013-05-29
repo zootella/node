@@ -898,7 +898,7 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
-function Outline(n, v) {
+function Outline(setName, setValue) {
 
 	// Members and default empty values
 	var _name     = "";     // The name of this place in the outline, must be a string, blank by default
@@ -906,8 +906,8 @@ function Outline(n, v) {
 	var _contents = [];     // The contents within this place in the outline, must be more outline objects
 
 	// Set given initial values
-	name(n);
-	value(v);
+	name(setName);
+	value(setValue);
 
 	// Set and get name and value
 	function name(p) {
@@ -922,7 +922,7 @@ function Outline(n, v) {
 	function value(p) {
 		if (p) { // We were given a new value, or a contained name to get the value of
 			if      (isType(p, "Data"))   _value = p.copyMemory(); // Copy the memory, the given data might view a file which will close
-			else if (isType(p, "string")) return o(p).value(); // Navigate to the contained name and return its value
+			else if (isType(p, "string")) return n(p).value(); // Navigate to the contained name and return its value
 			else throw "type";
 		}
 		return _value; // Return our current value
@@ -973,18 +973,18 @@ function Outline(n, v) {
 		return a;
 	}
 
-	// Move from this outline to name within it, or throw data if name not found
-	function o(k) {
+	// Navigate from this outline to name within it, or throw data if name not found
+	function n(k) {
 		if (k === undefined) k = ""; // Get the first item in the default list
 		for (var i = 0; i < _contents.length; i++)
 			if (_contents[i].name() == k) return _contents[i]; // Return the first outline in our contents that has a matching name
 		throw "data";
 	}
 
-	// Move from this outline to name within it, make name if it doesn't exist yet
+	// Navigate from this outline to name within it, make name if it doesn't exist yet
 	function m(k) {
 		if (!has(k)) add(Outline(k)); // If we don't have the requested name, add it
-		return o(k);
+		return n(k);
 	}
 
 	// Sort this outline
@@ -1005,7 +1005,7 @@ function Outline(n, v) {
 		name:name, value:value,
 		length:length, get:get, clear:clear,
 		add:add, has:has, remove:remove, list:list,
-		o:o, m:m,
+		n:n, m:m,
 		sort:sort,
 		text:text, data:data, _setContents:_setContents,
 		type:function(){ return "Outline"; }
