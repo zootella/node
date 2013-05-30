@@ -78,30 +78,30 @@ function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 //                        
 
 // Make a Data to look at the bytes of some binary data
-function Data(d) {
+function Data(p) {
 
-	var buffer; // Our node buffer which views some binary data
+	var _buffer; // Our node buffer which views some binary data
 
 	// Try to get the binary data out of b
-	switch (typeof d) {
+	switch (typeof p) {
 		case "undefined": // The call here was Data() with nothing given
-			buffer = new Buffer(0); // Make an empty buffer that holds 0 bytes
+			_buffer = new Buffer(0); // Make an empty buffer that holds 0 bytes
 			break;
 		case "boolean": // Like true or false
-			buffer = new Buffer(d ? "t" : "f"); // Hold the boolean as the text "t" or "f"
+			_buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
 			break;
 		case "number": // Like 5 or -1.1
-			buffer = new Buffer(numerals(d)); // Hold the number as numerals like "786" or "-3.1"
+			_buffer = new Buffer(numerals(p)); // Hold the number as numerals like "786" or "-3.1"
 			break;
 		case "string": // Like "hi"
-			buffer = new Buffer(d, "utf8");
+			_buffer = new Buffer(p, "utf8");
 			break;
 		case "object": // Like {}, [], or null
-			if (Buffer.isBuffer(d)) {
-				buffer = d.slice(0, d.length); // Make a new buffer that views the same memory
+			if (Buffer.isBuffer(p)) {
+				_buffer = p.slice(0, p.length); // Make a new buffer that views the same memory
 			} else {
-				buffer = d.toBuffer(); // Try to get a buffer from it, or throw TypeError
-				if (!Buffer.isBuffer(buffer)) throw "type"; // Make sure we got a buffer
+				_buffer = p.toBuffer(); // Try to get a buffer from it, or throw TypeError
+				if (!Buffer.isBuffer(_buffer)) throw "type"; // Make sure we got a buffer
 			}
 			break;
 		default:
@@ -109,17 +109,30 @@ function Data(d) {
 			break;
 	}
 
+	/*
+	if (isType(p, "Data")) log("data got data! going to just return it");
+	//didn't do if (typeof p.data == "function") return p.data();
+	var type = getType(p);
+	if      (type == "Data")      return p; // Return the same Data instead of creating a new one based on it
+	else if (type == "undefined") _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
+	else if (type == "boolean")   _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
+	else if (type == "number")    _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
+	else if (type == "string")    _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
+	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
+	else throw "type";
+	*/
+
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
 	// The size of a Data object cannot change, while Clip can.
-	function take() { return Clip(buffer); }
+	function take() { return Clip(this); }
 
 	// Make a copy of the memory this Data object views
 	// Afterwards, the object that holds the data can close, and the copy will still view it
-	function copyMemory() { return Bay(buffer).data(); } // Make a Bay object which will copy the data
+	function copyMemory() { return Bay(this).data(); } // Make a Bay object which will copy the data
 
 	// Convert this Data into a node Buffer object
-	function toBuffer() { return buffer; } // Let the caller access our internal buffer object, they can't change it
+	function toBuffer() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
 	// On binary data, text() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
@@ -136,9 +149,9 @@ function Data(d) {
 		else throw "data";
 	}
 	
-	function size() { return buffer.length; } // The number of bytes of data this Data object views
-	function isEmpty() { return buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
-	function hasData() { return buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
+	function size() { return _buffer.length; } // The number of bytes of data this Data object views
+	function isEmpty() { return _buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
+	function hasData() { return _buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
 
 	function start(n) { return clip(0, n); }          // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
 	function end(n)   { return clip(size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
@@ -146,76 +159,39 @@ function Data(d) {
 	function chop(n)  { return clip(0, size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
 	function clip(i, n) {                             // Clip out part this Data, clip(5, 3) is dddddDDDdd
 		if (i < 0 || n < 0 || i + n > size()) throw "chop"; // Make sure the requested index and number of bytes fits inside this Data
-		return Data(buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
+		return Data(_buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
 	}
 	
 	function first() { return get(0); } // Get the first byte in this Data
 	function get(i) {                   // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
 		if (!i) i = 0;                          // Turn undefined into 0 so math below works
 		if (i < 0 || i >= size()) throw "chop"; // Make sure i is in range
-		return buffer.readUInt8(i);
+		return _buffer.readUInt8(i);
 	}
 
 	// True if this Data object views the same data as the given one
 	function same(d) {
-		if (size() != d.size()) return false; // Compare the sizes
-		else if (size() == 0) return true;    // If both are empty, they are the same
-		return _search(d, true, false) != -1; // Search at the start only
+		if (size() != d.size()) return false;           // Compare the sizes
+		else if (size() == 0) return true;              // If both are empty, they are the same
+		return _searchData(this, d, true, false) != -1; // Search at the start only
 	}
 	
-	function starts(d) { return _search(d, true,  false) != -1; } // True if this Data starts with d
-	function ends(d)   { return _search(d, false, false) != -1; } // True if this Data ends with d
-	function has(d)    { return _search(d, true,  true)  != -1; } // True if this Data contains d
+	function starts(d) { return _searchData(this, d, true,  false) != -1; } // True if this Data starts with d
+	function ends(d)   { return _searchData(this, d, false, false) != -1; } // True if this Data ends with d
+	function has(d)    { return _searchData(this, d, true,  true)  != -1; } // True if this Data contains d
 
-	function find(d) { return _search(d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
-	function last(d) { return _search(d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
+	function find(d) { return _searchData(this, d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
+	function last(d) { return _searchData(this, d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
 
-	// Find where in this Data d appears
-	// forward true to search forwards from the start, false to search backwards from the end
-	// scan true to scan across all the positions possible in this Data, false to only look at the starting position
-	// return the byte index in this Data where d starts, -1 if not found
-	function _search(d, forward, scan) {
-		if (!d.size() || size() < d.size()) return -1; // Check the sizes
-		
-		var start = forward ? 0                 : size() - d.size(); // Our search will scan this Data from the start index through the end index
-		var end   = forward ? size() - d.size() : 0;
-		var step  = forward ? 1                 : -1;
-		if (!scan) end = start; // If we're not allowed to scan across this Data, set end to only look one place
-		
-		for (var i = start; i != end + step; i += step) { // Scan i from the start through the end in the specified direction
-			for (var j = 0; j < d.size(); j++) {            // Look for d at i
-				if (get(i + j) != d.get(j)) break;            // Mismatch found, break to move to the next spot in this Data
-			}
-			if (j == d.size()) return i; // We found d, return the index in this Data where it is located
-		}
-		return -1; // Not found
-	}
+	function cut(d)     { return _cutData(this, d, true);  } // Split this Data around d, clipping out the parts before and after it
+	function cutLast(d) { return _cutData(this, d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
 
-	function cut(d)     { return _cut(d, true);  } // Split this Data around d, clipping out the parts before and after it
-	function cutLast(d) { return _cut(d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
-	function _cut(d, forward) { // Cut this Data around d, separating the parts before and after it
-		var i = _search(d, forward, true); // Search this Data for d
-		if (i == -1)
-			return {
-				found:  false,        // Not found, make before this and after blank
-				before: Data(buffer), // Copy this Data object
-				tag:    Data(),       // Two empty Data objects
-				after:  Data()
-			};
-		else
-			return {
-				found:  true, // We found d at i, clip out the parts before and after it
-				before: start(i),
-				tag:    clip(i, d.size()),
-				after:  after(i + d.size())
-			};
-	}
-
-	function base16() { return toBase16(Data(buffer)); } // Encode this Data into text using base 16, each byte will become 2 characters, "00" through "ff"
-	function base32() { return toBase32(Data(buffer)); } // Encode this Data into text using base 32, each 5 bits will become a character a-z and 2-7
-	function base62() { return toBase62(Data(buffer)); } // Encode this Data into text using base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
-	function base64() { return toBase64(Data(buffer)); } // Encode this Data into text using base 64
-	function quote()  { return toquote(Data(buffer));  } // Encode this Data into text like --"hello"0d0a-- base 16 with text in quotes
+	// Encoding this data into text using
+	function base16() { return toBase16(this); } // Base 16, each byte will become 2 characters, "00" through "ff"
+	function base32() { return toBase32(this); } // Base 32, each 5 bits will become a character a-z and 2-7
+	function base62() { return toBase62(this); } // Base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
+	function base64() { return toBase64(this); } // Base 64
+	function quote()  { return toquote(this);  } // Base 16 with text in quotes, like '"hello"0d0a' 
 
 	return {
 		take:take, copyMemory:copyMemory,
@@ -258,6 +234,47 @@ function Clip(b) {
 		remove:remove, keep:keep,
 		type:function(){ return "Clip"; }
 	};
+}
+
+// Find where in data tag appears
+// forward true to search forwards from the start, false to search backwards from the end
+// scan true to scan across all the positions possible in this Data, false to only look at the starting position
+// return the byte index in this Data where d starts, -1 if not found
+function _searchData(data, tag, forward, scan) {
+	if (!tag.size() || data.size() < tag.size()) return -1; // Check the sizes
+	
+	// Our search will scan this Data from the start index through the end index
+	var start = forward ? 0                        : data.size() - tag.size();
+	var end   = forward ? data.size() - tag.size() : 0;
+	var step  = forward ? 1                        : -1;
+	if (!scan) end = start; // If we're not allowed to scan across this Data, set end to only look one place
+	
+	for (var i = start; i != end + step; i += step) { // Scan i from the start through the end in the specified direction
+		for (var j = 0; j < tag.size(); j++) {          // Look for tag at i
+			if (data.get(i + j) != tag.get(j)) break;     // Mismatch found, break to move to the next spot in this Data
+		}
+		if (j == tag.size()) return i; // We found tag, return the index in this Data where it is located
+	}
+	return -1; // Not found
+}
+
+// Cut data around tag, separating the parts before and after it
+function _cutData(data, tag, forward) {
+	var i = _searchData(data, tag, forward, true); // Search this Data for tag
+	if (i == -1)
+		return {
+			found:  false,  // Not found, make before this and after blank
+			before: data,   // Copy this Data object
+			tag:    Data(), // Two empty Data objects
+			after:  Data()
+		};
+	else
+		return {
+			found:  true, // We found tag at i, clip out the parts before and after it
+			before: data.start(i),
+			tag:    data.clip(i, tag.size()),
+			after:  data.after(i + tag.size())
+		};
 }
 
 // Determine which should appear first in sorted order
@@ -479,8 +496,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		else if (buffer.length == Size.big    && recycleBin.big.length    < recycleBin.capacity) { recycleBin.big.add(buffer);    buffer = null; }
 	}
 
-	function getBuffer() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
-	function setBuffer(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
+	function _get() { return { buffer:buffer, hold:hold }; } // Access our buffer and hold
+	function _set(o) { buffer = o.buffer; hold = o.hold; } // Set our buffer and hold from the given ones
 
 	function data() { return Data(buffer.slice(0, hold)); } // Look at the Data in this Bin
 	
@@ -501,9 +518,9 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 			if (b.isEmpty() || isFull()) {                        // Nothing given or no space here
 			} else if (isEmpty() && capacity() == b.capacity()) { // We're empty and have the same capacity
-				var a = getBuffer();      // Save our buffer and hold in a
-				setBuffer(b.getBuffer()); // Take b's buffer and hold
-				b.setBuffer(a);           // Give b our buffer and hold, which we saved in a
+				var a = _get();      // Save our buffer and hold in a
+				_set(b._get()); // Take b's buffer and hold
+				b._set(a);           // Give b our buffer and hold, which we saved in a
 			} else {                                              // Move some data in
 				var clip = b.data().take();
 				add(clip);                // Call this same function with the Clip
@@ -563,9 +580,8 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 	function send(listen, p) {} // Use listen to send the data in this Bin, 0 or more bytes, as a UDP packet to p
 
 	return {
-		getBuffer:getBuffer, setBuffer:setBuffer, // Don't use these methods, ideally they would be private
-
 		recycle:recycle,
+		_get:_get, _set:_set,
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
 		add:add, remove:remove, keep:keep, clear:clear,
@@ -999,9 +1015,8 @@ function Outline(setName, setValue) {
 	}
 
 	// Convert this outline to text and data
-	function text()    { var g = Outline(_name, _value); g._setContents(_contents); return outlineToText(g); }
-	function data(bay) { var g = Outline(_name, _value); g._setContents(_contents); return outlineToData(g, bay); }
-	function _setContents(c) { _contents = c; } //TODO figure out how to get the this reference working instead
+	function text()    { return outlineToText(this); }
+	function data(bay) { return outlineToData(this, bay); }
 
 	return {
 		name:name, value:value,
@@ -1009,7 +1024,7 @@ function Outline(setName, setValue) {
 		add:add, has:has, remove:remove, list:list,
 		n:n, m:m,
 		sort:sort,
-		text:text, data:data, _setContents:_setContents,
+		text:text, data:data,
 		type:function(){ return "Outline"; }
 	};
 }

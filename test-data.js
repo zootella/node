@@ -163,7 +163,7 @@ exports.testDataMake = function(test) {
 	test.ok(d.text() == "f");
 
 	//byte
-	d = new toByte(0x01);//javascript can't tell the difference between numbers and bytes, so you have to use toByte(), which returns a Data object
+	d = toByte(0x01);//javascript can't tell the difference between numbers and bytes, so you have to use toByte(), which returns a Data object
 	test.ok(d.base16() == "01");
 
 	//number
