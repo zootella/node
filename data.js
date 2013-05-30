@@ -110,7 +110,6 @@ function Data(p) {
 	}
 
 	/*
-	if (isType(p, "Data")) log("data got data! going to just return it");
 	//didn't do if (typeof p.data == "function") return p.data();
 	var type = getType(p);
 	if      (type == "Data")      return p; // Return the same Data instead of creating a new one based on it

@@ -1,5 +1,5 @@
 
-
+var log = console.log;
 
 
 
@@ -332,8 +332,11 @@ exports.Slice = Slice;
 
 // Text that describes the type of o, like "string" or "Data"
 function getType(o) {
-	if (typeof o.type == "function") return o.type(); // One of our objects, with a type() method
-	return typeof o; // A platform type, use the typeof operator
+	try {
+		return o.type(); // Try to call the type() method we add to custom objects
+	} catch (e) {
+		return typeof o; // If that doesn't work, use the typeof operator
+	}
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
