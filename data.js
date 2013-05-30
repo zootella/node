@@ -82,6 +82,8 @@ function Data(p) {
 
 	var _buffer; // Our node buffer which views some binary data
 
+if (true) {
+
 	// Try to get the binary data out of b
 	switch (typeof p) {
 		case "undefined": // The call here was Data() with nothing given
@@ -109,10 +111,10 @@ function Data(p) {
 			break;
 	}
 
-	/*
-	//didn't do if (hasMethod(p, "data") return p.data();
-	//no wait, Bay and Bin have data methods, so you can already do bay.data(), but what if you do Data(bay), this would be for that
-	//data does not have a data function, but if it did, it could just return this
+} else {
+
+	// Find or make a Data object out of p
+	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
 	var type = getType(p);
 	if      (type == "Data")      return p; // Return the same Data instead of creating a new one based on it
 	else if (type == "undefined") _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
@@ -121,7 +123,8 @@ function Data(p) {
 	else if (type == "string")    _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
 	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
 	else throw "type";
-	*/
+
+}
 
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
