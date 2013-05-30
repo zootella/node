@@ -319,6 +319,7 @@ exports.testSlice = function(test) {
 var getType = requireMeasure.getType;
 var isType = requireMeasure.isType;
 var checkType = requireMeasure.checkType;
+var hasMethod = requireMeasure.hasMethod;
 
 exports.testGetType = function(test) {
 
@@ -376,18 +377,16 @@ exports.testGetType = function(test) {
 	test.done();
 }
 
-exports.testIsType = function(test) {
+exports.testHasMethod = function(test) {
 
-	//platform types
-	test.ok(isType("hi", "string"));
-	test.ok(isType(7, "number"));
-	test.ok(isType(true, "boolean"));
+	test.ok(hasMethod(Data(), "base62"));//there
+	test.ok(!hasMethod(Data(), "notFound"));//not found
 
-	//custom types
-	var bay = Bay("hi");
-	test.ok(isType(bay, "Bay"));
-	test.ok(isType(bay.data(), "Data"));
-	test.ok(isType(bay.data().take(), "Clip"));
+	test.ok(!hasMethod(undefined, "name"));//not an object, returns false
+	test.ok(!hasMethod(null, "name"));
+	test.ok(!hasMethod(false, "name"));
+	test.ok(!hasMethod(0, "name"));
+	test.ok(!hasMethod("hi", "name"));
 
 	test.done();
 }

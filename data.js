@@ -110,7 +110,9 @@ function Data(p) {
 	}
 
 	/*
-	//didn't do if (typeof p.data == "function") return p.data();
+	//didn't do if (hasMethod(p, "data") return p.data();
+	//no wait, Bay and Bin have data methods, so you can already do bay.data(), but what if you do Data(bay), this would be for that
+	//data does not have a data function, but if it did, it could just return this
 	var type = getType(p);
 	if      (type == "Data")      return p; // Return the same Data instead of creating a new one based on it
 	else if (type == "undefined") _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes

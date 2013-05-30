@@ -341,9 +341,19 @@ function getType(o) {
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
 
+// True if o is an object with a function o.name() you can call
+function hasMethod(o, name) {
+	try {
+		return typeof o[name] == "function";
+	} catch (e) {
+		return false;
+	}
+}
+
 exports.getType = getType;
 exports.isType = isType;
 exports.checkType = checkType;
+exports.hasMethod = hasMethod;
 
 
 
