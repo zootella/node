@@ -83,37 +83,6 @@ function Data(p) {
 
 	var _buffer; // Our node buffer which views some binary data
 
-if (true) {
-
-	// Try to get the binary data out of b
-	switch (typeof p) {
-		case "undefined": // The call here was Data() with nothing given
-			_buffer = new Buffer(0); // Make an empty buffer that holds 0 bytes
-			break;
-		case "boolean": // Like true or false
-			_buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
-			break;
-		case "number": // Like 5 or -1.1
-			_buffer = new Buffer(numerals(p)); // Hold the number as numerals like "786" or "-3.1"
-			break;
-		case "string": // Like "hi"
-			_buffer = new Buffer(p, "utf8");
-			break;
-		case "object": // Like {}, [], or null
-			if (Buffer.isBuffer(p)) {
-				_buffer = p.slice(0, p.length); // Make a new buffer that views the same memory
-			} else {
-				_buffer = p.buffer(); // Try to get a buffer from it, or throw TypeError
-				if (!Buffer.isBuffer(_buffer)) throw "type"; // Make sure we got a buffer
-			}
-			break;
-		default:
-			throw "type"; // We don't know how to get data from it
-			break;
-	}
-
-} else {
-
 	// Find or make a Data object out of p
 	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
 	var type = getType(p);
@@ -124,8 +93,6 @@ if (true) {
 	else if (type == "string")    _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
 	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
 	else throw "type";
-
-}
 
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed

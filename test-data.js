@@ -188,20 +188,9 @@ exports.testDataMake = function(test) {
 
 exports.testDataFindOrMake = function(test) {
 
-
-
-	//no wait, Bay and Bin have data methods, so you can already do bay.data(), but what if you do Data(bay), this would be for that
-
-/*
 	var bay = Bay("hi");
-	var data = Data(bay);
+	var data = Data(bay);//now you can make a data out of anything that has a data() method
 	test.ok(data.text() == "hi");
-	*/
-
-
-
-
-
 
 	test.done();
 }
