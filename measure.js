@@ -331,6 +331,14 @@ exports.Slice = Slice;
 
 
 
+
+//   _____                 
+//  |_   _|   _ _ __   ___ 
+//    | || | | | '_ \ / _ \
+//    | || |_| | |_) |  __/
+//    |_| \__, | .__/ \___|
+//        |___/|_|         
+
 // True if o is an object with a function o.name() you can call
 function hasMethod(o, name) { return o && typeof o[name] == "function"; }
 

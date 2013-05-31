@@ -316,6 +316,18 @@ exports.testSlice = function(test) {
 
 
 
+
+
+
+
+
+//   _____                 
+//  |_   _|   _ _ __   ___ 
+//    | || | | | '_ \ / _ \
+//    | || |_| | |_) |  __/
+//    |_| \__, | .__/ \___|
+//        |___/|_|         
+
 var hasMethod = requireMeasure.hasMethod;
 var getType = requireMeasure.getType;
 var isType = requireMeasure.isType;
