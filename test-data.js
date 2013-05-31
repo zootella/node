@@ -224,7 +224,7 @@ exports.testDataOut = function(test) {
 
 	//buffer
 	var d = base16("0d0a");
-	var b = d.toBuffer();
+	var b = d.buffer();
 	test.ok(b.readUInt8(0) == 0x0d);
 	test.ok(b.readUInt8(1) == 0x0a);
 

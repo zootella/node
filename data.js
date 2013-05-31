@@ -105,7 +105,7 @@ if (method == 1) {//88ms
 			if (Buffer.isBuffer(p)) {
 				_buffer = p.slice(0, p.length); // Make a new buffer that views the same memory
 			} else {
-				_buffer = p.toBuffer(); // Try to get a buffer from it, or throw TypeError
+				_buffer = p.buffer(); // Try to get a buffer from it, or throw TypeError
 				if (!Buffer.isBuffer(_buffer)) throw "type"; // Make sure we got a buffer
 			}
 			break;
@@ -142,11 +142,11 @@ if (method == 1) {//88ms
 	function copyMemory() { return Bay(this).data(); } // Make a Bay object which will copy the data
 
 	// Convert this Data into a node Buffer object
-	function toBuffer() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
+	function buffer() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
 	// On binary data, text() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
-	function text() { return toBuffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
+	function text() { return buffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
 	function toNumber() { return number(text()); }
@@ -205,7 +205,7 @@ if (method == 1) {//88ms
 
 	return {
 		take:take, copyMemory:copyMemory,
-		toBuffer:toBuffer, text:text, toNumber:toNumber, toBoolean:toBoolean,
+		buffer:buffer, text:text, toNumber:toNumber, toBoolean:toBoolean,
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		start:start, end:end, after:after, chop:chop, clip:clip,
 		first:first, get:get,
@@ -357,7 +357,7 @@ function Bay(a) {
 	// Copy the data in the given object to the end of the data this Bay holds
 	function add(a) {
 		if (!a) return; // Nothing to add
-		var b = Data(a).toBuffer(); // Convert the given a into buffer b so it's easy to add
+		var b = Data(a).buffer(); // Convert the given a into buffer b so it's easy to add
 		prepare(b.length);
 		bufferCopy(b.length, b, 0, buffer, start + hold); // Append the given data to what we already have
 		hold += b.length;
@@ -547,12 +547,12 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		// Move as much data as fits from data to this Bin, removing what we take from data
 		} else if (isType(b, "Clip")) {
 
-			if (b.isEmpty() || isFull()) return;          // Nothing given or no space here
-			var n = Math.min(b.size(), space());          // Figure out how many bytes we can move
-			var d = b.data().start(n);                    // Clip d around that size
-			bufferCopy(n, d.toBuffer(), 0, buffer, hold); // Copy in the data
-			hold += n;                                    // Record that we hold n more bytes
-			b.remove(n);                                  // Remove what we took from the given Clip object
+			if (b.isEmpty() || isFull()) return;        // Nothing given or no space here
+			var n = Math.min(b.size(), space());        // Figure out how many bytes we can move
+			var d = b.data().start(n);                  // Clip d around that size
+			bufferCopy(n, d.buffer(), 0, buffer, hold); // Copy in the data
+			hold += n;                                  // Record that we hold n more bytes
+			b.remove(n);                                // Remove what we took from the given Clip object
 
 		// Whatever b is, we can't add from it
 		} else {
@@ -635,7 +635,7 @@ function toByte(i) {
 }
 
 // Turn data into text using base 16, each byte will become 2 characters, "00" through "ff"
-function toBase16(d) { return d.toBuffer().toString("hex"); }
+function toBase16(d) { return d.buffer().toString("hex"); }
 
 // Turn data into text using base 32, each 5 bits will become a character a-z and 2-7
 function toBase32(d) {
@@ -704,7 +704,7 @@ function toBase62(d) {
 }
 
 // Turn data into text using base 64
-function toBase64(d) { return d.toBuffer().toString("base64"); }
+function toBase64(d) { return d.buffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
 function base16(s, bay) {
