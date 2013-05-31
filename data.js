@@ -84,14 +84,14 @@ function Data(p) {
 	var _buffer; // Our node buffer which views some binary data
 
 	// Find or make a Data object out of p
-	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
 	var type = getType(p);
-	if      (type == "Data")      return p; // Return the same Data instead of creating a new one based on it
-	else if (type == "undefined") _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
-	else if (type == "boolean")   _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
-	else if (type == "number")    _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
-	else if (type == "string")    _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
-	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
+	if      (type == "Data")       return p;        // Return the same Data instead of creating a new one based on it
+	else if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
+	else if (Buffer.isBuffer(p))   _buffer = p;     // Wrap this new Data around the given buffer without copying or slicing it
+	else if (type == "undefined")  _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
+	else if (type == "boolean")    _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
+	else if (type == "number")     _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
+	else if (type == "string")     _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
 	else throw "type";
 
 	// Make a Clip object around this Data
