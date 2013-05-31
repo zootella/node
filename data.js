@@ -9,6 +9,7 @@ var scale = requireMeasure.scale;
 var getType = requireMeasure.getType;
 var isType = requireMeasure.isType;
 var checkType = requireMeasure.checkType;
+var hasMethod = requireMeasure.hasMethod;
 
 var requireText = require("./text");
 var parseCheck = requireText.parseCheck;
@@ -82,7 +83,9 @@ function Data(p) {
 
 	var _buffer; // Our node buffer which views some binary data
 
-if (true) {
+var method = 1;
+
+if (method == 1) {//88ms
 
 	// Try to get the binary data out of b
 	switch (typeof p) {
@@ -111,7 +114,10 @@ if (true) {
 			break;
 	}
 
-} else {
+} else if (method == 2) {
+	//add the improvements one by one and see where it gets twice as slow
+
+} else if (method == 3) {//180msk
 
 	// Find or make a Data object out of p
 	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
@@ -124,7 +130,7 @@ if (true) {
 	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
 	else throw "type";
 
-}
+} else { throw "no method"; }
 
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
