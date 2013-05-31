@@ -83,9 +83,7 @@ function Data(p) {
 
 	var _buffer; // Our node buffer which views some binary data
 
-var method = 1;
-
-if (method == 1) {//88ms
+if (true) {
 
 	// Try to get the binary data out of b
 	switch (typeof p) {
@@ -114,32 +112,7 @@ if (method == 1) {//88ms
 			break;
 	}
 
-} else if (method == 2) {
-	//add the improvements one by one and see where it gets twice as slow
-
-	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
-
-	getType(p);
-
-	var type = typeof p;
-	if      (type == "undefined") { _buffer = new Buffer(0);             }
-	else if (type == "boolean")   { _buffer = new Buffer(p ? "t" : "f"); }
-	else if (type == "number")    { _buffer = new Buffer(numerals(p));   }
-	else if (type == "string")    { _buffer = new Buffer(p, "utf8");     }
-	else if (type == "object") {
-
-		if (Buffer.isBuffer(p)) {
-			_buffer = p;
-		} else {
-			_buffer = p.buffer();
-			if (!Buffer.isBuffer(_buffer)) throw "type";
-		}
-
-	} else {
-		throw "type";
-	}
-
-} else if (method == 3) {//179ms
+} else {
 
 	// Find or make a Data object out of p
 	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
@@ -152,7 +125,7 @@ if (method == 1) {//88ms
 	else if (Buffer.isBuffer(p))  _buffer = p; // Wrap this new Data around the given buffer without copying or slicing it
 	else throw "type";
 
-} else { throw "no method"; }
+}
 
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
