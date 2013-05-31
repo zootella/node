@@ -117,7 +117,29 @@ if (method == 1) {//88ms
 } else if (method == 2) {
 	//add the improvements one by one and see where it gets twice as slow
 
-} else if (method == 3) {//180msk
+	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
+
+	getType(p);
+
+	var type = typeof p;
+	if      (type == "undefined") { _buffer = new Buffer(0);             }
+	else if (type == "boolean")   { _buffer = new Buffer(p ? "t" : "f"); }
+	else if (type == "number")    { _buffer = new Buffer(numerals(p));   }
+	else if (type == "string")    { _buffer = new Buffer(p, "utf8");     }
+	else if (type == "object") {
+
+		if (Buffer.isBuffer(p)) {
+			_buffer = p;
+		} else {
+			_buffer = p.buffer();
+			if (!Buffer.isBuffer(_buffer)) throw "type";
+		}
+
+	} else {
+		throw "type";
+	}
+
+} else if (method == 3) {//179ms
 
 	// Find or make a Data object out of p
 	if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it

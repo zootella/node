@@ -330,30 +330,22 @@ exports.Slice = Slice;
 
 
 
+
+// True if o is an object with a function o.name() you can call
+function hasMethod(o, name) { return o && typeof o[name] == "function"; }
+
 // Text that describes the type of o, like "string" or "Data"
 function getType(o) {
-	try {
-		return o.type(); // Try to call the type() method we add to custom objects
-	} catch (e) {
-		return typeof o; // If that doesn't work, use the typeof operator
-	}
+	if (hasMethod(o, "type")) return o.type(); // Ask the type() method we add to custom objects
+	return typeof o;                           // Use the typeof operator
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
 
-// True if o is an object with a function o.name() you can call
-function hasMethod(o, name) {
-	try {
-		return typeof o[name] == "function";
-	} catch (e) {
-		return false;
-	}
-}
-
+exports.hasMethod = hasMethod;
 exports.getType = getType;
 exports.isType = isType;
 exports.checkType = checkType;
-exports.hasMethod = hasMethod;
 
 
 

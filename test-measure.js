@@ -316,10 +316,24 @@ exports.testSlice = function(test) {
 
 
 
+var hasMethod = requireMeasure.hasMethod;
 var getType = requireMeasure.getType;
 var isType = requireMeasure.isType;
 var checkType = requireMeasure.checkType;
-var hasMethod = requireMeasure.hasMethod;
+
+exports.testHasMethod = function(test) {
+
+	test.ok(hasMethod(Data(), "base62"));//there
+	test.ok(!hasMethod(Data(), "notFound"));//not found
+
+	test.ok(!hasMethod(undefined, "name"));//not an object, returns false
+	test.ok(!hasMethod(null, "name"));
+	test.ok(!hasMethod(false, "name"));
+	test.ok(!hasMethod(0, "name"));
+	test.ok(!hasMethod("hi", "name"));
+
+	test.done();
+}
 
 exports.testGetType = function(test) {
 
@@ -373,20 +387,6 @@ exports.testGetType = function(test) {
 		return { method:method }//no type() method
 	}
 	test.ok("object" == getType(Sample()));
-
-	test.done();
-}
-
-exports.testHasMethod = function(test) {
-
-	test.ok(hasMethod(Data(), "base62"));//there
-	test.ok(!hasMethod(Data(), "notFound"));//not found
-
-	test.ok(!hasMethod(undefined, "name"));//not an object, returns false
-	test.ok(!hasMethod(null, "name"));
-	test.ok(!hasMethod(false, "name"));
-	test.ok(!hasMethod(0, "name"));
-	test.ok(!hasMethod("hi", "name"));
 
 	test.done();
 }
