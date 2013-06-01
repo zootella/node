@@ -33,10 +33,21 @@ exports.testArray = function(test) {
 	test.ok(a.length == 3);
 	test.ok(a[2] == "c");
 
-	a.remove(1);//remove b, which is a distance 1 into the array
+	var o = a.remove(1);//remove b, which is a distance 1 into the array
 	test.ok(a.length == 2);//that changed the length
 	test.ok(a[0] == "a");
 	test.ok(a[1] == "c");//and the index of items afterwards
+
+	test.ok(o == "b");//remove returned it
+
+	function out(a, i) {//out of bounds
+		try {
+			a.remove(i);
+			test.fail();
+		} catch (e) { test.ok(e == "bounds"); }
+	}
+	out(a, -1);
+	out(a, 2);
 
 	test.done();
 }

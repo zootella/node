@@ -46,12 +46,17 @@ var log = console.log;
 if ("add" in Array.prototype) throw "program";
 Array.prototype.add = Array.prototype.push; // Just link to push
 
-// Remove the element at index i in an array with a.remove(i), shift remaining elements forward instead of leaving a hole
+// Remove and return the element at index i in an array with a.remove(i)
+// Shift remaining elements forward instead of leaving a hole
 if ("remove" in Array.prototype) throw "program";
-Array.prototype.remove = function(i) { this.splice(i, 1); } // At index i, remove 1 item and shift those after it towards the start
+Array.prototype.remove = function(i) {
+	if (i < 0 || i >= this.length) throw "bounds";
+	var o = this[i];
+	this.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
+	return o;
+}
 
-
-
+//maybe write a get() that checks bounds as well, just to use when you're outside a tight loop and not absolutely sure
 
 
 

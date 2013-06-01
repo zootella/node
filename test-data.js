@@ -1239,10 +1239,9 @@ exports.testParseBase16 = function(test) {
 //   \___/ \__,_|\__|_|_|_| |_|\___|
 //                                  
 
-
-
-
 var Outline = requireData.Outline;
+var outlineFromText = requireData.outlineFromText;
+var outlineFromData = requireData.outlineFromData;
 
 exports.testOutlineName = function(test) {
 
@@ -1432,37 +1431,52 @@ exports.testOutlineNavigate = function(test) {
 
 
 
-//    ___        _   _ _                              _   _____         _   
-//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |_   _|____  _| |_ 
-//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` |   | |/ _ \ \/ / __|
-//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
-//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
-//                                                                          
 
-var outlineFromText = requireData.outlineFromText;
 
-exports.testOutlineToText = function(test) {
 
+//Outline and Text and Data
+
+exports.testOutlineConvert = function(test) {
+
+	function say(o) {
+		log(o.data().base16());
+		log(o.text());
+	}
+	function all(o, d, s) {
+		test.ok(o.data().same(base16(d)));//outline to data
+		test.ok(outlineFromData(base16(d).take()).data().same(o.data()));//data to outline
+
+		test.ok(o.text() == s);//outline to text
+		test.ok(outlineFromText(Data(s).take()).data().same(o.data()));//text to outline
+	}
+
+	var o;
+	o = Outline();
+	all(o, '000000', lines(
+		':',
+		''));
+
+	o = Outline("n");
+	all(o, '016e0000', lines(
+		'n:',
+		''));
+
+	o = Outline("n", Data("v"));
+	all(o, '016e017600', lines(
+		'n:"v"',
+		''));
+
+	o.add(Outline("d"));
+	all(o, '016e01760401640000', lines(
+		'n:"v"',
+		'  d:',
+		''));
 
 	test.done();
 }
 
 
 
-
-
-
-
-
-
-//    ___        _   _ _                              _   ____        _        
-//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
-//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
-//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
-//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
-//                                                                             
-
-var outlineFromData = requireData.outlineFromData;
 
 exports.testOutlineConvertFirstTrys = function(test) {
 
@@ -1502,25 +1516,157 @@ exports.testOutlineConvertFirstTrys = function(test) {
 
 
 
-//obviously, write some tests where the data of an outline starts out ok, but is then invalid or incomplete, and confirm you get chop and data, and the clip is not changed
 
 
 
 
 
 
+
+
+//    ___        _   _ _                              _   _____         _   
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |_   _|____  _| |_ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` |   | |/ _ \ \/ / __|
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
+//                                                                          
+
+var _parseOutline = requireData._parseOutline;
+var _parseGroup = requireData._parseGroup;
+var _parseLine = requireData._parseLine;
+
+exports.testParseOutline = function(test) {
+
+	function parse(indent, name, value, s) {
+		var o = _parseOutline(s);
+		test.ok(indent == o.indent);
+		test.ok(name == o.name());
+		test.ok(value == o.value().text());
+	}
+
+	parse(0, "name", "value", 'name:"value"');
+	parse(2, "name", "value", '  name:"value"');
+	parse(4, "name", "value", '    name:"value"');
+
+	parse(2, "name", "",      '  name:');
+	parse(2, "",     "value", '  :"value"');
+
+	function invalid(s) {
+		try {
+			_parseOutline(s);
+			test.fail();
+		} catch (e) { test.ok(e == "data"); }
+	}
+
+	invalid('');//blank not ok
+	invalid('\tname:"value"');//tabs not ok
+	invalid('name');//missing colon
+
+	parse(0, "", "", ':');//just : is valid
+
+	test.done();
+}
 
 exports.testParseGroup = function(test) {
 
+	function sameArray(a1, a2) {
+		if (a1.length != a2.length) return false;
+		for (var i = 0; i < a1.length; i++)
+			if (a1[i] != a2[i]) return false;
+		return true;
+	}
+
+	var s = lines("a", "b", "c", "", "d", "e", "", "f", "g");
+	test.ok(s == "a\r\nb\r\nc\r\n\r\nd\r\ne\r\n\r\nf\r\ng\r\n");
+	var data = Data(s);
+	var clip = data.take();
+
+	test.ok(sameArray(_parseGroup(clip), ["a", "b", "c"]));
+	test.ok(clip.data().text() == "d\r\ne\r\n\r\nf\r\ng\r\n");
+
+	test.ok(sameArray(_parseGroup(clip), ["d", "e"]));
+	test.ok(clip.data().text() == "f\r\ng\r\n");
+
+	try {
+		_parseGroup(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+	test.ok(clip.data().text() == "f\r\ng\r\n");//unchanged
 
 	test.done();
 }
 
 exports.testParseLine = function(test) {
 
+	//two complete lines
+	var data = Data("one\r\ntwo\r\n");
+	var clip = data.take();
+	test.ok(_parseLine(clip) == "one");
+	test.ok(clip.data().text() == "two\r\n");
+	test.ok(_parseLine(clip) == "two");
+	test.ok(clip.data().text() == "");
+	try {
+		_parseLine(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+
+	//doesn't trim lines
+	data = Data(" one \r\n two \r\n");
+	clip = data.take();
+	test.ok(_parseLine(clip) == " one ");
+	test.ok(clip.data().text() == " two \r\n");
+	test.ok(_parseLine(clip) == " two ");
+	test.ok(clip.data().text() == "");
+	try {
+		_parseLine(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+
+	//mac and unix style line endings
+	data = Data("one\ntwo\n");
+	clip = data.take();
+	test.ok(_parseLine(clip) == "one");
+	test.ok(clip.data().text() == "two\n");
+	test.ok(_parseLine(clip) == "two");
+	test.ok(clip.data().text() == "");
+	try {
+		_parseLine(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+
+	//just a fragment
+	data = Data("fragment");
+	clip = data.take();
+	try {
+		_parseLine(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+	test.ok(clip.data().text() == "fragment");//all still there
+
+	//line followed by fragment
+	data = Data("first\r\nfragment");
+	clip = data.take();
+	test.ok(_parseLine(clip) == "first");
+	test.ok(clip.data().text() == "fragment");
+	try {
+		_parseLine(clip);
+		test.fail();
+	} catch (e) { test.ok(e == "chop"); }
+	test.ok(clip.data().text() == "fragment");//fragment still there
 
 	test.done();
 }
+
+//    ___        _   _ _                              _   ____        _        
+//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
+//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
+//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
+//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
+//                                                                             
+
+//obviously, write some tests where the data of an outline starts out ok, but is then invalid or incomplete, and confirm you get chop and data, and the clip is not changed
+
+
 
 
 
