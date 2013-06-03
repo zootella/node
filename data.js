@@ -879,14 +879,7 @@ exports.ParseFromClip = ParseFromClip;
 // no vendor codes, the outline is a single unified common area
 // an outline should be short, 8k or less when turned into data
 
-
-
-
-
-
-
-
-
+// Make an outline to express a short well structured message of binary data that will be effortless to extend in the future
 function Outline(setName, setValue) {
 
 	// Members and default empty values
@@ -1011,11 +1004,6 @@ function sortOutline(o1, o2) {
 	return 0;//TODO
 }
 
-exports.sortOutline = sortOutline;
-
-
-
-
 
 
 
@@ -1072,7 +1060,6 @@ function outlineFromText(clip) {
 	if (!a.length) throw "data";       // Make sure we got at least one line
 	var o = group(a);                  // Look at indent to group a into a hierarchy
 	if (a.length) throw "data";        // Make sure there was just one outline
-	return o;
 
 	p.valid();
 	return o;
@@ -1137,13 +1124,6 @@ function _parseLine(clip) {
 	return s;
 }
 
-exports.outlineFromText = outlineFromText;
-exports._parseOutline = _parseOutline;
-exports._parseGroup = _parseGroup;
-exports._parseLine = _parseLine;
-
-
-
 
 
 
@@ -1206,9 +1186,27 @@ function outlineFromData(clip) {
 	return o;
 }
 
-exports.outlineFromData = outlineFromData;
 
 //you could add the round trip test here, maybe
+
+
+exports.sortOutline = sortOutline;
+exports.outlineFromText = outlineFromText;
+exports._parseOutline = _parseOutline;
+exports._parseGroup = _parseGroup;
+exports._parseLine = _parseLine;
+exports.outlineFromData = outlineFromData;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -2,6 +2,9 @@
 var log = console.log;
 
 var requireMeasure = require("./measure");
+var hasMethod = requireMeasure.hasMethod;
+var getType = requireMeasure.getType;
+var isType = requireMeasure.isType;
 var checkType = requireMeasure.checkType;
 
 var requireText = require("./text");
@@ -1240,7 +1243,11 @@ exports.testParseBase16 = function(test) {
 //                                  
 
 var Outline = requireData.Outline;
+var sortOutline = requireData.sortOutline;
 var outlineFromText = requireData.outlineFromText;
+var _parseOutline = requireData._parseOutline;
+var _parseGroup = requireData._parseGroup;
+var _parseLine = requireData._parseLine;
 var outlineFromData = requireData.outlineFromData;
 
 exports.testOutlineName = function(test) {
@@ -1422,6 +1429,7 @@ exports.testOutlineNavigate = function(test) {
 	test.done();
 }
 
+exports.testOutlineSort = function(test) {
 
 
 
@@ -1434,7 +1442,9 @@ exports.testOutlineNavigate = function(test) {
 
 
 
-//Outline and Text and Data
+
+	test.done();
+}
 
 exports.testOutlineConvert = function(test) {
 
@@ -1451,57 +1461,164 @@ exports.testOutlineConvert = function(test) {
 	}
 
 	var o;
-	o = Outline();
+	o = Outline();//empty
 	all(o, '000000', lines(
 		':',
 		''));
 
-	o = Outline("n");
+	o = Outline("n");//name
 	all(o, '016e0000', lines(
 		'n:',
 		''));
 
-	o = Outline("n", Data("v"));
+	o = Outline("n", Data("v"));//name and value
 	all(o, '016e017600', lines(
 		'n:"v"',
 		''));
 
-	o.add(Outline("d"));
+	o.add(Outline("d"));//add contents
 	all(o, '016e01760401640000', lines(
 		'n:"v"',
 		'  d:',
 		''));
 
+	o.add(Data("v"));//data value with blank name
+	all(o, '016e0176080164000000017600', lines(
+		'n:"v"',
+		'  d:',
+		'  :"v"',
+		''));
+
+	o.n("d").m("e").m("f").value(Data("v"));//navigate and make
+	o.add(o, '016e0176110164000901650005016601760000017600', lines(
+		'n:"v"',
+		'  d:',
+		'    e:',
+		'      f:"v"',
+		'  :"v"',
+		''));
+
+	test.done();
+}
+
+exports.testOutlineParseData = function(test) {
+	function parse(left, d, result) {
+		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
+		var clip = d.take();
+
+		//valid, make sure we parse without an exception
+		if (result == "valid") {
+			outlineFromData(clip);
+
+		//invalid, make sure to get thrown the exception we expect
+		} else {
+			try {
+				outlineFromData(clip);
+				test.fail();
+			} catch (e) { test.ok(e == result); }
+		}
+
+		//predict how many bytes are left
+		test.ok(clip.size() == left);
+	}
+
+	//small
+	parse(0, "", "chop");//nothing
+	parse(1, "00", "chop");
+	parse(2, "0000", "chop");
+	parse(0, "000000", "valid");//shortest possible outline
+	parse(1, "00000000", "valid");//valid with next fragment left in clip
+
+	//medium
+	test.ok(spanMake(130).base16() == "8102");
+	var bay = Bay();
+	var o = Outline("", Data("----------------------------------------------------------------------------------------------------------------------------------"));
+	bay.add(o.data());//add first outline
+	o = Outline("a");
+	bay.add(o.data());//add second little outline after that, two in a row on the wire
+	var d = bay.data();
+	test.ok(d.base16() == "0081022d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0001610000");
+	test.ok(d.size() == 138);
+	
+	parse(2, d.start(2), "chop");//incomplete span
+	parse(10, d.start(10), "chop");//incomplete payload
+
+	//valid example
+	test.ok(Outline("a").data().base16() == "01610000");//first span is 1 in 1 byte, first name is 61 "a"
+
+	//invalid span
+	parse(5, base16("8001610000"), "data");//first span is 1 in 2 bytes, which is wrong
+
+	//invalid payload
+	parse(4, base16("012d0000"), "data");//first name is 2d "-", which isn't allowed
+
+	test.done();
+}
+
+exports.testOutlineParseText = function(test) {
+	function parse(left, d, result) {
+		if (isType(d, "string")) d = Data(d);//d can be a string or data
+		var clip = d.take();
+
+		//valid, make sure we parse without an exception
+		if (result == "valid") {
+			outlineFromText(clip);
+
+		//invalid, make sure to get thrown the exception we expect
+		} else {
+			try {
+				outlineFromText(clip);
+				test.fail();
+			} catch (e) { test.ok(e == result); }
+		}
+
+		//predict how many bytes are left
+		test.ok(clip.size() == left);
+	}
+
+	//valid example
+	var bay = Bay();
+	bay.add(Data(Outline("name1").text()));
+	bay.add(Data(Outline("name22").text()));
+	var d = bay.data();
+	test.ok(d.quote() == '"name1:"0d0a0d0a"name22:"0d0a0d0a');//two text outlines, propertly separated with double newlines
+
+	parse(2, d.start(2), "chop");//halfway through first name
+	parse(7, d.start(7), "chop");//first 0d
+	parse(8, d.start(8), "chop");//first 0d0a, missing second line break
+	parse(11, d, "valid");//parsed first outline of 10 bytes, second one of 11 bytes remains
+
+	//invalid name
+	parse(19, unquote('"n-7:"0d0a0d0a"name22:"0d0a0d0a'), "data");
+
 	test.done();
 }
 
 
 
 
-exports.testOutlineConvertFirstTrys = function(test) {
 
-	var o = Outline("aaa", Data("hello\r\n"));
-	o.add(Outline("bb", Data("you")));
-	var b = "036161610768656c6c6f0d0a0802626203796f7500";
-	var s = lines(
-		'aaa:"hello"0d0a',
-		'  bb:"you"',
-		'');
+exports.testOutlineGroup = function(test) {
 
-	test.ok(o.data().base16() == b);
-	test.ok(o.text() == s);
 
-	var d = o.data();
-	var clip = d.take();
 
-	var o2 = outlineFromData(clip);
-	test.ok(o2.text() == s);
 
-	var d2 = o2.data();
-	test.ok(d2.base16() == b);
 
-	//at first blush, data is working in both directions
-	//you still have to write the data and chop tests, though
+
+
+
+
+
+
+
+	test.done();
+}
+
+exports.testOutlineTextInvalid = function(test) {
+
+
+
+
 
 
 
@@ -1524,16 +1641,15 @@ exports.testOutlineConvertFirstTrys = function(test) {
 
 
 
-//    ___        _   _ _                              _   _____         _   
-//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |_   _|____  _| |_ 
-//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` |   | |/ _ \ \/ / __|
-//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| |   | |  __/>  <| |_ 
-//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_|   |_|\___/_/\_\\__|
-//                                                                          
 
-var _parseOutline = requireData._parseOutline;
-var _parseGroup = requireData._parseGroup;
-var _parseLine = requireData._parseLine;
+
+
+
+
+
+
+
+
 
 exports.testParseOutline = function(test) {
 
@@ -1657,14 +1773,7 @@ exports.testParseLine = function(test) {
 	test.done();
 }
 
-//    ___        _   _ _                              _   ____        _        
-//   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
-//  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
-//  | |_| | |_| | |_| | | | | |  __/ | (_| | | | | (_| | | |_| | (_| | || (_| |
-//   \___/ \__,_|\__|_|_|_| |_|\___|  \__,_|_| |_|\__,_| |____/ \__,_|\__\__,_|
-//                                                                             
 
-//obviously, write some tests where the data of an outline starts out ok, but is then invalid or incomplete, and confirm you get chop and data, and the clip is not changed
 
 
 

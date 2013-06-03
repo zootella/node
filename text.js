@@ -736,11 +736,11 @@ augment(rip, "rip");
 
 // Turn anything into text the best way possible
 function say(o) {
-	if      (typeof o == "string") return o;                       // Strings pass through
-	else if (typeof o == "number") return numerals(o);             // Convert a number into numerals
-	else if (typeof o.text     == "function") return o.text();     // Call the object's text() method
-	else if (typeof o.toString == "function") return o.toString(); // Use toString() instead
-	else                                      return (o + "");     // Last resort, add to blank
+	if      (typeof o == "string")     return o;            // Strings pass through
+	else if (typeof o == "number")     return numerals(o);  // Convert a number into numerals
+	else if (hasMethod(o, "text"))     return o.text();     // Call the object's text() method
+	else if (hasMethod(o, "toString")) return o.toString(); // Use toString() instead
+	else                               return o + "";       // Last resort, add to blank
 }
 
 // Add c characters to the start of s until it's width long
