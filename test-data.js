@@ -1594,35 +1594,153 @@ exports.testOutlineParseText = function(test) {
 	test.done();
 }
 
-
-
-
-
 exports.testOutlineGroup = function(test) {
 
+	function all(s) {
 
+		// text > outline > data > outline > text
+		var o = outlineFromText(Data(s).take());
+		var d = o.data();
+		var o2 = outlineFromData(d.take());
+		var s2 = o2.text();
 
+		test.ok(s == s2);
+	}
 
+	all(lines(
+		'a:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'  c:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'  d:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'    d:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'      d:',
+		''));
 
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'      d:',
+		'  e:',
+		''));
+
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'      d:',
+		'    e:',
+		''));
+
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'      d:',
+		'      e:',
+		''));
+
+	all(lines(
+		'a:',
+		'  b:',
+		'    c:',
+		'      d:',
+		'        e:',
+		''));
 
 	test.done();
 }
 
 exports.testOutlineTextInvalid = function(test) {
 
+/*
+	function parse(left, d, result) {
+		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
+		var clip = d.take();
+
+		//valid, make sure we parse without an exception
+		if (result == "valid") {
+			outlineFromData(clip);
+
+		//invalid, make sure to get thrown the exception we expect
+		} else {
+			try {
+				outlineFromData(clip);
+				test.fail();
+			} catch (e) { test.ok(e == result); }
+		}
+
+		//predict how many bytes are left
+		test.ok(clip.size() == left);
+	}
+*/
 
 
 
 
 
+	function invalid(s) {
+		try {
+			outlineFromText(Data(s).take());
+			test.fail();
+		} catch (e) { test.ok(e == "data"); }
+	}
 
 
+
+
+
+/*
+
+
+l.add("a:");
+l.add("b:"); // this is bad because b can't be on the same level
+l.add("");
+testInvalid(l.toString());
+
+
+l.add("a:\"hello\"");
+l.add("  b:a\"b"); // the value is bad because it contains a single quote
+l.add("");
+testInvalid(l.toString());
+
+
+*/
+
+//use tabs instead of spaces, confirm that throws data
 
 
 
