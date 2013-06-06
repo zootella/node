@@ -843,6 +843,77 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
+//maybe you could align the names like this
+
+//add, bay, data, reset
+//remove, clip, removed, valid
+
+//add,    pass, data, reset
+//remove, pass, data, valid
+
+
+//do you use Clip anywhere you don't also use ParseFromClip
+//if you always use them together, then there might be an opportunity to better factor here
+
+//no, don't mess with this anymore, especially not before you've seen node streams
+//just move Clip down here, and maybe rename it _TakeData, which you never see, you only do data.take()
+//and rename ParseFromClip -> ParseFromData
+//clip is actually kind of a nice name, and you never use clip(i, n), maybe rename that part(i, n) in both text and data
+//or just leave it all the same. it's not that bad, and changing it would be a huge mess at best
+//yeah, actually do that
+
+
+
+
+
+/*
+//see if you can just do this instead of Clip and ParseFromClip
+//write it, replace it just by the different name, and see if all the tests pass
+//then after that, rename the methods
+function ParseFromData(data) {
+
+	var _data = data; // Save the given data
+	var _edit = data; // Make a copy we will change
+
+	function remove(n) {
+		var removed = _edit.start(n);
+		_edit = _edit.after(n);
+		return removed;
+	}
+
+	function clip() { return _edit; }
+
+	function removed() { return _data.start(_data.size() - _edit.size()); }
+
+	function valid() {
+		//nope, here's where it breaks
+		//the given data can't hold state, it's immutable
+		//parsefromdata is local to the function
+		//so we need both after all
+
+	}
+}
+*/
+//yeah, you are sure you need three objects
+//but, give them better names and put them all in the parse section
+//maybe Clip -> ParseData and data.take() -> data.parse()
+//so then the three names are
+//ParseData
+//ParseFromData
+//ParseToBay
+
+//if you want to mess with it more
+//how about ParseFromClip holds a size rather than a copy of the clip
+//how about they both use valid, or both use reset, but not one uses one, and the other a different one
+//it would be cool if they could both use valid, if you can figure out how that would work
+
+//make it so you never actually call data.take() or interact with Clip at all, in fact, name Clip -> _ParseData
+
+//actually, only do this
+//move Clip down here, and rename it Take
+
+
+
 
 
 
