@@ -179,35 +179,6 @@ function Data(p) {
 }
 exports.Data = Data;
 
-// Clip around some data to remove bytes you're done with from the start until it's empty
-// Data is immutale, but Clip is not
-// Clip isn't exported, call data.take() to get one
-function Clip(b) {
-
-	var d = Data(b); // Make a Data from what we were given and save it
-
-	function data() { return d;       } // The data we have left
-	function copy() { return Clip(d); } // Make a copy of this Clip so you can change it without changing this one
-
-	function size()    { return d.size();    } // The number of bytes of data this Clip views
-	function isEmpty() { return d.isEmpty(); } // True if this Clip is empty, it has a size of 0 bytes
-	function hasData() { return d.hasData(); } // True if this Clip views some data, it has a size of 1 or more bytes
-
-	function remove(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
-		var s = d.start(n);
-		d = d.after(n);
-		return s;
-	}
-	function keep(n) { d = d.end(n); } // Remove data from the start of this Clip, keeping only the last n bytes
-
-	return {
-		data:data, copy:copy,
-		size:size, isEmpty:isEmpty, hasData:hasData,
-		remove:remove, keep:keep,
-		type:function(){ return "Clip"; }
-	};
-}
-
 // Find where in data tag appears
 // forward true to search forwards from the start, false to search backwards from the end
 // scan true to scan across all the positions possible in this Data, false to only look at the starting position
@@ -806,21 +777,33 @@ exports.base64 = base64;
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-// Parse text or objects into data and add it to bay
-// Give it a bay you've alrady been parsing into, or leave b blank and it will make a new bay
-// If there's an exception, call reset() to put bay back the way it was
-function ParseToBay(b) {
-	if (!b) b = Bay(); // No bay given, make a new empty one
+// Clip around some data to remove bytes you're done with from the start until it's empty
+// Data is immutale, but Clip is not
+// Clip isn't exported, call data.take() to get one
+function Clip(d) {
 
-	var _bay = b; // Save the given bay
-	var _existing = b.size(); // Remember how much data was in it before we changed it
+	var _data = Data(d); // Make a Data from what we were given and save it
 
-	function add(d) { _bay.add(d); } // Add some data we just parsed
-	function bay() { return _bay; } // Pass our bay with changes to a function that will parse more for us
-	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
-	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
+	function data() { return _data;       } // The data we have left
+	function copy() { return Clip(_data); } // Make a copy of this Clip so you can change it without changing this one
 
-	return { add:add, bay:bay, data:data, reset:reset };
+	function size()    { return _data.size();    } // The number of bytes of data this Clip views
+	function isEmpty() { return _data.isEmpty(); } // True if this Clip is empty, it has a size of 0 bytes
+	function hasData() { return _data.hasData(); } // True if this Clip views some data, it has a size of 1 or more bytes
+
+	function remove(n) { // Remove n bytes from the start this Clip, and return a Data that views what you removed
+		var s = _data.start(n);
+		_data = _data.after(n);
+		return s;
+	}
+	function keep(n) { _data = _data.end(n); } // Remove data from the start of this Clip, keeping only the last n bytes
+
+	return {
+		data:data, copy:copy,
+		size:size, isEmpty:isEmpty, hasData:hasData,
+		remove:remove, keep:keep,
+		type:function(){ return "Clip"; }
+	};
 }
 
 // Parse the data in clip into text or objects
@@ -836,6 +819,23 @@ function ParseFromClip(c) {
 	function valid() { _clip.keep(_edit.size()); } // Parsed valid data, remove it from clip
 
 	return { remove:remove, clip:clip, removed:removed, valid:valid }
+}
+
+// Parse text or objects into data and add it to bay
+// Give it a bay you've alrady been parsing into, or leave b blank and it will make a new bay
+// If there's an exception, call reset() to put bay back the way it was
+function ParseToBay(b) {
+	if (!b) b = Bay(); // No bay given, make a new empty one
+
+	var _bay = b; // Save the given bay
+	var _existing = b.size(); // Remember how much data was in it before we changed it
+
+	function add(d) { _bay.add(d); } // Add some data we just parsed
+	function bay() { return _bay; } // Pass our bay with changes to a function that will parse more for us
+	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
+	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
+
+	return { add:add, bay:bay, data:data, reset:reset };
 }
 
 exports.ParseToBay = ParseToBay;
