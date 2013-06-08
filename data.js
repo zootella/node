@@ -1000,12 +1000,13 @@ exports.Outline = Outline;
 // Determine which should appear first in sorted order
 // Zero if same, negative if o1 then o2, positive if o2 first
 function sortOutline(o1, o2) {
-	checkType(d1, "Outline");
-	checkType(d2, "Outline");
+	checkType(o1, "Outline");
+	checkType(o2, "Outline");
 
 	return 0;//TODO
 }
 
+exports.sortOutline = sortOutline;
 
 
 

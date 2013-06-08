@@ -1429,7 +1429,39 @@ exports.testOutlineNavigate = function(test) {
 	test.done();
 }
 
+exports.testOutlineCompare = function(test) {
+
+	function sort(order, s1, s2) {
+		var o1 = outlineFromText(Data(s1 + "\r\n\r\n").clip());
+		var o2 = outlineFromText(Data(s2 + "\r\n\r\n").clip());
+
+		if      (order > 0) test.ok(sortOutline(o1, o2) > 0);
+		else if (order < 0) test.ok(sortOutline(o1, o2) < 0);
+		else                test.ok(sortOutline(o1, o2) == 0);
+	}
+
+	sort(0, "a:", "a:");
+
+
+
+
+	test.done();
+}
+
 exports.testOutlineSort = function(test) {
+
+	function outline(s) {
+		return outlineFromText(Data(s).clip());
+	}
+
+	var o = outline(lines(
+		':',
+		'  a:',
+		'  b:',
+		'  c:',
+		''));
+
+
 
 
 

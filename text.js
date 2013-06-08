@@ -2,6 +2,8 @@
 
 var log = console.log;
 
+var requireMeasure = require("./measure.js");
+var hasMethod = requireMeasure.hasMethod;
 
 
 
@@ -698,7 +700,6 @@ function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without 
 augment(ripWords, "ripWords");
 augment(ripLines, "ripLines");
 augment(rip, "rip");
-
 
 
 
