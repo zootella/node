@@ -838,16 +838,14 @@ function ParseToBay(b) {
 	return { add:add, bay:bay, data:data, reset:reset };
 }
 
-exports.ParseToBay = ParseToBay;
 exports.ParseFromClip = ParseFromClip;
+exports.ParseToBay = ParseToBay;
 
 
 
 
-//you could
-//move Clip down here
-//rename clip in text and data to _clip, then take() -> clip()
-//confirm that Clip, ParseToBay, and ParseFromClip are all named and designed correctly
+
+
 
 
 
@@ -1163,7 +1161,7 @@ function outlineToData(o, bay) {
 		for (var i = 0; i < o.length(); i++)
 			compose(o.get(i), bay);
 	}
-	
+
 	o.sort(); // Sort the contents so outlines with the same information will become identical data
 
 	var t = ParseToBay(bay);

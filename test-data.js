@@ -1443,6 +1443,18 @@ exports.testOutlineSort = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 	test.done();
 }
 
@@ -1501,129 +1513,18 @@ exports.testOutlineConvert = function(test) {
 	test.done();
 }
 
-exports.testOutlineParseData = function(test) {
-	function parse(left, d, result) {
-		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
-		var clip = d.clip();
-
-		//valid, make sure we parse without an exception
-		if (result == "valid") {
-			outlineFromData(clip);
-
-		//invalid, make sure to get thrown the exception we expect
-		} else {
-			try {
-				outlineFromData(clip);
-				test.fail();
-			} catch (e) { test.ok(e == result); }
-		}
-
-		//predict how many bytes are left
-		test.ok(clip.size() == left);
-	}
-
-	//small
-	parse(0, "", "chop");//nothing
-	parse(1, "00", "chop");
-	parse(2, "0000", "chop");
-	parse(0, "000000", "valid");//shortest possible outline
-	parse(1, "00000000", "valid");//valid with next fragment left in clip
-
-	//medium
-	test.ok(spanMake(130).base16() == "8102");
-	var bay = Bay();
-	var o = Outline("", Data("----------------------------------------------------------------------------------------------------------------------------------"));
-	bay.add(o.data());//add first outline
-	o = Outline("a");
-	bay.add(o.data());//add second little outline after that, two in a row on the wire
-	var d = bay.data();
-	test.ok(d.base16() == "0081022d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0001610000");
-	test.ok(d.size() == 138);
-	
-	parse(2, d.start(2), "chop");//incomplete span
-	parse(10, d.start(10), "chop");//incomplete payload
-
-	//valid example
-	test.ok(Outline("a").data().base16() == "01610000");//first span is 1 in 1 byte, first name is 61 "a"
-
-	//invalid span
-	parse(5, base16("8001610000"), "data");//first span is 1 in 2 bytes, which is wrong
-
-	//invalid payload
-	parse(4, base16("012d0000"), "data");//first name is 2d "-", which isn't allowed
-
-	test.done();
-}
-
-exports.testOutlineParseText = function(test) {
-	function parse(left, d, result) {
-		if (isType(d, "string")) d = Data(d);//d can be a string or data
-		var clip = d.clip();
-
-		//valid, make sure we parse without an exception
-		if (result == "valid") {
-			outlineFromText(clip);
-
-		//invalid, make sure to get thrown the exception we expect
-		} else {
-			try {
-				outlineFromText(clip);
-				test.fail();
-			} catch (e) { test.ok(e == result); }
-		}
-
-		//predict how many bytes are left
-		test.ok(clip.size() == left);
-	}
-
-	//valid example
-	var bay = Bay();
-	bay.add(Data(Outline("name1").text()));
-	bay.add(Data(Outline("name22").text()));
-	var d = bay.data();
-	test.ok(d.quote() == '"name1:"0d0a0d0a"name22:"0d0a0d0a');//two text outlines, propertly separated with double newlines
-
-	parse(2, d.start(2), "chop");//halfway through first name
-	parse(7, d.start(7), "chop");//first 0d
-	parse(8, d.start(8), "chop");//first 0d0a, missing second line break
-	parse(11, d, "valid");//parsed first outline of 10 bytes, second one of 11 bytes remains
-
-	//invalid name
-	parse(19, unquote('"n-7:"0d0a0d0a"name22:"0d0a0d0a'), "data");
-
-	test.done();
-}
-
 exports.testOutlineGroup = function(test) {
 
 	function all(s) {
 
-		// text > outline > data > outline > text
-		var o = outlineFromText(Data(s).clip());
-		var d = o.data();
-		var o2 = outlineFromData(d.clip());
-		var s2 = o2.text();
-
-		test.ok(s == s2);
-
-
-
-		//no, this is better
-		/*
-
-		// text > outline > data > outline > text
-		Outline o = Outline.fromText(new Data(s).clip()); // text to outline
-		System.out.println(o.toString());
-		Clip c = o.toData().clip(); // outline to data
-		Data d = c.data();
-		Outline o2 = new Outline(c); // data to outline
-		assertFalse(c.hasData()); // some data left over
-		String s2 = o2.toString(); // outline to text
-		Data d2 = o2.toData(); // outline to data
-		assertTrue(d.equals(d2)); // corrupted
-		*/
-		//notice how it compares data
-		//and makes sure no text is left over
+		// text > outline > data > outline > text,data
+		var o = outlineFromText(Data(s).clip());//text > outline
+		var d = o.data();//outline > data
+		var c = d.clip();
+		var o2 = outlineFromData(c);//data > outline
+		test.ok(!c.hasData());//make sure there is no data left over
+		test.ok(s == o2.text());//outline > text
+		test.ok(d.same(o2.data()));//outline > data
 	}
 
 	all(lines(
@@ -1700,47 +1601,41 @@ exports.testOutlineGroup = function(test) {
 		'        e:',
 		''));
 
-
-/*
-
-		l = new Lines();
-		l.add("a:");
-		l.add("  b:");
-		l.add("  c:");
-		l.add("    d:");
-		l.add("    e:");
-		l.add("      f:");
-		l.add("      g:");
-		l.add("        h:");
-		l.add("        i:");
-		l.add("          j:");
-		l.add("          k:");
-		l.add("    l:");
-		l.add("      m:");
-		l.add("      n:");
-		l.add("  o:");
-		l.add("    p:");
-		l.add("      q:");
-		l.add("  r:");
-		l.add("  s:");
-		l.add("  t:");
-		l.add("  u:");
-		l.add("    v:");
-		l.add("      w:");
-		l.add("      x:");
-		l.add("    y:");
-		l.add("  z:");
-		l.add("");
-		test(l.toString());
-		*/
+	//and a big one with lots of variety in structure
+	all(lines(
+		'a:',
+		'  b:',
+		'  c:',
+		'    d:',
+		'    e:',
+		'      f:',
+		'      g:',
+		'        h:',
+		'        i:',
+		'          j:',
+		'          k:',
+		'    l:',
+		'      m:',
+		'      n:',
+		'  o:',
+		'    p:',
+		'      q:',
+		'  r:',
+		'  s:',
+		'  t:',
+		'  u:',
+		'    v:',
+		'      w:',
+		'      x:',
+		'    y:',
+		'  z:',
+		''));
 
 	test.done();
 }
 
-exports.testOutlineTextInvalid = function(test) {
-
-/*
-	function parse(left, d, result) {
+exports.testOutlineParseData = function(test) {
+	function parse(left, result, d) {
 		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
 		var clip = d.clip();
 
@@ -1759,68 +1654,142 @@ exports.testOutlineTextInvalid = function(test) {
 		//predict how many bytes are left
 		test.ok(clip.size() == left);
 	}
-*/
 
+	//small
+	parse(0, "chop",  "");//nothing
+	parse(1, "chop",  "00");
+	parse(2, "chop",  "0000");
+	parse(0, "valid", "000000");//shortest possible outline
+	parse(1, "valid", "00000000");//valid with next fragment left in clip
 
+	//medium
+	test.ok(spanMake(130).base16() == "8102");
+	var bay = Bay();
+	var o = Outline("", Data("----------------------------------------------------------------------------------------------------------------------------------"));
+	bay.add(o.data());//add first outline
+	o = Outline("a");
+	bay.add(o.data());//add second little outline after that, two in a row on the wire
+	var d = bay.data();
+	test.ok(d.base16() == "0081022d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0001610000");
+	test.ok(d.size() == 138);
+	
+	parse(2, "chop", d.start(2));//incomplete span
+	parse(10, "chop", d.start(10));//incomplete payload
 
+	//valid example
+	test.ok(Outline("a").data().base16() == "01610000");//first span is 1 in 1 byte, first name is 61 "a"
 
+	//invalid span
+	parse(5, "data", "8001610000");//first span is 1 in 2 bytes, which is wrong
 
-	function invalid(s) {
-		try {
-			outlineFromText(Data(s).clip());
-			test.fail();
-		} catch (e) { test.ok(e == "data"); }
-	}
-
-
-
-
-
-/*
-
-
-l.add("a:");
-l.add("b:"); // this is bad because b can't be on the same level
-l.add("");
-testInvalid(l.toString());
-
-
-l.add("a:\"hello\"");
-l.add("  b:a\"b"); // the value is bad because it contains a single quote
-l.add("");
-testInvalid(l.toString());
-
-
-*/
-
-//use tabs instead of spaces, confirm that throws data
-
-
-
+	//invalid payload
+	parse(4, "data", "012d0000");//first name is 2d "-", which isn't allowed
 
 	test.done();
 }
 
+exports.testOutlineParseText = function(test) {
+	function parse(left, result, d) {
+		if (isType(d, "string")) d = Data(d);//d can be a string or data
+		var clip = d.clip();
 
+		//valid, make sure we parse without an exception
+		if (result == "valid") {
+			outlineFromText(clip);
 
+		//invalid, make sure to get thrown the exception we expect
+		} else {
+			try {
+				outlineFromText(clip);
+				test.fail();
+			} catch (e) { test.ok(e == result); }
+		}
 
+		//predict how many bytes are left
+		test.ok(clip.size() == left);
+	}
 
+	//valid example
+	var bay = Bay();
+	bay.add(Data(Outline("name1").text()));
+	bay.add(Data(Outline("name22").text()));
+	var d = bay.data();
+	test.ok(d.quote() == '"name1:"0d0a0d0a"name22:"0d0a0d0a');//two text outlines, propertly separated with double newlines
 
+	parse(2, "chop", d.start(2));//halfway through first name
+	parse(7, "chop", d.start(7));//first 0d
+	parse(8, "chop", d.start(8));//first 0d0a, missing second line break
+	parse(11, "valid", d);//parsed first outline of 10 bytes, second one of 11 bytes remains
 
+	//invalid name
+	parse(19, "data", unquote('"n-7:"0d0a0d0a"name22:"0d0a0d0a'));
 
+	test.done();
+}
 
+exports.testOutlineTextInvalid = function(test) {
 
+	function parse(result, s) {
+		var clip = Data(s).clip();
 
+		//valid, make sure we parse without an exception
+		if (result == "valid") {
+			outlineFromText(clip);
 
+		//invalid, make sure to get thrown the exception we expect
+		} else {
+			try {
+				outlineFromText(clip);
+				test.fail();
+			} catch (e) { test.ok(e == result); }
+		}
+	}
 
+	parse("valid", lines(
+		'a:',
+		'  b:',
+		''));
+	parse("data", lines(
+		'a:',
+		'b:',//b can't be on the same level
+		''));
+	parse("chop", lines(
+		'a:',
+		'b:',
+		'c:'));//no blank line to end the group yet
 
+	parse("data", lines(
+		'a:',
+		'  B:',//names can't be uppercase
+		''));
+	parse("data", lines(
+		'a:',
+		'\tb:',//tabs not allowed
+		''));
 
+	parse("valid", lines(
+		'a:00',
+		'  b:"hi"0d0a #comment',
+		''));
+	parse("data", lines(
+		'a:00',
+		'  b:hi"0d0a #comment',//missing open quote
+		''));
+	parse("data", lines(
+		'a:00',
+		'  b:"hi0d0a #comment',//missing close quote
+		''));
+	parse("data", lines(
+		'a:00',
+		'  b:0g',//invalid base 16 outside quote
+		''));
+	parse("data", lines(
+		'a:00',
+		'  b: 00',//space before value
+		''));
 
-
-
-
-
-
+	test.done();
+}
 
 exports.testParseOutline = function(test) {
 
