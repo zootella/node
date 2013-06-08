@@ -641,25 +641,25 @@ function toBase64(d) { return d.buffer().toString("base64"); }
 
 // Turn base 16-encoded text back into the data it was made from
 function base16(s, bay) {
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
 		try {
-			t.add(new Buffer(s, "hex"));
+			p.add(new Buffer(s, "hex"));
 		} catch (e) {
 			if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
 			else throw e; // Throw up some other exception we didn't expect
 		}
-		var d = t.data();
+		var d = p.parsed();
 		parseCheckMatch(d.base16(), s);
 		return d;
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 // Turn base 32-encoded text back into the data it was made from
 function base32(s, bay) {
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
 		// Loop for each character in the text
@@ -683,20 +683,20 @@ function base32(s, bay) {
 			if (bits >= 8) {
 
 				// Move the 8 leftmost bits in hold to our Bay object
-				t.add(toByte((hold >>> (bits - 8)) & 0xff));
+				p.add(toByte((hold >>> (bits - 8)) & 0xff));
 				bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 			}
 		}
-		var d = t.data();
+		var d = p.parsed();
 		parseCheckMatch(d.base32(), s);
 		return d;
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 // Turn base 62-encoded text back into the data it was made from
 function base62(s, bay) {
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
 		// Loop for each character in the text
@@ -722,28 +722,28 @@ function base62(s, bay) {
 			if (bits >= 8) {
 
 				// Move the 8 leftmost bits in hold to our Bay object
-				t.add(toByte((hold >>> (bits - 8)) & 0xff));
+				p.add(toByte((hold >>> (bits - 8)) & 0xff));
 				bits -= 8; // Remove the bits we wrote from hold, any extra bits there will be written next time
 			}
 		}
-		var d = t.data();
+		var d = p.parsed();
 		parseCheck(d.base62(), s);
 		return d;
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 // Turn base 64-encoded text back into the data it was made from
 function base64(s, bay) {
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
-		t.add(new Buffer(s, "base64"));
-		var d = t.data();
+		p.add(new Buffer(s, "base64"));
+		var d = p.parsed();
 		parseCheck(d.base64(), s);
 		return d;
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 exports.toByte = toByte;
@@ -815,10 +815,10 @@ function ParseFromClip(c) {
 
 	function remove(n) { return _edit.remove(n); } // Remove n bytes we parsed from the start
 	function clip() { return _edit; } // Pass our clip with changes to a function that will parse more for us
-	function removed() { return _clip.data().start(_clip.size() - _edit.size()); } // All the data we removed
+	function parsed() { return _clip.data().start(_clip.size() - _edit.size()); } // All the data we removed
 	function valid() { _clip.keep(_edit.size()); } // Parsed valid data, remove it from clip
 
-	return { remove:remove, clip:clip, removed:removed, valid:valid }
+	return { remove:remove, clip:clip, parsed:parsed, valid:valid }
 }
 
 // Parse text or objects into data and add it to bay
@@ -832,10 +832,10 @@ function ParseToBay(b) {
 
 	function add(d) { _bay.add(d); } // Add some data we just parsed
 	function bay() { return _bay; } // Pass our bay with changes to a function that will parse more for us
-	function data() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
+	function parsed() { return _bay.data().after(_existing); } // Just the data we added to bay, not everything there
 	function reset() { _bay.only(_existing); } // There was a problem parsing data, put bay back the way it was when we got it
 
-	return { add:add, bay:bay, data:data, reset:reset };
+	return { add:add, bay:bay, parsed:parsed, reset:reset };
 }
 
 exports.ParseFromClip = ParseFromClip;
@@ -1164,13 +1164,13 @@ function outlineToData(o, bay) {
 
 	o.sort(); // Sort the contents so outlines with the same information will become identical data
 
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
-		compose(o, t.bay());
-		return t.data();
+		compose(o, p.bay());
+		return p.parsed();
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 // Parse data at the start of clip into a new outline object, and remove it from clip
@@ -1228,17 +1228,17 @@ exports.outlineFromData = outlineFromData;
 
 // Turn n into 1 or more bytes of data added to bay
 function spanMake(n, bay) {
-	var t = ParseToBay(bay);
+	var p = ParseToBay(bay);
 	try {
 
 		for (var height = (spanSize(n) - 1) * 7; height >= 0; height -= 7) { // Loop up to 4 times with height 21, 14, 7, 0
 			var y = ((0x7f << height) & n) >> height;                          // Clip out 7 bits in n
 			if (height) y = y | 0x80;                                          // Mark bytes up to the last one with a leading 1
-			t.add(toByte(y & 0xff));                                           // Add the byte we made to the target bay
+			p.add(toByte(y & 0xff));                                           // Add the byte we made to the target bay
 		}
-		return t.data();
+		return p.parsed();
 
-	} catch (e) { t.reset(); throw e; }
+	} catch (e) { p.reset(); throw e; }
 }
 
 // Parse 1 or more bytes at the start of clip into a number, remove them from clip, and return the number
@@ -1252,7 +1252,7 @@ function spanParse(clip) {
 		if ((y & 0x80) == 0) break;  // If the leading bit is 0, we're done
 	}
 	if (n < 0 || n > 0x0fffffff) throw "data";
-	if (!spanMake(n).same(p.removed())) throw "data"; // Round trip check
+	if (!spanMake(n).same(p.parsed())) throw "data"; // Round trip check
 
 	p.valid();
 	return n;

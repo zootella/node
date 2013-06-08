@@ -1136,29 +1136,29 @@ exports.testParseToBay = function(test) {
 	//you can give it a bay
 	var b1 = Bay("Existing");
 	b1.add("Contents");
-	var t1 = ParseToBay(b1);
-	t1.add("Additional");
-	t1.add("Data");
-	test.ok(t1.data().text() == "AdditionalData");//get just what we added
-	test.ok(t1.bay().data().text() == "ExistingContentsAdditionalData");//or everything in there
+	var p1 = ParseToBay(b1);
+	p1.add("Additional");
+	p1.add("Data");
+	test.ok(p1.parsed().text() == "AdditionalData");//get just what we added
+	test.ok(p1.bay().data().text() == "ExistingContentsAdditionalData");//or everything in there
 	//or it will make one for you
-	var t2 = ParseToBay();
-	t2.add("Additional");
-	t2.add("Data");
-	test.ok(t2.bay().data().text() == "AdditionalData");
+	var p2 = ParseToBay();
+	p2.add("Additional");
+	p2.add("Data");
+	test.ok(p2.bay().data().text() == "AdditionalData");
 
 	//imagine we parse something bad, and want to go back
 	var b3 = Bay();
 	b3.add("ExistingContents");
-	var t3 = ParseToBay(b3);
-	t3.add("InvalidFragment");//in parsing, we add some invalid data
+	var p3 = ParseToBay(b3);
+	p3.add("InvalidFragment");//in parsing, we add some invalid data
 	test.ok(b3.data().text() == "ExistingContentsInvalidFragment");//it's all in the bay
-	t3.reset();//and then realize the mistake, and want to go back
+	p3.reset();//and then realize the mistake, and want to go back
 	test.ok(b3.data().text() == "ExistingContents");
 	//later, we parse correct data
-	var t4 = ParseToBay(b3);
-	t4.add("Valid");
-	t4.add("Data");
+	var p4 = ParseToBay(b3);
+	p4.add("Valid");
+	p4.add("Data");
 	test.ok(b3.data().text() == "ExistingContentsValidData");
 
 	test.done();
@@ -1170,23 +1170,23 @@ exports.testParseFromClip = function(test) {
 
 	//parse something good
 	var clip = d.clip();
-	var s = ParseFromClip(clip);
-	test.ok(s.remove(3).text() == "abc");
-	test.ok(s.remove(2).text() == "de");
-	test.ok(s.removed().text() == "abcde");//get a data of everything we removed
-	s.valid();//apply the changes s made to clip
+	var p = ParseFromClip(clip);
+	test.ok(p.remove(3).text() == "abc");
+	test.ok(p.remove(2).text() == "de");
+	test.ok(p.parsed().text() == "abcde");//get a data of everything we removed
+	p.valid();//apply the changes p made to clip
 	test.ok(clip.data().text() == "fgh");
 
 	//parse something bad
 	clip = d.clip();//clip around the whole thing again
-	s = ParseFromClip(clip);
-	s.remove(1);
-	s.remove(2);//then we realize it's no good, so we don't call valid()
+	p = ParseFromClip(clip);
+	p.remove(1);
+	p.remove(2);//then we realize it's no good, so we don't call valid()
 	test.ok(clip.data().text() == "abcdefgh");//clip is unchanged
 	//parse something good again
-	s = ParseFromClip(clip);
-	s.remove(6);
-	s.valid();
+	p = ParseFromClip(clip);
+	p.remove(6);
+	p.valid();
 	test.ok(clip.data().text() == "gh");
 
 	test.done();
