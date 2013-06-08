@@ -1605,6 +1605,25 @@ exports.testOutlineGroup = function(test) {
 		var s2 = o2.text();
 
 		test.ok(s == s2);
+
+
+
+		//no, this is better
+		/*
+
+		// text > outline > data > outline > text
+		Outline o = Outline.fromText(new Data(s).clip()); // text to outline
+		System.out.println(o.toString());
+		Clip c = o.toData().clip(); // outline to data
+		Data d = c.data();
+		Outline o2 = new Outline(c); // data to outline
+		assertFalse(c.hasData()); // some data left over
+		String s2 = o2.toString(); // outline to text
+		Data d2 = o2.toData(); // outline to data
+		assertTrue(d.equals(d2)); // corrupted
+		*/
+		//notice how it compares data
+		//and makes sure no text is left over
 	}
 
 	all(lines(
@@ -1681,6 +1700,40 @@ exports.testOutlineGroup = function(test) {
 		'        e:',
 		''));
 
+
+/*
+
+		l = new Lines();
+		l.add("a:");
+		l.add("  b:");
+		l.add("  c:");
+		l.add("    d:");
+		l.add("    e:");
+		l.add("      f:");
+		l.add("      g:");
+		l.add("        h:");
+		l.add("        i:");
+		l.add("          j:");
+		l.add("          k:");
+		l.add("    l:");
+		l.add("      m:");
+		l.add("      n:");
+		l.add("  o:");
+		l.add("    p:");
+		l.add("      q:");
+		l.add("  r:");
+		l.add("  s:");
+		l.add("  t:");
+		l.add("  u:");
+		l.add("    v:");
+		l.add("      w:");
+		l.add("      x:");
+		l.add("    y:");
+		l.add("  z:");
+		l.add("");
+		test(l.toString());
+		*/
+		
 	test.done();
 }
 

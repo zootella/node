@@ -844,6 +844,10 @@ exports.ParseFromClip = ParseFromClip;
 
 
 
+//you could
+//move Clip down here
+//rename clip in text and data to _clip, then take() -> clip()
+//confirm that Clip, ParseToBay, and ParseFromClip are all named and designed correctly
 
 
 
