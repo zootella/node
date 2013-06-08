@@ -391,7 +391,7 @@ exports.testGetType = function(test) {
 	//program object with type() method
 	test.ok("Bay"  == getType(Bay()));
 	test.ok("Data" == getType(Bay().data()));
-	test.ok("Clip" == getType(Bay().data().take()));
+	test.ok("Clip" == getType(Bay().data().clip()));
 
 	//program object without that method
 	function Sample() {

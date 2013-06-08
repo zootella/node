@@ -275,17 +275,17 @@ exports.testDataClip = function(test) {
 	var c;
 
 	//lots of ways to clip out parts of that, data is immutable, so c is different
-	c = d.start(2);   test.ok(c.base16() == "aabb"        );
-	c = d.end(2);     test.ok(c.base16() ==         "eeff");
-	c = d.after(2);   test.ok(c.base16() ==     "ccddeeff");
-	c = d.chop(2);    test.ok(c.base16() == "aabbccdd"    );
-	c = d.clip(2, 3); test.ok(c.base16() ==     "ccddee"  );
+	c = d.start(2);    test.ok(c.base16() == "aabb"        );
+	c = d.end(2);      test.ok(c.base16() ==         "eeff");
+	c = d.after(2);    test.ok(c.base16() ==     "ccddeeff");
+	c = d.chop(2);     test.ok(c.base16() == "aabbccdd"    );
+	c = d._clip(2, 3); test.ok(c.base16() ==     "ccddee"  );
 
 	//clip nothing
-	c = d.clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
-	c = d.clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
-	try { d.clip(6, 1); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 1 from the end is not
-	try { d.clip(7, 0); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 0 from beyond the end is not
+	c = d._clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
+	c = d._clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
+	try { d._clip(6, 1); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 1 from the end is not
+	try { d._clip(7, 0); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 0 from beyond the end is not
 
 	//first
 	var b = d.first();
@@ -305,10 +305,10 @@ exports.testDataClip = function(test) {
 	try { d.get(-1); test.fail(); } catch (e) { test.ok(e == "chop"); }//before the start
 	try { d.get(6); test.fail(); } catch (e) { test.ok(e == "chop"); }//after the end
 
-	try { d.clip(-1, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out before the start
-	try { d.clip(-2, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely before the start
-	try { d.clip(5, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out after the end
-	try { d.clip(6, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely after the end
+	try { d._clip(-1, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out before the start
+	try { d._clip(-2, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely before the start
+	try { d._clip(5, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out after the end
+	try { d._clip(6, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely after the end
 
 	test.done();
 }
@@ -400,7 +400,7 @@ exports.testDataSay = function(test) {
 
 exports.testClip = function(test) {
 
-	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
+	var c = Data("abcde").clip();//wrap a clip around 5 ascii bytes
 	test.ok(c.data().text() == "abcde");//look at them
 	test.ok(c.size() == 5);//check the size
 	test.ok(!c.isEmpty());
@@ -447,7 +447,7 @@ exports.testClip = function(test) {
 
 exports.testClipRemoveData = function(test) {
 
-	var c = Data("abcde").take();//wrap a clip around 5 ascii bytes
+	var c = Data("abcde").clip();//wrap a clip around 5 ascii bytes
 	var d = c.remove(2);//remove the first 2 bytes
 	test.ok(d.text() == "ab");//confirm you got them
 	test.ok(c.data().text() == "cde");//and the clip is what remains
@@ -666,7 +666,7 @@ exports.testBinType = function(test) {
 	var b = mediumBin();
 	b.add(mediumBin());//add from another bin
 	b.add(Bay());//add from a bay
-	b.add(Data().take());//add from a clip
+	b.add(Data().clip());//add from a clip
 	try {
 		b.add(Data());//don't let the user add from a data
 		test.fail();
@@ -682,7 +682,7 @@ exports.testBinAdd = function(test) {
 
 	//add from bin when empty
 	var bin = testBin();
-	bin.add(Data("abc").take());
+	bin.add(Data("abc").clip());
 	test.ok(b.size() == 0);
 	test.ok(bin.size() == 3);
 	b.add(bin);//because b is empty, the bins will swap buffers instead of copying memory
@@ -690,7 +690,7 @@ exports.testBinAdd = function(test) {
 	test.ok(bin.size() == 0);
 
 	//add from bin when not empty
-	bin.add(Data("de").take());
+	bin.add(Data("de").clip());
 	test.ok(b.size() == 3);
 	test.ok(bin.size() == 2);
 	b.add(bin);//this time, we copy across the memory instead
@@ -710,7 +710,7 @@ exports.testBinAdd = function(test) {
 
 	//add from clip
 	var data = Data("ijk");
-	var clip = data.take();//wrap a Clip object around data
+	var clip = data.clip();//wrap a Clip object around data
 	test.ok(clip.size() == 3);
 	test.ok(b.hasSpace());
 	b.add(clip);
@@ -724,12 +724,12 @@ exports.testBinAdd = function(test) {
 exports.testBinOverflow = function(test) {
 
 	var b = testBin();
-	b.add(Data("aaaaa").take());
+	b.add(Data("aaaaa").clip());
 	test.ok(b.space() == 3);
 
 	//setup a bin
 	var bin = testBin();
-	bin.add(Data("bbbbbbbb").take());
+	bin.add(Data("bbbbbbbb").clip());
 	//add from it
 	b.add(bin);
 	test.ok(b.data().text() == "aaaaabbb");
@@ -750,7 +750,7 @@ exports.testBinOverflow = function(test) {
 	test.ok(b.space() == 3);
 
 	//setup a clip
-	var clip = Data("ddddd").take();
+	var clip = Data("ddddd").clip();
 	test.ok(clip.size() == 5);
 	//add from it
 	b.add(clip);
@@ -770,10 +770,10 @@ exports.testBinRecycle = function(test) {
 
 	//can't add after recycling
 	var b = mediumBin();
-	b.add(Data("a").take());
+	b.add(Data("a").clip());
 	b.recycle();
 	try {
-		b.add(Data("a").take());
+		b.add(Data("a").clip());
 		test.fail();
 	} catch (e) {}
 
@@ -1169,7 +1169,7 @@ exports.testParseFromClip = function(test) {
 	var d = Data("abcdefgh");
 
 	//parse something good
-	var clip = d.take();
+	var clip = d.clip();
 	var s = ParseFromClip(clip);
 	test.ok(s.remove(3).text() == "abc");
 	test.ok(s.remove(2).text() == "de");
@@ -1178,7 +1178,7 @@ exports.testParseFromClip = function(test) {
 	test.ok(clip.data().text() == "fgh");
 
 	//parse something bad
-	clip = d.take();//clip around the whole thing again
+	clip = d.clip();//clip around the whole thing again
 	s = ParseFromClip(clip);
 	s.remove(1);
 	s.remove(2);//then we realize it's no good, so we don't call valid()
@@ -1454,10 +1454,10 @@ exports.testOutlineConvert = function(test) {
 	}
 	function all(o, d, s) {
 		test.ok(o.data().same(base16(d)));//outline to data
-		test.ok(outlineFromData(base16(d).take()).data().same(o.data()));//data to outline
+		test.ok(outlineFromData(base16(d).clip()).data().same(o.data()));//data to outline
 
 		test.ok(o.text() == s);//outline to text
-		test.ok(outlineFromText(Data(s).take()).data().same(o.data()));//text to outline
+		test.ok(outlineFromText(Data(s).clip()).data().same(o.data()));//text to outline
 	}
 
 	var o;
@@ -1504,7 +1504,7 @@ exports.testOutlineConvert = function(test) {
 exports.testOutlineParseData = function(test) {
 	function parse(left, d, result) {
 		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
-		var clip = d.take();
+		var clip = d.clip();
 
 		//valid, make sure we parse without an exception
 		if (result == "valid") {
@@ -1558,7 +1558,7 @@ exports.testOutlineParseData = function(test) {
 exports.testOutlineParseText = function(test) {
 	function parse(left, d, result) {
 		if (isType(d, "string")) d = Data(d);//d can be a string or data
-		var clip = d.take();
+		var clip = d.clip();
 
 		//valid, make sure we parse without an exception
 		if (result == "valid") {
@@ -1599,9 +1599,9 @@ exports.testOutlineGroup = function(test) {
 	function all(s) {
 
 		// text > outline > data > outline > text
-		var o = outlineFromText(Data(s).take());
+		var o = outlineFromText(Data(s).clip());
 		var d = o.data();
-		var o2 = outlineFromData(d.take());
+		var o2 = outlineFromData(d.clip());
 		var s2 = o2.text();
 
 		test.ok(s == s2);
@@ -1733,7 +1733,7 @@ exports.testOutlineGroup = function(test) {
 		l.add("");
 		test(l.toString());
 		*/
-		
+
 	test.done();
 }
 
@@ -1742,7 +1742,7 @@ exports.testOutlineTextInvalid = function(test) {
 /*
 	function parse(left, d, result) {
 		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
-		var clip = d.take();
+		var clip = d.clip();
 
 		//valid, make sure we parse without an exception
 		if (result == "valid") {
@@ -1767,7 +1767,7 @@ exports.testOutlineTextInvalid = function(test) {
 
 	function invalid(s) {
 		try {
-			outlineFromText(Data(s).take());
+			outlineFromText(Data(s).clip());
 			test.fail();
 		} catch (e) { test.ok(e == "data"); }
 	}
@@ -1866,7 +1866,7 @@ exports.testParseGroup = function(test) {
 	var s = lines("a", "b", "c", "", "d", "e", "", "f", "g");
 	test.ok(s == "a\r\nb\r\nc\r\n\r\nd\r\ne\r\n\r\nf\r\ng\r\n");
 	var data = Data(s);
-	var clip = data.take();
+	var clip = data.clip();
 
 	test.ok(sameArray(_parseGroup(clip), ["a", "b", "c"]));
 	test.ok(clip.data().text() == "d\r\ne\r\n\r\nf\r\ng\r\n");
@@ -1887,7 +1887,7 @@ exports.testParseLine = function(test) {
 
 	//two complete lines
 	var data = Data("one\r\ntwo\r\n");
-	var clip = data.take();
+	var clip = data.clip();
 	test.ok(_parseLine(clip) == "one");
 	test.ok(clip.data().text() == "two\r\n");
 	test.ok(_parseLine(clip) == "two");
@@ -1899,7 +1899,7 @@ exports.testParseLine = function(test) {
 
 	//doesn't trim lines
 	data = Data(" one \r\n two \r\n");
-	clip = data.take();
+	clip = data.clip();
 	test.ok(_parseLine(clip) == " one ");
 	test.ok(clip.data().text() == " two \r\n");
 	test.ok(_parseLine(clip) == " two ");
@@ -1911,7 +1911,7 @@ exports.testParseLine = function(test) {
 
 	//mac and unix style line endings
 	data = Data("one\ntwo\n");
-	clip = data.take();
+	clip = data.clip();
 	test.ok(_parseLine(clip) == "one");
 	test.ok(clip.data().text() == "two\n");
 	test.ok(_parseLine(clip) == "two");
@@ -1923,7 +1923,7 @@ exports.testParseLine = function(test) {
 
 	//just a fragment
 	data = Data("fragment");
-	clip = data.take();
+	clip = data.clip();
 	try {
 		_parseLine(clip);
 		test.fail();
@@ -1932,7 +1932,7 @@ exports.testParseLine = function(test) {
 
 	//line followed by fragment
 	data = Data("first\r\nfragment");
-	clip = data.take();
+	clip = data.clip();
 	test.ok(_parseLine(clip) == "first");
 	test.ok(clip.data().text() == "fragment");
 	try {
@@ -2033,7 +2033,7 @@ exports.testSpan = function(test) {
 
 	function both(n, s) {
 		test.ok(spanMake(n).base16() == s);//make
-		test.ok(spanParse(base16(s).take()) == n);//parse
+		test.ok(spanParse(base16(s).clip()) == n);//parse
 		test.ok(spanSize(n) == spanMake(n).size());//size
 	}
 
@@ -2087,7 +2087,7 @@ exports.testSpanParse = function(test) {
 	test.ok(bay.data().base16() == "34bd51000100ffe5b60068656c6c6f");
 
 	//parse it back out
-	var clip = bay.data().take();
+	var clip = bay.data().clip();
 	test.ok(spanParse(clip) == 52);
 	test.ok(spanParse(clip) == 7889);
 	test.ok(spanParse(clip) == 0);
@@ -2102,7 +2102,7 @@ exports.testSpanParse = function(test) {
 exports.testSpanParseInvalid = function(test) {
 
 	function invalid(s, expect, remain) {
-		var c = base16(s).take();//clip around the data of s
+		var c = base16(s).clip();//clip around the data of s
 		try {
 			spanParse(c);//try parsing it
 			test.fail();//make sure we get an exception
@@ -2128,7 +2128,7 @@ exports.testSpanParseChop = function(test) {
 	test.ok(bay.data().base16() == "fb83890168656c6c6f");
 
 	//imagine we're receiving the data, and only the first 3 bytes arrive
-	var clip = bay.data().start(3).take();
+	var clip = bay.data().start(3).clip();
 	test.ok(clip.data().base16() == "fb8389");
 	try {
 		spanParse(clip);
@@ -2137,7 +2137,7 @@ exports.testSpanParseChop = function(test) {
 	test.ok(clip.data().base16() == "fb8389");//and the clip is unchanged
 
 	//after that, all the data arrives
-	clip = bay.data().take();
+	clip = bay.data().clip();
 	test.ok(clip.data().base16() == "fb83890168656c6c6f");
 	test.ok(spanParse(clip) == 258000001);//the parse doesn't throw
 	test.ok(clip.data().text() == "hello");//and removes the 4 byte span from the start of clip

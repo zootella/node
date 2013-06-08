@@ -97,7 +97,7 @@ function Data(p) {
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
 	// The size of a Data object cannot change, while Clip can.
-	function take() { return Clip(this); }
+	function clip() { return Clip(this); }
 
 	// Make a copy of the memory this Data object views
 	// Afterwards, the object that holds the data can close, and the copy will still view it
@@ -125,11 +125,11 @@ function Data(p) {
 	function isEmpty() { return _buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
 	function hasData() { return _buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
 
-	function start(n) { return clip(0, n); }          // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
-	function end(n)   { return clip(size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
-	function after(i) { return clip(i, size() - i); } // Clip out the bytes after index i in this Data, after(3) is dddDDDDDDD	
-	function chop(n)  { return clip(0, size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
-	function clip(i, n) {                             // Clip out part this Data, clip(5, 3) is dddddDDDdd
+	function start(n) { return _clip(0, n); }          // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
+	function end(n)   { return _clip(size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
+	function after(i) { return _clip(i, size() - i); } // Clip out the bytes after index i in this Data, after(3) is dddDDDDDDD	
+	function chop(n)  { return _clip(0, size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
+	function _clip(i, n) {                             // Clip out part this Data, _clip(5, 3) is dddddDDDdd
 		if (i < 0 || n < 0 || i + n > size()) throw "chop"; // Make sure the requested index and number of bytes fits inside this Data
 		return Data(_buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
 	}
@@ -166,10 +166,10 @@ function Data(p) {
 	function quote()  { return toquote(this);  } // Base 16 with text in quotes, like '"hello"0d0a' 
 
 	return {
-		take:take, copyMemory:copyMemory,
+		clip:clip, copyMemory:copyMemory,
 		buffer:buffer, text:text, toNumber:toNumber, toBoolean:toBoolean,
 		size:size, isEmpty:isEmpty, hasData:hasData,
-		start:start, end:end, after:after, chop:chop, clip:clip,
+		start:start, end:end, after:after, chop:chop, _clip:_clip,
 		first:first, get:get,
 		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
 		cut:cut, cutLast:cutLast,
@@ -215,7 +215,7 @@ function _cutData(data, tag, forward) {
 		return {
 			found:  true, // We found tag at i, clip out the parts before and after it
 			before: data.start(i),
-			tag:    data.clip(i, tag.size()),
+			tag:    data._clip(i, tag.size()),
 			after:  data.after(i + tag.size())
 		};
 }
@@ -465,7 +465,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 				_set(b._get()); // Take b's buffer and hold
 				b._set(a);           // Give b our buffer and hold, which we saved in a
 			} else {                                              // Move some data in
-				var clip = b.data().take();
+				var clip = b.data().clip();
 				add(clip);                // Call this same function with the Clip
 				b.keep(clip.size());      // Have b keep only what add didn't take
 			}
@@ -473,7 +473,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		// Move as much data as fits from bay to this Bin, removing what we take from bay
 		} else if (isType(b, "Bay")) {
 
-			var clip = b.data().take();
+			var clip = b.data().clip();
 			add(clip);           // Call this same function with the Clip
 			b.keep(clip.size()); // Have b keep only what add didn't take
 
@@ -779,7 +779,7 @@ exports.base64 = base64;
 
 // Clip around some data to remove bytes you're done with from the start until it's empty
 // Data is immutale, but Clip is not
-// Clip isn't exported, call data.take() to get one
+// Clip isn't exported, call data.clip() to get one
 function Clip(d) {
 
 	var _data = Data(d); // Make a Data from what we were given and save it
@@ -1182,7 +1182,7 @@ function outlineFromData(clip) {
 	var o = Outline();                            // Make a new empty outline object to fill and return
 	o.name(p.remove(spanParse(p.clip())).text()); // Parse the name span header, and then the name
 	o.value(p.remove(spanParse(p.clip())));       // Parse the value span header, and then the value
-	var c = p.remove(spanParse(p.clip())).take(); // Parse the contents span header, and clip c around the contents
+	var c = p.remove(spanParse(p.clip())).clip(); // Parse the contents span header, and clip c around the contents
 	while (c.hasData())                           // Loop until we run c out of data
 		o.add(outlineFromData(c));                  // Parse the outline at the start of c, and add it to our contents
 
@@ -1307,7 +1307,7 @@ function toquote(d) {
 	if (!quoteMore(d))    // The given data is mostly data bytes, like random data
 		return d.base16();  // Present it as a single block of base 16 without quoting out the text it may contain
 
-	var c = d.take();     // Clip around d to remove what we've encoded
+	var c = d.clip();     // Clip around d to remove what we've encoded
 	var t = "";
 	while (c.hasData()) { // Loop until c is empty
 		if (quoteIs(c.data().first()))
