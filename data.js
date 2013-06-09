@@ -977,11 +977,9 @@ function Outline(setName, setValue) {
 
 	// Sort this outline
 	function sort() {
-		/*
 		for (var i = 0; i < _contents.length; i++)
 			_contents[i].sort(); // Sort the contents of our contained outlines, recursively sort from the farthest edges back up
 		_contents.sort(sortOutline); // After that, sort our contents
-		*/
 	}
 
 	// Convert this outline to text and data
