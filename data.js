@@ -57,6 +57,9 @@ function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
 }
 
+exports.bufferShift = bufferShift;
+exports.bufferCopy = bufferCopy;
+
 
 
 
@@ -864,6 +867,8 @@ exports.ParseToBay = ParseToBay;
 
 
 
+
+
 //    ___        _   _ _            
 //   / _ \ _   _| |_| (_)_ __   ___ 
 //  | | | | | | | __| | | '_ \ / _ \
@@ -1184,13 +1189,6 @@ function _parseLine(clip) {
 
 
 
-
-
-
-
-
-
-
 //    ___        _   _ _                              _   ____        _        
 //   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
 //  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
@@ -1243,10 +1241,6 @@ function outlineFromData(clip) {
 	p.valid();
 	return o;
 }
-
-
-//you could add the round trip test here, maybe
-
 
 exports.sortOutline = sortOutline;
 exports.outline = outline;

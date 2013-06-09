@@ -45,25 +45,40 @@ var randomData = encrypt.randomData;
 
 
 
+//   ____         __  __           
+//  | __ ) _   _ / _|/ _| ___ _ __ 
+//  |  _ \| | | | |_| |_ / _ \ '__|
+//  | |_) | |_| |  _|  _|  __/ |   
+//  |____/ \__,_|_| |_|  \___|_|   
+//                                 
 
+var bufferShift = requireData.bufferShift;
+var bufferCopy = requireData.bufferCopy;
 
 exports.testBufferShift = function(test) {
 
+	var b = new Buffer(8);
+
+	b[0] = 97;//ascii a
+	b[1] = 97;//ascii a
+	b[2] = 97 + 1;//ascii b
+	b[3] = 97 + 2;//ascii c
+	b[4] = 97 + 2;//ascii c
+	b[5] = 97 + 2;//ascii c
+	b[6] = 97 + 1;//ascii b
+	b[7] = 97;//ascii a
+
+	bufferShift(b, 2, 5);
+
+	test.ok(b[0] == 97 + 1);
+	test.ok(b[1] == 97 + 2);
+	test.ok(b[2] == 97 + 2);
+	test.ok(b[3] == 97 + 2);
+	test.ok(b[4] == 97 + 1);
+
 	test.done();
 }
 
-exports.testBufferCopy = function(test) {
-
-	test.done();
-}
-
-//move in some tests you wrote in a yX.js pad
-
-
-/*
-
-
-//make sure you understand how buffer.copy works
 exports.testBufferCopy = function(test) {
 
 	var source = new Buffer(8);
@@ -78,47 +93,16 @@ exports.testBufferCopy = function(test) {
 	source[6] = 97 + 1;//ascii b
 	source[7] = 97;//ascii a
 
-	var start = 2;
-	var hold = 5;
-	source.copy(target, 0, start, start + hold);
+	bufferCopy(5, source, 2, target, 0);
 
-	test.equal(target[0], 97 + 1);
-	test.equal(target[1], 97 + 2);
-	test.equal(target[2], 97 + 2);
-	test.equal(target[3], 97 + 2);
-	test.equal(target[4], 97 + 1);
+	test.ok(target[0] == 97 + 1);
+	test.ok(target[1] == 97 + 2);
+	test.ok(target[2] == 97 + 2);
+	test.ok(target[3] == 97 + 2);
+	test.ok(target[4] == 97 + 1);
 
 	test.done();
-};
-
-exports.testBufferCompact = function(test) {
-
-	var b = new Buffer(8);
-
-	b[0] = 97;//ascii a
-	b[1] = 97;//ascii a
-	b[2] = 97 + 1;//ascii b
-	b[3] = 97 + 2;//ascii c
-	b[4] = 97 + 2;//ascii c
-	b[5] = 97 + 2;//ascii c
-	b[6] = 97 + 1;//ascii b
-	b[7] = 97;//ascii a
-
-	var start = 2;
-	var hold = 5;
-	b.copy(b, 0, start, start + hold);
-
-	test.equal(b[0], 97 + 1);
-	test.equal(b[1], 97 + 2);
-	test.equal(b[2], 97 + 2);
-	test.equal(b[3], 97 + 2);
-	test.equal(b[4], 97 + 1);
-
-	test.done();
-};
-
-
-*/
+}
 
 
 
@@ -1242,6 +1226,12 @@ exports.testParseBase16 = function(test) {
 //   \___/ \__,_|\__|_|_|_| |_|\___|
 //                                  
 
+//like dracula, outline has three forms
+//they are:
+//1 easy-to-use objects in code for the programmer
+//2 human and machine readable text for configuration files and examples in blogs, and
+//3 compact binary data for the disk and wire
+
 var Outline = requireData.Outline;
 var sortOutline = requireData.sortOutline;
 var outline = requireData.outline;
@@ -1450,6 +1440,7 @@ exports.testOutlineCompare = function(test) {
 	//sort name
 	sort("==", outline('a:'), outline('a:'));
 	sort("AZ", outline('a:'), outline('b:'));
+	sort("ZA", outline('a:'), outline(':'));//no name wins
 
 	//sort value
 	sort("==", outline('a:05'), outline('a:05'));
@@ -1473,42 +1464,148 @@ exports.testOutlineCompare = function(test) {
 
 exports.testOutlineSort = function(test) {
 
-	function outline(s) {
-		return outlineFromText(Data(s).clip());
+	function same(o1, o2) {
+		test.ok(o1.data().same(o2.data()));//outlines get sorted before turning into data
 	}
 
-	var o = outline(lines(
+	//names
+	var o = outline(
 		':',
 		'  a:',
 		'  b:',
+		'  c:');
+	same(o, outline(
+		':',
 		'  c:',
-		''));
+		'  b:',
+		'  a:'));
+	same(o, outline(
+		':',
+		'  a:',
+		'  c:',
+		'  b:'));
 
+	//values
+	o = outline(
+		':',
+		'  :',//also a blank name
+		'  a:',
+		'  b:',
+		'  b:00');
+	same(o, outline(
+		':',
+		'  b:00',
+		'  b:',
+		'  :',
+		'  a:'));
 
+	//contents
+	o = outline(
+		':',
+		'  a:',
+		'  a:',
+		'  a:',
+		'    c:');
+	same(o, outline(
+		':',
+		'  a:',
+		'  a:',
+		'    c:',
+		'  a:'));
+	same(o, outline(
+		':',
+		'  a:',
+		'    c:',
+		'  a:',
+		'  a:'));
 
+	//combination
+	o = outline(
+		':',
+		'  :',
+		'  :00',
+		'  :0000',
+		'  :00cc',
+		'  :01',
+		'  a:',
+		'  a:00',
+		'  a:00',
+		'    c:',
+		'  b:',
+		'    :');
+	same(o, outline(
+		':',
+		'  :00',
+		'  a:00',
+		'    c:',
+		'  b:',
+		'    :',
+		'  :01',
+		'  :0000',
+		'  a:00',
+		'  :00cc',
+		'  a:',
+		'  :'));
+	same(o, outline(
+		':',
+		'  b:',
+		'    :',
+		'  a:00',
+		'    c:',
+		'  a:00',
+		'  a:',
+		'  :01',
+		'  :00cc',
+		'  :0000',
+		'  :00',
+		'  :'));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	//structure
+	o = outline(
+		':',
+		'  :',
+		'  :',
+		'    :',
+		'  :',
+		'    :',
+		'    :',
+		'  :',
+		'    :',//no contents, so lighter
+		'    :',
+		'      :',
+		'  :',
+		'    :',//than this one
+		'      :');
+	same(o, outline(//order completely reversed
+		':',
+		'  :',
+		'    :',
+		'      :',
+		'  :',
+		'    :',
+		'      :',
+		'    :',
+		'  :',
+		'    :',
+		'    :',
+		'  :',
+		'    :',
+		'  :'));
+	same(o, outline(
+		':',
+		'  :',
+		'    :',
+		'    :',
+		'  :',
+		'  :',
+		'    :',
+		'  :',
+		'    :',
+		'      :',
+		'  :',
+		'    :',
+		'      :',
+		'    :'));
 
 	test.done();
 }
@@ -2054,10 +2151,6 @@ exports.testParseLine = function(test) {
 
 
 
-
-
-//like dracula, outline has three forms
-//they are easy-to-use objects in code for the programmer, human and machine readable text for configuration files and blogs, and compact binary data for the disk and wire
 
 
 
