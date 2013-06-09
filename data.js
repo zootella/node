@@ -12,6 +12,7 @@ var checkType = requireMeasure.checkType;
 var hasMethod = requireMeasure.hasMethod;
 
 var requireText = require("./text");
+var sortText = requireText.sortText;
 var parseCheck = requireText.parseCheck;
 var parseCheckMatch = requireText.parseCheckMatch;
 var number = requireText.number;
@@ -231,12 +232,12 @@ function sortData(d1, d2) {
 		if (i < d1.size() && i < d2.size()) { // Compare two bytes
 			var b = d1.get(i) - d2.get(i);
 			if (b != 0) return b;
-		} else if (i < d2.size()) { // d2 has a byte at i but d1 is shorter
-			return -1; // Negative for d1 then d2
-		} else if (i < d1.size()) { // d1 has a byte at i but d2 is shorter
-			return 1; // Positive to sort d2 first
-		} else { // Both ran out of bytes at the same time
-			return 0; // Same
+		} else if (i < d2.size()) { // d2 has a byte at i but d1 is shorter, return negative for d1 then d2
+			return -1;
+		} else if (i < d1.size()) { // d1 has a byte at i but d2 is shorter, return positive to sort d2 first
+			return 1;
+		} else {                    // Both ran out of bytes at the same time, return same
+			return 0;
 		}
 		i++; // Move to the next byte
 	}
@@ -809,6 +810,7 @@ function Clip(d) {
 // Parse the data in clip into text or objects
 // When you're done without exception, call valid() to remove the parsed data from clip
 function ParseFromClip(c) {
+	checkType(c, "Clip");
 
 	var _clip = c; // Save the given clip
 	var _edit = c.copy(); // Make a copy we will change
@@ -826,6 +828,7 @@ function ParseFromClip(c) {
 // If there's an exception, call reset() to put bay back the way it was
 function ParseToBay(b) {
 	if (!b) b = Bay(); // No bay given, make a new empty one
+	checkType(b, "Bay");
 
 	var _bay = b; // Save the given bay
 	var _existing = b.size(); // Remember how much data was in it before we changed it
@@ -999,11 +1002,34 @@ exports.Outline = Outline;
 
 // Determine which should appear first in sorted order
 // Zero if same, negative if o1 then o2, positive if o2 first
+// You have to sort the contained outlines of both o1 and o2 before calling this function to compare them
 function sortOutline(o1, o2) {
 	checkType(o1, "Outline");
 	checkType(o2, "Outline");
 
-	return 0;//TODO
+	// Compare names
+	var a = sortText(o1.name(), o2.name());
+	if (a) return a;
+
+	// Compare values
+	a = sortData(o1.value(), o2.value());
+	if (a) return a;
+
+	// Compare contained outlines, for this to work they need to already be sorted
+	var i = 0; // Start at the first contained outline
+	while (true) {
+		if (i < o1.length() && i < o2.length()) { // Compare two outlines
+			a = sortOutline(o1.get(i), o2.get(i));
+			if (a) return a;
+		} else if (i < o2.length()) { // o2 has an outline at i but o1 is shorter, return negative for o1 then o2
+			return -1;
+		} else if (i < o1.length()) { // o1 has an outline at i but o2 is shorter, return positive to sort o2 first
+			return 1;
+		} else {                      // Both ran out of outlines at the same time, return same
+			return 0;
+		}
+		i++; // Move to the next outline
+	}
 }
 
 exports.sortOutline = sortOutline;
@@ -1037,6 +1063,27 @@ function outlineToText(o) {
 	}
 
 	return compose(o, "") + "\r\n"; // Start with no indent, mark the end of the text outline with a blank line
+}
+
+// Make an outline from the given lines of text
+function outline() {
+
+	var s = "";
+	for (var i = 0; i < arguments.length; i++) // Combine the given lines of text into a string to parse
+		s += arguments[i] + "\r\n";
+	s += "\r\n"; // Add a blank line to end the group
+
+	try {
+
+		var clip = Data(s).clip();
+		var o = outlineFromText(clip);
+		if (clip.hasData()) throw "data"; // Make sure we used everything we were given
+		return o;
+
+	} catch (e) {
+		if (e == "chop") e = "data"; // Throw data instead of chop, we only make one outline
+		throw e;
+	}
 }
 
 // Parse the data of a text outline at the start of clip into an outline object
@@ -1136,6 +1183,16 @@ function _parseLine(clip) {
 
 
 
+
+
+
+
+
+
+
+
+
+
 //    ___        _   _ _                              _   ____        _        
 //   / _ \ _   _| |_| (_)_ __   ___    __ _ _ __   __| | |  _ \  __ _| |_ __ _ 
 //  | | | | | | | __| | | '_ \ / _ \  / _` | '_ \ / _` | | | | |/ _` | __/ _` |
@@ -1194,6 +1251,7 @@ function outlineFromData(clip) {
 
 
 exports.sortOutline = sortOutline;
+exports.outline = outline;
 exports.outlineFromText = outlineFromText;
 exports._parseOutline = _parseOutline;
 exports._parseGroup = _parseGroup;
@@ -1370,7 +1428,7 @@ function quoteIs(y) {
 	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
 }
 
-exports.toquote = toquote;
+exports.quote = toquote; // Rename to quote()
 exports.unquote = unquote;
 exports.quoteCount = quoteCount;
 exports.quoteMore = quoteMore;

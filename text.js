@@ -4,6 +4,7 @@ var log = console.log;
 
 var requireMeasure = require("./measure.js");
 var hasMethod = requireMeasure.hasMethod;
+var checkType = requireMeasure.checkType;
 
 
 
@@ -158,7 +159,8 @@ function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
 // Determine which should appear first in sorted order
 // Zero if same, negative if s1 then s2, positive if s2 first
 function sortText(s1, s2) {
-	if (typeof s1 != "string" || typeof s2 != "string") throw "type";
+	checkType(s1, "string");
+	checkType(s2, "string");
 	return s1.localeCompare(s2);
 }
 

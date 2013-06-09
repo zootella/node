@@ -1244,6 +1244,7 @@ exports.testParseBase16 = function(test) {
 
 var Outline = requireData.Outline;
 var sortOutline = requireData.sortOutline;
+var outline = requireData.outline;
 var outlineFromText = requireData.outlineFromText;
 var _parseOutline = requireData._parseOutline;
 var _parseGroup = requireData._parseGroup;
@@ -1431,19 +1432,41 @@ exports.testOutlineNavigate = function(test) {
 
 exports.testOutlineCompare = function(test) {
 
-	function sort(order, s1, s2) {
-		var o1 = outlineFromText(Data(s1 + "\r\n\r\n").clip());
-		var o2 = outlineFromText(Data(s2 + "\r\n\r\n").clip());
-
-		if      (order > 0) test.ok(sortOutline(o1, o2) > 0);
-		else if (order < 0) test.ok(sortOutline(o1, o2) < 0);
-		else                test.ok(sortOutline(o1, o2) == 0);
+	function sort(order, o1, o2) {
+		if (order == "==") {
+			test.ok(sortOutline(o1, o2) == 0);
+			test.ok(sortOutline(o2, o1) == 0);
+		} else if (order == "AZ") {
+			test.ok(sortOutline(o1, o2) < 0);
+			test.ok(sortOutline(o2, o1) > 0);
+		} else if (order == "ZA") {
+			test.ok(sortOutline(o1, o2) > 0);
+			test.ok(sortOutline(o2, o1) < 0);
+		} else {
+			throw "invalid";
+		}
 	}
 
-	sort(0, "a:", "a:");
+	//sort name
+	sort("==", outline('a:'), outline('a:'));
+	sort("AZ", outline('a:'), outline('b:'));
 
+	//sort value
+	sort("==", outline('a:05'), outline('a:05'));
+	sort("AZ", outline('a:04'), outline('a:06'));
+	sort("ZA", outline('a:00'), outline('a:'));//empty value is lightest
+	sort("ZA", outline('b:04'), outline('a:06'));//values only compared if name is a tie
+	
+	sort("AZ", outline('a:'), outline('a:', '  c5:'));//any contents are heavier than none
+	sort("ZA", outline('b:'), outline('a:', '  c5:'));//name still wins first
 
+	sort("==", outline('a:', '  c5:'), outline('a:', '  c5:'));
+	sort("AZ", outline('a:', '  c4:'), outline('a:', '  c6:'));
 
+	sort("==", outline('a:', '  c5:', '  c5:'), outline('a:', '  c5:', '  c5:'));
+	sort("AZ", outline('a:', '  c5:'),          outline('a:', '  c5:', '  c5:'));//shorter wins
+	sort("ZA", outline('a:', '  c5:'),          outline('a:', '  c4:', '  c5:'));//lower outline in longer list wins
+	sort("ZA", outline('a:', '  c5:01'),        outline('a:', '  c5:00', '  c5:'));//same thing but value different
 
 	test.done();
 }
@@ -1823,6 +1846,55 @@ exports.testOutlineTextInvalid = function(test) {
 	test.done();
 }
 
+exports.testOutlineFromLines = function(test) {
+
+	//use outline() and quote() to quickly mock up a readable outline
+	var o = outline(
+		'a:' + quote(Data("\r\n")),
+		'  b:');
+
+	//you can read it using the object form
+	test.ok(o.value().same(base16("0d0a")));
+	test.ok(o.n("b").value().same(Data()));
+
+	//blank is not ok
+	try {
+		outline('');
+		test.fail();
+	} catch (e) { test.ok(e == "data"); }
+
+	//a single line is
+	outline('a:');
+
+	//two on the same level are not ok
+	try {
+		outline(
+			'a:',
+			'b:');
+		test.fail();
+	} catch (e) { test.ok(e == "data"); }
+
+	//the extra line is not ok
+	try {
+		outline(
+			'a:',
+			'');
+		test.fail();
+	} catch (e) { test.ok(e == "data"); }
+
+	//two outlines are not ok
+	try {
+		outline(
+			'a:',
+			'',
+			'b:',
+			'');
+		test.fail();
+	} catch (e) { test.ok(e == "data"); }
+
+	test.done();
+}
+
 exports.testParseOutline = function(test) {
 
 	function parse(indent, name, value, s) {
@@ -2174,7 +2246,7 @@ exports.testSpanParseChop = function(test) {
 //   \__\_\\__,_|\___/ \__\___|
 //                             
 
-var toquote = requireData.toquote;
+var quote = requireData.quote;
 var unquote = requireData.unquote;
 var quoteCount = requireData.quoteCount;
 var quoteMore = requireData.quoteMore;
@@ -2185,7 +2257,7 @@ exports.testQuoteUnquote = function(test) {
 	//make sure it works both ways
 	function both(plain, quoted) {
 		var p = Data(plain);//encode the given plain text as data using utf8
-		test.ok(toquote(p) == quoted);
+		test.ok(quote(p) == quoted);
 		test.ok(unquote(quoted).same(p));
 	}
 
@@ -2326,7 +2398,7 @@ exports.testQuoteInternational = function(test) {
 	//quotedAgain is, in these examples, not the same as quoted
 	function process(quoted, unquoted16, quotedAgain) {
 		var d = unquote(quoted);
-		var s = toquote(d);
+		var s = quote(d);
 
 		test.ok(d.base16() == unquoted16);
 		test.ok(s == quotedAgain);
