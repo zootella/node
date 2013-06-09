@@ -1550,19 +1550,19 @@ exports.testOutlineConvert = function(test) {
 		''));
 
 	o.add(Data("v"));//data value with blank name
-	all(o, '016e0176080164000000017600', lines(
+	all(o, '016e0176080001760001640000', lines(
 		'n:"v"',
-		'  d:',
 		'  :"v"',
+		'  d:',
 		''));
 
 	o.n("d").m("e").m("f").value(Data("v"));//navigate and make
-	o.add(o, '016e0176110164000901650005016601760000017600', lines(
+	o.add(o, '016e0176110001760001640009016500050166017600', lines(
 		'n:"v"',
+		'  :"v"',
 		'  d:',
 		'    e:',
 		'      f:"v"',
-		'  :"v"',
 		''));
 
 	test.done();
