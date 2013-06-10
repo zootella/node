@@ -1,13 +1,10 @@
 
 var log = console.log;
 
-
 var fs = require('fs');
 var crypto = require('crypto');
 var stream = require("stream");
 var util = require("util");
-
-
 
 
 
@@ -41,16 +38,11 @@ keyboard.on = function(key, cb) {
 
 
 
-
-
-
-
 var Hasher = function() {
 	stream.Stream.call(this);
 	this.writable = true;
 	this.shasum = crypto.createHash('sha1');
 };
-
 util.inherits(Hasher, stream);
 
 Hasher.prototype.write = function(data) {
@@ -61,45 +53,47 @@ Hasher.prototype.write = function(data) {
 Hasher.prototype.end = function(data) {
 	if (data) this.write(data);
 	var digest = this.shasum.digest('hex');
-	this.emit('end', digest);
+	this.emit('end', digest);//send the "end" event when we're done
 };
+
+
+
 
 var hasher = new Hasher();
 
-
-
-// The meat of the app
-var input = fs.createReadStream(process.argv[2], {bufferSize: 50 * 1024 * 1024});
-input.pipe(hasher);
-
-// Hasher fires 'end' event when it is complete
-hasher.on("end", function(hex) {
+hasher.on("end", function(hex) {//receive the "end" event when hasher is done
 	log("sha1 sum is: " + hex);
-	process.exit();
+	process.exit();//otherwise the user will have to press control+c to get their command prompt back
 });
 
-// Just some logging
-var hashed = 0;
+var hashed = 0;//count how many bytes we've hashed
 hasher.on("data", function(data) {
 	hashed += data.length;
 	log("Hashed " + hashed + " bytes");
 });
 
 keyboard.on("p", function() {
-	if (!input.paused) {
+	if (!file.paused) {
 		log("pausing");
-		input.pause();
+		file.pause();
 	}
 });
 
 keyboard.on("r", function() {
-	if (input.paused) {
+	if (file.paused) {
 		log("resuming");
-		input.resume();
+		file.resume();
 	}
 });
 
 
+
+
+
+
+// The meat of the app
+var file = fs.createReadStream(process.argv[2]);//command line like "node hasher.js /c/folder/file.ext", so 2 is the path to the file
+file.pipe(hasher);//of the form source.pipe(target) to move data from file to hasher
 
 
 //change this in steps without breaking it
