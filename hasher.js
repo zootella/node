@@ -1,8 +1,8 @@
 
 var log = console.log;
 
-var fs = require('fs');
-var crypto = require('crypto');
+var fs = require("fs");
+var crypto = require("crypto");
 var stream = require("stream");
 var util = require("util");
 
@@ -41,18 +41,18 @@ keyboard.on = function(key, cb) {
 var Hasher = function() {
 	stream.Stream.call(this);
 	this.writable = true;
-	this.shasum = crypto.createHash('sha1');
+	this.shasum = crypto.createHash("sha1");
 };
 util.inherits(Hasher, stream);
 
 Hasher.prototype.write = function(data) {
 	this.shasum.update(data);
-	this.emit('data', data);
+	this.emit("data", data);
 };
 
 Hasher.prototype.end = function(data) {
 	if (data) this.write(data);
-	var digest = this.shasum.digest('hex');
+	var digest = this.shasum.digest("hex");
 	this.emit('end', digest);//send the "end" event when we're done
 };
 
@@ -61,8 +61,8 @@ Hasher.prototype.end = function(data) {
 
 var hasher = new Hasher();
 
-hasher.on("end", function(hex) {//receive the "end" event when hasher is done
-	log("sha1 sum is: " + hex);
+hasher.on("end", function(digest) {//receive the "end" event when hasher is done
+	log("sha1 sum is: " + digest);
 	process.exit();//otherwise the user will have to press control+c to get their command prompt back
 });
 
