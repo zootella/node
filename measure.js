@@ -10,6 +10,41 @@ var log = console.log;
 
 
 
+
+
+
+//   _____                 
+//  |_   _|   _ _ __   ___ 
+//    | || | | | '_ \ / _ \
+//    | || |_| | |_) |  __/
+//    |_| \__, | .__/ \___|
+//        |___/|_|         
+
+// True if o is an object with a function o.name() you can call
+function hasMethod(o, name) { return o && typeof o[name] == "function"; }
+
+// Text that describes the type of o, like "string" or "Data"
+function getType(o) {
+	if (hasMethod(o, "type")) return o.type(); // Ask the type() method we add to custom objects
+	return typeof o;                           // Use the typeof operator
+}
+function isType(o, name) { return getType(o) == name; } // True if object o is of type name
+function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
+
+exports.hasMethod = hasMethod;
+exports.getType = getType;
+exports.isType = isType;
+exports.checkType = checkType;
+
+
+
+
+
+
+
+
+
+
 //   _   _       _ _       
 //  | | | |_ __ (_) |_ ___ 
 //  | | | | '_ \| | __/ __|
@@ -47,14 +82,7 @@ exports.Size = Size;
 
 
 
-/*
- __  __       _   _     
-|  \/  | __ _| |_| |__  
-| |\/| |/ _` | __| '_ \ 
-| |  | | (_| | |_| | | |
-|_|  |_|\__,_|\__|_| |_|
-                        
-*/
+
 /*
  ____                       
 / ___| _ __   __ _  ___ ___ 
@@ -125,6 +153,12 @@ exports.Size = Size;
 
 
 
+//   __  __       _   _     
+//  |  \/  | __ _| |_| |__  
+//  | |\/| |/ _` | __| '_ \ 
+//  | |  | | (_| | |_| | | |
+//  |_|  |_|\__,_|\__|_| |_|
+//                          
 
 // Calculate n1 * n2
 // Make sure the answer doesn't overflow the largest value a number can hold
@@ -327,37 +361,22 @@ exports.Slice = Slice;
 //if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
 //you could hash it right in memory, for instance
 //or maybe this isn't necessary, you need to think about it some more
+//and, what parts you have is probably best expressed as a stripe pattern of chunks, not bytes, and not a spray pattern
 
 
 
 
 
-//   _____                 
-//  |_   _|   _ _ __   ___ 
-//    | || | | | '_ \ / _ \
-//    | || |_| | |_) |  __/
-//    |_| \__, | .__/ \___|
-//        |___/|_|         
-
-// True if o is an object with a function o.name() you can call
-function hasMethod(o, name) { return o && typeof o[name] == "function"; }
-
-// Text that describes the type of o, like "string" or "Data"
-function getType(o) {
-	if (hasMethod(o, "type")) return o.type(); // Ask the type() method we add to custom objects
-	return typeof o;                           // Use the typeof operator
-}
-function isType(o, name) { return getType(o) == name; } // True if object o is of type name
-function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
-
-exports.hasMethod = hasMethod;
-exports.getType = getType;
-exports.isType = isType;
-exports.checkType = checkType;
 
 
 
 
+
+//next things to do
+
+//Now and Duration, hopefully that's all you'll need
+//Range and Stripe
+//Describe
 
 
 
