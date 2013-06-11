@@ -437,6 +437,21 @@ exports.testSlice = function(test) {
 
 
 
+log("hi");
+
+var d = new Date();
+log(d);//text for the user
+log(d.getTime());//number of milliseconds since 1970
+log(Date.now());
+log(typeof Date.now());//number
+
+
+
+
+
+
+
+
 
 
 

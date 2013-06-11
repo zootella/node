@@ -372,11 +372,54 @@ exports.Slice = Slice;
 
 
 
+
+
+
 //next things to do
 
 //Now and Duration, hopefully that's all you'll need
 //Range and Stripe
 //Describe
+
+
+
+
+function Stripe(setI, setSize) {
+	check(setI, 0);
+	check(setSize, 1);
+
+	var _i = setI;
+	var _size = setSize;
+
+	function i() { return _i; } // The distance from the origin to the start of this Stripe, 0 or more
+	function size() { return _size; } // The size of this Stripe, it's width, 1 or more
+
+	return {
+		i:i, size:size,
+		type:function(){ return "Stripe"; }
+	};
+}
+
+
+
+
+function Now() {
+	var _time = Date.now();
+	function time() { return _time; }
+
+	return {
+		time:time,
+		type:function(){ return "Now"; }
+	};
+}
+
+//maybe also have one where you give it a number you created sometime earlier
+//have the object be called Time
+//and have a function now() that returns a Time set to right now
+//be able to get the time now, save it as a number, and then turn it into text for the user
+
+
+
 
 
 
