@@ -403,8 +403,13 @@ function Stripe(setI, setSize) {
 
 
 
-function Now() {
-	var _time = Date.now();
+function now() { return Time(Date.now()); }
+
+
+function Time(setTime) {
+	check(setTime, 0);
+
+	var _time = setTime;
 	function time() { return _time; }
 
 	return {
@@ -417,6 +422,9 @@ function Now() {
 //have the object be called Time
 //and have a function now() that returns a Time set to right now
 //be able to get the time now, save it as a number, and then turn it into text for the user
+
+//remember the way fzero formats race times: 2'22"56
+//this is kind of cooler looking and way more standard that your 2m 22.560s
 
 
 
