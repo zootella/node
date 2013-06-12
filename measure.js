@@ -69,6 +69,12 @@ Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
 Size.value  = 20;           // A SHA1 hash value is 20 bytes
 Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
 Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
+
+
+Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
+Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
+
+
 Object.freeze(Size);
 
 exports.Time = Time;
@@ -318,50 +324,72 @@ exports.Average = Average;
 
 
 
+//functions that do the following
+//given a size, tell you how many pieces there are
+//given a size and piece index, give you the stripe of that piece
+//given a size and piece index, give you the number of chunks
+//given a size and piece index and chunk index, give you the stripe of that chunk
+
+//be able to pipeline the entire collection
+//to do this, specify the hash of a collection, and a stripe of chunks you want
+//really, be able to pipeline even more than that, pipeline a wole user, or information about several postings
+//actually just be able to pipeline anything with multiple queued requests
+//but pipeline a collection with a single short request
+//which is, the hash of the collection, a starting chunk index, and a number of chunks to send
+//so here to service that, have functions that zoom down to bytes starting from
+//collection
+//file
+//piece
+//chunk
+
+//and the underscore function that powers all these
+//takes a size, a max slice size, and tells how many
+//takes a size, a max slice size, and index, and returns a stripe
+
+
+//maybe call this piece instead of slice, even though it's for piece and chunk
 
 
 
 
 
 
+// How many pieces that are piece or smaller are in file
+function sliceN(piece, file) {
+	check(piece, 1); // piece is the largest a piece can be, like 1mb or 16kb
+	check(file, 1);  // file is the size of the file or piece of the file to slice
 
-/*
-function Slice(z) { // Takes the size of the file in bytes
-	if (z < 1) throw "bounds"; // File size must be 1 byte or more
+	var n = divide(file, piece).ceiling; // Any remainder will mean one additional piece
 
-	var _size = z;
-
-	// The file size in bytes
-	function size() { return _size; }
-
-	// How many pieces the file has
-	// Pieces can be 1 MB or smaller, so a file just over 1 MB has 2 pieces
-	function pieces() { return Math.ceil(size() / MB()); }
-
-	// The distance in bytes from the start of the file to the boundary of the given piece index i
-	// For instance, the first piece starts at piece(0), the second starts at piece(1), and so on
-	// If a file has n pieces, piece(n) will be the size of the file
-	function piece(index) {
-		if (index < 0 || index > pieces()) throw "bounds";
-		return Math.floor((index * size()) / pieces()) // Multiply before we divide, and round down to the nearst byte
-	}
-
-	return {
-		size:size,
-		pieces:pieces,
-		piece:piece
-	};
+	check(n, 1); // Every file has to be at least 1 piece
+	return n;
 }
-exports.Slice = Slice;
-//TODO actually write this, it's not good or checked yet
-//obviously use divide, multiply, and scale here
-//also, the whole design is wrong, it should work with Stripe, you have to write Range and Stripe first
-*/
+
+// Stripe i in file which was sliced into pieces piece or smaller
+function sliceStripe(piece, file, i) {
+	var n = sliceN(piece, file); // Find out how many pieces there are
+	if (i < 0 || i >= n) throw "bounds"; // Make sure i is a valid piece index
+
+	var a = scale(i,     file, n).whole; // Byte index of start of stripe i
+	var b = scale(i + 1, file, n).whole; // Byte index of end of stripe i
+	if (scale(n, file, n).whole != file) throw "bounds"; // Make sure the last stripe matches the end of the file
+
+	return Stripe(a, b - a); // Stripe i is from a to b
+}
+
+exports.sliceN = sliceN;
+exports.sliceStripe = sliceStripe;
+
+
+
+
+
 
 //if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
-//you could hash it right in memory, for instance
-//or maybe this isn't necessary, you need to think about it some more
-//and, what parts you have is probably best expressed as a stripe pattern of chunks, not bytes, and not a spray pattern
+//also, you have a feeling that this matches something in node, like the size of a buffer that gets put in c space rather than v8 space
+
+//what parts you have is probably best expressed as a stripe pattern of chunks, not bytes, and not a spray pattern
+//a 2gb file has just 2048 pieces and 131072 chunks, so these numbers are very reasonable to work with and will be very small to send in outline across the wire
 
 
 
@@ -394,11 +422,65 @@ function Stripe(setI, setSize) {
 	function i() { return _i; } // The distance from the origin to the start of this Stripe, 0 or more
 	function size() { return _size; } // The size of this Stripe, it's width, 1 or more
 
+
+
+	function same(s) {
+		checkType(s, "Stripe");
+		return _i == s.i() && _size == s.size();
+	}
+
+	function text() {
+		return _i + "_" + _size;
+	}
+
+
+
 	return {
 		i:i, size:size,
+		same:same, text:text,
 		type:function(){ return "Stripe"; }
 	};
 }
+exports.Stripe = Stripe;
+
+
+
+
+
+//here's what you want to do with time
+//get the time right now as a number of milliseconds since 1970
+//save one of those numbers, and see it later
+//see how long it's been since one, t.expired(t)
+//start and then stop something, and measure both times, Duration
+
+//turn a ms count into text for the user in several forms
+//a long form, with the year and month and day
+//a shorter form, with just the day of the week
+//a developer form, with the day of the week down to milliseconds
+//options for universal or local time
+//options for 24hr or am/pm
+
+//turn a delta of ms into text for the user
+//this one is simpler, it's a count of days, hours, minuts, seconds, ms
+
+//size
+//bytes
+//kb
+//mb
+//most appropriate unit, like 1234sb
+
+//speed
+//msot appropriate unit/s
+//seconds/megabyte, that's an interesting way of doing it
+
+
+//go through your java and c projects to collect all the outputs
+//plan out a unified design before you start coding
+//or just jump in, it's all pretty easy, actually
+
+//notice how these are all going to be functions, not objects, because counts of bytes and counts of milliseconds are just going to be javascript numbers, which is great
+
+
 
 
 
@@ -426,8 +508,16 @@ function Time(setTime) {
 //remember the way fzero formats race times: 2'22"56
 //this is kind of cooler looking and way more standard that your 2m 22.560s
 
+//the program never records a time in the future
+//if you ever encounter one, just throw bounds
+//the way to do the future is now().expired(4 * Time.second), not now() + 4*Time.second
 
 
+
+
+
+//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
+//take a look at the mdn documentation to decide about this
 
 
 

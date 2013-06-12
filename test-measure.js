@@ -436,7 +436,7 @@ exports.testSlice = function(test) {
 
 
 
-
+/*
 log("hi");
 
 var d = new Date();
@@ -444,7 +444,146 @@ log(d);//text for the user
 log(d.getTime());//number of milliseconds since 1970
 log(Date.now());
 log(typeof Date.now());//number
+*/
 
+
+//let's see how many chunks are in a piece, you're pretty sure it won't be an even amount
+
+/*
+log("hi");
+
+log("piece is " + Size.piece);
+log("chunk is " + Size.chunk);
+var d = divide(Size.piece, Size.chunk);
+log("piece/chunk whole " + d.whole);
+log("piece/chunk remainder " + d.remainder);
+//nevermind, it's exactly 64 chunks per piece
+*/
+
+var sliceN = requireMeasure.sliceN;
+var sliceStripe = requireMeasure.sliceStripe;
+
+var Stripe = requireMeasure.Stripe;
+
+
+
+
+exports.testSlice = function(test) {
+
+	//in this test, a pieces are 5 bytes or less
+	var piece = 5;
+
+	//predict that a file of size file bytes has n pieces
+	function n(file, _n) {
+		test.ok(sliceN(piece, file) == _n);
+	}
+
+	n(1, 1);//a 1 byte file has 1 piece
+	n(4, 1);
+	n(5, 1);//a 5 byte file has 1 piece
+	n(6, 2);//a 6 byte file has 2 pieces
+
+	//predict that piece i in file is at stripe
+	function stripe(file, i, _stripe) {
+		var s = sliceStripe(piece, file, i);
+		test.ok(s.same(_stripe));
+	}
+
+	//predict that piece i is outside file
+	function outside(file, i) {
+		try {
+			sliceStripe(piece, file, i);
+			test.fail();
+		} catch (e) { test.ok(e == "bounds"); }
+	}
+
+	var f;//set to try out files of different sizes
+
+	f = 1;//a one byte file
+	n(f, 1);//one piece
+	stripe(f, 0, Stripe(0, 1));//piece 0 is at 0 and size 1
+	outside(f, -1);
+	outside(f, 1);//there is no piece 1
+
+	f = 4;
+	n(f, 1);//one piece
+	stripe(f, 0, Stripe(0, 4));//piece 0 is at 0 and size 4
+
+	f = 5;
+	n(f, 1);
+	stripe(f, 0, Stripe(0, 5));
+
+	f = 6;
+	n(f, 2);//now the file is big enough to need a second piece
+	stripe(f, 0, Stripe(0, 3));
+	stripe(f, 1, Stripe(3, 3));
+	outside(f, 2);
+
+	f = 7;
+	n(f, 2);
+	stripe(f, 0, Stripe(0, 3));//piece boundaries round down to the nearest byte
+	stripe(f, 1, Stripe(3, 4));//this makes later pieces bigger, but only every by a single byte
+
+	//big file
+	piece = Size.piece;//real pieces 1mb or smaller
+	f = 2947483999;//a file bigger than 2gb
+
+	test.ok(Size.piece == 1048576);//note how the pieces below are just a handful of bytes shy of a full mb
+
+	stripe(f, 0, Stripe(0,       1048553));
+	stripe(f, 1, Stripe(1048553, 1048554));
+	stripe(f, 2, Stripe(2097107, 1048553));
+	stripe(f, 3, Stripe(3145660, 1048554));
+	stripe(f, 4, Stripe(4194214, 1048553));
+	stripe(f, 5, Stripe(5242767, 1048554));//and note how there are different quantities of only two different sizes
+
+	n(f, 2811);//the 2gb file has two thousand pieces
+	stripe(f, 2810, Stripe(2946435445, 1048554));//last piece
+	test.ok(f == 2946435445 + 1048554);//ends at the end of the file
+	outside(f, 2811);//beyond the end
+
+	test.done();
+}
+
+exports.testSliceBehavior = function(test) {
+
+	function run(file, _a) {
+		var n = sliceN(Size.piece, file);
+		var a = {};
+		for (var i = 0; i < n; i++) {
+			var stripe = sliceStripe(Size.piece, file, i);
+			if (!a[stripe.size()]) a[stripe.size()] = 0;
+			a[stripe.size()]++;
+		}
+		log(a);
+	}
+
+	function verbose(file) {
+		var n = sliceN(Size.piece, file);
+		for (var i = 0; i < n; i++)
+			log(sliceStripe(Size.piece, file, i).text());
+	}
+
+	run(2947483999);
+	run(2007483999);
+	run(1000000000);
+	run(9999999999);
+	run(8887776655);
+
+	run(56348967);
+//	run(127845342390);//this one overflowed, TODO figure out the largest file the program and platform supports, staying under the overflow of scale(n * file), basically, the largest file is the max int size / the number of bytes in a mb, which is probably ok
+	//just have a test that shows and documents it
+
+	verbose(56348967);//yes, what it does is interleave the two sizes
+
+
+	var file = 2 * Size.gb;
+
+	log(sliceN(Size.piece, file));
+	log(sliceN(Size.chunk, file));
+
+	test.done();
+}
 
 
 
