@@ -381,6 +381,9 @@ exports.sliceN = sliceN;
 exports.sliceStripe = sliceStripe;
 
 
+//if the file size limit is a problem, instead of interleaving them with scale, you could figure out exactly how many of each there are, and put all the small ones first and all the big ones second
+
+
 
 
 
