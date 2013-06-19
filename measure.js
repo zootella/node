@@ -7,6 +7,8 @@ var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
 
+var say = requireText.say;
+
 
 // Constants
 
@@ -536,7 +538,6 @@ function Time(setTime) {
 
 
 
-//Describe
 
 
 
@@ -547,9 +548,6 @@ function Time(setTime) {
 
 
 // Number
-
-
-
 
 // Add c characters to the start of s until it's width long
 // For instance, widen("1", 3) is "001"
@@ -584,24 +582,15 @@ function items(n, name, c, allowFour) {
 	else             return separate(say(n), c, allowFour) + " " + name + "s"; // "2 names" and up
 }
 
-/** Describe the given number like 1234 as a String like "1,234". *
-public static String commas(long l) { return commas(Number.toString(l)); }
-/** Insert commas in the given String, turn "1234" into "1,234". *
-public static String commas(String s) {
-	String done = "";
-	while (s.length() > 3) { // Loop, chopping groups of 3 characters off the end of s 
-		done = "," + Text.end(s, 3) + done;
-		s = Text.chop(s, 3);
-	}
-	return s + done;
-}
-*/
-
-
-
 exports.widen = widen;
 exports.separate = separate;
 exports.items = items;
+
+
+
+
+
+//remove widen and separate from text to have them just here
 
 	
 	

@@ -7,6 +7,8 @@ var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
 
+var say = requireText.say;
+
 var requireMeasure = require("./measure");
 var Time = requireMeasure.Time;
 var Size = requireMeasure.Size;
@@ -544,16 +546,14 @@ exports.testStripeFrozen = function(test) {
 
 
 
-//Describe
 
 
 
 
 
 
+// Number
 
-
-/*
 var widen = requireMeasure.widen;
 var separate = requireMeasure.separate;
 var items = requireMeasure.items;
@@ -587,17 +587,13 @@ exports.testItems = function(test) {
 	test.ok(items(1, "apple") == "1 apple");
 	test.ok(items(2, "apple") == "2 apples");
 
-	log(items(1234, "apple"));
-	/*
-	test.ok(items(1234, "apple")             ==  "1 234 apples");
-	test.ok(items(1234, "apple", ",")        ==  "1,234 apples");
-	test.ok(items(1234, "apple", ",", true)  ==   "1234 apples");
+	test.ok(items(1234,  "apple")            ==  "1 234 apples");
+	test.ok(items(1234,  "apple", ",")       ==  "1,234 apples");
+	test.ok(items(1234,  "apple", ",", true) ==   "1234 apples");
 	test.ok(items(12345, "apple", ",", true) == "12,345 apples");
-	*
 
 	test.done();
 }
-*/
 
 
 
