@@ -1,11 +1,11 @@
 
 var log = console.log;
 
-var requireMeasure = require("./measure");
-var hasMethod = requireMeasure.hasMethod;
-var getType = requireMeasure.getType;
-var isType = requireMeasure.isType;
-var checkType = requireMeasure.checkType;
+var requireText = require("./text");
+var hasMethod = requireText.hasMethod;
+var getType = requireText.getType;
+var isType = requireText.isType;
+var checkType = requireText.checkType;
 
 var requireText = require("./text");
 var lines = requireText.lines;

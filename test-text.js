@@ -4,9 +4,124 @@ var log = console.log;
 
 var requireData = require("./data");
 var Data = requireData.Data;
+var Bay = requireData.Bay;
 var base64 = requireData.base64;
 
 var requireText = require("./text");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   _____                 
+//  |_   _|   _ _ __   ___ 
+//    | || | | | '_ \ / _ \
+//    | || |_| | |_) |  __/
+//    |_| \__, | .__/ \___|
+//        |___/|_|         
+
+var hasMethod = requireText.hasMethod;
+var getType = requireText.getType;
+var isType = requireText.isType;
+var checkType = requireText.checkType;
+
+exports.testHasMethod = function(test) {
+
+	test.ok(hasMethod(Data(), "base62"));//there
+	test.ok(!hasMethod(Data(), "notFound"));//not found
+
+	test.ok(!hasMethod(undefined, "name"));//not an object, returns false
+	test.ok(!hasMethod(null, "name"));
+	test.ok(!hasMethod(false, "name"));
+	test.ok(!hasMethod(0, "name"));
+	test.ok(!hasMethod("hi", "name"));
+
+	test.done();
+}
+
+exports.testGetType = function(test) {
+
+	//nothings
+	test.ok("undefined" == getType());//nothing passed
+	test.ok("undefined" == getType(undefined));
+	test.ok("undefined" == getType(Data().anUndefinedMember));
+
+	//boolean
+	test.ok("boolean" == getType(false));
+	test.ok("boolean" == getType(true));
+
+	//number
+	test.ok("number" == getType(0));
+	test.ok("number" == getType(500));
+	test.ok("number" == getType(-1.2));
+	test.ok("number" == getType(Infinity));
+	test.ok("number" == getType(NaN));
+
+	//string
+	test.ok("string" == getType(""));
+	test.ok("string" == getType("hi"));
+
+	//function
+	test.ok("function" == getType(function(){}));
+	test.ok("function" == getType(Math.sin));
+	test.ok("function" == getType(isType));
+	test.ok("function" == getType(Data().size));
+
+	//javascript object
+	test.ok("object" == getType(null));//null has been an object since the beginning of javascript
+	test.ok("object" == getType({a:1}));//hash
+	test.ok("object" == getType([1, 2, 4]));//array
+	test.ok("object" == getType(/s/));//node says a regular expression literal is an object
+
+	//platform object
+	test.ok("object" == getType(new Date()));//javascript object
+
+	//node object
+	test.ok("object" == getType(new Buffer(0)));//node object
+	test.ok("object" == getType(new Buffer(8)));
+
+	//program object with type() method
+	test.ok("Bay"  == getType(Bay()));
+	test.ok("Data" == getType(Bay().data()));
+	test.ok("Clip" == getType(Bay().data().clip()));
+
+	//program object without that method
+	function Sample() {
+		function method() {}
+		return { method:method }//no type() method
+	}
+	test.ok("object" == getType(Sample()));
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

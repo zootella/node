@@ -1,6 +1,11 @@
 
 var log = console.log;
 
+var requireText = require("./text");
+var hasMethod = requireText.hasMethod;
+var getType = requireText.getType;
+var isType = requireText.isType;
+var checkType = requireText.checkType;
 
 
 // Constants
@@ -9,32 +14,6 @@ var log = console.log;
 
 
 
-
-
-
-
-//   _____                 
-//  |_   _|   _ _ __   ___ 
-//    | || | | | '_ \ / _ \
-//    | || |_| | |_) |  __/
-//    |_| \__, | .__/ \___|
-//        |___/|_|         
-
-// True if o is an object with a function o.name() you can call
-function hasMethod(o, name) { return o && typeof o[name] == "function"; }
-
-// Text that describes the type of o, like "string" or "Data"
-function getType(o) {
-	if (hasMethod(o, "type")) return o.type(); // Ask the type() method we add to custom objects
-	return typeof o;                           // Use the typeof operator
-}
-function isType(o, name) { return getType(o) == name; } // True if object o is of type name
-function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
-
-exports.hasMethod = hasMethod;
-exports.getType = getType;
-exports.isType = isType;
-exports.checkType = checkType;
 
 
 

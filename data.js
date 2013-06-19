@@ -6,12 +6,13 @@ var Size = requireMeasure.Size;
 var multiply = requireMeasure.multiply;
 var divide = requireMeasure.divide;
 var scale = requireMeasure.scale;
-var getType = requireMeasure.getType;
-var isType = requireMeasure.isType;
-var checkType = requireMeasure.checkType;
-var hasMethod = requireMeasure.hasMethod;
 
 var requireText = require("./text");
+var hasMethod = requireText.hasMethod;
+var getType = requireText.getType;
+var isType = requireText.isType;
+var checkType = requireText.checkType;
+
 var sortText = requireText.sortText;
 var parseCheck = requireText.parseCheck;
 var parseCheckMatch = requireText.parseCheckMatch;
