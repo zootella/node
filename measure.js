@@ -541,7 +541,14 @@ function Time(setTime) {
 
 
 
+//waht if instead you set an international pack, and these functions used it
 
+var Pack = {};
+Pack.separator = " ";
+Pack.ampm = true;
+Pack.commasOrDecimal = "something";//define if it's 1,234.5 or 1.234,5
+//have a setPack function you can use to customize behavior
+//this is a great idea, it will make the argumetns below much easier
 
 
 
@@ -586,11 +593,19 @@ exports.widen = widen;
 exports.separate = separate;
 exports.items = items;
 
-
+//move more in from java
 
 
 
 //remove widen and separate from text to have them just here
+
+
+//also look thorugh your c code to bring in stuff there
+
+//have a time format like a racing game with 5'15"22 or 5m 15s 220ms or 5 min 15 seconds 220 milliseconds
+
+
+
 
 	
 	
