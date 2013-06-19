@@ -564,6 +564,7 @@ exports.testSliceBehavior = function(test) {
 			log(sliceStripe(Size.piece, file, i).text());
 	}
 
+/*
 	run(2947483999);
 	run(2007483999);
 	run(1000000000);
@@ -581,9 +582,109 @@ exports.testSliceBehavior = function(test) {
 
 	log(sliceN(Size.piece, file));
 	log(sliceN(Size.chunk, file));
+*/
+	test.done();
+}
+
+
+
+var Stripe2 = requireMeasure.Stripe2;
+
+exports.testStripeFrozen = function(test) {
+
+/*
+	log("hi");
+
+	var s = Stripe2(0, 1);
+	log(s.text());
+	log(s.text2);
+
+	s.w = 2;//doesn't throw
+	log(s.text());//still 1
+	log(s.text2);
+	*/
+
+
+
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Describe
+
+
+
+
+
+
+
+
+
+var widen = requireMeasure.widen;
+var separate = requireMeasure.separate;
+var items = requireMeasure.items;
+
+exports.testWiden = function(test) {
+
+	test.ok(widen("12", 0) ==   "12");
+	test.ok(widen("12", 1) ==   "12");
+	test.ok(widen("12", 2) ==   "12");
+	test.ok(widen("12", 3) ==  "012");
+	test.ok(widen("12", 4) == "0012");
+
+	test.ok(widen("12", 3, " ") ==  " 12");
+
+	test.done();
+}
+
+exports.testSeparate = function(test) {
+
+	test.ok(separate("1234")             ==  "1 234");
+	test.ok(separate("1234", ",")        ==  "1,234");
+	test.ok(separate("1234", ",", true)  ==   "1234");
+	test.ok(separate("12345", ",", true) == "12,345");
+
+	test.done();
+}
+
+exports.testItems = function(test) {
+
+	test.ok(items(0, "apple") == "0 apples");
+	test.ok(items(1, "apple") == "1 apple");
+	test.ok(items(2, "apple") == "2 apples");
+
+	log(items(1234, "apple"));
+	/*
+	test.ok(items(1234, "apple")             ==  "1 234 apples");
+	test.ok(items(1234, "apple", ",")        ==  "1,234 apples");
+	test.ok(items(1234, "apple", ",", true)  ==   "1234 apples");
+	test.ok(items(12345, "apple", ",", true) == "12,345 apples");
+	*/
+
+	test.done();
+}
+
+
+
+
+
+
+
 
 
 

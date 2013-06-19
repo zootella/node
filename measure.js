@@ -414,6 +414,26 @@ exports.sliceStripe = sliceStripe;
 
 
 
+function Stripe2(set_i, set_w) {
+	var _i = set_i;
+	var _w = set_w;
+
+	function z() { return _i + _w; }
+	function text() { return _i + "-" + _w; }
+	function text2() { return _i + "-" + _w; }
+
+	var _return = {
+		i:_i, w:_w, z:z, text:text, text2:text2()
+	}
+	Object.freeze(_return);
+	return _return;
+}
+exports.Stripe2 = Stripe2;
+
+//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
+
+
+
 
 function Stripe(setI, setSize) {
 	check(setI, 0);
@@ -525,6 +545,84 @@ function Time(setTime) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+//Describe
+
+
+
+
+
+
+
+
+
+// Number
+
+
+
+
+// Add c characters to the start of s until it's width long
+// For instance, widen("1", 3) is "001"
+function widen(s, width, c) {
+	checkType(s, "string");
+	if (!c) c = "0";
+	while (s.length < width) s = c + s;
+	return s;
+}
+
+// Insert spaces between groups of three characters
+// For example, commas("12345") == "12 345"
+// For a specific region like North America or Europe, specify a custom separator like "," or "."
+function separate(s, c, allowFour) {
+	checkType(s, "string");
+	if (allowFour && s.length <= 4) return s; // Allow four true keeps "1234" as is
+	if (!c) c = " "; // Separate with comma by default
+	var u = ""; // Temporary string
+	var t = ""; // Target text to build and return
+	while (s.length > 3) { // Move commas and groups of 3 characters from s to t
+		u = s.end(3);
+		s = s.chop(3);
+		t = c + u + t;
+	}
+	return s + t; // Move the leading group of up to 3 characters
+}
+
+// Given a number and a name like items(5, "object"), compose text like "5 objects"
+function items(n, name, c, allowFour) {
+	if      (n == 0) return "0 " + name + "s";                            // "0 names"
+	else if (n == 1) return "1 " + name;                                  // "1 name"
+	else             return separate(say(n), c, allowFour) + " " + name + "s"; // "2 names" and up
+}
+
+/** Describe the given number like 1234 as a String like "1,234". *
+public static String commas(long l) { return commas(Number.toString(l)); }
+/** Insert commas in the given String, turn "1234" into "1,234". *
+public static String commas(String s) {
+	String done = "";
+	while (s.length() > 3) { // Loop, chopping groups of 3 characters off the end of s 
+		done = "," + Text.end(s, 3) + done;
+		s = Text.chop(s, 3);
+	}
+	return s + done;
+}
+*/
+
+
+
+exports.widen = widen;
+exports.separate = separate;
+exports.items = items;
 
 	
 	
