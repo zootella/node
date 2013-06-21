@@ -643,9 +643,9 @@ function commas(s, decimal) {
 
 // Given a number and a name, compose text like "5 objects"
 function items(n, name) {
-	if      (n == 0) return "0 " + name + "s";                            // "0 names"
-	else if (n == 1) return "1 " + name;                                  // "1 name"
-	else             return separate(say(n), c, allowFour) + " " + name + "s"; // "2 names" and up
+	if      (n == 0) return make("0 ", name, "s");           // "0 names"
+	else if (n == 1) return make("1 ", name);                // "1 name"
+	else             return make(commas(n), " ", name, "s"); // "2 names" and up
 }
 
 exports.widen = widen;
@@ -658,21 +658,24 @@ exports.items = items;
 
 // Describe a/b like "1.234"
 function sayDivide(n, d) {
-	if (d == 0) return "undefined";
-	return commas(scale(n, 1000, d).whole, 3);
+	return commas(scale(1000, n, d).whole, 3);
 }
 
-/** Describe a/b like "81.211% 912/1,123". *
-public static String percent(long a, long b) {
-	String s = Describe.commas(a) + "/" + Describe.commas(b);
-	if (b != 0) s = Describe.decimal(Describe.thousandths * Describe.percent * a / b, 3) + "% " + s;
-	return s;
+// Describe a/b like "81.211% 912/1,123"
+function sayPercent(n, d) {
+	return make(commas(scale(100 * 1000, n, d).whole, 3), "% ", commas(n), "/", commas(d));
 }
-*/
 
-// ---- Progress ----
+function sayProgress(n, d, units) {
+	return make(commas(scale(100, n, d).whole), "% ", saySize(n, units), "/", saySize(d, units));
+}
 
-//fractions of sizes
+exports.sayDivide = sayDivide;
+exports.sayPercent = sayPercent;
+exports.sayProgress = sayProgress;
+
+
+
 
 
 
@@ -695,8 +698,9 @@ Size.kb = 1024;           // Number of bytes in a kilobyte, using the binary pre
 Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
 Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
 Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
+Size.pb = 1024 * Size.tb; // Number of bytes in a petabyte
 
-Size.value  = 20;           // A SHA1 hash value is 20 bytes
+Size.value = 20; // A SHA1 hash value is 20 bytes
 
 Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
 Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
@@ -704,13 +708,12 @@ Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our bu
 Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
 Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
 
-Size.max = 9007199254740992;//largest number that javascript can handle as an integer, 2^53
+Size.max = 9007199254740992; // Largest number that JavaScript keeps as an integer, 2^53
 
 Object.freeze(Size);
-exports.Size = Size;
 
 
-/*
+
 
 
 function saySize(n, units) {
@@ -722,11 +725,12 @@ function saySize(n, units) {
 	if (units == "mb") return make(commas(divide(n, Size.mb).ceiling), "mb");
 	if (units == "gb") return make(commas(divide(n, Size.gb).ceiling), "gb");
 	if (units == "tb") return make(commas(divide(n, Size.tb).ceiling), "tb"); // Down here, 1 byte is also 1tb, which makes less sense
+	if (units == "pb") return make(commas(divide(n, Size.pb).ceiling), "pb");
 
 	// No units given, compose text like "1234mb" with the appropriate unit
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
-	var unit = ["b", "kb", "mb", "gb", "tb"];
+	var unit = ["b", "kb", "mb", "gb", "tb", "pb"];
 	while (u < unit.length) { // Loop until we're out of units
 
 		var w = divide(n, d).whole; // Find out how many of the current unit we have
@@ -737,6 +741,14 @@ function saySize(n, units) {
 	}
 	throw "overflow"; // We ran out of units, not really possible because Size.max is 8191tb
 }
+
+exports.Size = Size;
+exports.saySize = saySize;
+
+
+
+
+
 
 
 // ---- Speed ----
@@ -756,7 +768,6 @@ function saySize(n, units) {
 
 
 /*
-exports.saySize = saySize;
 
 // ---- Time ----
 
@@ -839,6 +850,7 @@ Object.freeze(Time);
 
 //2013 Jun 20 Thu 22:50
 //            Thu 22:50 59·123
+
 //always show in the user's local time
 
 

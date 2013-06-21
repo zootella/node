@@ -577,9 +577,10 @@ exports.testWiden = function(test) {
 
 exports.testCommas = function(test) {
 
-	test.ok(commas("1")     ==      "1");
-	test.ok(commas("1234")  ==  "1,234");
-	test.ok(commas("12345") == "12,345");
+	test.ok(commas("1")        ==          "1");
+	test.ok(commas("1234")     ==      "1,234");
+	test.ok(commas("12345")    ==     "12,345");
+	test.ok(commas("12345678") == "12,345,678");
 
 	test.ok(commas("1",       3) ==     "0.001");
 	test.ok(commas("12",      3) ==     "0.012");
@@ -588,23 +589,103 @@ exports.testCommas = function(test) {
 
 	test.done();
 }
-/*
+
 exports.testItems = function(test) {
 
 	test.ok(items(0, "apple") == "0 apples");
 	test.ok(items(1, "apple") == "1 apple");
 	test.ok(items(2, "apple") == "2 apples");
 
-	test.ok(items(1234,  "apple")            ==  "1 234 apples");
-	test.ok(items(1234,  "apple", ",")       ==  "1,234 apples");
-	test.ok(items(1234,  "apple", ",", true) ==   "1234 apples");
-	test.ok(items(12345, "apple", ",", true) == "12,345 apples");
+	test.ok(items(12345, "apple") == "12,345 apples");
 
 	test.done();
 }
-*/
 
 
+
+
+
+
+
+// ---- Fraction ----
+
+var sayDivide = requireMeasure.sayDivide;
+var sayPercent = requireMeasure.sayPercent;
+var sayProgress = requireMeasure.sayProgress;
+
+exports.testSayDivide = function(test) {
+
+	test.ok(sayDivide(1, 2) == "0.500");
+	test.ok(sayDivide(10, 3) == "3.333");
+	test.ok(sayDivide(3000, 2) == "1,500.000");
+
+	test.done();
+}
+
+exports.testSayPercent = function(test) {
+
+	test.ok(sayPercent(1, 2) == "50.000% 1/2");
+	test.ok(sayPercent(10, 30) == "33.333% 10/30");
+
+	test.done();
+}
+
+exports.testSayProgress = function(test) {
+
+	test.ok(sayProgress(1, 2) == "50% 1b/2b");
+	test.ok(sayProgress(1122 * Size.mb, 18 * Size.gb) == "6% 1122mb/18gb");
+	test.ok(sayProgress(987 * Size.kb, 5 * Size.mb) == "19% 987kb/5120kb");
+	test.ok(sayProgress(555 * Size.mb, 7 * Size.gb, "kb") == "7% 568,320kb/7,340,032kb");
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// ---- Size ----
+
+var saySize = requireMeasure.saySize;
+
+exports.testSaySize = function(test) {
+
+	test.ok(saySize(0) == "0b");
+	test.ok(saySize(5) == "5b");
+	test.ok(saySize(9999) == "9999b");
+	test.ok(saySize(10000) == "9kb");
+
+	test.ok(saySize(256 * Size.kb) == "256kb");
+	test.ok(saySize(5 * Size.gb) == "5120mb");
+	test.ok(saySize(Size.tb) == "1024gb");
+
+	test.ok(saySize(Size.max - 1) == "8191tb");
+
+	var n = 5 * Size.gb;
+	test.ok(saySize(n, "b")  == "5,368,709,120b");
+	test.ok(saySize(n, "kb") == "5,242,880kb");
+	test.ok(saySize(n, "mb") == "5,120mb");
+	test.ok(saySize(n, "gb") == "5gb");
+	test.ok(saySize(n, "tb") == "1tb");
+	test.ok(saySize(n, "pb") == "1pb");
+
+	n = Size.max - 1;
+	test.ok(saySize(n, "b")  == "9,007,199,254,740,991b");
+	test.ok(saySize(n, "kb") == "8,796,093,022,208kb");
+	test.ok(saySize(n, "mb") == "8,589,934,592mb");
+	test.ok(saySize(n, "gb") == "8,388,608gb");
+	test.ok(saySize(n, "tb") == "8,192tb");
+	test.ok(saySize(n, "pb") == "8pb");
+
+	test.done();
+}
 
 
 
