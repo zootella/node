@@ -574,17 +574,21 @@ exports.testWiden = function(test) {
 
 	test.done();
 }
-/*
+
 exports.testCommas = function(test) {
 
-	test.ok(separate("1234")             ==  "1 234");
-	test.ok(separate("1234",  ",")       ==  "1,234");
-	test.ok(separate("1234",  ",", true) ==   "1234");
-	test.ok(separate("12345", ",", true) == "12,345");
+	test.ok(commas("1")     ==      "1");
+	test.ok(commas("1234")  ==  "1,234");
+	test.ok(commas("12345") == "12,345");
+
+	test.ok(commas("1",       3) ==     "0.001");
+	test.ok(commas("12",      3) ==     "0.012");
+	test.ok(commas("12345",   3) ==    "12.345");
+	test.ok(commas("1234567", 3) == "1,234.567");
 
 	test.done();
 }
-
+/*
 exports.testItems = function(test) {
 
 	test.ok(items(0, "apple") == "0 apples");
