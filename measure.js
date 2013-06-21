@@ -657,17 +657,17 @@ exports.items = items;
 // ---- Fraction ----
 
 // Describe a/b like "1.234"
-function sayDivide(n, d) {
+function sayDivide(n, d, decimal) {
 	return commas(scale(1000, n, d).whole, 3);
 }
 
 // Describe a/b like "81.211% 912/1,123"
-function sayPercent(n, d) {
+function sayPercent(n, d, decimal) {
 	return make(commas(scale(100 * 1000, n, d).whole, 3), "% ", commas(n), "/", commas(d));
 }
 
-function sayProgress(n, d, units) {
-	return make(commas(scale(100, n, d).whole), "% ", saySize(n, units), "/", saySize(d, units));
+function sayProgress(n, d, decimal, units) {
+	return make(commas(scale(100, n, d).whole), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
 }
 
 exports.sayDivide = sayDivide;
@@ -676,10 +676,20 @@ exports.sayProgress = sayProgress;
 
 
 
+//have saydivide and saypercent take decimal 3 to produce the output they produce
+//default to undefined, which means you get nothing after the decimal place
+//then, add this capability to saySize so you can compose results like 5.1gb, which you dont think you want but should be able to generate
 
 
-
-
+function _magnatude(decimal) {
+	var m = 1;
+	for (var i = 0; i < decimal; i++) m *= 10;
+	return m;
+}
+//decimal 0 is magnatude 1
+//        1              10
+//        2              100
+//decimal 3 is magnatude 1000
 
 
 
@@ -716,7 +726,7 @@ Object.freeze(Size);
 
 
 
-function saySize(n, units) {
+function saySize(n, decimal, units) {
 	check(n, 0);
 
 	// Given units

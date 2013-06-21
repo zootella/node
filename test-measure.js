@@ -635,7 +635,7 @@ exports.testSayProgress = function(test) {
 	test.ok(sayProgress(1, 2) == "50% 1b/2b");
 	test.ok(sayProgress(1122 * Size.mb, 18 * Size.gb) == "6% 1122mb/18gb");
 	test.ok(sayProgress(987 * Size.kb, 5 * Size.mb) == "19% 987kb/5120kb");
-	test.ok(sayProgress(555 * Size.mb, 7 * Size.gb, "kb") == "7% 568,320kb/7,340,032kb");
+	test.ok(sayProgress(555 * Size.mb, 7 * Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
 
 	test.done();
 }
@@ -668,21 +668,38 @@ exports.testSaySize = function(test) {
 
 	test.ok(saySize(Size.max - 1) == "8191tb");
 
+	test.ok(saySize(1)                == "1b");
+	test.ok(saySize(10)               == "10b");
+	test.ok(saySize(100)              == "100b");
+	test.ok(saySize(1000)             == "1000b");
+	test.ok(saySize(10000)            == "9kb");
+	test.ok(saySize(100000)           == "97kb");
+	test.ok(saySize(1000000)          == "976kb");
+	test.ok(saySize(10000000)         == "9765kb");
+	test.ok(saySize(100000000)        == "95mb");
+	test.ok(saySize(1000000000)       == "953mb");
+	test.ok(saySize(10000000000)      == "9536mb");
+	test.ok(saySize(100000000000)     == "93gb");
+	test.ok(saySize(1000000000000)    == "931gb");
+	test.ok(saySize(10000000000000)   == "9313gb");
+	test.ok(saySize(100000000000000)  == "90tb");
+	test.ok(saySize(1000000000000000) == "909tb");
+
 	var n = 5 * Size.gb;
-	test.ok(saySize(n, "b")  == "5,368,709,120b");
-	test.ok(saySize(n, "kb") == "5,242,880kb");
-	test.ok(saySize(n, "mb") == "5,120mb");
-	test.ok(saySize(n, "gb") == "5gb");
-	test.ok(saySize(n, "tb") == "1tb");
-	test.ok(saySize(n, "pb") == "1pb");
+	test.ok(saySize(n, 0, "b")  == "5,368,709,120b");
+	test.ok(saySize(n, 0, "kb") == "5,242,880kb");
+	test.ok(saySize(n, 0, "mb") == "5,120mb");
+	test.ok(saySize(n, 0, "gb") == "5gb");
+	test.ok(saySize(n, 0, "tb") == "1tb");
+	test.ok(saySize(n, 0, "pb") == "1pb");
 
 	n = Size.max - 1;
-	test.ok(saySize(n, "b")  == "9,007,199,254,740,991b");
-	test.ok(saySize(n, "kb") == "8,796,093,022,208kb");
-	test.ok(saySize(n, "mb") == "8,589,934,592mb");
-	test.ok(saySize(n, "gb") == "8,388,608gb");
-	test.ok(saySize(n, "tb") == "8,192tb");
-	test.ok(saySize(n, "pb") == "8pb");
+	test.ok(saySize(n, 0, "b")  == "9,007,199,254,740,991b");
+	test.ok(saySize(n, 0, "kb") == "8,796,093,022,208kb");
+	test.ok(saySize(n, 0, "mb") == "8,589,934,592mb");
+	test.ok(saySize(n, 0, "gb") == "8,388,608gb");
+	test.ok(saySize(n, 0, "tb") == "8,192tb");
+	test.ok(saySize(n, 0, "pb") == "8pb");
 
 	test.done();
 }
