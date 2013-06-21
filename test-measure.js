@@ -554,36 +554,28 @@ exports.testStripeFrozen = function(test) {
 
 
 
-// Number
+
+
+
+
+
+
+
+// ---- Number ----
 
 var widen = requireMeasure.widen;
-var separate = requireMeasure.separate;
+var commas = requireMeasure.commas;
 var items = requireMeasure.items;
-
-var sayBytes = requireMeasure.sayBytes;
-var sayKb = requireMeasure.sayKb;
-var sayMb = requireMeasure.sayMb;
-var sayGb = requireMeasure.sayGb;
-var sayTb = requireMeasure.sayTb;
-var saySize = requireMeasure.saySize;
-var sayKbWindows = requireMeasure.sayKbWindows;
-
-
 
 exports.testWiden = function(test) {
 
-	test.ok(widen("12", 0) ==   "12");
-	test.ok(widen("12", 1) ==   "12");
-	test.ok(widen("12", 2) ==   "12");
-	test.ok(widen("12", 3) ==  "012");
-	test.ok(widen("12", 4) == "0012");
-
-	test.ok(widen("12", 3, " ") ==  " 12");
+	test.ok(widen("1", 3) == "001");
+	test.ok(widen("12", 3, " ") == " 12");
 
 	test.done();
 }
-
-exports.testSeparate = function(test) {
+/*
+exports.testCommas = function(test) {
 
 	test.ok(separate("1234")             ==  "1 234");
 	test.ok(separate("1234",  ",")       ==  "1,234");
@@ -606,9 +598,13 @@ exports.testItems = function(test) {
 
 	test.done();
 }
+*/
 
 
 
+
+
+/*
 exports.textMax = function(test) {
 
 	test.ok(make(Size.max) == "9007199254740992");
@@ -692,14 +688,14 @@ log(quote(Data("good 00·00·00∙00 00 00 00.txt")));
 	log(make("thin space 000", Size.thinSpace, "000"));
 	log(make("thin space 000", Size.thinSpace, "000"));
 */
-
+/*
 log("here come some codes");
 log(numerals16(" ".code()));//2009
 log(numerals16("·".code()));//b7
 
 //is this the same thing?
 
-
+*/
 
 
 

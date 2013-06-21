@@ -668,6 +668,7 @@ public static String percent(long a, long b) {
 	if (b != 0) s = Describe.decimal(Describe.thousandths * Describe.percent * a / b, 3) + "% " + s;
 	return s;
 }
+*/
 
 // ---- Progress ----
 
@@ -689,24 +690,27 @@ public static String percent(long a, long b) {
 
 // Size constants
 var Size = {};
+
 Size.kb = 1024;           // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
 Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
 Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
 Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
+
 Size.value  = 20;           // A SHA1 hash value is 20 bytes
+
 Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
 Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
-
 
 Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
 Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
 
 Size.max = 9007199254740992;//largest number that javascript can handle as an integer, 2^53
 
-
-
-
 Object.freeze(Size);
+exports.Size = Size;
+
+
+/*
 
 
 function saySize(n, units) {
@@ -751,7 +755,7 @@ function saySize(n, units) {
 */
 
 
-
+/*
 exports.saySize = saySize;
 
 // ---- Time ----
