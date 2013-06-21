@@ -8,6 +8,7 @@ var isType = requireText.isType;
 var checkType = requireText.checkType;
 
 var say = requireText.say;
+var make = requireText.make;
 
 
 // Constants
@@ -25,41 +26,6 @@ var say = requireText.say;
 
 
 
-
-//   _   _       _ _       
-//  | | | |_ __ (_) |_ ___ 
-//  | | | | '_ \| | __/ __|
-//  | |_| | | | | | |_\__ \
-//   \___/|_| |_|_|\__|___/
-//                         
-
-// Time constants
-var Time = {};
-Time.second = 1000;             // Number of milliseconds in a second
-Time.minute = 60 * Time.second; // Number of milliseconds in a minute
-Time.hour   = 60 * Time.minute; // Number of milliseconds in an hour
-Time.day    = 24 * Time.hour;   // Number of milliseconds in a day
-Object.freeze(Time);
-
-// Size constants
-var Size = {};
-Size.kb = 1024;           // Number of bytes in a kilobyte
-Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
-Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
-Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
-Size.value  = 20;           // A SHA1 hash value is 20 bytes
-Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
-Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
-
-
-Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
-Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
-
-
-Object.freeze(Size);
-
-exports.Time = Time;
-exports.Size = Size;
 
 
 
@@ -185,13 +151,19 @@ function scale(n, m, d) { return divide(multiply(n, m), d); }
 
 // Make sure i is a whole number with a minimum value of min or larger
 function check(i, min) {
-	if (typeof i !== "number") throw "type";     // Make sure i is a number
-	if (isNaN(i))              throw "bounds";   // Not the weird not a number thing
-	if (!isFinite(i))          throw "overflow"; // Not too big for floating point
-	if (i > 9007199254740992)  throw "overflow"; // Not too big for int
-	if (i + 1 === i)           throw "overflow"; // Not too big for addition to work
-	if (Math.floor(i) !== i)   throw "type";     // A whole number
-	if (i < min)               throw "bounds";   // With the minimum value or larger
+
+	function _check(n) {
+		checkType(n, "number");                      // Make sure n is a number
+		if (isNaN(n))              throw "bounds";   // Not the weird not a number thing
+		if (!isFinite(n))          throw "overflow"; // Not too big for floating point
+		if (n > 9007199254740992)  throw "overflow"; // Not too big for int
+		if (n + 1 === n)           throw "overflow"; // Not too big for addition to work
+		if (Math.floor(n) !== n)   throw "type";     // A whole number
+	}
+
+	_check(i);
+	_check(min);
+	if (i < min) throw "bounds"; // With the minimum value or larger
 }
 
 exports.multiply = multiply;
@@ -554,47 +526,351 @@ Pack.commasOrDecimal = "something";//define if it's 1,234.5 or 1.234,5
 
 
 
-// Number
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---- Culture ----
+
+function Culture() {
+
+	set("e"); // Set default
+
+	function set(c) {
+		if (c == "e") { // English
+			_culture   = "e";
+			_separator = ",";
+			_decimal   = ".";
+			_hours     = 12;
+		} else if (c == "f") { // French
+			_culture   = "f";
+			_separator = ".";
+			_decimal   = ",";
+			_hours     = 24;
+		} else { // International/global/futuristic/cyberpunk
+			_culture   = "i";
+			_separator = " "; // U+2009 thin space
+			_decimal   = "·"; // U+00B7 middle dot
+			_hours     = 24;
+		}
+	}
+
+	function get()       { return _culture;   } var _culture;
+	function separator() { return _separator; } var _separator; // Thousands separator
+	function decimal()   { return _decimal;   } var _decimal;   // Decimal separator
+	function hours()     { return _hours;     } var _hours;     // Hours on the clock
+
+	return {
+		set:set, get:get,
+		separator:separator, decimal:decimal, hours:hours,
+		type:function(){ return "Culture"; }
+	};
+}
+var culture = Culture();
+
+
+
+
+
+
+// ---- Number ----
 
 // Add c characters to the start of s until it's width long
 // For instance, widen("1", 3) is "001"
 function widen(s, width, c) {
-	checkType(s, "string");
+	s = say(s);
 	if (!c) c = "0";
 	while (s.length < width) s = c + s;
 	return s;
 }
 
-// Insert spaces between groups of three characters
-// For example, commas("12345") == "12 345"
-// For a specific region like North America or Europe, specify a custom separator like "," or "."
-function separate(s, c, allowFour) {
-	checkType(s, "string");
-	if (allowFour && s.length <= 4) return s; // Allow four true keeps "1234" as is
-	if (!c) c = " "; // Separate with comma by default
-	var u = ""; // Temporary string
+// Format numerals with thousands and decimal separator, like "1,234.567"
+// Optionally specify the number of decimal digits, like 3
+function commas(s, decimal) {
+	s = say(s);
+
 	var t = ""; // Target text to build and return
+	var u = ""; // Temporary string
+
+	if (decimal) {                            // There are decimal digits
+		s = widen(s, decimal + 1);              // Prepend enough leading zeros to compose "0.001"
+		t = culture.decimal() + s.end(decimal); // Start t like ".001"
+		s = s.chop(decimal);                    // Remove the trailing "001" from s
+	}
+
 	while (s.length > 3) { // Move commas and groups of 3 characters from s to t
 		u = s.end(3);
 		s = s.chop(3);
-		t = c + u + t;
+		t = culture.separator() + u + t;
 	}
 	return s + t; // Move the leading group of up to 3 characters
 }
 
-// Given a number and a name like items(5, "object"), compose text like "5 objects"
-function items(n, name, c, allowFour) {
+// Given a number and a name, compose text like "5 objects"
+function items(n, name) {
 	if      (n == 0) return "0 " + name + "s";                            // "0 names"
 	else if (n == 1) return "1 " + name;                                  // "1 name"
 	else             return separate(say(n), c, allowFour) + " " + name + "s"; // "2 names" and up
 }
 
 exports.widen = widen;
-exports.separate = separate;
+exports.commas = commas;
 exports.items = items;
 
-//move more in from java
 
+
+// ---- Fraction ----
+
+// Describe a/b like "1.234"
+function sayDivide(n, d) {
+	if (d == 0) return "undefined";
+	return commas(scale(n, 1000, d).whole, 3);
+}
+
+/** Describe a/b like "81.211% 912/1,123". *
+public static String percent(long a, long b) {
+	String s = Describe.commas(a) + "/" + Describe.commas(b);
+	if (b != 0) s = Describe.decimal(Describe.thousandths * Describe.percent * a / b, 3) + "% " + s;
+	return s;
+}
+
+// ---- Progress ----
+
+//fractions of sizes
+
+
+
+
+
+
+
+
+
+
+
+
+// ---- Size ----
+
+
+// Size constants
+var Size = {};
+Size.kb = 1024;           // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
+Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
+Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
+Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
+Size.value  = 20;           // A SHA1 hash value is 20 bytes
+Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
+Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
+
+
+Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
+Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
+
+Size.max = 9007199254740992;//largest number that javascript can handle as an integer, 2^53
+
+
+
+
+Object.freeze(Size);
+
+
+function saySize(n, units) {
+	check(n, 0);
+
+	// Given units
+	if (units == "b")  return make(commas(n),                          "b");
+	if (units == "kb") return make(commas(divide(n, Size.kb).ceiling), "kb"); // Round up so 1 byte is 1kb, not 0kb
+	if (units == "mb") return make(commas(divide(n, Size.mb).ceiling), "mb");
+	if (units == "gb") return make(commas(divide(n, Size.gb).ceiling), "gb");
+	if (units == "tb") return make(commas(divide(n, Size.tb).ceiling), "tb"); // Down here, 1 byte is also 1tb, which makes less sense
+
+	// No units given, compose text like "1234mb" with the appropriate unit
+	var d = 1; // Starting unit of 1 byte
+	var u = 0;
+	var unit = ["b", "kb", "mb", "gb", "tb"];
+	while (u < unit.length) { // Loop until we're out of units
+
+		var w = divide(n, d).whole; // Find out how many of the current unit we have
+		if (w <= 9999) return make(w, unit[u]); // Four digits or less, use this unit
+
+		d *= 1024; // Move to the next larger unit
+		u++;
+	}
+	throw "overflow"; // We ran out of units, not really possible because Size.max is 8191tb
+}
+
+
+// ---- Speed ----
+
+/*
+	/** Given a number of bytes transferred in a second, describe the speed in kilobytes per second like "2.24 KB/s". *
+	public static String speed(int bytesPerSecond) {
+		int i = (bytesPerSecond * 100) / 1024; // Compute the number of hundreadth kilobytes per second
+		if      (i == 0)    return "";                                                                                      // Return "" instead of "0.00 KB/s"
+		else if (i <    10) return "0.0" + i + " KB/s";                                                                     // 1 digit   "0.09 KB/s"
+		else if (i <   100) return "0." + i + " KB/s";                                                                      // 2 digits  "0.99 KB/s"
+		else if (i <  1000) return Text.start(Number.toString(i), 1) + "." + Text.clip(Number.toString(i), 1, 2) + " KB/s"; // 3 digits  "9.99 KB/s"
+		else if (i < 10000) return Text.start(Number.toString(i), 2) + "." + Text.clip(Number.toString(i), 2, 1) + " KB/s"; // 4 digits  "99.9 KB/s"
+		else                return commas(Text.chop(Number.toString(i), 2)) + " KB/s";                                      // 5 or more "999 KB/s" or "1,234 KB/s"
+	}
+*/
+
+
+
+exports.saySize = saySize;
+
+// ---- Time ----
+
+// Time constants
+var Time = {};
+Time.second = 1000;             // Number of milliseconds in a second
+Time.minute = 60 * Time.second; // Number of milliseconds in a minute
+Time.hour   = 60 * Time.minute; // Number of milliseconds in an hour
+Time.day    = 24 * Time.hour;   // Number of milliseconds in a day
+Object.freeze(Time);
+
+
+
+/*
+	/** Describe the given number of milliseconds with a String like "1 min 24 sec". *
+	public static String time(long milliseconds) { return time(milliseconds, false); }
+	/** Describe the given number of milliseconds with a String like "5 sec" or "10 sec", counting up in big steps. *
+	public static String timeCoarse(long milliseconds) { return time(milliseconds, true); }
+	/** Given a number of milliseconds, describe the length of time with a String like "1 min 24 sec". *
+	private static String time(long milliseconds, boolean coarse) {
+		
+		// Compute the number of whole seconds, minutes, and hours in the given number of milliseconds
+		long seconds = milliseconds / Time.second;
+		if (coarse && seconds > 5) seconds -= seconds % 5; // If coarse and above 5, round down to the nearest multiple of 5
+		long minutes = seconds / 60;
+		long hours = minutes / 60;
+		
+		// Compose and return a String that describes that amount of time
+		if      (seconds <    60) return seconds + " sec";                                        // "0 sec" to "59 sec"
+		else if (seconds <   600) return minutes + " min " + (seconds - (minutes * 60)) + " sec"; // "1 min 0 sec" to "9 min 59 sec"
+		else if (seconds <  3600) return minutes + " min";                                        // "10 min" to "59 min"
+		else if (seconds < 36000) return hours + " hr " + (minutes - (hours * 60)) + " min";      // "1 hr 0 min" to "9 hr 59 min"
+		else                      return commas(hours) + " hr";                                   // "10 hr" and up
+	}
+*/
+
+// d h m s
+
+//have a time format like a racing game with 5'15"22 or 5m 15s 220ms or 5 min 15 seconds 220 milliseconds
+
+
+
+// ---- Date ----
+
+/*
+	/** Given a number of milliseconds since January 1970, compose the local day and time like "Fri 12:52p 07.023s". *
+	public static String day(long milliseconds) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date(milliseconds));
+
+		// "Fri "
+		String s = "";
+		int d = c.get(Calendar.DAY_OF_WEEK);
+		switch (d) {
+		case Calendar.MONDAY:    s = "Mon "; break;
+		case Calendar.TUESDAY:   s = "Tue "; break;
+		case Calendar.WEDNESDAY: s = "Wed "; break;
+		case Calendar.THURSDAY:  s = "Thu "; break;
+		case Calendar.FRIDAY:    s = "Fri "; break;
+		case Calendar.SATURDAY:  s = "Sat "; break;
+		case Calendar.SUNDAY:    s = "Sun "; break;
+		}
+		
+		// "12:52p "
+		int hour = c.get(Calendar.HOUR);
+		if (hour == 0)
+			hour = 12;
+		s += numerals(hour, 1) + ":" + numerals(c.get(Calendar.MINUTE), 2);
+		if (c.get(Calendar.AM_PM) == Calendar.AM)
+			s += "a ";
+		else
+			s += "p ";
+
+		// "07.023s"
+		s += numerals(c.get(Calendar.SECOND), 2) + "." + numerals(c.get(Calendar.MILLISECOND), 3) + "s";
+
+		return s;
+	}
+*/
+
+//2013 Jun 20 Thu 22:50
+//            Thu 22:50 59·123
+//always show in the user's local time
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//this is not processing time, just saying it
 
 
 //remove widen and separate from text to have them just here
@@ -602,11 +878,64 @@ exports.items = items;
 
 //also look thorugh your c code to bring in stuff there
 
-//have a time format like a racing game with 5'15"22 or 5m 15s 220ms or 5 min 15 seconds 220 milliseconds
+
+
+//use say(n) instead of numerals(n), it's shorter and easier to remember
+//search all your code to do it this way
 
 
 
 
-	
-	
+//all in all, don't bring in every kind of everything
+//rather, write the simple international subset that the library will use
+
+
+
+
+
+
+
+//make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
+
+//maybe rename make to say
+//do you really need both make() and say(), maybe combine them to just make(), and rename that say()
+//try to find an instance where you need to call say, and couldn't just call make, the way things are now
+
+
+
+
+
+
+
+
+//basically, the areas to say are
+//Size, including progress
+//Time, including time and date
+//Speed, including seconds per megabyte
+
+
+
+
+//have return freeze({})
+//and is there anywhere you wouldn't want to use that, actually?
+//that prevents you from messing up an object, but does it prevent you from making a mutable object?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

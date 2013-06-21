@@ -7,7 +7,9 @@ var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
 
+var make = requireText.make;
 var say = requireText.say;
+var numerals16 = requireText.numerals16;
 
 var requireMeasure = require("./measure");
 var Time = requireMeasure.Time;
@@ -558,6 +560,16 @@ var widen = requireMeasure.widen;
 var separate = requireMeasure.separate;
 var items = requireMeasure.items;
 
+var sayBytes = requireMeasure.sayBytes;
+var sayKb = requireMeasure.sayKb;
+var sayMb = requireMeasure.sayMb;
+var sayGb = requireMeasure.sayGb;
+var sayTb = requireMeasure.sayTb;
+var saySize = requireMeasure.saySize;
+var sayKbWindows = requireMeasure.sayKbWindows;
+
+
+
 exports.testWiden = function(test) {
 
 	test.ok(widen("12", 0) ==   "12");
@@ -574,8 +586,8 @@ exports.testWiden = function(test) {
 exports.testSeparate = function(test) {
 
 	test.ok(separate("1234")             ==  "1 234");
-	test.ok(separate("1234", ",")        ==  "1,234");
-	test.ok(separate("1234", ",", true)  ==   "1234");
+	test.ok(separate("1234",  ",")       ==  "1,234");
+	test.ok(separate("1234",  ",", true) ==   "1234");
 	test.ok(separate("12345", ",", true) == "12,345");
 
 	test.done();
@@ -597,9 +609,95 @@ exports.testItems = function(test) {
 
 
 
+exports.textMax = function(test) {
+
+	test.ok(make(Size.max) == "9007199254740992");
+
+	try {
+		check(Size.max, 0);//max is too big
+		test.fail();
+	} catch (e) { test.ok(e == "overflow"); }
+	check(Size.max - 1, 0);//max minus one is the largest number we can handle
+
+	var max = Size.max - 1;
+
+	test.ok(saySize(max) == "8191tb");
+
+	log(saySize(divide(max, Size.mb).whole) == "8191mb");
+	//so, you can't use scale to slice 1mb portions, because the largest file you can handle is less than 1gb
+	//you'll have to use the put all the remainders first method
+	//and see how the chunks space themselves within the pieces also
+
+
+	//just try it with a real example of 3.1mb
 
 
 
+
+
+
+	//as a size
+
+	//as a time
+
+
+
+
+	test.done();
+}
+
+//don't actually write complete tests for say
+//just have very brief demonstration sanity checking
+//part of writing good tests is knowing which and how many tests are appropriate for each situation
+
+log(saySize(divide(Size.max - 1, Size.mb).whole));
+
+
+"spaces 00·00•00•00·00∙00 00 00 00 00 00　00.txt"
+//ok, none of them work in sublime, but that's ok, and some of them work in windows explorer
+
+var quote = requireData.quote;
+
+log(quote(Data("good 00·00·00∙00 00 00 00.txt")));
+//"good 00"c2b7"00"c2b7"00"e28899"00"e28089"00"e2808a"00 00.txt"
+
+//e28089 is thin space, pick this one
+//e2808a is hair space
+//well, see how they print to the console
+//that probably won't work at all, so have a replace function that replaces normal characters with fancy ones for the screen
+//yeah, that's a good idea if it's necessary
+//also use the thin space in dates
+
+/*
+	function sayEverything(n) {
+		log();
+		log(sayBytes(n));
+		log(sayKb(n));
+		log(sayMb(n));
+		log(sayGb(n));
+		log(sayTb(n));
+		log();
+		log(saySize(n));
+		log(sayKbWindows(n));
+	}
+
+	sayEverything(1034619579);
+
+
+	log("•".code());//8226
+	log("·".code());//186
+	log(" ")
+	log("hi");
+
+	log(make("thin space 000", Size.thinSpace, "000"));
+	log(make("thin space 000", Size.thinSpace, "000"));
+*/
+
+log("here come some codes");
+log(numerals16(" ".code()));//2009
+log(numerals16("·".code()));//b7
+
+//is this the same thing?
 
 
 
