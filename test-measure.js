@@ -420,17 +420,25 @@ var sayProgress = requireMeasure.sayProgress;
 
 exports.testSayDivide = function(test) {
 
-	test.ok(sayDivide(1, 2) == "0.500");
-	test.ok(sayDivide(10, 3) == "3.333");
-	test.ok(sayDivide(3000, 2) == "1,500.000");
+	test.ok(sayDivide(1, 2, 3) == "0.500");
+	test.ok(sayDivide(10, 3, 3) == "3.333");
+	test.ok(sayDivide(3000, 2, 3) == "1,500.000");
+
+	test.ok(sayDivide(3227, 555, 0) == "5");
+	test.ok(sayDivide(3227, 555, 1) == "5.8");
+	test.ok(sayDivide(3227, 555, 2) == "5.81");
+	test.ok(sayDivide(3227, 555, 3) == "5.814");
+	test.ok(sayDivide(3227, 555, 4) == "5.8144");
+
+	test.ok(sayDivide(22, 7, 8) == "3.14285714");
 
 	test.done();
 }
 
 exports.testSayPercent = function(test) {
 
-	test.ok(sayPercent(1, 2) == "50.000% 1/2");
-	test.ok(sayPercent(10, 30) == "33.333% 10/30");
+	test.ok(sayPercent(1, 2, 3) == "50.000% 1/2");
+	test.ok(sayPercent(10, 30, 3) == "33.333% 10/30");
 
 	test.done();
 }
@@ -438,9 +446,9 @@ exports.testSayPercent = function(test) {
 exports.testSayProgress = function(test) {
 
 	test.ok(sayProgress(1, 2) == "50% 1b/2b");
-	test.ok(sayProgress(1122 * Size.mb, 18 * Size.gb) == "6% 1122mb/18gb");
-	test.ok(sayProgress(987 * Size.kb, 5 * Size.mb) == "19% 987kb/5120kb");
-	test.ok(sayProgress(555 * Size.mb, 7 * Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
+	test.ok(sayProgress(1122*Size.mb, 18*Size.gb) == "6% 1122mb/18gb");
+	test.ok(sayProgress(987*Size.kb, 5*Size.mb) == "19% 987kb/5120kb");
+	test.ok(sayProgress(555*Size.mb, 7*Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
 
 	test.done();
 }
@@ -495,119 +503,178 @@ exports.testSaySize = function(test) {
 	test.ok(saySize(n, 0, "kb") == "5,242,880kb");
 	test.ok(saySize(n, 0, "mb") == "5,120mb");
 	test.ok(saySize(n, 0, "gb") == "5gb");
-	test.ok(saySize(n, 0, "tb") == "1tb");
-	test.ok(saySize(n, 0, "pb") == "1pb");
+	test.ok(saySize(n, 0, "tb") == "0tb");
+	test.ok(saySize(n, 0, "pb") == "0pb");
 
 	n = Size.max - 1;
 	test.ok(saySize(n, 0, "b")  == "9,007,199,254,740,991b");
 	test.ok(saySize(n, 0, "kb") == "8,796,093,022,208kb");
 	test.ok(saySize(n, 0, "mb") == "8,589,934,592mb");
-	test.ok(saySize(n, 0, "gb") == "8,388,608gb");
-	test.ok(saySize(n, 0, "tb") == "8,192tb");
-	test.ok(saySize(n, 0, "pb") == "8pb");
+	test.ok(saySize(n, 0, "gb") == "8,388,607gb");
+	test.ok(saySize(n, 0, "tb") == "8,191tb");
+	test.ok(saySize(n, 0, "pb") == "7pb");
+
+	test.ok(saySize(9876543210, 3, "b")  == "9,876,543,210.000b");
+	test.ok(saySize(9876543210, 3, "kb") == "9,645,061.729kb");
+	test.ok(saySize(9876543210, 3, "mb") == "9,419.006mb");
+	test.ok(saySize(9876543210, 3, "gb") == "9.198gb");
+	test.ok(saySize(9876543210, 3, "tb") == "0.008tb");
+	test.ok(saySize(9876543210, 3, "pb") == "0.000pb");
+
+	test.ok(saySize(9876543210, 0, "gb") == "9gb");
+	test.ok(saySize(9876543210, 1, "gb") == "9.1gb");
+	test.ok(saySize(9876543210, 2, "gb") == "9.19gb");
+	test.ok(saySize(9876543210, 3, "gb") == "9.198gb");
+	test.ok(saySize(9876543210, 4, "gb") == "9.1982gb");
+	test.ok(saySize(9876543210, 5, "gb") == "9.19824gb");
 
 	test.done();
 }
 
 
 
-/*
-exports.textMax = function(test) {
-
-	test.ok(make(Size.max) == "9007199254740992");
-
-	try {
-		check(Size.max, 0);//max is too big
-		test.fail();
-	} catch (e) { test.ok(e == "overflow"); }
-	check(Size.max - 1, 0);//max minus one is the largest number we can handle
-
-	var max = Size.max - 1;
-
-	test.ok(saySize(max) == "8191tb");
-
-	log(saySize(divide(max, Size.mb).whole) == "8191mb");
-	//so, you can't use scale to slice 1mb portions, because the largest file you can handle is less than 1gb
-	//you'll have to use the put all the remainders first method
-	//and see how the chunks space themselves within the pieces also
-
-
-	//just try it with a real example of 3.1mb
 
 
 
 
 
 
-	//as a size
-
-	//as a time
+// ---- Speed ----
 
 
 
 
-	test.done();
-}
-
-//don't actually write complete tests for say
-//just have very brief demonstration sanity checking
-//part of writing good tests is knowing which and how many tests are appropriate for each situation
-
-log(saySize(divide(Size.max - 1, Size.mb).whole));
 
 
-"spaces 00·00•00•00·00∙00 00 00 00 00 00　00.txt"
-//ok, none of them work in sublime, but that's ok, and some of them work in windows explorer
 
-var quote = requireData.quote;
 
-log(quote(Data("good 00·00·00∙00 00 00 00.txt")));
-//"good 00"c2b7"00"c2b7"00"e28899"00"e28089"00"e2808a"00 00.txt"
 
-//e28089 is thin space, pick this one
-//e2808a is hair space
-//well, see how they print to the console
-//that probably won't work at all, so have a replace function that replaces normal characters with fancy ones for the screen
-//yeah, that's a good idea if it's necessary
-//also use the thin space in dates
 
-/*
-	function sayEverything(n) {
-		log();
-		log(sayBytes(n));
-		log(sayKb(n));
-		log(sayMb(n));
-		log(sayGb(n));
-		log(sayTb(n));
-		log();
-		log(saySize(n));
-		log(sayKbWindows(n));
+
+
+
+
+
+
+// ---- Time ----
+
+var sayTime = requireMeasure.sayTime;
+var sayTimeRace = requireMeasure.sayTimeRace;
+
+exports.testSayTime = function(test) {
+
+	function f(t, s) {
+		test.ok(sayTime(t) == s);
 	}
 
-	sayEverything(1034619579);
+	// "0s" to "59s"
+	f(0, "0s");
+	f(23*Time.second, "23s");
+	f(Time.minute - 1, "59s");
+
+	// "1m 0s" to "9m 59s"
+	f(Time.minute, "1m 0s");
+	f(62*Time.second, "1m 2s");
+	f(10*Time.minute - 1, "9m 59s");
+
+	// "10m" to "59m"
+	f(10*Time.minute, "10m");
+	f(45*Time.minute, "45m");
+	f(Time.hour - 1, "59m");
+
+	// "1h 0m" to "9h 59m"
+	f(Time.hour, "1h 0m");
+	f(90*Time.minute, "1h 30m");
+	f(10*Time.hour - 1, "9h 59m");
+
+	// "10h" to "71h"
+	f(10*Time.hour, "10h");
+	f(48*Time.hour, "48h");
+	f(3*Time.day - 1, "71h");
+
+	// "3d" and up
+	f(3*Time.day, "3d");
+	f(14*Time.day, "14d");
+
+	//coarse
+	function coarse(t, s, sCoarse) {
+		test.ok(sayTime(t) == s);
+		test.ok(sayTime(t, true) == sCoarse);
+	}
+	coarse(1*Time.second, "1s", "1s");
+	coarse(4*Time.second, "4s", "4s");
+	coarse(6*Time.second, "6s", "5s");
+	coarse(9*Time.second, "9s", "5s");
+	coarse(11*Time.second, "11s", "10s");
+	coarse(14*Time.second, "14s", "10s");
+
+	test.done();
+}
+
+exports.testSayTimeRace = function(test) {
+
+	function f(t, s) {
+		test.ok(sayTimeRace(t) == s);
+	}
+
+	f(0, "0'00\"000");
+	f(1, "0'00\"001");
+	f(999, "0'00\"999");
+	f(1000, "0'01\"000");
+
+	f(5*Time.minute + 21*Time.second + 789, "5'21\"789");
+	f(100*Time.minute, "100'00\"000");
+
+	test.done();
+}
 
 
-	log("•".code());//8226
-	log("·".code());//186
-	log(" ")
-	log("hi");
-
-	log(make("thin space 000", Size.thinSpace, "000"));
-	log(make("thin space 000", Size.thinSpace, "000"));
-*/
-/*
-log("here come some codes");
-log(numerals16(" ".code()));//2009
-log(numerals16("·".code()));//b7
-
-//is this the same thing?
-
-*/
 
 
 
 
 
+
+
+
+
+
+var sayDate = requireMeasure.sayDate;
+var sayDateAndTime = requireMeasure.sayDateAndTime;
+var sayDayAndTime = requireMeasure.sayDayAndTime;
+
+var optionCulture = requireMeasure.optionCulture;
+
+exports.testSayDateDay = function(test) {
+
+	var t = Date.now();
+
+	optionCulture.set("i");
+	log();
+	log(sayDate(t));
+	log(sayDateAndTime(t));
+	log(sayDayAndTime(t));
+
+	optionCulture.set("f");
+	log();
+	log(sayDate(t));
+	log(sayDateAndTime(t));
+	log(sayDayAndTime(t));
+
+	optionCulture.set("e");
+	log();
+	log(sayDate(t));
+	log(sayDateAndTime(t));
+	log(sayDayAndTime(t));
+
+
+
+
+
+
+
+	test.done();
+}
 
 
 

@@ -271,7 +271,70 @@ exports.Average = Average;
 
 
 
+/*
 
+package org.zootella.base.time;
+
+/** Make a Speed object, tell it distances traveled or counts when they happen, and get the current speed. *
+public class Speed {
+	
+	/**
+	 * Make a new Speed object that can keep track of how fast you're traversing a distance or counting events.
+	 * Given a window of 3 * Time.second, the object will keep between 2 and 4 seconds of data to calculate the current speed.
+	 *
+	public Speed(long window) {
+		created = new Now();    // Record that column 0 started now
+		width = window * 2 / 3; // Calculate the column width
+	}
+
+	/** When this Speed object was created, and the start of column 0. *
+	private final Now created;
+	/** The width in milliseconds of all the columns in time after that. *
+	private final long width;
+	
+	/** The column index, 0 or more, we last added to. *
+	private long column;
+	/** The total distance recorded in that column of time. *
+	private long current;
+	/** The total distance we recorded in the previous column of time. *
+	private long previous;
+
+	/** Record that we just traveled the given distance or counted the given number of events. *
+	public void distance(long distance) { add(distance, 1); }
+	/** Record that we just counted another event. *
+	public void count() { add(1, 1); }
+	/** Find out how fast we're going right now, 0 or more distance units or events per given time unit, like Time.second. *
+	public long speed(long multiply) { return add(0, multiply); }
+	
+	/** Given a distance to add, or 0 to add nothing, calculate our speed right now in the given unit of time and decimal places, like Time.second * Describe.thousandths. *
+	public long add(long distance, long multiply) {
+		
+		long age = Time.now() - created.time; // Age of this Speed object
+		long columnNow = age / width;         // The column index, 0 or more, the current time places us in now
+		long time = age % width;              // How long we've been in the current column
+		if (columnNow != 0) time += width;    // After column 0, we also have distances from the previous column in time
+
+		if (column == columnNow) {            // We're still in the same column we last added a distance to, no cycle necessary
+		} else if (column + 1 == columnNow) { // Time has moved us into the next column
+			previous = current;               // Cycle the totals
+			current = 0;
+		} else {                              // Time has moved us two or more columns forward
+			previous = 0;                     // Zero both totals
+			current = 0;
+		}
+
+		current += distance; // Add any given distance to the current total
+		column = columnNow; // Record the column number we put it in, and the column we cycled to above
+		
+		if (time < required) return 0; // Avoid reporting huge or inaccurate speeds at the very start
+		else return multiply * (current + previous) / time; // Rate is distance over time
+	}
+	
+	/** Don't report a speed at the very start because we don't have enough data yet. *
+	public static long required = Time.second / 10;
+}
+
+*/
 
 
 
@@ -571,32 +634,42 @@ function Culture() {
 			_culture   = "e";
 			_separator = ",";
 			_decimal   = ".";
-			_hours     = 12;
+			_clock     = 12;
 		} else if (c == "f") { // French
 			_culture   = "f";
 			_separator = ".";
 			_decimal   = ",";
-			_hours     = 24;
+			_clock     = 24;
 		} else { // International/global/futuristic/cyberpunk
 			_culture   = "i";
 			_separator = " "; // U+2009 thin space
 			_decimal   = "·"; // U+00B7 middle dot
-			_hours     = 24;
+			_clock     = 24;
 		}
 	}
 
 	function get()       { return _culture;   } var _culture;
 	function separator() { return _separator; } var _separator; // Thousands separator
 	function decimal()   { return _decimal;   } var _decimal;   // Decimal separator
-	function hours()     { return _hours;     } var _hours;     // Hours on the clock
+	function clock()     { return _clock;     } var _clock;     // Hours on the clock
 
 	return {
 		set:set, get:get,
-		separator:separator, decimal:decimal, hours:hours,
+		separator:separator, decimal:decimal, clock:clock,
 		type:function(){ return "Culture"; }
 	};
 }
 var culture = Culture();
+
+exports.optionCulture = culture;//first time trying to export a global var
+
+
+
+
+
+
+
+
 
 
 
@@ -653,16 +726,25 @@ exports.items = items;
 
 // Describe a/b like "1.234"
 function sayDivide(n, d, decimal) {
-	return commas(scale(1000, n, d).whole, 3);
+	return commas(scale(_tens(decimal), n, d).whole, decimal);
 }
 
 // Describe a/b like "81.211% 912/1,123"
 function sayPercent(n, d, decimal) {
-	return make(commas(scale(100 * 1000, n, d).whole, 3), "% ", commas(n), "/", commas(d));
+	return make(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", commas(n), "/", commas(d));
 }
 
 function sayProgress(n, d, decimal, units) {
-	return make(commas(scale(100, n, d).whole), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
+	return make(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
+}
+
+// Given a number of decimal places, return the necessary multiplier
+// For instance _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
+function _tens(decimal) {
+	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
+	var m = 1;
+	for (var i = 0; i < decimal; i++) m *= 10;
+	return m;
 }
 
 exports.sayDivide = sayDivide;
@@ -670,21 +752,6 @@ exports.sayPercent = sayPercent;
 exports.sayProgress = sayProgress;
 
 
-
-//have saydivide and saypercent take decimal 3 to produce the output they produce
-//default to undefined, which means you get nothing after the decimal place
-//then, add this capability to saySize so you can compose results like 5.1gb, which you dont think you want but should be able to generate
-
-
-function _magnatude(decimal) {
-	var m = 1;
-	for (var i = 0; i < decimal; i++) m *= 10;
-	return m;
-}
-//decimal 0 is magnatude 1
-//        1              10
-//        2              100
-//decimal 3 is magnatude 1000
 
 
 
@@ -695,11 +762,10 @@ function _magnatude(decimal) {
 
 // ---- Size ----
 
-
 // Size constants
 var Size = {};
-
-Size.kb = 1024;           // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
+Size.b  = 1;              // One byte
+Size.kb = 1024 * Size.b;  // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
 Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
 Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
 Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
@@ -714,37 +780,22 @@ Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
 Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
 
 Size.max = 9007199254740992; // Largest number that JavaScript keeps as an integer, 2^53
-
 Object.freeze(Size);
 
-
-
-
-// 7 * Size.mb
-//that's pretty long, instead, what if it was like this
-// size("7mb")
-//maybe write that function to parse a size literal, returns a number or throws data or overflow
-//or do it like this
-// mb(7)
-//nevermind on all this, you won't actually have many size literals in the code, 7*Size.mb is fine, actually
-//just change the convention to remove the spaces, it's not actually an equation, it's a unit
-
-
-
-
-
+// Describe the given number of bytes like "97kb" or "9536gb" using 4 digits or less with the most appropriate unit
+// Optionally specify a number of decimal places and a unit, like 3 and "mb" for text like "9,419.006mb"
 function saySize(n, decimal, units) {
 	check(n, 0);
 
 	// Given units
-	if (units == "b")  return make(commas(n),                          "b");
-	if (units == "kb") return make(commas(divide(n, Size.kb).ceiling), "kb"); // Round up so 1 byte is 1kb, not 0kb
-	if (units == "mb") return make(commas(divide(n, Size.mb).ceiling), "mb");
-	if (units == "gb") return make(commas(divide(n, Size.gb).ceiling), "gb");
-	if (units == "tb") return make(commas(divide(n, Size.tb).ceiling), "tb"); // Down here, 1 byte is also 1tb, which makes less sense
-	if (units == "pb") return make(commas(divide(n, Size.pb).ceiling), "pb");
+	if (units == "b")  return make(commas(scale(_tens(decimal), n, Size.b).ceiling,  decimal), "b");
+	if (units == "kb") return make(commas(scale(_tens(decimal), n, Size.kb).ceiling, decimal), "kb"); // Round up so 1 byte is 1kb, not 0kb
+	if (units == "mb") return make(commas(scale(_tens(decimal), n, Size.mb).ceiling, decimal), "mb"); // 1 byte is also 1mb
+	if (units == "gb") return make(commas(scale(_tens(decimal), n, Size.gb).whole,   decimal), "gb"); // For gigabyte and larger, round down
+	if (units == "tb") return make(commas(scale(_tens(decimal), n, Size.tb).whole,   decimal), "tb");
+	if (units == "pb") return make(commas(scale(_tens(decimal), n, Size.pb).whole,   decimal), "pb");
 
-	// No units given, compose text like "1234mb" with the appropriate unit
+	// No units given, compose text like "1234mb" with the appropriate unit and no decimal places
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
 	var unit = ["b", "kb", "mb", "gb", "tb", "pb"];
@@ -783,8 +834,11 @@ exports.saySize = saySize;
 	}
 */
 
+//have another one which does 9999wb/s
 
-/*
+//and a third which is 42s/mb
+
+
 
 // ---- Time ----
 
@@ -796,80 +850,141 @@ Time.hour   = 60 * Time.minute; // Number of milliseconds in an hour
 Time.day    = 24 * Time.hour;   // Number of milliseconds in a day
 Object.freeze(Time);
 
+// Describe the given number of milliseconds with text like "1m 24s" using one or two time units
+// Coarse option to count down in big steps, like "10s" and "5s"
+// Good for telling the user how long the program predicts something will take
+function sayTime(t, coarse) {
+
+	// Compute the number of whole seconds, minutes, hours, and days in the given number of milliseconds
+	var s = divide(t, Time.second).whole;
+	var m = divide(t, Time.minute).whole;
+	var h = divide(t, Time.hour).whole;
+	var d = divide(t, Time.day).whole;
+
+	// If coarse and above 5, round down to the nearest multiple of 5
+	if (coarse && s > 5) s -= s % 5;
+	
+	// Compose and return a String that describes that amount of time
+	if      (s <     60) return make(s, "s");                   // "0s" to "59s"
+	else if (s <    600) return make(m, "m ", s - (m*60), "s"); // "1m 0s" to "9m 59s"
+	else if (s <   3600) return make(m, "m");                   // "10m" to "59m"
+	else if (s <  36000) return make(h, "h ", m - (h*60), "m"); // "1h 0m" to "9h 59m"
+	else if (s < 259200) return make(h, "h");                   // "10h" to "71h"
+	else                 return make(commas(d), "d");           // "3d" and up
+}
+
+// Describe the given number of milliseconds with text like 5'15"223
+// Sports a global race style that's accurate to milliseconds
+// Godo for telling the user exactly how long something took
+function sayTimeRace(t) {
+
+	var m = divide(t, Time.minute).whole;
+	var s = divide(t - (m*Time.minute), Time.second).whole;
+	var ms = t - (m*Time.minute) - (s*Time.second);
+
+	return "#'#\"#".fill(commas(m), widen(s, 2), widen(ms, 3));
+}
+
+exports.Time = Time;
+exports.sayTime = sayTime;
+exports.sayTimeRace = sayTimeRace;
 
 
-/*
-	/** Describe the given number of milliseconds with a String like "1 min 24 sec". *
-	public static String time(long milliseconds) { return time(milliseconds, false); }
-	/** Describe the given number of milliseconds with a String like "5 sec" or "10 sec", counting up in big steps. *
-	public static String timeCoarse(long milliseconds) { return time(milliseconds, true); }
-	/** Given a number of milliseconds, describe the length of time with a String like "1 min 24 sec". *
-	private static String time(long milliseconds, boolean coarse) {
-		
-		// Compute the number of whole seconds, minutes, and hours in the given number of milliseconds
-		long seconds = milliseconds / Time.second;
-		if (coarse && seconds > 5) seconds -= seconds % 5; // If coarse and above 5, round down to the nearest multiple of 5
-		long minutes = seconds / 60;
-		long hours = minutes / 60;
-		
-		// Compose and return a String that describes that amount of time
-		if      (seconds <    60) return seconds + " sec";                                        // "0 sec" to "59 sec"
-		else if (seconds <   600) return minutes + " min " + (seconds - (minutes * 60)) + " sec"; // "1 min 0 sec" to "9 min 59 sec"
-		else if (seconds <  3600) return minutes + " min";                                        // "10 min" to "59 min"
-		else if (seconds < 36000) return hours + " hr " + (minutes - (hours * 60)) + " min";      // "1 hr 0 min" to "9 hr 59 min"
-		else                      return commas(hours) + " hr";                                   // "10 hr" and up
-	}
-*/
 
-// d h m s
 
-//have a time format like a racing game with 5'15"22 or 5m 15s 220ms or 5 min 15 seconds 220 milliseconds
 
 
 
 // ---- Date ----
 
-/*
-	/** Given a number of milliseconds since January 1970, compose the local day and time like "Fri 12:52p 07.023s". *
-	public static String day(long milliseconds) {
-		Calendar c = Calendar.getInstance();
-		c.setTime(new Date(milliseconds));
+// Given a number of milliseconds since January 1970, compose the local day and time
 
-		// "Fri "
-		String s = "";
-		int d = c.get(Calendar.DAY_OF_WEEK);
-		switch (d) {
-		case Calendar.MONDAY:    s = "Mon "; break;
-		case Calendar.TUESDAY:   s = "Tue "; break;
-		case Calendar.WEDNESDAY: s = "Wed "; break;
-		case Calendar.THURSDAY:  s = "Thu "; break;
-		case Calendar.FRIDAY:    s = "Fri "; break;
-		case Calendar.SATURDAY:  s = "Sat "; break;
-		case Calendar.SUNDAY:    s = "Sun "; break;
-		}
-		
-		// "12:52p "
-		int hour = c.get(Calendar.HOUR);
-		if (hour == 0)
-			hour = 12;
-		s += numerals(hour, 1) + ":" + numerals(c.get(Calendar.MINUTE), 2);
-		if (c.get(Calendar.AM_PM) == Calendar.AM)
-			s += "a ";
-		else
-			s += "p ";
+// like "Fri 12:52p 07.023s"
 
-		// "07.023s"
-		s += numerals(c.get(Calendar.SECOND), 2) + "." + numerals(c.get(Calendar.MILLISECOND), 3) + "s";
+function _sayCalendar(t) {
 
-		return s;
+	var date = new Date(t);
+
+	var y = date.getFullYear();//Returns the year (4 digits for 4-digit years) of the specified date according to local time.
+
+	var m;
+	switch (date.getMonth()) {
+		case  0: m = "Jan"; break;
+		case  1: m = "Feb"; break;
+		case  2: m = "Mar"; break;
+		case  3: m = "Apr"; break;
+		case  4: m = "May"; break;
+		case  5: m = "Jun"; break;
+		case  6: m = "Jul"; break;
+		case  7: m = "Aug"; break;
+		case  8: m = "Sep"; break;
+		case  9: m = "Oct"; break;
+		case 10: m = "Nov"; break;
+		case 11: m = "Dec"; break;
 	}
-*/
 
-//2013 Jun 20 Thu 22:50
-//            Thu 22:50 59·123
+	var d = date.getDate();//Returns the day of the month (1-31) for the specified date according to local time.
+
+	var w;
+	switch (date.getDay()) {
+		case 0: w = "Sun"; break;
+		case 1: w = "Mon"; break;
+		case 2: w = "Tue"; break;
+		case 3: w = "Wed"; break;
+		case 4: w = "Thu"; break;
+		case 5: w = "Fri"; break;
+		case 6: w = "Sat"; break;
+	}
+
+	var t;
+	var hours = date.getHours();//Returns the hour (0-23) in the specified date according to local time
+	var minutes = date.getMinutes();//Returns the minutes (0-59) in the specified date according to local time
+	if (culture.clock() == 12) { // 12 hour time, like "12:01a", "9:30a" or "2:55p"
+
+		if      (hours == 0)  t = "#:#a".fill(hours + 12, widen(minutes, 2)); // 0 hours is 12a
+		else if (hours < 12)  t = "#:#a".fill(hours,      widen(minutes, 2)); // 1 hours is 1a
+		else if (hours == 12) t = "#:#p".fill(hours,      widen(minutes, 2)); // 12 hours is 12p
+		else                  t = "#:#p".fill(hours - 12, widen(minutes, 2)); // 13 hours is 1p, 23 hours is 11p
+
+	} else { // 24 hour time, like "00:01", "09:30" or "14:55"
+
+		t = "#:#".fill(widen(hours, 2), widen(minutes, 2));
+	}
+
+	var s = widen(date.getSeconds(), 2);//Returns the seconds (0-59) in the specified date according to local time
+
+	var ms = widen(date.getMilliseconds(), 3);//Returns the milliseconds (0-999) in the specified date according to local time
+
+	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
+}
+
+function sayDate(t) {
+	var a = _sayCalendar(t);
+	return "# # # # #".fill(a.y, a.m, a.d, a.w, a.t);
+}
+
+function sayDateAndTime(t) {
+	var a = _sayCalendar(t);
+	return "# # # # # ####".fill(a.y, a.m, a.d, a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+}
+
+function sayDayAndTime(t) {
+	var a = _sayCalendar(t);
+	return "# # ####".fill(a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+}
+
+exports.sayDate = sayDate;
+exports.sayDateAndTime = sayDateAndTime;
+exports.sayDayAndTime = sayDayAndTime;
+
+
+
+
+
+//2013 Jun 20 Thu 10:50p
+//            Thu 10:50p 59.123s
 
 //always show in the user's local time
-
 
 
 
