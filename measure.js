@@ -622,8 +622,12 @@ Pack.commasOrDecimal = "something";//define if it's 1,234.5 or 1.234,5
 
 
 
-
-// ---- Culture ----
+//    ____      _ _                  
+//   / ___|   _| | |_ _   _ _ __ ___ 
+//  | |  | | | | | __| | | | '__/ _ \
+//  | |__| |_| | | |_| |_| | | |  __/
+//   \____\__,_|_|\__|\__,_|_|  \___|
+//                                   
 
 function Culture() {
 
@@ -668,15 +672,12 @@ exports.optionCulture = culture;//first time trying to export a global var
 
 
 
-
-
-
-
-
-
-
-
-// ---- Number ----
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
 
 // Add c characters to the start of s until it's width long
 // For instance, widen("1", 3) is "001"
@@ -722,7 +723,14 @@ exports.items = items;
 
 
 
-// ---- Fraction ----
+
+
+//   _____               _   _             
+//  |  ___| __ __ _  ___| |_(_) ___  _ __  
+//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
+//  |  _|| | | (_| | (__| |_| | (_) | | | |
+//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
+//                                         
 
 // Describe a/b like "1.234"
 function sayDivide(n, d, decimal) {
@@ -758,9 +766,12 @@ exports.sayProgress = sayProgress;
 
 
 
-
-
-// ---- Size ----
+//   ____  _         
+//  / ___|(_)_______ 
+//  \___ \| |_  / _ \
+//   ___) | |/ /  __/
+//  |____/|_/___\___|
+//                   
 
 // Size constants
 var Size = {};
@@ -819,7 +830,12 @@ exports.saySize = saySize;
 
 
 
-// ---- Speed ----
+//   ____                      _ 
+//  / ___| _ __   ___  ___  __| |
+//  \___ \| '_ \ / _ \/ _ \/ _` |
+//   ___) | |_) |  __/  __/ (_| |
+//  |____/| .__/ \___|\___|\__,_|
+//        |_|                    
 
 /*
 	/** Given a number of bytes transferred in a second, describe the speed in kilobytes per second like "2.24 KB/s". *
@@ -840,7 +856,14 @@ exports.saySize = saySize;
 
 
 
-// ---- Time ----
+
+
+//   _____ _                
+//  |_   _(_)_ __ ___   ___ 
+//    | | | | '_ ` _ \ / _ \
+//    | | | | | | | | |  __/
+//    |_| |_|_| |_| |_|\___|
+//                          
 
 // Time constants
 var Time = {};
@@ -893,22 +916,39 @@ exports.sayTimeRace = sayTimeRace;
 
 
 
+//   ____        _       
+//  |  _ \  __ _| |_ ___ 
+//  | | | |/ _` | __/ _ \
+//  | |_| | (_| | ||  __/
+//  |____/ \__,_|\__\___|
+//                       
 
+// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
+function sayDate(t) {
+	var a = _date(t);
+	return "# # # # #".fill(a.y, a.m, a.d, a.w, a.t);
+}
 
-// ---- Date ----
+// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
+function sayDateAndTime(t) {
+	var a = _date(t);
+	return "# # # # # ####".fill(a.y, a.m, a.d, a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+}
 
-// Given a number of milliseconds since January 1970, compose the local day and time
+// Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
+function sayDayAndTime(t) {
+	var a = _date(t);
+	return "# # ####".fill(a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+}
 
-// like "Fri 12:52p 07.023s"
-
-function _sayCalendar(t) {
+// Given a number of milliseconds since January 1970, generate information about the local date and time
+function _date(t) {
 
 	var date = new Date(t);
-
-	var y = date.getFullYear();//Returns the year (4 digits for 4-digit years) of the specified date according to local time.
+	var y = date.getFullYear(); // Year
 
 	var m;
-	switch (date.getMonth()) {
+	switch (date.getMonth()) { // Month, 0-11
 		case  0: m = "Jan"; break;
 		case  1: m = "Feb"; break;
 		case  2: m = "Mar"; break;
@@ -923,10 +963,10 @@ function _sayCalendar(t) {
 		case 11: m = "Dec"; break;
 	}
 
-	var d = date.getDate();//Returns the day of the month (1-31) for the specified date according to local time.
+	var d = date.getDate(); // Day of the month, 1-31
 
 	var w;
-	switch (date.getDay()) {
+	switch (date.getDay()) { // Day of the week, 0-6
 		case 0: w = "Sun"; break;
 		case 1: w = "Mon"; break;
 		case 2: w = "Tue"; break;
@@ -936,41 +976,22 @@ function _sayCalendar(t) {
 		case 6: w = "Sat"; break;
 	}
 
-	var t;
-	var hours = date.getHours();//Returns the hour (0-23) in the specified date according to local time
-	var minutes = date.getMinutes();//Returns the minutes (0-59) in the specified date according to local time
-	if (culture.clock() == 12) { // 12 hour time, like "12:01a", "9:30a" or "2:55p"
-
+	var t;                           // Time of day
+	var hours = date.getHours();     // Hour 0-23
+	var minutes = date.getMinutes(); // Minute 0-59
+	if (culture.clock() == 12) {     // 12 hour time, like "12:01a", "9:30a" or "2:55p"
 		if      (hours == 0)  t = "#:#a".fill(hours + 12, widen(minutes, 2)); // 0 hours is 12a
 		else if (hours < 12)  t = "#:#a".fill(hours,      widen(minutes, 2)); // 1 hours is 1a
 		else if (hours == 12) t = "#:#p".fill(hours,      widen(minutes, 2)); // 12 hours is 12p
 		else                  t = "#:#p".fill(hours - 12, widen(minutes, 2)); // 13 hours is 1p, 23 hours is 11p
-
-	} else { // 24 hour time, like "00:01", "09:30" or "14:55"
-
+	} else {                         // 24 hour time, like "00:01", "09:30" or "14:55"
 		t = "#:#".fill(widen(hours, 2), widen(minutes, 2));
 	}
 
-	var s = widen(date.getSeconds(), 2);//Returns the seconds (0-59) in the specified date according to local time
-
-	var ms = widen(date.getMilliseconds(), 3);//Returns the milliseconds (0-999) in the specified date according to local time
+	var s = widen(date.getSeconds(), 2); // Second 0-59
+	var ms = widen(date.getMilliseconds(), 3); // Millisecond 0-999
 
 	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
-}
-
-function sayDate(t) {
-	var a = _sayCalendar(t);
-	return "# # # # #".fill(a.y, a.m, a.d, a.w, a.t);
-}
-
-function sayDateAndTime(t) {
-	var a = _sayCalendar(t);
-	return "# # # # # ####".fill(a.y, a.m, a.d, a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
-}
-
-function sayDayAndTime(t) {
-	var a = _sayCalendar(t);
-	return "# # ####".fill(a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 }
 
 exports.sayDate = sayDate;
@@ -981,10 +1002,10 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-//2013 Jun 20 Thu 10:50p
-//            Thu 10:50p 59.123s
 
-//always show in the user's local time
+
+
+
 
 
 
