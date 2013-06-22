@@ -339,6 +339,69 @@ exports.sliceStripe = sliceStripe;
 
 
 
+function sliceN(piece, file) {
+
+}
+
+function sliceI(piece, file, i) {
+
+	//file is too big to multiple by piece
+	//so instead, give each piece at the start a single remainder byte
+
+}
+
+function sliceStripe(piece, file, stripe) {//convert the given stripe in units of pieces into a stripe in units of bytes
+
+}
+
+//don't worry about chunks in a piece, that will be easy to do outside this just with + where you need it
+//or, have file be a stripe
+//sliceN(max, whole) //max is the widest a slice can be, whole is the stripe to work within
+
+//hmm, keeping them separate means it's processor intensive to find out how many chunks are in a huge file
+//but maybe you don't need to do that, actually
+
+//maybe just have small fragments at the end
+//you can instantly and easily count everything
+//the designs you make are supposed to be simple, remember?
+//a file fragment that grows more on the end will share pieces with a big file
+
+//write up functions like that, now they can be specific to piece and chunk
+
+function pieces(file) {
+
+}
+
+function piece(file, s) {
+
+}
+
+
+//delete everything here you have related to slicing
+//you learned a lot and can do it later
+//and then just do it the really simple way
+//you'll solve the problem of efficiently dealing with small files with pipelining
+//you'll solve the problem of secure store by putting random data at the start and end
+//the valuable insight you gained here is
+//use 1mb pieces and 16kb chunks
+//remember the goal is to make it as simple as possible, not as cool as possible
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
@@ -418,6 +481,51 @@ function Stripe(setI, setSize) {
 	};
 }
 exports.Stripe = Stripe;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -725,6 +833,18 @@ Object.freeze(Size);
 
 
 
+// 7 * Size.mb
+//that's pretty long, instead, what if it was like this
+// size("7mb")
+//maybe write that function to parse a size literal, returns a number or throws data or overflow
+//or do it like this
+// mb(7)
+//nevermind on all this, you won't actually have many size literals in the code, 7*Size.mb is fine, actually
+//just change the convention to remove the spaces, it's not actually an equation, it's a unit
+
+
+
+
 
 function saySize(n, decimal, units) {
 	check(n, 0);
@@ -890,7 +1010,7 @@ Object.freeze(Time);
 
 
 
-
+//first today, unify make and say
 
 
 
