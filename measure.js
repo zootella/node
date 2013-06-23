@@ -945,19 +945,19 @@ exports.sayTimeRace = sayTimeRace;
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
 function sayDate(t) {
 	var a = _date(t);
-	return "# # # # #".fill(a.y, a.m, a.d, a.w, a.t);
+	return make(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t);
 }
 
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
 function sayDateAndTime(t) {
 	var a = _date(t);
-	return "# # # # # ####".fill(a.y, a.m, a.d, a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+	return make(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 }
 
 // Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
 function sayDayAndTime(t) {
 	var a = _date(t);
-	return "# # ####".fill(a.w, a.t, a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+	return make(a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 }
 
 // Given a number of milliseconds since January 1970, generate information about the local date and time
