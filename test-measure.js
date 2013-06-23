@@ -278,6 +278,46 @@ exports.testAverage = function(test) {
 
 
 
+var Now = requireMeasure.Now;
+
+exports.testNowImmutable = function(test) {
+
+	var now = Now();//remember the time right now
+	var time = now.time;//get it
+	now.time = 7;//try to change it
+	test.ok(time == now.time);//confirm that didn't work
+
+	test.done();
+}
+
+
+
+
+/*
+var Speed = requireMeasure.Speed;
+
+exports.testSpeed = function(test) {
+
+
+	var s = Speed(10*Time.second);
+	s.distance(50*Size.mb);//50mb right now
+
+	log("hi");
+	setTimeout(function() {
+		s.distance(50*Size.mb);//50mb a second later
+		log(saySpeed(s.speed(Time.second)));//that's 100mb/s
+		test.done();
+	}, 1000);
+
+
+
+}
+*/
+
+
+
+
+
 
 
 
@@ -756,15 +796,12 @@ exports.testSayDateDay = function(test) {
 
 	function f(t, i, f, e) {
 
-		optionCulture.set("i");
-		test.ok(sayDateAndTime(t) == i);
-		optionCulture.set("f");
-		test.ok(sayDateAndTime(t) == f);
-		optionCulture.set("e");
-		test.ok(sayDateAndTime(t) == e);
+		optionCulture.set("i"); test.ok(sayDateAndTime(t) == i);
+		optionCulture.set("f"); test.ok(sayDateAndTime(t) == f);
+		optionCulture.set("e"); test.ok(sayDateAndTime(t) == e);
 	}
 
-	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;
+	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
 	
 	f(t,
 		"2002 May 25 Sat 00:35 44·456",

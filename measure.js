@@ -267,72 +267,107 @@ exports.Average = Average;
 
 
 
-/*
 
-package org.zootella.base.time;
 
-/** Make a Speed object, tell it distances traveled or counts when they happen, and get the current speed. *
-public class Speed {
-	
-	/**
-	 * Make a new Speed object that can keep track of how fast you're traversing a distance or counting events.
-	 * Given a window of 3 * Time.second, the object will keep between 2 and 4 seconds of data to calculate the current speed.
-	 *
-	public Speed(long window) {
-		created = new Now();    // Record that column 0 started now
-		width = window * 2 / 3; // Calculate the column width
-	}
 
-	/** When this Speed object was created, and the start of column 0. *
-	private final Now created;
-	/** The width in milliseconds of all the columns in time after that. *
-	private final long width;
-	
-	/** The column index, 0 or more, we last added to. *
-	private long column;
-	/** The total distance recorded in that column of time. *
-	private long current;
-	/** The total distance we recorded in the previous column of time. *
-	private long previous;
 
-	/** Record that we just traveled the given distance or counted the given number of events. *
-	public void distance(long distance) { add(distance, 1); }
-	/** Record that we just counted another event. *
-	public void count() { add(1, 1); }
-	/** Find out how fast we're going right now, 0 or more distance units or events per given time unit, like Time.second. *
-	public long speed(long multiply) { return add(0, multiply); }
-	
-	/** Given a distance to add, or 0 to add nothing, calculate our speed right now in the given unit of time and decimal places, like Time.second * Describe.thousandths. *
-	public long add(long distance, long multiply) {
-		
-		long age = Time.now() - created.time; // Age of this Speed object
-		long columnNow = age / width;         // The column index, 0 or more, the current time places us in now
-		long time = age % width;              // How long we've been in the current column
-		if (columnNow != 0) time += width;    // After column 0, we also have distances from the previous column in time
 
-		if (column == columnNow) {            // We're still in the same column we last added a distance to, no cycle necessary
-		} else if (column + 1 == columnNow) { // Time has moved us into the next column
-			previous = current;               // Cycle the totals
-			current = 0;
-		} else {                              // Time has moved us two or more columns forward
-			previous = 0;                     // Zero both totals
-			current = 0;
+
+
+
+
+
+
+
+
+
+// A Now remembers the moment when it was made
+function Now() {
+
+	var _time = Date.now();                                 // Save the number of milliseconds between January 1970 and right now
+	function expired(t) { check(t, 0); return t <= age(); } // True if t or more milliseconds have passed since this Now was made
+	function age() { return Date.now() - _time; }           // The number of milliseconds that have passed since this Now was made
+	function text() { return sayDayAndTime(_time); }        // Convert into text like "Sat 11:09a 49.146s"
+
+	return Object.freeze({                  // Freeze the public interface your object is returning to include immutable properties
+		time:_time, expired:expired, age:age, // For instance, setting now.time doesn't change it
+		text:text,                            // Without this, you would have to access it with the function now.time()
+		type:function(){ return "Now"; }
+	});
+}
+exports.Now = Now;
+
+
+//do Duration, those two might be all you need
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Make a Speed object, tell it distances traveled or counts when they happen, and get the current speed
+// Given a window of 3*Time.second, the object will keep between 2 and 4 seconds of data to calculate the current speed
+function Speed(window) {
+	check(window, 100); // The smallest allowed window is 1/10 of a second
+
+	var _created = Now();                   // When this Speed object was created, and the start of column 0
+	var _width = scale(window, 2, 3).whole; // The width in milliseconds of all the columns in time after that
+
+	var _column   = 0; // The column index, 0 or more, we last added to
+	var _current  = 0; // The total distance recorded in that column of time
+	var _previous = 0; // The total distance we recorded in the previous column of time
+
+	function distance(d) { return add(d, 1);    } // Record that we just traveled the given distance or counted the given number of events
+	function count()     { return add(1, 1);    } // Record that we just counted another event
+	function speed(unit) { return add(0, unit); } // Find out how fast we're going right now, 0 or more distance units or events per given time unit, like Time.second
+
+	// Given a distance to add, or 0 to add nothing, calculate our speed right now in the given unit of time and decimal places
+	// For instance, set unit to Time.second * 1000 to get the speed in thousandths of distance units per second
+	function add(distance, unit) {
+		check(distance, 0);
+		check(unit, 1);
+
+		var age = _created.age();   // Age of this Speed object
+		var a = divide(age, _width);
+		var columnNow = a.whole;    // The column index, 0 or more, that the current time places us in now
+		var time = a.remainder;     // How long we've been in the current column
+
+		if (columnNow != 0) time += _width;    // After column 0, we also have distances from the previous column in time
+
+		if (_column == columnNow) {            // We're still in the same column we last added a distance to, no cycle necessary
+		} else if (_column + 1 == columnNow) { // Time has moved us into the next column
+			_previous = _current;                // Cycle the totals
+			_current = 0;
+		} else {                               // Time has moved us two or more columns forward
+			_previous = 0;                       // Zero both totals
+			_current = 0;
 		}
 
-		current += distance; // Add any given distance to the current total
-		column = columnNow; // Record the column number we put it in, and the column we cycled to above
+		_current += distance; // Add any given distance to the current total
+		_column = columnNow;  // Record the column number we put it in, and the column we cycled to above
 		
-		if (time < required) return 0; // Avoid reporting huge or inaccurate speeds at the very start
-		else return multiply * (current + previous) / time; // Rate is distance over time
+		if (time < 100) return 0; // Avoid reporting huge or inaccurate speeds at the very start
+		return scale(unit, _current + _previous, time).whole; // Rate is distance over time
 	}
-	
-	/** Don't report a speed at the very start because we don't have enough data yet. *
-	public static long required = Time.second / 10;
+
+	return {
+		distance:distance, count:count, speed:speed, add:add,
+		type:function(){ return "Speed"; }
+	};
 }
-
-*/
-
-
+exports.Speed = Speed;
 
 
 
@@ -379,20 +414,17 @@ public class Speed {
 function Stripe2(set_i, set_w) {
 	var _i = set_i;
 	var _w = set_w;
+	var _z = _i + _w;
 
-	function z() { return _i + _w; }
 	function text() { return _i + "-" + _w; }
-	function text2() { return _i + "-" + _w; }
 
-	var _return = {
-		i:_i, w:_w, z:z, text:text, text2:text2()
-	}
-	Object.freeze(_return);
-	return _return;
+	return Object.freeze({
+		i:_i, w:_w, z:_z, text:text,
+		type:function(){ return "Stripe"; }
+	});
 }
 exports.Stripe2 = Stripe2;
 
-//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
 
 
 
@@ -435,119 +467,6 @@ exports.Stripe = Stripe;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//here's what you want to do with time
-//get the time right now as a number of milliseconds since 1970
-//save one of those numbers, and see it later
-//see how long it's been since one, t.expired(t)
-//start and then stop something, and measure both times, Duration
-
-//turn a ms count into text for the user in several forms
-//a long form, with the year and month and day
-//a shorter form, with just the day of the week
-//a developer form, with the day of the week down to milliseconds
-//options for universal or local time
-//options for 24hr or am/pm
-
-//turn a delta of ms into text for the user
-//this one is simpler, it's a count of days, hours, minuts, seconds, ms
-
-//size
-//bytes
-//kb
-//mb
-//most appropriate unit, like 1234sb
-
-//speed
-//msot appropriate unit/s
-//seconds/megabyte, that's an interesting way of doing it
-
-
-//go through your java and c projects to collect all the outputs
-//plan out a unified design before you start coding
-//or just jump in, it's all pretty easy, actually
-
-//notice how these are all going to be functions, not objects, because counts of bytes and counts of milliseconds are just going to be javascript numbers, which is great
-
-
-
-
-
-
-function now() { return Time(Date.now()); }
-
-
-function Time(setTime) {
-	check(setTime, 0);
-
-	var _time = setTime;
-	function time() { return _time; }
-
-	return {
-		time:time,
-		type:function(){ return "Now"; }
-	};
-}
-
-//maybe also have one where you give it a number you created sometime earlier
-//have the object be called Time
-//and have a function now() that returns a Time set to right now
-//be able to get the time now, save it as a number, and then turn it into text for the user
-
-//remember the way fzero formats race times: 2'22"56
-//this is kind of cooler looking and way more standard that your 2m 22.560s
-
-//the program never records a time in the future
-//if you ever encounter one, just throw bounds
-//the way to do the future is now().expired(4 * Time.second), not now() + 4*Time.second
-
-
-
-
-
-//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
-//take a look at the mdn documentation to decide about this
 
 
 
@@ -732,6 +651,7 @@ function sayProgress(n, d, decimal, units) {
 // For instance _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
 function _tens(decimal) {
 	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
+	check(decimal, 0);
 	var m = 1;
 	for (var i = 0; i < decimal; i++) m *= 10;
 	return m;
@@ -837,6 +757,7 @@ function saySpeedKbps(bytesPerSecond) {
 // The given bytes per second must be 1 through Size.mb, returns blank otherwise
 // Good for making a slow speed make sense
 function saySpeedTimePerMegabyte(bytesPerSecond) {
+	check(bytesPerSecond, 0);
 	if (bytesPerSecond < 1 || bytesPerSecond > Size.mb) return ""; // 0 would be forever, larger than 1mb would be 0s/mb
 	return sayTimeRemaining(scale(Time.second, Size.mb, bytesPerSecond).whole) + "/mb";
 }
@@ -869,6 +790,7 @@ Object.freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
 function sayTime(t) {
+	check(t, 0);
 
 	function take(unit, name) {
 		var d = divide(t, unit);                // See how many unit amounts are in t
@@ -893,6 +815,7 @@ function sayTime(t) {
 // Coarse option to round down to the nearest 5 seconds so a countdown isn't distracting
 // Good for telling the user how long the program predicts something will take
 function sayTimeRemaining(t, coarse) {
+	check(t, 0);
 
 	// Compute the number of whole seconds, minutes, hours, and days in the given number of milliseconds
 	var s = divide(t, Time.second).whole;
@@ -916,6 +839,7 @@ function sayTimeRemaining(t, coarse) {
 // Sports a global race style that's accurate to milliseconds
 // Godo for telling the user exactly how long something took
 function sayTimeRace(t) {
+	check(t, 0);
 
 	var m = divide(t, Time.minute).whole;
 	var s = divide(t - (m*Time.minute), Time.second).whole;
@@ -1061,6 +985,15 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
+//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
+//take a look at the mdn documentation to decide about this
+
+
+
+
+//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
+//in fact, what would happen if you did return Object.freeze({}) for every object? why not just do that
+//that woudl work, right? it woudl just mean the functions can't change to a different function, members inside can still change
 
 
 
