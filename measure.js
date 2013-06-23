@@ -1058,8 +1058,6 @@ exports.sayDayAndTime = sayDayAndTime;
 //that prevents you from messing up an object, but does it prevent you from making a mutable object?
 
 
-//look through c to make sure you brought over everything
-//look through java to make sure you brought over everything
 
 
 
