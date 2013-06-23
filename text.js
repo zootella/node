@@ -769,6 +769,8 @@ function say(o) {
 	else                               return o + "";       // Last resort, add to blank
 }
 
+/*
+*/
 // Add c characters to the start of s until it's width long
 // For instance, widen("1", 3) is "001"
 function widen(s, width, c) {

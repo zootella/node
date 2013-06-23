@@ -11,9 +11,6 @@ var say = requireText.say;
 var make = requireText.make;
 
 
-// Constants
-
-//physically defined constants, like Size and Time
 
 
 
@@ -710,6 +707,7 @@ exports.items = items;
 
 
 
+
 //   _____               _   _             
 //  |  ___| __ __ _  ___| |_(_) ___  _ __  
 //  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
@@ -743,8 +741,6 @@ function _tens(decimal) {
 exports.sayDivide = sayDivide;
 exports.sayPercent = sayPercent;
 exports.sayProgress = sayProgress;
-
-
 
 
 
@@ -814,7 +810,6 @@ exports.saySize = saySize;
 
 
 
-
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
 //  \___ \| '_ \ / _ \/ _ \/ _` |
@@ -850,7 +845,6 @@ function saySpeedTimePerMegabyte(bytesPerSecond) {
 exports.saySpeed = saySpeed;
 exports.saySpeedKbps = saySpeedKbps;
 exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
-
 
 
 
@@ -935,10 +929,6 @@ exports.Time = Time;
 exports.sayTime = sayTime;
 exports.sayTimeRemaining = sayTimeRemaining;
 exports.sayTimeRace = sayTimeRace;
-
-
-
-
 
 
 
