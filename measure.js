@@ -8,7 +8,6 @@ var isType = requireText.isType;
 var checkType = requireText.checkType;
 
 var say = requireText.say;
-var make = requireText.make;
 
 
 
@@ -694,9 +693,9 @@ function commas(s, decimal) {
 
 // Given a number and a name, compose text like "5 objects"
 function items(n, name) {
-	if      (n == 0) return make("0 ", name, "s");           // "0 names"
-	else if (n == 1) return make("1 ", name);                // "1 name"
-	else             return make(commas(n), " ", name, "s"); // "2 names" and up
+	if      (n == 0) return say("0 ", name, "s");           // "0 names"
+	else if (n == 1) return say("1 ", name);                // "1 name"
+	else             return say(commas(n), " ", name, "s"); // "2 names" and up
 }
 
 exports.widen = widen;
@@ -722,11 +721,11 @@ function sayDivide(n, d, decimal) {
 
 // Describe a/b like "81.211% 912/1,123"
 function sayPercent(n, d, decimal) {
-	return make(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", commas(n), "/", commas(d));
+	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", commas(n), "/", commas(d));
 }
 
 function sayProgress(n, d, decimal, units) {
-	return make(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
+	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
 }
 
 // Given a number of decimal places, return the necessary multiplier
@@ -780,12 +779,12 @@ function saySize(n, decimal, units) {
 	check(n, 0);
 
 	// Given units
-	if (units == "b")  return make(commas(scale(_tens(decimal), n, Size.b).ceiling,  decimal), "b");
-	if (units == "kb") return make(commas(scale(_tens(decimal), n, Size.kb).ceiling, decimal), "kb"); // Round up so 1 byte is 1kb, not 0kb
-	if (units == "mb") return make(commas(scale(_tens(decimal), n, Size.mb).ceiling, decimal), "mb"); // 1 byte is also 1mb
-	if (units == "gb") return make(commas(scale(_tens(decimal), n, Size.gb).whole,   decimal), "gb"); // For gigabyte and larger, round down
-	if (units == "tb") return make(commas(scale(_tens(decimal), n, Size.tb).whole,   decimal), "tb");
-	if (units == "pb") return make(commas(scale(_tens(decimal), n, Size.pb).whole,   decimal), "pb");
+	if (units == "b")  return say(commas(scale(_tens(decimal), n, Size.b).ceiling,  decimal), "b");
+	if (units == "kb") return say(commas(scale(_tens(decimal), n, Size.kb).ceiling, decimal), "kb"); // Round up so 1 byte is 1kb, not 0kb
+	if (units == "mb") return say(commas(scale(_tens(decimal), n, Size.mb).ceiling, decimal), "mb"); // 1 byte is also 1mb
+	if (units == "gb") return say(commas(scale(_tens(decimal), n, Size.gb).whole,   decimal), "gb"); // For gigabyte and larger, round down
+	if (units == "tb") return say(commas(scale(_tens(decimal), n, Size.tb).whole,   decimal), "tb");
+	if (units == "pb") return say(commas(scale(_tens(decimal), n, Size.pb).whole,   decimal), "pb");
 
 	// No units given, compose text like "1234mb" with the appropriate unit and no decimal places
 	var d = 1; // Starting unit of 1 byte
@@ -794,7 +793,7 @@ function saySize(n, decimal, units) {
 	while (u < unit.length) { // Loop until we're out of units
 
 		var w = divide(n, d).whole; // Find out how many of the current unit we have
-		if (w <= 9999) return make(w, unit[u]); // Four digits or less, use this unit
+		if (w <= 9999) return say(w, unit[u]); // Four digits or less, use this unit
 
 		d *= 1024; // Move to the next larger unit
 		u++;
@@ -827,11 +826,11 @@ function saySpeed(bytesPerSecond, decimal, units) {
 function saySpeedKbps(bytesPerSecond) {
 	var i = scale(100, bytesPerSecond, Size.kb).whole; // Compute the number of hundreadth kilobytes per second
 	if      (i <     1) return "0.00kb/s";                                            //           "0.00kb/s"
-	else if (i <    10) return make("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
-	else if (i <   100) return make("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
-	else if (i <  1000) return make(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"
-	else if (i < 10000) return make(say(i).start(2), ".", say(i).clip(2, 1), "kb/s"); // 4 digits  "99.9kb/s", omit hundreadths
-	else                return make(commas(say(i).chop(2)), "kb/s");                  // 5 or more "999kb/s" or "1,234kb/s"
+	else if (i <    10) return say("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
+	else if (i <   100) return say("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
+	else if (i <  1000) return say(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"
+	else if (i < 10000) return say(say(i).start(2), ".", say(i).clip(2, 1), "kb/s"); // 4 digits  "99.9kb/s", omit hundreadths
+	else                return say(commas(say(i).chop(2)), "kb/s");                  // 5 or more "999kb/s" or "1,234kb/s"
 }
 
 // Say how long it takes to transfer a megabyte, like "42s/mb"
@@ -872,10 +871,10 @@ Object.freeze(Time);
 function sayTime(t) {
 
 	function take(unit, name) {
-		var d = divide(t, unit);                 // See how many unit amounts are in t
-		if (d.whole || s.length) {               // If 1 or more, or if we previously took a bigger unit
-			s += make(commas(d.whole), name, " "); // Add it to the string like "5h "
-			t = d.remainder;                       // Subtract it from the total
+		var d = divide(t, unit);                // See how many unit amounts are in t
+		if (d.whole || s.length) {              // If 1 or more, or if we previously took a bigger unit
+			s += say(commas(d.whole), name, " "); // Add it to the string like "5h "
+			t = d.remainder;                      // Subtract it from the total
 		}
 	}
 
@@ -886,7 +885,7 @@ function sayTime(t) {
 	take(Time.hour,   "h");
 	take(Time.minute, "m");
 
-	s += make(commas(t, 3), "s"); // What's left is 0-59999, compose text like "0.000s" and "59.999s"
+	s += say(commas(t, 3), "s"); // What's left is 0-59999, compose text like "0.000s" and "59.999s"
 	return s;
 }
 
@@ -905,12 +904,12 @@ function sayTimeRemaining(t, coarse) {
 	if (coarse && s > 5) s -= s % 5;
 	
 	// Compose and return a String that describes that amount of time
-	if      (s <     60) return make(s, "s");                   // "0s" to "59s"
-	else if (s <    600) return make(m, "m ", s - (m*60), "s"); // "1m 0s" to "9m 59s"
-	else if (s <   3600) return make(m, "m");                   // "10m" to "59m"
-	else if (s <  36000) return make(h, "h ", m - (h*60), "m"); // "1h 0m" to "9h 59m"
-	else if (s < 259200) return make(h, "h");                   // "10h" to "71h"
-	else                 return make(commas(d), "d");           // "3d" and up
+	if      (s <     60) return say(s, "s");                   // "0s" to "59s"
+	else if (s <    600) return say(m, "m ", s - (m*60), "s"); // "1m 0s" to "9m 59s"
+	else if (s <   3600) return say(m, "m");                   // "10m" to "59m"
+	else if (s <  36000) return say(h, "h ", m - (h*60), "m"); // "1h 0m" to "9h 59m"
+	else if (s < 259200) return say(h, "h");                   // "10h" to "71h"
+	else                 return say(commas(d), "d");           // "3d" and up
 }
 
 // Describe the given number of milliseconds with text like 5'15"223
@@ -945,19 +944,19 @@ exports.sayTimeRace = sayTimeRace;
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
 function sayDate(t) {
 	var a = _date(t);
-	return make(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t);
+	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t);
 }
 
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
 function sayDateAndTime(t) {
 	var a = _date(t);
-	return make(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 }
 
 // Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
 function sayDayAndTime(t) {
 	var a = _date(t);
-	return make(a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
+	return say(a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 }
 
 // Given a number of milliseconds since January 1970, generate information about the local date and time
@@ -1052,9 +1051,6 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-//make -> say
-//remove widen and separate from text to have them just here
-//use say(n) instead of numerals(n), it's shorter and easier to remember, search all your code to do it this way
 //make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
 
 //have return freeze({})

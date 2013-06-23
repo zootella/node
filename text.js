@@ -760,8 +760,17 @@ augment(rip, "rip");
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
+// Turn the given list of anything into text
+// For instance, say("a", 2, "c") is "a2c"
+function say() {
+	var t = "";
+	for (var i = 0; i < arguments.length; i++)
+		t += saySingle(arguments[i]); // Using + is actually must faster than s.concat() or [].join()
+	return t;
+}
+
 // Turn anything into text the best way possible
-function say(o) {
+function saySingle(o) {
 	if      (typeof o == "string")     return o;            // Strings pass through
 	else if (typeof o == "number")     return numerals(o);  // Convert a number into numerals
 	else if (hasMethod(o, "text"))     return o.text();     // Call the object's text() method
@@ -783,16 +792,6 @@ function fill(s) {
 		s = c.after;
 	}
 	return t + s; // Include any part of s that remains
-}
-
-// Concatenate all the given strings together
-// For instance, make("a", "b", "c") is "abc"
-// Instead of make(), you can also just use "a" + "b" + "c"
-function make() {
-	var t = "";
-	for (var i = 0; i < arguments.length; i++)
-		t += say(arguments[i]); // Using + is actually must faster than s.concat() or [].join()
-	return t;
 }
 
 // Concatenate the given strings together with a newline after each one
@@ -828,11 +827,10 @@ function table() {
 }
 
 exports.say = say;
+exports.saySingle = saySingle;
 augment(fill, "fill");
-exports.make = make;
 exports.lines = lines;
 exports.table = table;
-
 
 
 

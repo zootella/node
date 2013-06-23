@@ -1034,7 +1034,6 @@ exports.testRip = function(test) {
 //                       |_|                   
 
 var say = requireText.say;
-var make = requireText.make;
 var lines = requireText.lines;
 var table = requireText.table;
 
@@ -1042,6 +1041,11 @@ exports.testSay = function(test) {
 
 	test.ok(say("hi") == "hi");
 	test.ok(say(7) == "7");//calls numerals(7) and easier to remember and type
+
+	test.ok(say("a", "b", "cd") == "abcd");
+	test.ok(say("aaa", "", "bbb") == "aaabbb");//middle string is blank
+
+	test.ok(say("a", 2, "b") == "a2b");
 
 	test.done();
 }
@@ -1061,14 +1065,6 @@ exports.testFill = function(test) {
 
 	// What if you want to include a # that doesn't get replaced? Assemble your string the old fasioned way, or replace a # in the format string with "#" as an additional argument, like this:
 	test.ok("Assumed # of kittens: #.".fill("#", 4) == "Assumed # of kittens: 4.");
-
-	test.done();
-}
-
-exports.testMake = function(test) {
-
-	test.ok(make("a", "b", "cd") == "abcd");
-	test.ok(make("aaa", "", "bbb") == "aaabbb");//middle string is blank
 
 	test.done();
 }

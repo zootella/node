@@ -801,10 +801,10 @@ exports.testSayDateDay = function(test) {
 		"2002 May 25 Sat 23:35 44,456",
 		"2002 May 25 Sat 11:35p 44.456s");//pm double digit
 
-	t += 7*Time.month;
-	test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:05a");
-	test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:05a 44.456s");
-	test.ok(sayDayAndTime(t)  ==             "Wed 12:05a 44.456s");
+	t += 7*Time.month + 20*Time.second + 545;
+	test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:06a");
+	test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:06a 05.001s");
+	test.ok(sayDayAndTime(t)  ==             "Wed 12:06a 05.001s");
 
 	test.done();
 }
