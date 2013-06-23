@@ -354,6 +354,12 @@ exports.testStripeFrozen = function(test) {
 
 
 
+//    ____      _ _                  
+//   / ___|   _| | |_ _   _ _ __ ___ 
+//  | |  | | | | | __| | | | '__/ _ \
+//  | |__| |_| | | |_| |_| | | |  __/
+//   \____\__,_|_|\__|\__,_|_|  \___|
+//                                   
 
 
 
@@ -363,10 +369,12 @@ exports.testStripeFrozen = function(test) {
 
 
 
-
-
-
-// ---- Number ----
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
 
 var widen = requireMeasure.widen;
 var commas = requireMeasure.commas;
@@ -412,7 +420,12 @@ exports.testItems = function(test) {
 
 
 
-// ---- Fraction ----
+//   _____               _   _             
+//  |  ___| __ __ _  ___| |_(_) ___  _ __  
+//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
+//  |  _|| | | (_| | (__| |_| | (_) | | | |
+//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
+//                                         
 
 var sayDivide = requireMeasure.sayDivide;
 var sayPercent = requireMeasure.sayPercent;
@@ -464,8 +477,14 @@ exports.testSayProgress = function(test) {
 
 
 
-// ---- Size ----
+//   ____  _         
+//  / ___|(_)_______ 
+//  \___ \| |_  / _ \
+//   ___) | |/ /  __/
+//  |____/|_/___\___|
+//                   
 
+var Size = requireMeasure.Size;
 var saySize = requireMeasure.saySize;
 
 exports.testSaySize = function(test) {
@@ -539,7 +558,59 @@ exports.testSaySize = function(test) {
 
 
 
-// ---- Speed ----
+//   ____                      _ 
+//  / ___| _ __   ___  ___  __| |
+//  \___ \| '_ \ / _ \/ _ \/ _` |
+//   ___) | |_) |  __/  __/ (_| |
+//  |____/| .__/ \___|\___|\__,_|
+//        |_|                    
+
+var saySpeed = requireMeasure.saySpeed;
+var saySpeedKbps = requireMeasure.saySpeedKbps;
+var saySpeedTimePerMegabyte = requireMeasure.saySpeedTimePerMegabyte;
+
+exports.testSaySpeedKbps = function(test) {
+
+	function f(b, s) {
+		test.ok(saySpeedKbps(b) == s);
+	}
+
+	f(0, "0.00kb/s");
+	f(1, "0.00kb/s");//one byte per second
+
+	f(Size.kb, "1.00kb/s");//exactly one kilobyte
+	f(Size.kb - 1, "0.99kb/s");//one byte less
+	f(divide(Size.kb, 2).whole, "0.50kb/s");//half a kilobyte
+	f(Size.mb, "1,024kb/s");//megabyte
+
+	f(9, "0.00kb/s");
+	f(89, "0.08kb/s");
+	f(789, "0.77kb/s");
+	f(6789, "6.62kb/s");
+	f(56789, "55.4kb/s");
+	f(456789, "446kb/s");
+	f(3456789, "3,375kb/s");
+	f(23456789, "22,907kb/s");
+	f(123456789, "120,563kb/s");
+
+	test.done();
+}
+
+exports.testSaySpeedSecondsPerMegabyte = function(test) {
+
+	function f(b, s) {
+		test.ok(saySpeedTimePerMegabyte(b) == s);
+	}
+
+	f(0, "");//say blank instead of forever
+	f(1, "12d/mb");//at 1 byte a second, it takes 12 days to get a megabyte
+	f(2, "6d/mb");//twice that speed, half the time
+
+	f(Size.mb, "1s/mb");//1mb/s is 1s/mb
+	f(Size.mb + 1, "");//say blank instead of "0s/mb"
+
+	test.done();
+}
 
 
 
@@ -552,19 +623,47 @@ exports.testSaySize = function(test) {
 
 
 
-
-
-
-
-// ---- Time ----
+//   _____ _                
+//  |_   _(_)_ __ ___   ___ 
+//    | | | | '_ ` _ \ / _ \
+//    | | | | | | | | |  __/
+//    |_| |_|_| |_| |_|\___|
+//                          
 
 var sayTime = requireMeasure.sayTime;
+var sayTimeRemaining = requireMeasure.sayTimeRemaining;
 var sayTimeRace = requireMeasure.sayTimeRace;
 
 exports.testSayTime = function(test) {
 
 	function f(t, s) {
 		test.ok(sayTime(t) == s);
+	}
+
+	f(0,    "0.000s");
+	f(1,    "0.001s");
+	f(56,   "0.056s");
+	f(1500, "1.500s");
+
+	f(59*Time.second + 21, "59.021s");
+	f(90*Time.second, "1m 30.000s");
+	f(Time.hour, "1h 0m 0.000s");//smaller units are zero
+	f(Time.hour + 2000, "1h 0m 2.000s");//0m in the middle
+
+	f(2*Time.day + 3*Time.hour + 4*Time.minute + 5*Time.second + 6, "2d 3h 4m 5.006s");
+
+	f(Size.max - 1, "285,420y 11m 1d 13h 29m 0.991s");//largest int as an amount of time is 285 thousand years
+
+	f(Time.minute - 1, "59.999s");//one millisecond less than the unit
+	f(Time.year - 1, "11m 30d 10h 29m 59.999s");
+
+	test.done();
+}
+
+exports.testSayTimeRemaining = function(test) {
+
+	function f(t, s) {
+		test.ok(sayTimeRemaining(t) == s);
 	}
 
 	// "0s" to "59s"
@@ -598,8 +697,8 @@ exports.testSayTime = function(test) {
 
 	//coarse
 	function coarse(t, s, sCoarse) {
-		test.ok(sayTime(t) == s);
-		test.ok(sayTime(t, true) == sCoarse);
+		test.ok(sayTimeRemaining(t) == s);
+		test.ok(sayTimeRemaining(t, true) == sCoarse);
 	}
 	coarse(1*Time.second, "1s", "1s");
 	coarse(4*Time.second, "4s", "4s");
@@ -639,6 +738,14 @@ exports.testSayTimeRace = function(test) {
 
 
 
+
+//   ____        _       
+//  |  _ \  __ _| |_ ___ 
+//  | | | |/ _` | __/ _ \
+//  | |_| | (_| | ||  __/
+//  |____/ \__,_|\__\___|
+//                       
+
 var sayDate = requireMeasure.sayDate;
 var sayDateAndTime = requireMeasure.sayDateAndTime;
 var sayDayAndTime = requireMeasure.sayDayAndTime;
@@ -647,31 +754,57 @@ var optionCulture = requireMeasure.optionCulture;
 
 exports.testSayDateDay = function(test) {
 
-	var t = Date.now();
+	function f(t, i, f, e) {
 
-	optionCulture.set("i");
-	log();
-	log(sayDate(t));
-	log(sayDateAndTime(t));
-	log(sayDayAndTime(t));
+		optionCulture.set("i");
+		test.ok(sayDateAndTime(t) == i);
+		optionCulture.set("f");
+		test.ok(sayDateAndTime(t) == f);
+		optionCulture.set("e");
+		test.ok(sayDateAndTime(t) == e);
+	}
 
-	optionCulture.set("f");
-	log();
-	log(sayDate(t));
-	log(sayDateAndTime(t));
-	log(sayDayAndTime(t));
+	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;
+	
+	f(t,
+		"2002 May 25 Sat 00:35 44·456",
+		"2002 May 25 Sat 00:35 44,456",
+		"2002 May 25 Sat 12:35a 44.456s");//midnight
 
-	optionCulture.set("e");
-	log();
-	log(sayDate(t));
-	log(sayDateAndTime(t));
-	log(sayDayAndTime(t));
+	t += 2*Time.hour
+	f(t,
+		"2002 May 25 Sat 02:35 44·456",
+		"2002 May 25 Sat 02:35 44,456",
+		"2002 May 25 Sat 2:35a 44.456s");//am single digit
 
+	t += 8*Time.hour
+	f(t,
+		"2002 May 25 Sat 10:35 44·456",
+		"2002 May 25 Sat 10:35 44,456",
+		"2002 May 25 Sat 10:35a 44.456s");//am double digit
 
+	t += 2*Time.hour
+	f(t,
+		"2002 May 25 Sat 12:35 44·456",
+		"2002 May 25 Sat 12:35 44,456",
+		"2002 May 25 Sat 12:35p 44.456s");//noon
 
+	t += 3*Time.hour
+	f(t,
+		"2002 May 25 Sat 15:35 44·456",
+		"2002 May 25 Sat 15:35 44,456",
+		"2002 May 25 Sat 3:35p 44.456s");//pm single digit
 
+	t += 8*Time.hour
+	f(t,
+		"2002 May 25 Sat 23:35 44·456",
+		"2002 May 25 Sat 23:35 44,456",
+		"2002 May 25 Sat 11:35p 44.456s");//pm double digit
 
-
+	t += 7*Time.month;
+	test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:05a");
+	test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:05a 44.456s");
+	test.ok(sayDayAndTime(t)  ==             "Wed 12:05a 44.456s");
 
 	test.done();
 }

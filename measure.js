@@ -571,23 +571,6 @@ function Time(setTime) {
 
 
 
-//waht if instead you set an international pack, and these functions used it
-
-var Pack = {};
-Pack.separator = " ";
-Pack.ampm = true;
-Pack.commasOrDecimal = "something";//define if it's 1,234.5 or 1.234,5
-//have a setPack function you can use to customize behavior
-//this is a great idea, it will make the argumetns below much easier
-
-
-
-
-
-
-
-
-
 
 
 
@@ -629,6 +612,8 @@ Pack.commasOrDecimal = "something";//define if it's 1,234.5 or 1.234,5
 //   \____\__,_|_|\__|\__,_|_|  \___|
 //                                   
 
+// Program settings for which comma and decimal separator to use
+// The functions below use this object to compose the text they return
 function Culture() {
 
 	set("e"); // Set default
@@ -652,7 +637,7 @@ function Culture() {
 		}
 	}
 
-	function get()       { return _culture;   } var _culture;
+	function get()       { return _culture;   } var _culture;   // Which culture we're set to
 	function separator() { return _separator; } var _separator; // Thousands separator
 	function decimal()   { return _decimal;   } var _decimal;   // Decimal separator
 	function clock()     { return _clock;     } var _clock;     // Hours on the clock
@@ -837,22 +822,36 @@ exports.saySize = saySize;
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
 
-/*
-	/** Given a number of bytes transferred in a second, describe the speed in kilobytes per second like "2.24 KB/s". *
-	public static String speed(int bytesPerSecond) {
-		int i = (bytesPerSecond * 100) / 1024; // Compute the number of hundreadth kilobytes per second
-		if      (i == 0)    return "";                                                                                      // Return "" instead of "0.00 KB/s"
-		else if (i <    10) return "0.0" + i + " KB/s";                                                                     // 1 digit   "0.09 KB/s"
-		else if (i <   100) return "0." + i + " KB/s";                                                                      // 2 digits  "0.99 KB/s"
-		else if (i <  1000) return Text.start(Number.toString(i), 1) + "." + Text.clip(Number.toString(i), 1, 2) + " KB/s"; // 3 digits  "9.99 KB/s"
-		else if (i < 10000) return Text.start(Number.toString(i), 2) + "." + Text.clip(Number.toString(i), 2, 1) + " KB/s"; // 4 digits  "99.9 KB/s"
-		else                return commas(Text.chop(Number.toString(i), 2)) + " KB/s";                                      // 5 or more "999 KB/s" or "1,234 KB/s"
-	}
-*/
+// Describe the given number of bytes transferred in a second
+// Optionally specify a number of decimal places and a unit
+function saySpeed(bytesPerSecond, decimal, units) {
+	return saySize(bytesPerSecond, decimal, units) + "/s";
+}
 
-//have another one which does 9999wb/s
+// Describe the given a number of bytes transferred in a second in kilobytes per second like "2.24kb/s"
+function saySpeedKbps(bytesPerSecond) {
+	var i = scale(100, bytesPerSecond, Size.kb).whole; // Compute the number of hundreadth kilobytes per second
+	if      (i <     1) return "0.00kb/s";                                            //           "0.00kb/s"
+	else if (i <    10) return make("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
+	else if (i <   100) return make("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
+	else if (i <  1000) return make(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"
+	else if (i < 10000) return make(say(i).start(2), ".", say(i).clip(2, 1), "kb/s"); // 4 digits  "99.9kb/s", omit hundreadths
+	else                return make(commas(say(i).chop(2)), "kb/s");                  // 5 or more "999kb/s" or "1,234kb/s"
+}
 
-//and a third which is 42s/mb
+// Say how long it takes to transfer a megabyte, like "42s/mb"
+// The given bytes per second must be 1 through Size.mb, returns blank otherwise
+// Good for making a slow speed make sense
+function saySpeedTimePerMegabyte(bytesPerSecond) {
+	if (bytesPerSecond < 1 || bytesPerSecond > Size.mb) return ""; // 0 would be forever, larger than 1mb would be 0s/mb
+	return sayTimeRemaining(scale(Time.second, Size.mb, bytesPerSecond).whole) + "/mb";
+}
+
+exports.saySpeed = saySpeed;
+exports.saySpeedKbps = saySpeedKbps;
+exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
+
+
 
 
 
@@ -867,16 +866,40 @@ exports.saySize = saySize;
 
 // Time constants
 var Time = {};
-Time.second = 1000;             // Number of milliseconds in a second
-Time.minute = 60 * Time.second; // Number of milliseconds in a minute
-Time.hour   = 60 * Time.minute; // Number of milliseconds in an hour
-Time.day    = 24 * Time.hour;   // Number of milliseconds in a day
+Time.second = 1000;             // 1000, number of milliseconds in a second
+Time.minute = 60 * Time.second; // 60000, number of milliseconds in a minute
+Time.hour   = 60 * Time.minute; // 3600000, number of milliseconds in an hour
+Time.day    = 24 * Time.hour;   // 86400000, number of milliseconds in a day
+Time.month  = 2629800000;       // 1/12 of 365.25 days
+Time.year   = 31557600000;      // 365.25 days
 Object.freeze(Time);
 
+// Describe the given number of milliseconds with text like "13h 29m 0.991s"
+function sayTime(t) {
+
+	function take(unit, name) {
+		var d = divide(t, unit);                 // See how many unit amounts are in t
+		if (d.whole || s.length) {               // If 1 or more, or if we previously took a bigger unit
+			s += make(commas(d.whole), name, " "); // Add it to the string like "5h "
+			t = d.remainder;                       // Subtract it from the total
+		}
+	}
+
+	var s = "";
+	take(Time.year,   "y"); // Remove large units from t
+	take(Time.month,  "m");
+	take(Time.day,    "d");
+	take(Time.hour,   "h");
+	take(Time.minute, "m");
+
+	s += make(commas(t, 3), "s"); // What's left is 0-59999, compose text like "0.000s" and "59.999s"
+	return s;
+}
+
 // Describe the given number of milliseconds with text like "1m 24s" using one or two time units
-// Coarse option to count down in big steps, like "10s" and "5s"
+// Coarse option to round down to the nearest 5 seconds so a countdown isn't distracting
 // Good for telling the user how long the program predicts something will take
-function sayTime(t, coarse) {
+function sayTimeRemaining(t, coarse) {
 
 	// Compute the number of whole seconds, minutes, hours, and days in the given number of milliseconds
 	var s = divide(t, Time.second).whole;
@@ -910,7 +933,13 @@ function sayTimeRace(t) {
 
 exports.Time = Time;
 exports.sayTime = sayTime;
+exports.sayTimeRemaining = sayTimeRemaining;
 exports.sayTimeRace = sayTimeRace;
+
+
+
+
+
 
 
 
@@ -1033,61 +1062,29 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-//first today, unify make and say
-
-
-
-
-
-//this is not processing time, just saying it
-
-
+//make -> say
 //remove widen and separate from text to have them just here
-
-
-//also look thorugh your c code to bring in stuff there
-
-
-
-//use say(n) instead of numerals(n), it's shorter and easier to remember
-//search all your code to do it this way
-
-
-
-
-//all in all, don't bring in every kind of everything
-//rather, write the simple international subset that the library will use
-
-
-
-
-
-
-
+//use say(n) instead of numerals(n), it's shorter and easier to remember, search all your code to do it this way
 //make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
-
-//maybe rename make to say
-//do you really need both make() and say(), maybe combine them to just make(), and rename that say()
-//try to find an instance where you need to call say, and couldn't just call make, the way things are now
-
-
-
-
-
-
-
-
-//basically, the areas to say are
-//Size, including progress
-//Time, including time and date
-//Speed, including seconds per megabyte
-
-
-
 
 //have return freeze({})
 //and is there anywhere you wouldn't want to use that, actually?
 //that prevents you from messing up an object, but does it prevent you from making a mutable object?
+
+
+//look through c to make sure you brought over everything
+//look through java to make sure you brought over everything
+
+
+
+
+
+
+
+
+
+
+
 
 
 
