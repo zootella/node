@@ -769,31 +769,6 @@ function say(o) {
 	else                               return o + "";       // Last resort, add to blank
 }
 
-/*
-*/
-// Add c characters to the start of s until it's width long
-// For instance, widen("1", 3) is "001"
-function widen(s, width, c) {
-	if (!c) c = "0";
-	while (s.length < width) s = c + s;
-	return s;
-}
-
-// Insert spaces between groups of three characters
-// For example, commas("12345") == "12 345"
-// For a specific region like North America or Europe, specify a custom separator like "," or "."
-function commas(s, c) {
-	if (!c) c = " "; // Separate with comma by default
-	var u = ""; // Temporary string
-	var t = ""; // Target text to build and return
-	while (s.length > 3) { // Move commas and groups of 3 characters from s to t
-		u = end(s, 3);
-		s = chop(s, 3);
-		t = c + u + t;
-	}
-	return s + t; // Move the leading group of up to 3 characters
-}
-
 // Use this line separator when composing text
 var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows
 
@@ -853,8 +828,6 @@ function table() {
 }
 
 exports.say = say;
-augment(widen, "widen");
-augment(commas, "commas");
 augment(fill, "fill");
 exports.make = make;
 exports.lines = lines;
@@ -867,29 +840,6 @@ exports.table = table;
 
 
 
-
-
-
-
-
-
-
-
-//   ____                      _ _          
-//  |  _ \  ___  ___  ___ _ __(_) |__   ___ 
-//  | | | |/ _ \/ __|/ __| '__| | '_ \ / _ \
-//  | |_| |  __/\__ \ (__| |  | | |_) |  __/
-//  |____/ \___||___/\___|_|  |_|_.__/ \___|
-//                                          
-
-// Given a number and the name of a unit, compose text like "14 apples"
-function sayNumber(n, unit) {
-	if      (n == 0) return "no " + unit + "s";                      // Zero yields "no [unit]s"
-	else if (n == 1) return "1 " + unit;                             // One yields "1 [unit]"
-	else             return numerals(n).commas() + " " + unit + "s"; // Greater yields "[n] [unit]s"
-}
-
-exports.sayNumber = sayNumber;
 
 
 

@@ -1046,32 +1046,6 @@ exports.testSay = function(test) {
 	test.done();
 }
 
-exports.testWiden = function(test) {
-
-	test.ok("1".widen(4) == "0001");//add leading zeros
-	test.ok("12345".widen(4) == "12345");//already longer than that
-	test.ok("1".widen(4, " ") == "   1");//spaces instead
-
-	test.done();
-}
-
-exports.testCommas = function(test) {
-
-	test.ok("".commas() == "");
-	test.ok("1".commas() == "1");
-	test.ok("12".commas() == "12");
-	test.ok("123".commas() == "123");
-	test.ok("1234".commas() == "1 234");
-	test.ok("12345".commas() == "12 345");
-	test.ok("123456".commas() == "123 456");
-	test.ok("1234567".commas() == "1 234 567");
-
-	test.ok("1234567".commas(",") == "1,234,567");//north america
-	test.ok("1234567".commas(".") == "1.234.567");//europe
-
-	test.done();
-}
-
 exports.testFill = function(test) {
 	
 	test.ok("".fill() == "");//blank
@@ -1160,32 +1134,6 @@ exports.testLinesTable = function(test) {
 
 
 
-
-
-
-
-
-
-
-
-//   ____                      _ _          
-//  |  _ \  ___  ___  ___ _ __(_) |__   ___ 
-//  | | | |/ _ \/ __|/ __| '__| | '_ \ / _ \
-//  | |_| |  __/\__ \ (__| |  | | |_) |  __/
-//  |____/ \___||___/\___|_|  |_|_.__/ \___|
-//                                          
-
-var sayNumber = requireText.sayNumber;
-
-exports.testSayNumber = function(test) {
-
-	test.ok(sayNumber(   0, "file") == "no files");
-	test.ok(sayNumber(   1, "file") == "1 file");
-	test.ok(sayNumber(   2, "file") == "2 files");
-	test.ok(sayNumber(1234, "file") == "1 234 files");
-
-	test.done();
-}
 
 
 
