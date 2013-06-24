@@ -339,10 +339,9 @@ function Speed(window) {
 		check(distance, 0);
 		check(unit, 1);
 
-		var age = _created.age();   // Age of this Speed object
-		var a = divide(age, _width);
-		var columnNow = a.whole;    // The column index, 0 or more, that the current time places us in now
-		var time = a.remainder;     // How long we've been in the current column
+		var a = divide(_created.age(), _width);
+		var columnNow = a.whole; // The column index, 0 or more, that the current time places us in now
+		var time = a.remainder;  // How long we've been in the current column
 
 		if (columnNow != 0) time += _width;    // After column 0, we also have distances from the previous column in time
 
@@ -634,15 +633,19 @@ exports.items = items;
 //                                         
 
 // Describe a/b like "1.234"
+// Specify decimal to include that many decimal places, otherwise round down
 function sayDivide(n, d, decimal) {
 	return commas(scale(_tens(decimal), n, d).whole, decimal);
 }
 
 // Describe a/b like "81.211% 912/1,123"
+// Specify decimal to include that many decimal places in the percentage
 function sayPercent(n, d, decimal) {
 	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", commas(n), "/", commas(d));
 }
 
+// Describe a/b like "6% 1122mb/18gb"
+// Specify decimal like 1 and units like "kb" to make it like "50.0% 1,024.0kb/2,048.0kb"
 function sayProgress(n, d, decimal, units) {
 	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
 }
@@ -745,7 +748,7 @@ function saySpeed(bytesPerSecond, decimal, units) {
 // Describe the given a number of bytes transferred in a second in kilobytes per second like "2.24kb/s"
 function saySpeedKbps(bytesPerSecond) {
 	var i = scale(100, bytesPerSecond, Size.kb).whole; // Compute the number of hundreadth kilobytes per second
-	if      (i <     1) return "0.00kb/s";                                            //           "0.00kb/s"
+	if      (i <     1) return "0.00kb/s";                                           //           "0.00kb/s"
 	else if (i <    10) return say("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
 	else if (i <   100) return say("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
 	else if (i <  1000) return say(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"

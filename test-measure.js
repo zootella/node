@@ -503,6 +503,8 @@ exports.testSayProgress = function(test) {
 	test.ok(sayProgress(987*Size.kb, 5*Size.mb) == "19% 987kb/5120kb");
 	test.ok(sayProgress(555*Size.mb, 7*Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
 
+	test.ok(sayProgress(Size.mb, 2*Size.mb, 1, "kb") == "50.0% 1,024.0kb/2,048.0kb");
+
 	test.done();
 }
 
