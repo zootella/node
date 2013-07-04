@@ -170,7 +170,8 @@ exports.check = check;
 
 //things to change with check
 //name it checkNumber, and use it elsewhere in the code
-//have min be optional, if !min min = 0, change check(n, 0) to just chekc(n)
+//have min be optional, if !min min = 0, change check(n, 0) to just check(n)
+
 
 
 
@@ -410,54 +411,20 @@ exports.Speed = Speed;
 
 
 
-function Stripe2(set_i, set_w) {
-	var _i = set_i;
-	var _w = set_w;
-	var _z = _i + _w;
+function Stripe(set_i, set_w) {
+	var _i = set_i; // The distance from the origin to the start of this Stripe, 0 or more
+	var _w = set_w; // The size of this Stripe, its width, 1 or more
+	var _z = _i + _w; // The extent of this Stripe, the index of the far edge
 
-	function text() { return _i + "-" + _w; }
+	function text() { return "i#w#".fill(_i, _w); }
 
 	return Object.freeze({
 		i:_i, w:_w, z:_z, text:text,
 		type:function(){ return "Stripe"; }
 	});
 }
-exports.Stripe2 = Stripe2;
-
-
-
-
-
-function Stripe(setI, setSize) {
-	check(setI, 0);
-	check(setSize, 1);
-
-	var _i = setI;
-	var _size = setSize;
-
-	function i() { return _i; } // The distance from the origin to the start of this Stripe, 0 or more
-	function size() { return _size; } // The size of this Stripe, it's width, 1 or more
-
-
-
-	function same(s) {
-		checkType(s, "Stripe");
-		return _i == s.i() && _size == s.size();
-	}
-
-	function text() {
-		return _i + "_" + _size;
-	}
-
-
-
-	return {
-		i:i, size:size,
-		same:same, text:text,
-		type:function(){ return "Stripe"; }
-	};
-}
 exports.Stripe = Stripe;
+
 
 
 
@@ -678,20 +645,17 @@ exports.sayProgress = sayProgress;
 
 // Size constants
 var Size = {};
-Size.b  = 1;              // One byte
-Size.kb = 1024 * Size.b;  // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
-Size.mb = 1024 * Size.kb; // Number of bytes in a megabyte
-Size.gb = 1024 * Size.mb; // Number of bytes in a gigabyte
-Size.tb = 1024 * Size.gb; // Number of bytes in a terabyte
-Size.pb = 1024 * Size.tb; // Number of bytes in a petabyte
+Size.b  = 1;            // One byte
+Size.kb = 1024*Size.b;  // Number of bytes in a kilobyte, using the binary prefix instead of the decimal one
+Size.mb = 1024*Size.kb; // Number of bytes in a megabyte
+Size.gb = 1024*Size.mb; // Number of bytes in a gigabyte
+Size.tb = 1024*Size.gb; // Number of bytes in a terabyte
+Size.pb = 1024*Size.tb; // Number of bytes in a petabyte
 
 Size.value = 20; // A SHA1 hash value is 20 bytes
 
-Size.medium =  8 * Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
-Size.big    = 64 * Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
-
-Size.piece =  1 * Size.mb; // A piece is 1mb or smaller
-Size.chunk = 16 * Size.kb; // A chunk is 16kb or smaller
+Size.medium =  8*Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
+Size.big    = 64*Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
 
 Size.max = 9007199254740992; // Largest number that JavaScript keeps as an integer, 2^53
 Object.freeze(Size);
@@ -997,6 +961,104 @@ exports.sayDayAndTime = sayDayAndTime;
 //look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
 //in fact, what would happen if you did return Object.freeze({}) for every object? why not just do that
 //that woudl work, right? it woudl just mean the functions can't change to a different function, members inside can still change
+
+
+
+
+/*
+code node
+add to divide
+a.round
+it it's half or more, it's up, otherwise it's down
+and then use it for saySize gb, tb, pb
+and also use it for 1.234mb, have the 4 rounded, not chopped
+*/
+
+
+
+
+
+
+
+
+
+
+//    ____ _                 _                      _   ____  _               
+//   / ___| |__  _   _ _ __ | | __   __ _ _ __   __| | |  _ \(_) ___  ___ ___ 
+//  | |   | '_ \| | | | '_ \| |/ /  / _` | '_ \ / _` | | |_) | |/ _ \/ __/ _ \
+//  | |___| | | | |_| | | | |   <  | (_| | | | | (_| | |  __/| |  __/ (_|  __/
+//   \____|_| |_|\__,_|_| |_|_|\_\  \__,_|_| |_|\__,_| |_|   |_|\___|\___\___|
+//                                                                            
+
+// bytes is the number of bytes in the file
+// chunks in the number of chunks in the file
+// pieces is the number of pieces in the file
+// indices and stripes are in units of bytes, chunks, or pieces, as named
+
+// How many chunks there are in a file of size bytes
+function numberOfChunks(bytes) {
+	check(bytes, 1);
+	return divide(bytes, 16*Size.kb).ceiling; // A chunk is 16kb or smaller
+}
+// How many pieces there are in a file of size bytes
+function numberOfPieces(bytes) {
+	check(bytes, 1);
+	var chunks = numberOfChunks(bytes);
+	return divide(chunks, 64).ceiling; // A piece is 64 chunks or fewer, making it 1mb or smaller
+}
+
+// Where the given chunk index is in a file of size bytes
+function indexChunkToByte(bytes, chunkIndex) {
+	check(bytes, 1);
+	check(chunkIndex, 0);
+	var chunks = numberOfChunks(bytes);
+	if (chunkIndex > chunks) throw "bounds";
+	return scale(bytes, chunkIndex, chunks).whole; // Without using bignum, a file larger than 511gb will overflow
+}
+// What chunk index the given piece index is in a file of size bytes
+function indexPieceToChunk(bytes, pieceIndex) {
+	check(bytes, 1);
+	check(pieceIndex, 0);
+	var chunks = numberOfChunks(bytes);
+	var pieces = numberOfPieces(bytes);
+	if (pieceIndex > pieces) throw "bounds";
+	return scale(chunks, pieceIndex, pieces).whole;
+}
+// Where the given piece index is in a file of size bytes
+function indexPieceToByte(bytes, pieceIndex) {
+	return indexChunkToByte(bytes, indexPieceToChunk(bytes, pieceIndex));
+}
+
+// Where in bytes the given stripe of chunks is in a file of size bytes
+function stripeChunkToByte(bytes, chunkStripe) {
+	var i = indexChunkToByte(bytes, chunkStripe.i);
+	var z = indexChunkToByte(bytes, chunkStripe.z);
+	return Stripe(i, z - i);
+}
+// Where in chunks the given stripe of pieces is in a file of size bytes
+function stripePieceToChunk(bytes, pieceStripe) {
+	var i = indexPieceToChunk(bytes, pieceStripe.i);
+	var z = indexPieceToChunk(bytes, pieceStripe.z);
+	return Stripe(i, z - i);
+}
+// Where in bytes the given stripe of pieces is in a file of size bytes
+function stripePieceToByte(bytes, pieceStripe) {
+	var i = indexPieceToByte(bytes, pieceStripe.i);
+	var z = indexPieceToByte(bytes, pieceStripe.z);
+	return Stripe(i, z - i);
+}
+
+exports.numberOfChunks = numberOfChunks;
+exports.numberOfPieces = numberOfPieces;
+
+exports.indexChunkToByte = indexChunkToByte;
+exports.indexPieceToChunk = indexPieceToChunk;
+exports.indexPieceToByte = indexPieceToByte;
+
+exports.stripeChunkToByte = stripeChunkToByte;
+exports.stripePieceToChunk = stripePieceToChunk;
+exports.stripePieceToByte = stripePieceToByte;
+
 
 
 
