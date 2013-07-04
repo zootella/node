@@ -385,59 +385,6 @@ exports.Speed = Speed;
 
 
 
-//if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
-//also, you have a feeling that this matches something in node, like the size of a buffer that gets put in c space rather than v8 space
-
-//what parts you have is probably best expressed as a stripe pattern of chunks, not bytes, and not a spray pattern
-//a 2gb file has just 2048 pieces and 131072 chunks, so these numbers are very reasonable to work with and will be very small to send in outline across the wire
-
-
-
-
-
-
-
-
-
-
-
-
-
-//next things to do
-
-//Now and Duration, hopefully that's all you'll need
-//Range and Stripe
-//Describe
-
-
-
-function Stripe(set_i, set_w) {
-	var _i = set_i; // The distance from the origin to the start of this Stripe, 0 or more
-	var _w = set_w; // The size of this Stripe, its width, 1 or more
-	var _z = _i + _w; // The extent of this Stripe, the index of the far edge
-
-	function text() { return "i#w#".fill(_i, _w); }
-
-	return Object.freeze({
-		i:_i, w:_w, z:_z, text:text,
-		type:function(){ return "Stripe"; }
-	});
-}
-exports.Stripe = Stripe;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -942,38 +889,40 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-//make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
-
-//have return freeze({})
-//and is there anywhere you wouldn't want to use that, actually?
-//that prevents you from messing up an object, but does it prevent you from making a mutable object?
 
 
+//if a piece is 1mb or smaller and a chunk is 16kb or smaller, you should probably make the medium bin 16kb instead of 8kb so it can hold a whole chunk
+//also, you have a feeling that this matches something in node, like the size of a buffer that gets put in c space rather than v8 space
 
-
-
-//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
-//take a look at the mdn documentation to decide about this
+//what parts you have is probably best expressed as a stripe pattern of chunks, not bytes, and not a spray pattern
+//a 2gb file has just 2048 pieces and 131072 chunks, so these numbers are very reasonable to work with and will be very small to send in outline across the wire
 
 
 
 
-//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
-//in fact, what would happen if you did return Object.freeze({}) for every object? why not just do that
-//that woudl work, right? it woudl just mean the functions can't change to a different function, members inside can still change
 
+function Stripe(set_i, set_w) {
+	check(set_i, 0);
+	check(set_w, 1);
 
+	var _i = set_i;   // The distance from the origin to the start of this Stripe, 0 or more
+	var _w = set_w;   // The size of this Stripe, its width, 1 or more
+	var _z = _i + _w; // The extent of this Stripe, the index of the far edge
 
+	function same(s) {
+		checkType(s, "Stripe");
+		return _i == s.i && _w == s.w;
+	}
 
-/*
-code node
-add to divide
-a.round
-it it's half or more, it's up, otherwise it's down
-and then use it for saySize gb, tb, pb
-and also use it for 1.234mb, have the 4 rounded, not chopped
-*/
+	function text() { return "i#w#".fill(_i, _w); }
 
+	return Object.freeze({
+		i:_i, w:_w, z:_z,
+		same:same, text:text,
+		type:function(){ return "Stripe"; }
+	});
+}
+exports.Stripe = Stripe;
 
 
 
@@ -1074,6 +1023,58 @@ exports.stripePieceToByte = stripePieceToByte;
 
 
 
+
+
+
+
+
+
+
+
+
+//make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
+
+//have return freeze({})
+//and is there anywhere you wouldn't want to use that, actually?
+//that prevents you from messing up an object, but does it prevent you from making a mutable object?
+
+
+
+
+
+//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
+//take a look at the mdn documentation to decide about this
+
+
+
+
+//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
+//in fact, what would happen if you did return Object.freeze({}) for every object? why not just do that
+//that woudl work, right? it woudl just mean the functions can't change to a different function, members inside can still change
+
+
+
+
+/*
+code node
+add to divide
+a.round
+it it's half or more, it's up, otherwise it's down
+and then use it for saySize gb, tb, pb
+and also use it for 1.234mb, have the 4 rounded, not chopped
+*/
+
+
+
+
+
+
+
+//next things to do
+
+//Now and Duration, hopefully that's all you'll need
+//Range and Stripe
+//Describe
 
 
 
