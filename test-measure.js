@@ -878,6 +878,108 @@ exports.testSayDateDay = function(test) {
 
 
 
+var Stripe = requireMeasure.Stripe;
+
+
+
+
+
+
+
+
+
+//    ____ _                 _                      _   ____  _               
+//   / ___| |__  _   _ _ __ | | __   __ _ _ __   __| | |  _ \(_) ___  ___ ___ 
+//  | |   | '_ \| | | | '_ \| |/ /  / _` | '_ \ / _` | | |_) | |/ _ \/ __/ _ \
+//  | |___| | | | |_| | | | |   <  | (_| | | | | (_| | |  __/| |  __/ (_|  __/
+//   \____|_| |_|\__,_|_| |_|_|\_\  \__,_|_| |_|\__,_| |_|   |_|\___|\___\___|
+//                                                                            
+
+var numberOfChunks = requireMeasure.numberOfChunks;
+var numberOfPieces = requireMeasure.numberOfPieces;
+
+var indexChunkToByte = requireMeasure.indexChunkToByte;
+var indexPieceToChunk = requireMeasure.indexPieceToChunk;
+var indexPieceToByte = requireMeasure.indexPieceToByte;
+
+var stripeChunkToByte = requireMeasure.stripeChunkToByte;
+var stripePieceToChunk = requireMeasure.stripePieceToChunk;
+var stripePieceToByte = requireMeasure.stripePieceToByte;
+
+exports.testChunkExample = function(test) {
+
+	//just show how a 2.1mb file is split into 3 pieces with chunks inside
+
+
+	var bytes = 2*Size.mb + 16*Size.kb + 1;
+
+	var chunks = numberOfChunks(bytes);
+	var pieces = numberOfPieces(bytes);
+
+	test.ok(chunks == 130);
+	test.ok(pieces == 3);
+
+	//each chunk has X or X bytes
+	//each piece has 43 or 44 chunks
+
+	log(say(stripePieceToChunk(bytes, Stripe(0, 1))));//i0w43
+	log(say(stripePieceToChunk(bytes, Stripe(1, 1))));//i43w43
+	log(say(stripePieceToChunk(bytes, Stripe(2, 1))));//i86w44
+
+
+	try {
+		log(say(stripePieceToChunk(bytes, Stripe(3, 1))));//bounds
+		test.fail();
+	} catch (e) { test.ok(e == "bounds"); }
+
+
+
+
+
+
+
+
+
+
+	test.done();
+}
+
+exports.testChunkOverflow = function(test) {
+
+	//size is the largest file that won't overflow
+	//max is the largest number javascript treats as an integer, 2^53
+
+	//size * chunks = max
+	//chunks = size/16kb
+	//so: size = sqrt(max * 16kb) = 2^(67/2) = 11.3gb
+
+	function attempt(bytes) {
+		var chunks = numberOfChunks(bytes);
+		var pieces = numberOfPieces(bytes);
+
+		indexChunkToByte(bytes, chunks)
+		indexPieceToChunk(bytes, pieces);
+		indexPieceToByte(bytes, pieces);
+	}
+
+	attempt(11*Size.gb);
+	try {
+		attempt(12*Size.gb);
+		test.fail();
+	} catch (e) { test.ok(e == "overflow"); }
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

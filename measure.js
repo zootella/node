@@ -694,12 +694,17 @@ exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
 
 // Time constants
 var Time = {};
+
 Time.second = 1000;             // 1000, number of milliseconds in a second
 Time.minute = 60 * Time.second; // 60000, number of milliseconds in a minute
 Time.hour   = 60 * Time.minute; // 3600000, number of milliseconds in an hour
 Time.day    = 24 * Time.hour;   // 86400000, number of milliseconds in a day
 Time.month  = 2629800000;       // 1/12 of 365.25 days
 Time.year   = 31557600000;      // 365.25 days
+
+Time.quick = 100;          // 1/10 second, a quick amount of time for the user
+Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
+
 Object.freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
@@ -926,6 +931,10 @@ exports.Stripe = Stripe;
 
 
 
+function sortStripe(){}
+
+
+
 
 
 
@@ -962,7 +971,7 @@ function indexChunkToByte(bytes, chunkIndex) {
 	check(chunkIndex, 0);
 	var chunks = numberOfChunks(bytes);
 	if (chunkIndex > chunks) throw "bounds";
-	return scale(bytes, chunkIndex, chunks).whole; // Without using bignum, a file larger than 511gb will overflow
+	return scale(bytes, chunkIndex, chunks).whole; // Without using bignum, a 12gb file will overflow
 }
 // What chunk index the given piece index is in a file of size bytes
 function indexPieceToChunk(bytes, pieceIndex) {
