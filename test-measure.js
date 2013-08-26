@@ -57,7 +57,7 @@ exports.testUnits = function(test) {
 
 	test.ok(Size.kb == 1024);
 	Size.kb = 5;//this won't change it, but also won't throw an exception
-	test.ok(Size.kb == 1024);//make sure Objet.freeze(Size) worked
+	test.ok(Size.kb == 1024);//make sure Objet.freeze() worked
 
 	test.done();
 }
@@ -278,17 +278,64 @@ exports.testAverage = function(test) {
 
 
 
-var Now = requireMeasure.Now;
 
-exports.testNowImmutable = function(test) {
 
-	var now = Now();//remember the time right now
-	var time = now.time;//get it
-	now.time = 7;//try to change it
-	test.ok(time == now.time);//confirm that didn't work
+
+
+
+
+
+
+
+//   _____ _                
+//  |_   _(_)_ __ ___   ___ 
+//    | | | | '_ ` _ \ / _ \
+//    | | | | | | | | |  __/
+//    |_| |_|_| |_| |_|\___|
+//                          
+
+var now = requireMeasure.now;
+var When = requireMeasure.When;
+var earlier = requireMeasure.earlier;
+var recent = requireMeasure.recent;
+var Duration = requireMeasure.Duration;
+
+exports.testWhenImmutable = function(test) {
+
+	var w = now();//remember the time right now
+	var time = w.time;//get it
+	w.time = 7;//try to change it
+	test.ok(time == w.time);//confirm that didn't work
 
 	test.done();
 }
+
+exports.testWhen = function(test) {
+
+	//load a saved time
+	var w = When(1030338738133);
+	test.ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -886,7 +933,7 @@ var Stripe = requireMeasure.Stripe;
 
 
 
-
+/*
 
 //    ____ _                 _                      _   ____  _               
 //   / ___| |__  _   _ _ __ | | __   __ _ _ __   __| | |  _ \(_) ___  ___ ___ 
@@ -971,7 +1018,7 @@ exports.testChunkOverflow = function(test) {
 	test.done();
 }
 
-
+*/
 
 
 

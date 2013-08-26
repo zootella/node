@@ -33,3 +33,23 @@ exports.randomData = randomData;
 //so, for instance, see how long it takes to generate 100 guids, and if it's more than 100ms, you should probably have an event option
 
 
+
+
+
+
+//random number
+//use underscore, _.random(a, b)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

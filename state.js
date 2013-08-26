@@ -2,7 +2,19 @@
 
 
 
+// LOG
+
+//make log better, have it use say, and print out the time beforehand
 var log = console.log;
+
+
+
+
+
+
+// CLOSE AND PULSE
+
+
 var open = function(o) { return o && o.state && !o.state.closed(); }
 var done = function(o) { return o && o.state && o.state.closed(); }
 var close = function(o) {
@@ -127,6 +139,33 @@ program.pulse.pulseAll();
 
 
 
+
+// ERROR
+
+/*
+
+//have name, info
+//info.wrap is an exception we're wrapping
+//info.note is a note about what happened
+
+//current usage
+throw "chop";
+if (e == "chop");
+//new usage
+throw error("chop");
+throw error("chop", {note: "a note about what happened"});
+throw error("chop", {wrap: e});
+//and checking
+if (e.name == "chop") log(e.info.wrap);
+
+function error(name, info) {
+	return {
+		name: name,
+		info: info
+	}
+}
+
+
 function error(name, note, more) {
 	return {
 		name: name,
@@ -145,7 +184,7 @@ function error(name, note, more) {
 //but you don't have to do the horrible java thing where each kind of exception is a separate type
 //or wrap up hashes on the fly, either
 
-
+*/
 
 
 

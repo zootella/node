@@ -280,8 +280,8 @@ exports.Average = Average;
 
 
 
-
-
+//use the now function instead
+/*
 // A Now remembers the moment when it was made
 function Now() {
 
@@ -297,9 +297,97 @@ function Now() {
 	});
 }
 exports.Now = Now;
+*/
 
 
-//do Duration, those two might be all you need
+
+
+
+
+
+//   _____ _                
+//  |_   _(_)_ __ ___   ___ 
+//    | | | | '_ ` _ \ / _ \
+//    | | | | | | | | |  __/
+//    |_| |_|_| |_| |_|\___|
+//                          
+
+// Make a When object to record the date and time right now
+function now() { return When(Date.now()); } // Save the number of milliseconds between January 1970 and right now
+
+// The time when something happened
+function When(t) {
+	check(t, 0); // Allow a time in the future, but not before 1970
+
+	var _time = t;                                          // Save the given time
+	function expired(t) { check(t, 0); return t <= age(); } // True if t or more milliseconds have passed since this when
+	function age() { return Date.now() - _time; }           // The number of milliseconds that have passed since this when
+	function text() { return sayDateAndTime(_time); }       // Convert into text like "2002 Jun 22 Sat 11:09a 49.146s"
+
+	return Object.freeze({                  // Freeze the public interface your object is returning to include immutable properties
+		time:_time, expired:expired, age:age, // For instance, setting now.time doesn't change it
+		text:text,                            // Without this, you would have to access it with the function now.time()
+		type:function(){ return "When"; }
+	});
+}
+
+// Return the time that happened first, and is oldest
+function earlier(w1, w2) {
+	checkType(w1, "When");
+	checkType(w2, "When");
+	return w1.time < w2.time ? w1 : w2;
+}
+// Return the time that happened last, and is youngest
+function recent(w1, w2) {
+	checkType(w1, "When");
+	checkType(w2, "When");
+	return w1.time > w2.time ? w1 : w2;
+}
+
+// Make a Duration that will record the given start time to the given stop time, or just start to right now
+function Duration(setStart, setStop) {
+
+	if (!setStop) setStop = now();
+	checkType(setStart, "When");
+	checkType(setStop, "When");
+	if (setStop.time < setStart.time) throw "bounds"; // Make sure stop is at or after start
+
+	var _start = setStart; // The time when this Duration started
+	var _stop = setStop;   // The time when this Duration stopped, the same as start or afterwards
+
+	// The length of this Duration in milliseconds, 0 or more
+	function time() {
+		return stop.time - start.time;
+	}
+	// The length of this Duration in milliseconds, 1 or more
+	function timeSafe() {
+		var t = time();
+		if (t < 1) t = 1; // A 0 might end up on the bottom of a speed fraction
+		return t;
+	}
+
+	// When this duration ended and how long it took, like "Wed 1:39p 58.023s in 278ms"
+	function text() { return make(stop, " in ", time(), "ms"); }
+
+	return Object.freeze({
+		start:_start, stop:_stop,
+		time:time, timeSafe:timeSafe, text:text,
+		type:function(){ return "Duration"; }
+	});
+}
+
+exports.now = now;
+exports.When = When;
+exports.earlier = earlier;
+exports.recent = recent;
+exports.Duration = Duration;
+
+
+
+
+
+
+
 
 
 
@@ -695,12 +783,12 @@ exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
 // Time constants
 var Time = {};
 
-Time.second = 1000;             // 1000, number of milliseconds in a second
-Time.minute = 60 * Time.second; // 60000, number of milliseconds in a minute
-Time.hour   = 60 * Time.minute; // 3600000, number of milliseconds in an hour
-Time.day    = 24 * Time.hour;   // 86400000, number of milliseconds in a day
-Time.month  = 2629800000;       // 1/12 of 365.25 days
-Time.year   = 31557600000;      // 365.25 days
+Time.second = 1000;           // 1000, number of milliseconds in a second
+Time.minute = 60*Time.second; // 60000, number of milliseconds in a minute
+Time.hour   = 60*Time.minute; // 3600000, number of milliseconds in an hour
+Time.day    = 24*Time.hour;   // 86400000, number of milliseconds in a day
+Time.month  = 2629800000;     // 1/12 of 365.25 days in milliseconds
+Time.year   = 31557600000;    // 365.25 days in milliseconds
 
 Time.quick = 100;          // 1/10 second, a quick amount of time for the user
 Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
@@ -939,7 +1027,9 @@ function sortStripe(){}
 
 
 
-
+//change this so just the last one is smaller
+//it's simpler, doesn't need bignum, and would be better for live
+//and sha1 works just fine on small data
 
 //    ____ _                 _                      _   ____  _               
 //   / ___| |__  _   _ _ __ | | __   __ _ _ __   __| | |  _ \(_) ___  ___ ___ 

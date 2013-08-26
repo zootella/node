@@ -1,5 +1,31 @@
 
 
+
+
+
+
+
+
+
+//make a mini pulse and check shutdown right here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //make a stopwatch with node charm
 
 
@@ -7,6 +33,7 @@
 var charm = require("./node_modules/charm")();//closing parenthesis to run the function and save the result
 
 charm.pipe(process.stdout);
+charm.on("^C", process.exit);
 
 charm.write("Progress: 0%");
 
@@ -21,7 +48,6 @@ var interval = setInterval(function() {
 	}
 }, 50);
 
-charm.on("^C", process.exit);
 
 
 
