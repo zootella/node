@@ -2,64 +2,54 @@
 
 
 
-// LOG
-
-//make log better, have it use say, and print out the time beforehand
-var log = console.log;
 
 
 
 
 
 
-// CLOSE AND PULSE
 
+function isOpen(o) { return o && o.state && !o.state.closed(); } // True if o needs to be closed, and isn't yet
+function isDone(o) { return o && o.state && o.state.closed(); }  // True if o needs to be closed, and is
 
-var open = function(o) { return o && o.state && !o.state.closed(); }
-var done = function(o) { return o && o.state && o.state.closed(); }
-var close = function(o) {
-	if (!o) return;
-	try {
-		o.state.close();
-	} catch (e) {} //TODO, mistake log it
+// Close o and return with it closed
+function close(o) {
+	if (o && o.state) { // Ignore no o or and o that doesn't need to be closed
+		try {
+			o.state.close();
+		} catch (e) { /*TODO mistake log*/ } // Log an exception but keep going
+	}
 }
 
 
 
-var newPulse = function() {
 
-	function soon() {}
+//Pulse
 
-	function pulseAll() {
 
-		for (var i = 0; i < list.length; i++) {//change it to go backwards
-			list[i].pulse();
-		}
+function soon() {}
+
+function pulseAll() {
+
+	for (var i = 0; i < list.length; i++) {//change it to go backwards
+		list[i].pulse();
 	}
+}
 
-	function add(o) {
-		list.push(o);
-	}
+function add(o) {
+	list.push(o);
+}
 
-	function clear() {}
+function clear() {}
 
-	var list = [];
+var list = [];
 
-	function confirmAllClosed() {
-		return '';
-	}
+function confirmAllClosed() {
+	return '';
+}
 
-	function stop() {}
+function stop() {}
 
-	return {
-		soon:soon,
-		add:add,
-		confirmAllClosed:confirmAllClosed,
-		stop:stop,
-
-		pulseAll:pulseAll//shouldn't be public
-	}
-};
 
 
 
