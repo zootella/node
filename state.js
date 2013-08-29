@@ -7,97 +7,90 @@
 
 
 
+var log = console.log;
+
+var requireText = require("./text");
 
 
-function isOpen(o) { return o && o.state && !o.state.closed(); } // True if o needs to be closed, and isn't yet
-function isDone(o) { return o && o.state && o.state.closed(); }  // True if o needs to be closed, and is
 
-// Close o and return with it closed
+
+// Close o ignoring null and exceptions
 function close(o) {
-	if (o && o.state) { // Ignore no o or and o that doesn't need to be closed
-		try {
-			o.state.close();
-		} catch (e) { /*TODO mistake log*/ } // Log an exception but keep going
-	}
+	if (!o) return;
+	try {
+		o.state.close();
+	} catch (e) { mistakeLog(e); } // Keep going to close the next object
 }
 
+function open(o) { return o && !o.state.closed(); } // True if o exists and is not yet closed
+function done(o) { return o && o.state.closed(); } // True if o exists and is closed
 
 
 
-//Pulse
 
 
+
+
+
+// Pulse the program soon so it can notice something that has finished or changed
 function soon() {}
 
-function pulseAll() {
-
-	for (var i = 0; i < list.length; i++) {//change it to go backwards
-		list[i].pulse();
-	}
-}
-
-function add(o) {
-	list.push(o);
-}
-
-function clear() {}
-
-var list = [];
-
-function confirmAllClosed() {
-	return '';
-}
-
-function stop() {}
 
 
 
 
-var program = {};
-program.pulse = newPulse();
 
 
 
+// Make a state inside your object so the program will pulse it, and notice if you forget to later close it
+function State() {
 
-var newState = function() {
-
-	//functions you can override
-	function close() {};// you have to override this one
-	function pulse() {};
-	function pulseScreen() {};
-
+	// True once this object has been closed, and promises to not change again
 	var _closed = false;
 	function closed() { return _closed; }
+
+	// Start your close() function with the line "if (already()) return;"
 	function already() {
-		if (_closed) return true;
-		_closed = true;
-		return false;
+		if (_closed) return true; // We're already closed, return true to return from the close() function
+		_closed = true;           // Mark this object as now permanently closed
+		soon();                   // Have the program pulse soon so the object that made this one can notice it finished
+		return false;             // Return false to run the contents of your close() function this first and only time
 	};
 
-	var use = {
-		close:close,
-		pulse:pulse,
-		pulseScreen:pulseScreen,
-		closed:closed,
-		already:already
+	// Close your objects inside, put away resources, and never change again
+	// Your object that contains State must have this function
+	function close() {};
+
+	// Notice things inside your object that have changed or finished, and do the next step to move forward
+	// Set your own function here, and the program will call it periodically
+	function pulse() {};
+
+	// Compose text and information for the user based on the new current state of things
+	// Set your own function here, and the program will call it periodically
+	function pulseScreen() {};
+
+	var o = {
+		closed:closed, already:already
+		close:close, pulse:pulse, pulseScreen:pulseScreen,
 	};
-	program.pulse.add(use);
-	return use;
+	list.add(o); // Keep track of this new object that needs to be closed
+	soon();       // Have the program pulse this new object soon
+	return o;
 };
 
 
 
-var newFile = function() {
+function File() {
 
-	var state = newState();
+	var state = State();
 	state.close = function() {
-		if (state.already()) { log('already closed'); return; }
+		if (state.already()) { log("already closed"); return; }
 
+		log("closed the file");
 	};
-
 	state.pulse = function() {
 
-		log('pulse!');
+		log("pulse the file");
 	}
 
 	return {
@@ -106,75 +99,176 @@ var newFile = function() {
 };
 
 
-/*
-//demo, turn this into a test
-var f;
-if (!f) log('no');
-f = newFile();
-if (open(f)) log('open');
-close(f);
-if (done(f)) log('done');
-f = null;
-if (!f) log('no');
-*/
-
-/*
-var f1 = newFile();
-var f2 = newFile();
-
-program.pulse.pulseAll();
-*/
 
 
 
 
 
+/** The program's single pulse object lists and pulses all the open objects in the program to move things forward. */
+	
 
-// ERROR
+// Start
 
-/*
 
-//have name, info
-//info.wrap is an exception we're wrapping
-//info.note is a note about what happened
+var start = false; // true when we've set Java to call run(), and it hasn't yet
+var again = false; // true when an object has requested another pass up the pulse list
 
-//current usage
-throw "chop";
-if (e == "chop");
-//new usage
-throw error("chop");
-throw error("chop", {note: "a note about what happened"});
-throw error("chop", {wrap: e});
-//and checking
-if (e.name == "chop") log(e.info.wrap);
+// Pulse soon if we haven't pulsed in awhile
+function ding() {
+	if (!start &&     // If the program isn't already pulsing or set to start, and
+		monitor.ding()) // It's been longer than the delay since the last pulse finished
+		soon();         // Have the program pulse soon to notice things that have timed out
+}
 
-function error(name, info) {
-	return {
-		name: name,
-		info: info
+// An object in the program has changed or finished
+// Pulse soon so the object that made it can notice and take the next step forward
+public void soon() {
+
+	// Start a pulse if one isn't already happening
+	if (!start) { // No need to start a new pulse if we're doing one now already
+		start = true;
+		process.nextTick(function() { // Run this function separately and soon
+			try {
+				pulseAll();
+			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
+		});
+	}
+
+	// Have the pulse loop up the list again
+	again = true;
+}
+
+// Pulse all the open objects in the program until none request another pulse soon
+function pulseAll() {
+	monitor.start();
+	
+	// Pulse up the list in many passes until no object requests another pulse soon
+	while (again) {
+		again = false; // Don't loop again unless an object we pulse below calls soon() above
+		if (monitor.loop()) break; // Quit early if this pulse goes over the time limit
+		
+		// Pulse up the list in a single pass
+		for (int i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
+			var o = list[i];
+			if (open(o)) { // Skip closed objects
+				try {
+					o.pulse(); // Pulse the object so it notices things that have finished and moves to the next step
+				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
+			}
+		}
+	}
+	
+	// In a single pass after that, pulse up the list to have objects compose information for the user
+	if (screen.enough()) { // Only update the screen 5 times a second
+		for (int i = list.length - 1; i >= 0; i--) {
+			var o = list[i];
+			if (open(o)) { // Skip closed objects
+				try {
+					o.pulseUser(); // Pulse the object to have it compose text for the user to show current information
+				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
+			}
+		}
+	}
+	
+	clear(); // Remove closed objects from the list all at once at the end
+	monitor.end(list.length);
+	start = false; // Allow the next call to soon to start a new pulse
+}
+
+// List
+
+/** Add a new object that extends Close to the program's list of open objects. */
+public void add(Close c) {
+	list.add(c); // It's safe to add to the end even during a pulse because we loop by index number
+	ding.start(); // Start the ding if it's not started already
+}
+
+/** Remove objects that got closed from our list. */
+private void clear() {
+	for (int i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
+		Close c = list[i];
+		if (Close.done(c)) // Only remove closed objects
+			list.remove(i);
 	}
 }
 
 
-function error(name, note, more) {
-	return {
-		name: name,
-		note: note,
-		more: more
+
+
+var list = []; // Every object the program needs to close, and hasn't yet
+
+
+
+/**
+ * Call before the program exits to make sure we've closed every object.
+ * @return Text about objects still open by mistake, or blank if there's no problem
+ */
+public String confirmAllClosed() {
+	
+	clear(); // Remove closed objects from the list
+	
+	int size = list.length;
+	if (size == 0) return ""; // Good, we had closed them all already
+	
+	StringBuffer s = new StringBuffer(); // Compose and return text about the objects still open by mistake
+	s.append(size + " objects open:\n");
+	for (int i = 0; i < size; i++) {
+		Close c = list[i];
+		if (Close.open(c)) { // Skip closed objects
+			s.append(c.toString() + "\n");
+		}
 	}
+	return s.toString();
 }
 
-//before: throw "data";        if (e == "data");
-//after:  throw error("data"); if (e.name == "data");
-//so, only 4 characters longer
 
-//and now you can add detailed notes
-//and wrap and carry an exception you got in more, for instance
 
-//but you don't have to do the horrible java thing where each kind of exception is a separate type
-//or wrap up hashes on the fly, either
+//monitor
+public final Monitor monitor = new Monitor();
 
-*/
+
+private Ago screen = new Ago(Time.delay);
+
+
+
+
+public final Pool pool = new Pool();
+public final Ding ding = new Ding();
+
+
+
+
+
+//stop
+
+public void stop() {
+	
+	Log.log("pulse stop");
+	
+	pool.stop();
+	ding.stop();
+	Mistake.closeCheck();//TODO factor this right back into here, it calls back here, after all
+	Log.log(Pulse.pulse.monitor.describeEfficiency());
+	
+	
+	
+	
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
