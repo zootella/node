@@ -1,15 +1,15 @@
 
-
-
-
-
-
-
-
-
-var log = console.log;
-
 var requireText = require("./text");
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -73,8 +73,8 @@ function State() {
 		closed:closed, already:already
 		close:close, pulse:pulse, pulseScreen:pulseScreen,
 	};
-	list.add(o); // Keep track of this new object that needs to be closed
-	soon();       // Have the program pulse this new object soon
+	add(o); // Keep track of this new object that needs to be closed
+	soon(); // Have the program pulse this new object soon
 	return o;
 };
 
@@ -104,13 +104,12 @@ function File() {
 
 
 
-/** The program's single pulse object lists and pulses all the open objects in the program to move things forward. */
 	
 
 // Start
 
 
-var start = false; // true when we've set Java to call run(), and it hasn't yet
+var start = false; // true when we've set next tick to call pulseAll(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
 
 // Pulse soon if we haven't pulsed in awhile
@@ -122,7 +121,7 @@ function ding() {
 
 // An object in the program has changed or finished
 // Pulse soon so the object that made it can notice and take the next step forward
-public void soon() {
+function soon() {
 
 	// Start a pulse if one isn't already happening
 	if (!start) { // No need to start a new pulse if we're doing one now already
@@ -146,7 +145,7 @@ function pulseAll() {
 	while (again) {
 		again = false; // Don't loop again unless an object we pulse below calls soon() above
 		if (monitor.loop()) break; // Quit early if this pulse goes over the time limit
-		
+
 		// Pulse up the list in a single pass
 		for (int i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
 			var o = list[i];
@@ -172,8 +171,10 @@ function pulseAll() {
 	
 	clear(); // Remove closed objects from the list all at once at the end
 	monitor.end(list.length);
-	start = false; // Allow the next call to soon to start a new pulse
+	start = false; // Allow the next call to soon() to start a new pulse
 }
+
+
 
 // List
 
@@ -220,47 +221,6 @@ public String confirmAllClosed() {
 	}
 	return s.toString();
 }
-
-
-
-//monitor
-public final Monitor monitor = new Monitor();
-
-
-private Ago screen = new Ago(Time.delay);
-
-
-
-
-public final Pool pool = new Pool();
-public final Ding ding = new Ding();
-
-
-
-
-
-//stop
-
-public void stop() {
-	
-	Log.log("pulse stop");
-	
-	pool.stop();
-	ding.stop();
-	Mistake.closeCheck();//TODO factor this right back into here, it calls back here, after all
-	Log.log(Pulse.pulse.monitor.describeEfficiency());
-	
-	
-	
-	
-}
-
-
-
-}
-
-
-
 
 
 
