@@ -58,7 +58,10 @@ function State() {
 	var _closed = false;
 	function closed() { return _closed; }
 
+	// Mark this object as closed, and only do this once
 	// Start your close() function with the line "if (already()) return;"
+	// The first time already() runs, it marks this object as closed and returns false
+	// Try calling it again, and it will just return true
 	function already() {
 		if (_closed) return true; // We're already closed, return true to return from the close() function
 		_closed = true;           // Mark this object as now permanently closed
@@ -82,15 +85,16 @@ function State() {
 		closed:closed, already:already
 		close:close, pulse:pulse, pulseScreen:pulseScreen,
 	};
-	add(o); // Keep track of this new object that needs to be closed
-	soon(); // Have the program pulse this new object soon
+
+	// Add this new object that needs to be closed to the program's list of open objects to keep track of it
+	// It's safe to add to the end even during a pulse because we loop by index number
+	// The objects in the list are in the order they were made so contained objects are after those that made them
+	list.add(o);
+	dingStart(); // Start the ding if it's not started already
+	soon();      // Have the program pulse this new object soon
+
 	return o;
 };
-
-
-
-
-
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -101,25 +105,17 @@ function State() {
 
 var list = []; // Every object the program needs to close, and hasn't yet
 
-/** Add a new object that extends Close to the program's list of open objects. */
-function add(o) {
-	list.add(o); // It's safe to add to the end even during a pulse because we loop by index number
-	ding.start(); // Start the ding if it's not started already
-}
-// The objects in the list are in the order they were made so contained objects are after those that made them
-
-
-
-/** Remove objects that got closed from our list. */
+// Remove objects that got closed from the list
 private void clear() {
-	for (int i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-		Close c = list[i];
-		if (Close.done(c)) // Only remove closed objects
+	for (var i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
+		var o = list[i];
+		if (done(o)) // Only remove closed objects
 			list.remove(i);
 	}
-
-	//new feature idea: maybe also stop the ding if the list goes empty
+	if (!list.length) dingStop(); // Stop the ding if the list is empty
 }
+
+
 
 
 
@@ -132,12 +128,12 @@ public String confirmAllClosed() {
 	
 	clear(); // Remove closed objects from the list
 	
-	int size = list.length;
+	var size = list.length;
 	if (size == 0) return ""; // Good, we had closed them all already
 	
 	StringBuffer s = new StringBuffer(); // Compose and return text about the objects still open by mistake
 	s.append(size + " objects open:\n");
-	for (int i = 0; i < size; i++) {
+	for (var i = 0; i < size; i++) {
 		Close c = list[i];
 		if (Close.open(c)) { // Skip closed objects
 			s.append(c.toString() + "\n");
@@ -203,7 +199,7 @@ function pulseAll() {
 		if (monitor.loop()) break; // Quit early if this pulse goes over the time limit
 
 		// Pulse up the list in a single pass
-		for (int i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
+		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
 			var o = list[i];
 			if (open(o)) { // Skip closed objects
 				try {
@@ -215,7 +211,7 @@ function pulseAll() {
 	
 	// In a single pass after that, pulse up the list to have objects compose information for the user
 	if (screen.enough()) { // Only update the screen 5 times a second
-		for (int i = list.length - 1; i >= 0; i--) {
+		for (var i = list.length - 1; i >= 0; i--) {
 			var o = list[i];
 			if (open(o)) { // Skip closed objects
 				try {

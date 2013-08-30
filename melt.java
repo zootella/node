@@ -1,15 +1,5 @@
 
-//    ____ _                _     _     _   
-//   / ___| | ___  ___  ___| |   (_)___| |_ 
-//  | |   | |/ _ \/ __|/ _ \ |   | / __| __|
-//  | |___| | (_) \__ \  __/ |___| \__ \ |_ 
-//   \____|_|\___/|___/\___|_____|_|___/\__|
-//                                          
 
-// The program just made a new object that extends Close, add it to the program's list
-public synchronized void add(Close c) { // If a Task thread creates a new Close object, it will enter this method
-	list.add(c);
-}
 
 //   ____  _             
 //  |  _ \(_)_ __   __ _ 
@@ -341,31 +331,52 @@ public class Pulse {
 	
 	// Make sure we don't update the screen too frequently
 	private Ago screen = new Ago(Time.delay);
+}
+
+//    ____ _                
+//   / ___| | ___  ___  ___ 
+//  | |   | |/ _ \/ __|/ _ \
+//  | |___| | (_) \__ \  __/
+//   \____|_|\___/|___/\___|
+//                          
 	
-	// List
+	// Check
 
-	// Add a new object that extends Close to the program's list of open objects
-	public void add(Close c) {
-		list.add(c); // It's safe to add to the end even during a pulse because we loop by index number
-		ding.start(); // Start the ding if it's not started already
+	// Make sure this object isn't closed before doing something that would change it
+	public void confirmOpen() { if (objectClosed) throw new IllegalStateException(); }
+
+	// Make sure this object is closed, throw e if given, and make sure o exists
+	public void check(ProgramException e, Object o) {
+		if (!objectClosed) throw new IllegalStateException();
+		if (e != null) throw e;
+		if (o == null) throw new NullPointerException();
 	}
 
-	// Remove objects that got closed from our list
-	private void clear() {
-		for (int i = list.size() - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-			Close c = list.get(i);
-			if (Close.done(c)) // Only remove closed objects
-				list.remove(i);
-		}
-	}
-}
+	// Help
 
-// Remove the object at index i from the list
-public synchronized void remove(int i) {
-	try {
-		list.remove(i);
-	} catch (IndexOutOfBoundsException e) { Mistake.ignore(e); } // Only the event thread calls size() and remove(), so shouldn't happen
-}
+
+	
+	// Pulse the program soon so it can notice something that has finished or changed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
