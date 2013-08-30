@@ -7,7 +7,13 @@ var requireText = require("./text");
 
 
 
+//design goal
+//there's only one global pulse list
+//but individual unit tests can use it, and confirm that it's put away at the end of each one
+//and two whole different applications running in the same process can share it, and it all works
+//think of it as part of the platform, not your application
 
+//have the 4s timeout built into the base, so you get it enforced for free automatically everywheres
 
 
 
@@ -32,15 +38,18 @@ function done(o) { return o && o.state.closed(); } // True if o exists and is cl
 
 
 
-// Pulse the program soon so it can notice something that has finished or changed
-function soon() {}
 
 
 
 
 
 
-
+//   ____  _        _       
+//  / ___|| |_ __ _| |_ ___ 
+//  \___ \| __/ _` | __/ _ \
+//   ___) | || (_| | ||  __/
+//  |____/ \__\__,_|\__\___|
+//                          
 
 // Make a state inside your object so the program will pulse it, and notice if you forget to later close it
 function State() {
@@ -80,29 +89,76 @@ function State() {
 
 
 
-function File() {
 
-	var state = State();
-	state.close = function() {
-		if (state.already()) { log("already closed"); return; }
 
-		log("closed the file");
-	};
-	state.pulse = function() {
 
-		log("pulse the file");
+//   _     _     _   
+//  | |   (_)___| |_ 
+//  | |   | / __| __|
+//  | |___| \__ \ |_ 
+//  |_____|_|___/\__|
+//                   
+
+var list = []; // Every object the program needs to close, and hasn't yet
+
+/** Add a new object that extends Close to the program's list of open objects. */
+function add(o) {
+	list.add(o); // It's safe to add to the end even during a pulse because we loop by index number
+	ding.start(); // Start the ding if it's not started already
+}
+// The objects in the list are in the order they were made so contained objects are after those that made them
+
+
+
+/** Remove objects that got closed from our list. */
+private void clear() {
+	for (int i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
+		Close c = list[i];
+		if (Close.done(c)) // Only remove closed objects
+			list.remove(i);
 	}
 
-	return {
-		state:state
-	};
-};
+	//new feature idea: maybe also stop the ding if the list goes empty
+}
+
+
+
+
+/**
+ * Call before the program exits to make sure we've closed every object.
+ * @return Text about objects still open by mistake, or blank if there's no problem
+ */
+public String confirmAllClosed() {
+	
+	clear(); // Remove closed objects from the list
+	
+	int size = list.length;
+	if (size == 0) return ""; // Good, we had closed them all already
+	
+	StringBuffer s = new StringBuffer(); // Compose and return text about the objects still open by mistake
+	s.append(size + " objects open:\n");
+	for (int i = 0; i < size; i++) {
+		Close c = list[i];
+		if (Close.open(c)) { // Skip closed objects
+			s.append(c.toString() + "\n");
+		}
+	}
+	return s.toString();
+}
 
 
 
 
 
 
+
+
+//   ____        _          
+//  |  _ \ _   _| |___  ___ 
+//  | |_) | | | | / __|/ _ \
+//  |  __/| |_| | \__ \  __/
+//  |_|    \__,_|_|___/\___|
+//                          
 
 	
 
@@ -175,63 +231,49 @@ function pulseAll() {
 }
 
 
+// Pulse the program soon so it can notice something that has finished or changed
+function soon() {}
 
-// List
 
-/** Add a new object that extends Close to the program's list of open objects. */
-public void add(Close c) {
-	list.add(c); // It's safe to add to the end even during a pulse because we loop by index number
-	ding.start(); // Start the ding if it's not started already
-}
 
-/** Remove objects that got closed from our list. */
-private void clear() {
-	for (int i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-		Close c = list[i];
-		if (Close.done(c)) // Only remove closed objects
-			list.remove(i);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   _____ _ _      
+//  |  ___(_) | ___ 
+//  | |_  | | |/ _ \
+//  |  _| | | |  __/
+//  |_|   |_|_|\___|
+//                  
+
+function File() {
+
+	var state = State();
+	state.close = function() {
+		if (state.already()) { log("already closed"); return; }
+
+		log("closed the file");
+	};
+	state.pulse = function() {
+
+		log("pulse the file");
 	}
-}
 
-
-
-
-var list = []; // Every object the program needs to close, and hasn't yet
-
-
-
-/**
- * Call before the program exits to make sure we've closed every object.
- * @return Text about objects still open by mistake, or blank if there's no problem
- */
-public String confirmAllClosed() {
-	
-	clear(); // Remove closed objects from the list
-	
-	int size = list.length;
-	if (size == 0) return ""; // Good, we had closed them all already
-	
-	StringBuffer s = new StringBuffer(); // Compose and return text about the objects still open by mistake
-	s.append(size + " objects open:\n");
-	for (int i = 0; i < size; i++) {
-		Close c = list[i];
-		if (Close.open(c)) { // Skip closed objects
-			s.append(c.toString() + "\n");
-		}
-	}
-	return s.toString();
-}
-
-
-
-
-
-
-
-
-
-
-
+	return {
+		state:state
+	};
+};
 
 
 
