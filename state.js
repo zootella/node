@@ -15,6 +15,7 @@ var requireText = require("./text");
 
 //have the 4s timeout built into the base, so you get it enforced for free automatically everywheres
 
+//it was bad design to have monitor make decisions, it should only measure performance, so a monitor of empty functions would work just as well
 
 
 
@@ -106,7 +107,7 @@ function State() {
 var list = []; // Every object the program needs to close, and hasn't yet
 
 // Remove objects that got closed from the list
-private void clear() {
+function clear() {
 	for (var i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
 		var o = list[i];
 		if (done(o)) // Only remove closed objects
@@ -119,28 +120,6 @@ private void clear() {
 
 
 
-
-/**
- * Call before the program exits to make sure we've closed every object.
- * @return Text about objects still open by mistake, or blank if there's no problem
- */
-public String confirmAllClosed() {
-	
-	clear(); // Remove closed objects from the list
-	
-	var size = list.length;
-	if (size == 0) return ""; // Good, we had closed them all already
-	
-	StringBuffer s = new StringBuffer(); // Compose and return text about the objects still open by mistake
-	s.append(size + " objects open:\n");
-	for (var i = 0; i < size; i++) {
-		Close c = list[i];
-		if (Close.open(c)) { // Skip closed objects
-			s.append(c.toString() + "\n");
-		}
-	}
-	return s.toString();
-}
 
 
 
@@ -155,11 +134,6 @@ public String confirmAllClosed() {
 //  |  __/| |_| | \__ \  __/
 //  |_|    \__,_|_|___/\___|
 //                          
-
-	
-
-// Start
-
 
 var start = false; // true when we've set next tick to call pulseAll(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
@@ -191,19 +165,18 @@ function soon() {
 
 // Pulse all the open objects in the program until none request another pulse soon
 function pulseAll() {
-	monitor.start();
+	monitorStart();
 	
 	// Pulse up the list in many passes until no object requests another pulse soon
 	while (again) {
 		again = false; // Don't loop again unless an object we pulse below calls soon() above
-		if (monitor.loop()) break; // Quit early if this pulse goes over the time limit
+		if (monitorLoop()) break; // Quit early if this pulse goes over the time limit
 
 		// Pulse up the list in a single pass
 		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
-			var o = list[i];
-			if (open(o)) { // Skip closed objects
+			if (open(list[i])) { // Skip closed objects
 				try {
-					o.pulse(); // Pulse the object so it notices things that have finished and moves to the next step
+					list[i].pulse(); // Pulse the object so it notices things that have finished and moves to the next step
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 			}
 		}
@@ -212,28 +185,38 @@ function pulseAll() {
 	// In a single pass after that, pulse up the list to have objects compose information for the user
 	if (screen.enough()) { // Only update the screen 5 times a second
 		for (var i = list.length - 1; i >= 0; i--) {
-			var o = list[i];
-			if (open(o)) { // Skip closed objects
+			if (open(list[i])) { // Skip closed objects
 				try {
-					o.pulseUser(); // Pulse the object to have it compose text for the user to show current information
+					list[i].pulseUser(); // Pulse the object to have it compose text for the user to show current information
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 			}
 		}
 	}
 	
 	clear(); // Remove closed objects from the list all at once at the end
-	monitor.end(list.length);
+	monitorEnd(list.length);
 	start = false; // Allow the next call to soon() to start a new pulse
 }
 
+// Make sure we don't update the screen too frequently
+var screen = Ago(Time.delay);
 
-// Pulse the program soon so it can notice something that has finished or changed
-function soon() {}
+// When the program or test is done, make sure you closed every object, and stop things so the process can exit
+function checkClose() {
 
+	// Make sure the program closed every object before trying to exit
+	clear();           // Remove closed objects from the list
+	if (list.length) { // We should have closed them all, but didn't
 
+		var s = say(size, " objects open:\r\n"); // Compose text about the objects still open by mistake
+		for (var i = 0; i < size; i++) {
+			s += say(list[i], "\r\n");
+		}
+		mistakeStop(s); // Log the text and exit the process
+	}
 
-
-
+	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
+}
 
 
 
