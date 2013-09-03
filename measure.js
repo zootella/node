@@ -376,6 +376,43 @@ function Duration(setStart, setStop) {
 	});
 }
 
+
+
+
+
+//no, don't write ago, rather just use when.expired directly, it will be easier and simpler
+
+
+function Ago(interval) {
+
+	if (!interval) _interval = Time.out;
+
+	public Ago() { this.interval = Time.out; }
+	
+	public Ago(long interval) { this.interval = interval; }
+	
+	var _interval;
+	
+	
+	var _set = 0; // The time in milliseconds since January 1970 and when we were last set, 0 if we've never been set
+	
+	function enough() {
+		if (!set || set.expired(interval)) {
+			set = now();
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+
+
+
+
+
+
+
 exports.now = now;
 exports.When = When;
 exports.earlier = earlier;
@@ -791,6 +828,7 @@ Time.month  = 2629800000;     // 1/12 of 365.25 days in milliseconds
 Time.year   = 31557600000;    // 365.25 days in milliseconds
 
 Time.quick = 100;          // 1/10 second, a quick amount of time for the user
+Time.delay = 200;          // 1/5 second, pulse 5 times a second
 Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
 
 Object.freeze(Time);

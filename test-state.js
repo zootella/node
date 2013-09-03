@@ -1,12 +1,18 @@
 
-
-
-
-
-
-
-
 var log = console.log;
+
+var requireText = require("./text");
+var requireState = require("./state");
+
+
+
+
+
+
+
+
+
+
 
 exports.testReference = function(test) {
 
@@ -30,10 +36,6 @@ exports.testReference = function(test) {
 
 
 
-var list = [];
-log(list.length);
-list.push("a");
-log(list.length);
 
 
 
@@ -65,6 +67,32 @@ program.pulse.pulseAll();
 
 
 
+
+//example object that needs to get closed
+
+
+var State = requireState.State;
+
+function Resource() {
+
+	var state = State();
+	state.close = function() {
+		if (state.already()) { log("already closed"); return; }
+
+		log("closed the file");
+	};
+	state.pulse = function() {
+
+		log("pulse the file");
+	}
+
+	return {
+		state:state
+	};
+};
+
+
+var r = Resource();
 
 
 

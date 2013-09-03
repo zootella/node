@@ -1,6 +1,9 @@
 
 var requireText = require("./text");
 
+var requireMeasure = require("./measure");
+var Time = requireMeasure.Time;
+
 
 
 
@@ -31,6 +34,10 @@ function close(o) {
 
 function open(o) { return o && !o.state.closed(); } // True if o exists and is not yet closed
 function done(o) { return o && o.state.closed(); } // True if o exists and is closed
+
+exports.close = close;
+exports.open = open;
+exports.done = done;
 
 
 
@@ -83,7 +90,7 @@ function State() {
 	function pulseScreen() {};
 
 	var o = {
-		closed:closed, already:already
+		closed:closed, already:already,
 		close:close, pulse:pulse, pulseScreen:pulseScreen,
 	};
 
@@ -96,6 +103,7 @@ function State() {
 
 	return o;
 };
+exports.State = State;
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -225,34 +233,6 @@ function checkClose() {
 
 
 
-
-
-
-
-//   _____ _ _      
-//  |  ___(_) | ___ 
-//  | |_  | | |/ _ \
-//  |  _| | | |  __/
-//  |_|   |_|_|\___|
-//                  
-
-function File() {
-
-	var state = State();
-	state.close = function() {
-		if (state.already()) { log("already closed"); return; }
-
-		log("closed the file");
-	};
-	state.pulse = function() {
-
-		log("pulse the file");
-	}
-
-	return {
-		state:state
-	};
-};
 
 
 
