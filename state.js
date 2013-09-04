@@ -42,6 +42,8 @@ var Ago = requireMeasure.Ago;
 //  |_____\___/ \__, |
 //              |___/ 
 
+var log = console.log;
+
 //use say
 //add the time
 //move to text
@@ -191,13 +193,41 @@ function clear() {
 //  |____/|_|_| |_|\__, |
 //                 |___/ 
 
-function dingStart() {
+var timer = null; // A interval timer set to repeat, or null if we don't have one
 
+function dingStart() { // Request a repeating pulse to update clocks and notice if nothing is happening
+	if (!timer) {
+		log("ding start");
+		timer = setInterval(function() { // Make a repeating timer to call this function
+			try {
+				if (!timer) return; // Don't do anything if the ding is stopped
+				
+				// Pulse soon if we haven't pulsed in a while
+				if (!start &&    // If the program isn't already pulsing or set to start, and
+					monitorDing()) // It's been longer than the delay since the last pulse finished
+					soon();        // Have the program pulse soon to notice things that have timed out
+
+			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
+		}, Time.quick); // Check every half delay to catch nothing happening sooner
+	}
 }
 
-function dingStop() {
-
+function dingStop() { // Stop requesting these repeating pulses
+	if (timer) {
+		log("ding stop");
+		clearInterval(timer); // Stop and discard the timer, keeping it might prevent the program from closing
+		timer = null; // Discard the timer object so a future call to dingStart() can start things again
+	}
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -227,11 +257,11 @@ function soon() {
 	// Start a pulse if one isn't already happening
 	if (!start) { // No need to start a new pulse if we're doing one now already
 		start = true;
-		process.nextTick(function() { // Run this function separately and soon
+		setTimeout(function() { // Run this function separately and soon
 			try {
 				pulseAll();
 			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
-		});
+		}, 0); // No delay
 	}
 
 	// Have the pulse loop up the list again
@@ -241,7 +271,7 @@ function soon() {
 // Pulse all the open objects in the program until none request another pulse soon
 function pulseAll() {
 	monitorStart();
-	
+
 	// Pulse up the list in many passes until no object requests another pulse soon
 	while (again) {
 		again = false; // Don't loop again unless an object we pulse below calls soon() above
@@ -299,11 +329,112 @@ function checkClose() {
 
 
 
+/*
+
+
+//   __  __             _ _             
+//  |  \/  | ___  _ __ (_) |_ ___  _ __ 
+//  | |\/| |/ _ \| '_ \| | __/ _ \| '__|
+//  | |  | | (_) | | | | | || (_) | |   
+//  |_|  |_|\___/|_| |_|_|\__\___/|_|   
+//                                      
+
+// Record efficiency and performance statistics
+	
+// Count
+
+var countPulses   = 0; // How many pulses have happened
+var countHitLimit = 0; // How many pulses have gone over the time limit and quit early
+
+var objectsPerList = Average(); // The number objects in the list
+var loopsPerPulse  = Average(); // The number of loops in a pulse
+var timePerPulse   = Average(); // How long pulses last in milliseconds
+
+var pulseSpeed = Speed(Time.second); // The speed at which pulses are happening right now, keep the most recent 1 second of data
+var pulsesPerSecond = Maximum(); // The the highest speed we measured
+
+var p = now(); // The time when we last entered or left the pulse function
+var timeInside = 0; // How long the program has spent inside the pulse function, in milliseconds
+var timeOutside = 0; // How long the program has spent outside the pulse function, in milliseconds
+
+var loop = 0; // Count how many loops are in each pulse
+
+// Event
+
+// True if it's been longer than the delay since the last pulse finished
+function monitorDing() {
+	return p.expired(Time.delay);
+}
+
+// A pulse started
+function monitorStart() {
+	countPulses++;
+	pulsesPerSecond.add(pulseSpeed.add(1, Time.second * Describe.thousandths)); // 1 event, get speed in events per second, to the thousandths
+	timeOutside += p.age(); // Measure how long we were outside
+	p = now();
+	loop = 0;
+}
+
+// Record another loop in the current pulse
+function monitorLoop() {
+	loop++;
+	if (p.expired(Time.delay / 2)) { countHitLimit++; return true; } // Quit early if we're over the time limit
+	return false;
+}
+
+// The pulse ended, the list has n objects in it
+function monitorEnd(size) {
+	objectsPerList.add(size);
+	loopsPerPulse.add(loop);
+	var inside = p.age(); // Measure how long we were inside
+	p = now();
+	timeInside += inside;
+	timePerPulse.add(inside);
+}
+
+// Describe
+
+// Compose text for the user about how efficiently the program is running
+function describeEfficiency() {
+	
+	String mostObjectsPerList = Describe.commas(objectsPerList.maximum());
+	String averageObjectsPerList = objectsPerList.toString();
+	String nowObjectsPerList = Describe.commas(objectsPerList.recent());
+
+	String mostLoopsPerPulse = Describe.commas(loopsPerPulse.maximum());
+	String averageLoopsPerPulse = loopsPerPulse.toString();
+	String nowLoopsPerPulse = Describe.commas(loopsPerPulse.recent()); //TODO does not work, you need an average of recent values, not a total in time
+	
+	String mostPulsesPerSecond = Describe.decimal(pulsesPerSecond.maximum(), 3);
+	String averagePulsesPerSecond = Describe.divide(Time.second * countPulses, timeInside + timeOutside);
+	String nowPulsesPerSecond = Describe.decimal(pulseSpeed.speed(Time.second * Describe.thousandths), 3);
+
+	String mostTimePerPulse = Describe.commas(timePerPulse.maximum());
+	String averageTimePerPulse = timePerPulse.toString();
+	String nowTimePerPulse = Describe.commas(timePerPulse.recent());
+	
+	String pulsesHitTimeLimit = Describe.percent(countHitLimit, countPulses);
+	String timeSpentPulsing = Describe.percent(timeInside, timeInside + timeOutside);
+	
+	var s = "";
+	s += "pulse efficiency:\r\n";
+	s += "\r\n";
+	s += Text.table(4,
+		"most",              "average",              "now",              "",
+		mostObjectsPerList,  averageObjectsPerList,  nowObjectsPerList,  "objects/list",
+		mostLoopsPerPulse,   averageLoopsPerPulse,   nowLoopsPerPulse,   "loops/pulse",
+		mostPulsesPerSecond, averagePulsesPerSecond, nowPulsesPerSecond, "pulses/second",
+		mostTimePerPulse,    averageTimePerPulse,    nowTimePerPulse,    "ms/pulse"));
+	s += "\r\n";
+	s += say(pulsesHitTimeLimit, " pulses hit time limit\r\n");
+	s += say(timeSpentPulsing,   " ms time spent pulsing\r\n");
+	return s;
+}
 
 
 
 
-
+*/
 
 
 

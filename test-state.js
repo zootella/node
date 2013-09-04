@@ -90,7 +90,7 @@ exports.testIf = function(test) {
 }
 
 exports.testClose = function(test) {
-
+/*
 	var r = Resource();//make a new object that we must close
 	test.ok(open(r));//starts out open
 	test.ok(!done(r));
@@ -109,12 +109,23 @@ exports.testClose = function(test) {
 	var o = Data();//set to an object that doesn't need to be closed
 	test.ok(!open(o));
 	test.ok(!done(o));
+*/
+
+
+	//try closing u, n, and o also, that should probably log exceptions but keep going, you think
 
 	test.done();
 }
 
 
+
+//var r = Resource();
+
+
 //see what happens when you call open(c) on c, which doesn't have a state inside
+
+
+//when it complains when something is open, have it write hte type, and call text() on it to have it describe itself
 
 
 
@@ -151,7 +162,7 @@ program.pulse.pulseAll();
 
 
 
-var r = Resource();
+//var r = Resource();
 
 
 

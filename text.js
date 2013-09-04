@@ -769,6 +769,15 @@ function say() {
 	return t;
 }
 
+
+
+//have line, which is say plus newline
+//have log, which is say plus console.log and time
+
+
+
+
+
 // Turn anything into text the best way possible
 function saySingle(o) {
 	if      (typeof o == "string")     return o;            // Strings pass through

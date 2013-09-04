@@ -815,7 +815,7 @@ Time.day    = 24*Time.hour;   // 86400000, number of milliseconds in a day
 Time.month  = 2629800000;     // 1/12 of 365.25 days in milliseconds
 Time.year   = 31557600000;    // 365.25 days in milliseconds
 
-Time.quick = 100;          // 1/10 second, a quick amount of time for the user
+Time.quick = 100;          // 1/10 second, a quick amount of time for the user, half the delay
 Time.delay = 200;          // 1/5 second, pulse 5 times a second
 Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
 
