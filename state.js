@@ -35,14 +35,54 @@ var Ago = requireMeasure.Ago;
 
 
 
+//   _                
+//  | |    ___   __ _ 
+//  | |   / _ \ / _` |
+//  | |__| (_) | (_| |
+//  |_____\___/ \__, |
+//              |___/ 
+
+//use say
+//add the time
+//move to text
+
+
+
+
+
+//   __  __ _     _        _        
+//  |  \/  (_)___| |_ __ _| | _____ 
+//  | |\/| | / __| __/ _` | |/ / _ \
+//  | |  | | \__ \ || (_| |   <  __/
+//  |_|  |_|_|___/\__\__,_|_|\_\___|
+//                                  
+
+function mistakeLog(e) {
+
+}
 
 function mistakeStop(e) {
 
 }
 
+exports.mistakeLog = mistakeLog;
+exports.mistakeStop = mistakeStop;
 
 
 
+
+
+
+
+
+
+
+//    ____ _                
+//   / ___| | ___  ___  ___ 
+//  | |   | |/ _ \/ __|/ _ \
+//  | |___| | (_) \__ \  __/
+//   \____|_|\___/|___/\___|
+//                          
 
 // Close o ignoring null and exceptions
 function close(o) {
@@ -52,8 +92,8 @@ function close(o) {
 	} catch (e) { mistakeLog(e); } // Keep going to close the next object
 }
 
-function open(o) { return o && !o.state.closed(); } // True if o exists and is not yet closed
-function done(o) { return o && o.state.closed(); } // True if o exists and is closed
+function open(o) { return o && o.state && !o.state.closed(); } // True if o exists, needs to be closed, and is not yet closed
+function done(o) { return o && o.state && o.state.closed();  } // True if o exists, needs to be closed, and is closed
 
 exports.close = close;
 exports.open = open;
@@ -98,7 +138,7 @@ function State() {
 	};
 
 	// Close your objects inside, put away resources, and never change again
-	// Your object that contains State must have this function
+	// Your object that contains state must have this function
 	function close() {};
 
 	// Notice things inside your object that have changed or finished, and do the next step to move forward
@@ -179,13 +219,6 @@ function dingStop() {
 
 var start = false; // true when we've set next tick to call pulseAll(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
-
-// Pulse soon if we haven't pulsed in awhile
-function ding() {
-	if (!start &&     // If the program isn't already pulsing or set to start, and
-		monitor.ding()) // It's been longer than the delay since the last pulse finished
-		soon();         // Have the program pulse soon to notice things that have timed out
-}
 
 // An object in the program has changed or finished
 // Pulse soon so the object that made it can notice and take the next step forward

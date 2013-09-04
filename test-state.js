@@ -3,6 +3,7 @@ var log = console.log;
 
 var requireText = require("./text");
 var requireState = require("./state");
+var requireData = require("./data");
 
 
 
@@ -14,7 +15,64 @@ var requireState = require("./state");
 
 
 
-exports.testReference = function(test) {
+//example object that needs to get closed
+
+var State = requireState.State;
+
+function Resource() {
+
+	var state = State();
+	state.close = function() {
+		if (state.already()) { log("already closed"); return; }
+
+		log("closed the resource");
+	};
+	state.pulse = function() {
+
+		log("pulse");
+	}
+
+	return {
+		state:state
+	};
+};
+
+
+
+
+
+
+
+//   __  __ _     _        _        
+//  |  \/  (_)___| |_ __ _| | _____ 
+//  | |\/| | / __| __/ _` | |/ / _ \
+//  | |  | | \__ \ || (_| |   <  __/
+//  |_|  |_|_|___/\__\__,_|_|\_\___|
+//                                  
+
+var mistakeLog = requireState.mistakeLog;
+var mistakeStop = requireState.mistakeStop;
+
+
+
+
+
+
+
+
+//    ____ _                
+//   / ___| | ___  ___  ___ 
+//  | |   | |/ _ \/ __|/ _ \
+//  | |___| | (_) \__ \  __/
+//   \____|_|\___/|___/\___|
+//                          
+
+var close = requireState.close;
+var open = requireState.open;
+var done = requireState.done;
+var Data = requireData.Data;
+
+exports.testIf = function(test) {
 
 	var c;
 	test.ok(!c);//not defined yet, false
@@ -27,6 +85,30 @@ exports.testReference = function(test) {
 
 	c = {};
 	test.ok(c);//set to empty hash, true
+
+	test.done();
+}
+
+exports.testClose = function(test) {
+
+	var r = Resource();//make a new object that we must close
+	test.ok(open(r));//starts out open
+	test.ok(!done(r));
+	close(r);//close it
+	test.ok(!open(r));//confirm it's closed
+	test.ok(done(r));
+
+	var u;//not set to anything
+	test.ok(!open(u));//neither open nor closed
+	test.ok(!done(u));
+
+	var n = null;//set to null
+	test.ok(!open(n));
+	test.ok(!done(n));
+
+	var o = Data();//set to an object that doesn't need to be closed
+	test.ok(!open(o));
+	test.ok(!done(o));
 
 	test.done();
 }
@@ -61,35 +143,12 @@ program.pulse.pulseAll();
 
 
 
-log("hi from the test file");
 
 
 
 
 
 
-//example object that needs to get closed
-
-
-var State = requireState.State;
-
-function Resource() {
-
-	var state = State();
-	state.close = function() {
-		if (state.already()) { log("already closed"); return; }
-
-		log("closed the resource");
-	};
-	state.pulse = function() {
-
-		log("pulse");
-	}
-
-	return {
-		state:state
-	};
-};
 
 
 var r = Resource();
