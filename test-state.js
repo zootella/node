@@ -26,7 +26,7 @@ exports.testReference = function(test) {
 	test.ok(!c);//set to null, false
 
 	c = {};
-	test.ok(c);//set to hash, true
+	test.ok(c);//set to empty hash, true
 
 	test.done();
 }
@@ -61,7 +61,7 @@ program.pulse.pulseAll();
 
 
 
-
+log("hi from the test file");
 
 
 
@@ -79,11 +79,11 @@ function Resource() {
 	state.close = function() {
 		if (state.already()) { log("already closed"); return; }
 
-		log("closed the file");
+		log("closed the resource");
 	};
 	state.pulse = function() {
 
-		log("pulse the file");
+		log("pulse");
 	}
 
 	return {

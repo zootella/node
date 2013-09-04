@@ -2,7 +2,17 @@
 var requireText = require("./text");
 
 var requireMeasure = require("./measure");
+
 var Time = requireMeasure.Time;
+
+var now = requireMeasure.now;
+var When = requireMeasure.When;
+var earlier = requireMeasure.earlier;
+var recent = requireMeasure.recent;
+var Duration = requireMeasure.Duration;
+var Ago = requireMeasure.Ago;
+
+
 
 
 
@@ -19,6 +29,16 @@ var Time = requireMeasure.Time;
 //have the 4s timeout built into the base, so you get it enforced for free automatically everywheres
 
 //it was bad design to have monitor make decisions, it should only measure performance, so a monitor of empty functions would work just as well
+
+
+
+
+
+
+
+function mistakeStop(e) {
+
+}
 
 
 
@@ -124,6 +144,20 @@ function clear() {
 	if (!list.length) dingStop(); // Stop the ding if the list is empty
 }
 
+//   ____  _             
+//  |  _ \(_)_ __   __ _ 
+//  | | | | | '_ \ / _` |
+//  | |_| | | | | | (_| |
+//  |____/|_|_| |_|\__, |
+//                 |___/ 
+
+function dingStart() {
+
+}
+
+function dingStop() {
+
+}
 
 
 

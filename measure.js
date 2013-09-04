@@ -376,48 +376,36 @@ function Duration(setStart, setStop) {
 	});
 }
 
+// Make an Ago to ask it permission to do something you want to only do once every i milliseconds
+function Ago(i) {
 
+	check(i, 0);
+	var _interval = i;  // Time interval between events
 
+	var _set = 0;       // The number of milliseconds between January 1970 and when we were last set, 0 if we've never been set
 
-
-//no, don't write ago, rather just use when.expired directly, it will be easier and simpler
-
-
-function Ago(interval) {
-
-	if (!interval) _interval = Time.out;
-
-	public Ago() { this.interval = Time.out; }
-	
-	public Ago(long interval) { this.interval = interval; }
-	
-	var _interval;
-	
-	
-	var _set = 0; // The time in milliseconds since January 1970 and when we were last set, 0 if we've never been set
-	
-	function enough() {
-		if (!set || set.expired(interval)) {
-			set = now();
-			return true;
+	function enough() { // True if enough time has passed since the last event
+		var n = Date.now();         // Get the time now
+		if (_set + _interval < n) { // It's past the interval
+			_set = n;                 // Record that a new event will happen now
+			return true;              // Give permission to do the event
 		} else {
 			return false;
 		}
 	}
+
+	return {
+		enough:enough,
+		type:function(){ return "Ago"; }
+	};
 }
-
-
-
-
-
-
-
 
 exports.now = now;
 exports.When = When;
 exports.earlier = earlier;
 exports.recent = recent;
 exports.Duration = Duration;
+exports.Ago = Ago;
 
 
 
