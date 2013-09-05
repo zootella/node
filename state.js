@@ -329,7 +329,6 @@ function checkClose() {
 
 
 
-/*
 
 
 //   __  __             _ _             
@@ -343,6 +342,7 @@ function checkClose() {
 	
 // Count
 
+/*
 var countPulses   = 0; // How many pulses have happened
 var countHitLimit = 0; // How many pulses have gone over the time limit and quit early
 
@@ -352,12 +352,15 @@ var timePerPulse   = Average(); // How long pulses last in milliseconds
 
 var pulseSpeed = Speed(Time.second); // The speed at which pulses are happening right now, keep the most recent 1 second of data
 var pulsesPerSecond = Maximum(); // The the highest speed we measured
+*/
 
 var p = now(); // The time when we last entered or left the pulse function
+/*
 var timeInside = 0; // How long the program has spent inside the pulse function, in milliseconds
 var timeOutside = 0; // How long the program has spent outside the pulse function, in milliseconds
 
 var loop = 0; // Count how many loops are in each pulse
+*/
 
 // Event
 
@@ -368,35 +371,44 @@ function monitorDing() {
 
 // A pulse started
 function monitorStart() {
+	/*
 	countPulses++;
 	pulsesPerSecond.add(pulseSpeed.add(1, Time.second * Describe.thousandths)); // 1 event, get speed in events per second, to the thousandths
 	timeOutside += p.age(); // Measure how long we were outside
+	*/
 	p = now();
+	/*
 	loop = 0;
+	*/
 }
 
 // Record another loop in the current pulse
 function monitorLoop() {
+	/*
 	loop++;
-	if (p.expired(Time.delay / 2)) { countHitLimit++; return true; } // Quit early if we're over the time limit
+	*/
+	if (p.expired(Time.quick)) { /*countHitLimit++;*/ return true; } // Quit early if we're over the time limit
 	return false;
 }
 
 // The pulse ended, the list has n objects in it
 function monitorEnd(size) {
+	/*
 	objectsPerList.add(size);
 	loopsPerPulse.add(loop);
 	var inside = p.age(); // Measure how long we were inside
+	*/
 	p = now();
+	/*
 	timeInside += inside;
 	timePerPulse.add(inside);
+	*/
 }
 
 // Describe
-
 // Compose text for the user about how efficiently the program is running
-function describeEfficiency() {
-	
+function monitorDescribeEfficiency() {
+/*
 	String mostObjectsPerList = Describe.commas(objectsPerList.maximum());
 	String averageObjectsPerList = objectsPerList.toString();
 	String nowObjectsPerList = Describe.commas(objectsPerList.recent());
@@ -429,12 +441,13 @@ function describeEfficiency() {
 	s += say(pulsesHitTimeLimit, " pulses hit time limit\r\n");
 	s += say(timeSpentPulsing,   " ms time spent pulsing\r\n");
 	return s;
+	*/
+	return "efficiency";
 }
 
 
 
 
-*/
 
 
 
