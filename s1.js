@@ -18,23 +18,22 @@ function printList() {
 
 
 
-function State() {
+function makeState() {
+	var state = {};
 
-	var s = {};
-	s._closed = false;
-
-	s.already = function() {
-		if (s._closed) return true; // We're already closed, return true to return from the close() function
-		s._closed = true;           // Mark this object as now permanently closed
+	state._closed = false;
+	state.already = function() {
+		if (state._closed) return true; // We're already closed, return true to return from the close() function
+		state._closed = true;           // Mark this object as now permanently closed
 		return false;               // Return false to run the contents of your close() function this first and only time
 	};
 
-	s.close = function() {};
-	s.pulse = function() {};
-	s.pulseScreen = function() {};
+	return state;
+}
 
-	list.push(s);
-	return s;
+function listState(o) {
+	list.push(o);
+	return o;
 }
 
 
@@ -51,9 +50,9 @@ function dingStart() { // Request a repeating pulse to update clocks and notice 
 	setInterval(function() { // Make a repeating timer to call this function
 
 		for (var i = 0; i < list.length; i++)
-			list[i].pulse();
+			list[i].state.pulse();
 
-		}, 100);
+		}, 1000);
 }
 
 
@@ -61,7 +60,8 @@ function dingStart() { // Request a repeating pulse to update clocks and notice 
 
 
 
-exports.State = State;
+exports.makeState = makeState;
+exports.listState = listState;
 exports.printList = printList;
 exports.dingStart = dingStart;
 

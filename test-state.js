@@ -21,7 +21,7 @@ var State = requireState.State;
 
 function Resource() {
 
-	var state = State(this);
+	var state = State();
 	state.close = function() {
 		if (state.already()) { log("already closed"); return; }
 
