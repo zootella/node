@@ -765,21 +765,28 @@ augment(rip, "rip");
 function say() {
 	var t = "";
 	for (var i = 0; i < arguments.length; i++)
-		t += saySingle(arguments[i]); // Using + is actually must faster than s.concat() or [].join()
+		t += _say(arguments[i]); // Using + is actually must faster than s.concat() or [].join()
 	return t;
 }
 
+// Turn the given list of anything into text with a newline at the end
+function line() {
+	var t = "";
+	for (var i = 0; i < arguments.length; i++)
+		t += _say(arguments[i]);
+	return t + newline;
+}
 
-
-//have line, which is say plus newline
-//have log, which is say plus console.log and time
-
-
-
-
+// Log the given list of anything on the console
+function log() {
+	var t = "";
+	for (var i = 0; i < arguments.length; i++)
+		t += _say(arguments[i]);
+	console.log(t);
+}
 
 // Turn anything into text the best way possible
-function saySingle(o) {
+function _say(o) {
 	if      (typeof o == "string")     return o;            // Strings pass through
 	else if (typeof o == "number")     return numerals(o);  // Convert a number into numerals
 	else if (hasMethod(o, "text"))     return o.text();     // Call the object's text() method
@@ -836,7 +843,8 @@ function table() {
 }
 
 exports.say = say;
-exports.saySingle = saySingle;
+exports.line = line;
+exports.log = log;
 augment(fill, "fill");
 exports.lines = lines;
 exports.table = table;

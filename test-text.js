@@ -1,7 +1,4 @@
 
-
-var log = console.log;
-
 var requireData = require("./data");
 var Data = requireData.Data;
 var Bay = requireData.Bay;
@@ -1034,6 +1031,8 @@ exports.testRip = function(test) {
 //                       |_|                   
 
 var say = requireText.say;
+var line = requireText.line;
+var log = requireText.log;
 var lines = requireText.lines;
 var table = requireText.table;
 
@@ -1046,6 +1045,15 @@ exports.testSay = function(test) {
 	test.ok(say("aaa", "", "bbb") == "aaabbb");//middle string is blank
 
 	test.ok(say("a", 2, "b") == "a2b");
+
+	test.done();
+}
+
+exports.testLine = function(test) {
+
+	test.ok(line("hi") == "hi\r\n");
+	test.ok(line("a", 2, "b") == "a2b\r\n");
+	test.ok(line("") == "\r\n");//blank line
 
 	test.done();
 }
