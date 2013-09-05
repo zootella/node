@@ -12,6 +12,8 @@ var recent = requireMeasure.recent;
 var Duration = requireMeasure.Duration;
 var Ago = requireMeasure.Ago;
 
+var log = requireText.log;
+
 
 
 
@@ -35,18 +37,7 @@ var Ago = requireMeasure.Ago;
 
 
 
-//   _                
-//  | |    ___   __ _ 
-//  | |   / _ \ / _` |
-//  | |__| (_) | (_| |
-//  |_____\___/ \__, |
-//              |___/ 
-
-var log = console.log;
-
-//use say
-//add the time
-//move to text
+//log, add the time
 
 
 
@@ -197,7 +188,6 @@ var timer = null; // A interval timer set to repeat, or null if we don't have on
 
 function dingStart() { // Request a repeating pulse to update clocks and notice if nothing is happening
 	if (!timer) {
-		log("ding start");
 		timer = setInterval(function() { // Make a repeating timer to call this function
 			try {
 				if (!timer) return; // Don't do anything if the ding is stopped
@@ -276,11 +266,14 @@ function pulseAll() {
 	while (again) {
 		again = false; // Don't loop again unless an object we pulse below calls soon() above
 		if (monitorLoop()) break; // Quit early if this pulse goes over the time limit
+		log("pulse all, list length is", list.length);
 
 		// Pulse up the list in a single pass
 		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
+			log("a", "b", "c");
 			if (open(list[i])) { // Skip closed objects
 				try {
+	log("pulse one");
 					list[i].pulse(); // Pulse the object so it notices things that have finished and moves to the next step
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 			}

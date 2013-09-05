@@ -1,6 +1,5 @@
 
 
-var log = console.log;
 
 
 

@@ -1,10 +1,10 @@
 
-var log = console.log;
 
 var requireText = require("./text");
 var requireState = require("./state");
 var requireData = require("./data");
 
+var log = requireText.log;
 
 
 
@@ -32,10 +32,21 @@ function Resource() {
 		log("pulse");
 	}
 
+	
+	state.text = function() { return "hi from the state object"; }
+
+
+
 	return {
 		state:state
 	};
 };
+
+
+
+log("going to make a resource");
+
+var r = Resource();
 
 
 
@@ -109,17 +120,16 @@ exports.testClose = function(test) {
 	var o = Data();//set to an object that doesn't need to be closed
 	test.ok(!open(o));
 	test.ok(!done(o));
-*/
 
 
 	//try closing u, n, and o also, that should probably log exceptions but keep going, you think
+	*/
 
 	test.done();
 }
 
 
 
-//var r = Resource();
 
 
 //see what happens when you call open(c) on c, which doesn't have a state inside
@@ -162,7 +172,6 @@ program.pulse.pulseAll();
 
 
 
-//var r = Resource();
 
 
 

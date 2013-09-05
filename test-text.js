@@ -1036,6 +1036,7 @@ exports.testSay = function(test) {
 
 	test.ok(say("hi") == "hi");
 	test.ok(say(7) == "7");//calls numerals(7) and easier to remember and type
+	test.ok(say("boolean is ", false) == "boolean is false");//works with booleans too
 
 	test.ok(say("a", "b", "cd") == "abcd");
 	test.ok(say("aaa", "", "bbb") == "aaabbb");//middle string is blank
