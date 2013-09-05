@@ -402,10 +402,7 @@ exports.testSort = function(test) {
 	function run(before, sorted) {
 		var a = before.rip(",");
 		a.sort(sortText);
-		if (sorted)
-			test.ok(a + "" == sorted);
-		else
-			log(a + "");
+		test.ok(a + "" == sorted);
 	}
 	run("b,c,a", "a,b,c");
 	run("c,b,a", "a,b,c");
@@ -1032,7 +1029,6 @@ exports.testRip = function(test) {
 
 var say = requireText.say;
 var line = requireText.line;
-var log = requireText.log;
 var lines = requireText.lines;
 var table = requireText.table;
 
