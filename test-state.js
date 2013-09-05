@@ -21,7 +21,7 @@ var State = requireState.State;
 
 function Resource() {
 
-	var state = State();
+	var state = makeState("Resource");
 	state.close = function() {
 		if (state.already()) { log("already closed"); return; }
 
@@ -32,7 +32,7 @@ function Resource() {
 		log("pulse");
 	}
 
-	
+
 	state.text = function() { return "hi from the state object"; }
 
 

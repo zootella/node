@@ -95,6 +95,7 @@ exports.done = done;
 
 
 
+function isOpen(o) { return o && o.state && !o.state.closed(); } // True if o exists, needs to be closed, and is not yet closed
 
 
 
@@ -150,13 +151,32 @@ function State() {
 	// Add this new object that needs to be closed to the program's list of open objects to keep track of it
 	// It's safe to add to the end even during a pulse because we loop by index number
 	// The objects in the list are in the order they were made so contained objects are after those that made them
+	log("in add");
+	log("list length ", list.length);
 	list.add(o);
+	log("list length ", list.length);
+	log("look inside ", list[0].pulse);
 	dingStart(); // Start the ding if it's not started already
 	soon();      // Have the program pulse this new object soon
 
 	return o;
 };
 exports.State = State;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -266,12 +286,11 @@ function pulseAll() {
 	while (again) {
 		again = false; // Don't loop again unless an object we pulse below calls soon() above
 		if (monitorLoop()) break; // Quit early if this pulse goes over the time limit
-		log("pulse all, list length is", list.length);
+		log("pulse all, list length is ", list.length, " and the first one is ", list[i]);
 
 		// Pulse up the list in a single pass
 		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
-			log("a", "b", "c");
-			if (open(list[i])) { // Skip closed objects
+			if (isOpen(list[i])) { // Skip closed objects
 				try {
 	log("pulse one");
 					list[i].pulse(); // Pulse the object so it notices things that have finished and moves to the next step
