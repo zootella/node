@@ -4,16 +4,17 @@ var log = console.log;
 
 var requireS1 = require("./s1");
 
-var makeState = requireS1.makeState;
+var State = requireS1.State;
 var printList = requireS1.printList;
+var dingStart = requireS1.dingStart;
 
 
 
 
 
-function Resource(name) {
+function Resource() {
 
-	var state = makeState(name);
+	var state = State();
 	state.close = function() {
 		if (state.already()) { log("already closed"); return; }
 
@@ -21,12 +22,26 @@ function Resource(name) {
 	};
 	state.pulse = function() {
 
-		log("pulse");
+		log("pulse resource");
 	}
 
+	return {
+		state:state
+	};
+};
 
+function File() {
 
+	var state = State();
+	state.close = function() {
+		if (state.already()) { log("already closed"); return; }
 
+		log("closed the file");
+	};
+	state.pulse = function() {
+
+		log("pulse file");
+	}
 
 	return {
 		state:state
@@ -35,15 +50,11 @@ function Resource(name) {
 
 
 
-
-log("before");
-printList();
-var r1 = Resource("resource 1");
-log("after");
-printList();
+var r1 = Resource();
+var r2 = File();
 
 
-
+dingStart();
 
 
 
