@@ -3,6 +3,7 @@
 var requireText = require("./text");
 var requireState = require("./state");
 var requireData = require("./data");
+var Data = requireData.Data;
 
 var log = requireText.log;
 
@@ -17,11 +18,12 @@ var log = requireText.log;
 
 //example object that needs to get closed
 
-var State = requireState.State;
+var makeState = requireState.makeState;
+var listState = requireState.listState;
 
 function Resource() {
 
-	var state = State();
+	var state = makeState();
 	state.close = function() {
 		if (state.already()) { log("already closed"); return; }
 
@@ -29,24 +31,20 @@ function Resource() {
 	};
 	state.pulse = function() {
 
-		log("pulse");
+		log("pulse disaster");
+		var d = Data("hello");
+		log(d.start(6).text());
+
 	}
 
-
-	state.text = function() { return "hi from the state object"; }
-
-
-
-	return {
+	return listState({
 		state:state
-	};
+	});
 };
 
 
 
-log("going to make a resource");
 
-var r = Resource();
 
 
 
@@ -65,6 +63,19 @@ var mistakeLog = requireState.mistakeLog;
 var mistakeStop = requireState.mistakeStop;
 
 
+
+
+
+var r = Resource();
+
+/*
+try {
+
+	var d = Data("hello");
+	log(d.start(6).text());
+
+} catch (e) { mistakeStop(e); }
+*/
 
 
 
@@ -101,7 +112,7 @@ exports.testIf = function(test) {
 }
 
 exports.testClose = function(test) {
-/*
+
 	var r = Resource();//make a new object that we must close
 	test.ok(open(r));//starts out open
 	test.ok(!done(r));
@@ -123,7 +134,6 @@ exports.testClose = function(test) {
 
 
 	//try closing u, n, and o also, that should probably log exceptions but keep going, you think
-	*/
 
 	test.done();
 }
