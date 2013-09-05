@@ -113,6 +113,7 @@ function isOpen(o) { return o && o.state && !o.state.closed(); } // True if o ex
 //  |____/ \__\__,_|\__\___|
 //                          
 
+/*
 // Make a state inside your object so the program will pulse it, and notice if you forget to later close it
 function State() {
 
@@ -162,9 +163,59 @@ function State() {
 	return o;
 };
 exports.State = State;
+*/
 
 
 
+// Make a state inside your object so the program will pulse it, and notice if you forget to later close it
+function State() {
+
+	// True once this object has been closed, and promises to not change again
+	var _closed = false;
+	function closed() { return _closed; }
+
+	// Mark this object as closed, and only do this once
+	// Start your close() function with the line "if (already()) return;"
+	// The first time already() runs, it marks this object as closed and returns false
+	// Try calling it again, and it will just return true
+	function already() {
+		if (_closed) return true; // We're already closed, return true to return from the close() function
+		_closed = true;           // Mark this object as now permanently closed
+		soon();                   // Have the program pulse soon so the object that made this one can notice it finished
+		return false;             // Return false to run the contents of your close() function this first and only time
+	};
+
+	// Close your objects inside, put away resources, and never change again
+	// Your object that contains state must have this function
+	function close() {};
+
+	// Notice things inside your object that have changed or finished, and do the next step to move forward
+	// Set your own function here, and the program will call it periodically
+	function pulse() {};
+
+	// Compose text and information for the user based on the new current state of things
+	// Set your own function here, and the program will call it periodically
+	function pulseScreen() {};
+
+	var o = {
+		closed:closed, already:already,
+		close:close, pulse:pulse, pulseScreen:pulseScreen,
+	};
+
+	// Add this new object that needs to be closed to the program's list of open objects to keep track of it
+	// It's safe to add to the end even during a pulse because we loop by index number
+	// The objects in the list are in the order they were made so contained objects are after those that made them
+	log("in add");
+	log("list length ", list.length);
+	list.add(o);
+	log("list length ", list.length);
+	log("look inside ", list[0].pulse);
+	dingStart(); // Start the ding if it's not started already
+	soon();      // Have the program pulse this new object soon
+
+	return o;
+};
+exports.State = State;
 
 
 

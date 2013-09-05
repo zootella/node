@@ -25,7 +25,7 @@ function makeState(name) {
 	state.pulse = function() {};
 	state.pulseScreen = function() {};
 
-	state.text = function() { return "text of " + name; }
+	state.text = function() { return name + " is " + (state._closed ? "open" : "closed"); }
 
 	list.push(state);
 
