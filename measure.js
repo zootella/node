@@ -96,6 +96,38 @@ var say = requireText.say;
 
 
 
+//   _                
+//  | |    ___   __ _ 
+//  | |   / _ \ / _` |
+//  | |__| (_) | (_| |
+//  |_____\___/ \__, |
+//              |___/ 
+
+// Log the given list of anything on the console, prefixed with the day and time
+function log() {
+	var t = sayDayAndTime(now().time);
+	for (var i = 0; i < arguments.length; i++)
+		t += " " + say(arguments[i]);
+	console.log(t);
+}
+
+exports.log = log;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

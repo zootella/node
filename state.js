@@ -151,6 +151,7 @@ function makeState() {
 	state._closed = false; // True once the containing object has been closed, and promises to not change again
 	state.isClosed = function() { return _closed; }
 	state.isOpen = function() { return !_closed; } // Not closed yet
+	state.confirmOpen = function() { if (_closed) throw "state"; } // Make sure the containing object isn't closed before doing something that would change it
 
 	// Mark this object as closed, and only do this once
 	// Start your close() function with the line "if (state.already()) return;"
@@ -218,6 +219,7 @@ function clear() {
 //  |____/|_|_| |_|\__, |
 //                 |___/ 
 
+// A timer that will cause a pulse to happen even if nothing else does
 var timer = null; // A interval timer set to repeat, or null if we don't have one
 
 function dingStart() { // Request a repeating pulse to update clocks and notice if nothing is happening
@@ -323,22 +325,25 @@ function pulseAll() {
 // Make sure we don't update the screen too frequently
 var screen = Ago(Time.delay);
 
-// When the program or test is done, make sure you closed every object, and stop things so the process can exit
-function checkClose() {
+// When the program or test is done, make sure you closed every object
+function closeCheck() {
 
 	// Make sure the program closed every object before trying to exit
 	clear();           // Remove closed objects from the list
 	if (list.length) { // We should have closed them all, but didn't
 
-		var s = say(size, " objects open:\r\n"); // Compose text about the objects still open by mistake
+		var s = line(size, " objects open:"); // Compose text about the objects still open by mistake
 		for (var i = 0; i < size; i++) {
-			s += say(list[i], "\r\n");
+			s += line(list[i]);
 		}
-		mistakeStop(s); // Log the text and exit the process
+		console.log(s);
+		process.exit(1);
 	}
 
-	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
+	console.log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 }
+
+exports.closeCheck = closeCheck;
 
 
 

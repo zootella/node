@@ -148,14 +148,14 @@ function blank(s) {
 // Convert lower case characters in s to upper case
 function upper(s) {
 	var u = s.toLocaleUpperCase(); // Use instead of toUpperCase() to work for locales without the default Unicode case mappings
-	if (s.length != u.length) Mistake.log({ name:"upper", s:s, u:u }); // Make sure the case change didn't change the length
+	if (s.length != u.length) mistakeLog({ name:"upper", s:s, u:u }); // Make sure the case change didn't change the length
 	return u;
 }
 
 // Convert upper case characters in s to lower case
 function lower(s) {
 	var l = s.toLocaleLowerCase();
-	if (s.length != l.length) Mistake.log({ name:"lower", s:s, l:l });
+	if (s.length != l.length) mistakeLog({ name:"lower", s:s, l:l });
 	return l;
 }
 
@@ -329,7 +329,7 @@ augment(clip, "clip");
 function same(s1, s2) {
 	var p = _samePlatform(s1, s2);
 	var c = _sameCustom(s1, s2);
-	if (p != c) Mistake.log({ name:"same", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
+	if (p != c) mistakeLog({ name:"same", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _samePlatform(s1, s2) { return s1 == s2; }
@@ -343,7 +343,7 @@ function _sameCustom(s1, s2) {
 function match(s1, s2) {
 	var p = _matchPlatform(s1, s2);
 	var c = _matchCustom(s1, s2);
-	if (p != c) Mistake.log({ name:"match", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
+	if (p != c) mistakeLog({ name:"match", s1:s1, s2:s2, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _matchPlatform(s1, s2) { return s1.toLocaleLowerCase() == s2.toLocaleLowerCase(); }
@@ -372,7 +372,7 @@ function lastMatch(s, tag) { return _find(s, tag, false, true, true);  } // Find
 function _find(s, tag, forward, scan, match) {
 	var p = _findPlatform(s, tag, forward, scan, match);
 	var c = _findCustom(s, tag, forward, scan, match);
-	if (scan && p != c) Mistake.log({ name:"_find", s:s, tag:tag, forward:forward, scan:scan, match:match, p:p, c:c }); //TODO do the way that's faster instead of this check
+	if (scan && p != c) mistakeLog({ name:"_find", s:s, tag:tag, forward:forward, scan:scan, match:match, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _findPlatform(s, tag, forward, scan, match) { // Using JavaScript
@@ -681,7 +681,7 @@ function rip(s, tag, trimItems, skipBlankItems) {
 
 	var p = _ripPlatform(s, tag, trimItems, skipBlankItems);
 	var c = _ripCustom(s, tag, trimItems, skipBlankItems);
-	if (!sameArrayOfStrings(p, c)) Mistake.log({ name:"split", s:s, tag:tag, p:p, c:c }); //TODO do the way that's faster instead of this check
+	if (!sameArrayOfStrings(p, c)) mistakeLog({ name:"split", s:s, tag:tag, p:p, c:c }); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using s.split();
@@ -776,14 +776,6 @@ function line() {
 	return t + newline;
 }
 
-// Log the given list of anything on the console
-function log() {
-	var t = "";
-	for (var i = 0; i < arguments.length; i++)
-		t += _say(arguments[i]);
-	console.log(t);
-}
-
 // Turn anything into text the best way possible
 function _say(o) {
 	if      (typeof o == "string")     return o;            // Strings pass through
@@ -843,7 +835,6 @@ function table() {
 
 exports.say = say;
 exports.line = line;
-exports.log = log;
 augment(fill, "fill");
 exports.lines = lines;
 exports.table = table;

@@ -1,12 +1,19 @@
 
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 
-var requireText = require("./text");
 var requireState = require("./state");
+var mistakeLog = requireState.mistakeLog;
+var mistakeStop = requireState.mistakeStop;
+var close = requireState.close;
+var isClosed = requireState.isClosed;
+var isOpen = requireState.isOpen;
+var makeState = requireState.makeState;
+var listState = requireState.listState;
+var closeCheck = requireState.closeCheck;
+
 var requireData = require("./data");
 var Data = requireData.Data;
-
-var log = requireText.log;
-
 
 
 
@@ -17,35 +24,15 @@ var log = requireText.log;
 
 
 //example object that needs to get closed
-
-var makeState = requireState.makeState;
-var listState = requireState.listState;
-
 function Resource() {
-
 	var state = makeState();
 	state.close = function() {
-		if (state.already()) { log("already closed"); return; }
-
-		log("closed the resource");
+		if (state.already()) return;
 	};
-	state.pulse = function() {
-
-/*
-		log("pulse disaster");
-		var d = Data("hello");
-		log(d.start(6).text());
-		*/
-
-	}
-
 	return listState({
 		state:state
 	});
 };
-
-
-
 
 
 
@@ -61,22 +48,72 @@ function Resource() {
 //  |_|  |_|_|___/\__\__,_|_|\_\___|
 //                                  
 
-var mistakeLog = requireState.mistakeLog;
-var mistakeStop = requireState.mistakeStop;
+//run these examples with a command like:
+//>node test-state.js example-name
+
+//example of running code that throws an exception
+if (process.argv[2] == "example-throw") {
+
+	Data("hello").start(6);//throws chop
+}
+
+//example of catching an exception and sending it to mistakeLog(e)
+if (process.argv[2] == "example-log") {
+
+	try {
+		Data("hello").start(6);
+	} catch (e) { mistakeLog(e); }
+}
+
+//example of catching an exception and sending it to mistakeStop(e)
+if (process.argv[2] == "example-stop") {
+
+	try {
+		Data("hello").start(6);
+	} catch (e) { mistakeStop(e); }
+}
+
+//example of code in a pulse function that throws an exception
+if (process.argv[2] == "example-pulse-throw") {
+
+	function Unstable() {
+		var state = makeState();
+		state.close = function() {
+			if (state.already()) return;
+		};
+		state.pulse = function() {
+			Data("hello").start(6);//throws chop
+		}
+		return listState({
+			state:state
+		});
+	};
+
+	var u = Unstable();//make a new unstable object, which will throw on the first pulse
+}
+
+//example of making an object that needs to be closed, and closing it
+if (process.argv[2] == "example-close") {
+
+	var m = Resource();
+	close(m);
+	closeCheck();
+}
+
+//example of making an object that needs to be closed, and forgetting to close it
+if (process.argv[2] == "example-forget") {
+
+	var m = Resource();
+	closeCheck();//forgot to close it
+}
 
 
 
 
 
 
-/*
-try {
 
-	var d = Data("hello");
-	log(d.start(6).text());
 
-} catch (e) { mistakeStop(e); }
-*/
 
 
 
@@ -89,10 +126,6 @@ try {
 //  | |___| | (_) \__ \  __/
 //   \____|_|\___/|___/\___|
 //                          
-
-var close = requireState.close;
-var isClosed = requireState.isClosed;
-var isOpen = requireState.isOpen;
 
 exports.testIf = function(test) {
 
@@ -140,9 +173,10 @@ exports.testClose = function(test) {
 
 
 
-
+/*
 var r = Resource();
 close(r);
+*/
 
 
 
