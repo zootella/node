@@ -130,12 +130,12 @@ function close(o) {
 	} catch (e) { mistakeLog(e); } // Keep going to close the next object
 }
 
-function open(o) { return o && o.state && !o.state._closed; } // True if o exists, needs to be closed, and is not yet closed
-function done(o) { return o && o.state && o.state._closed;  } // True if o exists, needs to be closed, and is closed
+function isClosed(o) { return o && o.state && o.state._closed;  } // True if o exists, needs to be closed, and is closed
+function isOpen(o) { return o && o.state && !o.state._closed; } // True if o exists, needs to be closed, and is not closed yet
 
 exports.close = close;
-exports.open = open;
-exports.done = done;
+exports.isClosed = isClosed;
+exports.isOpen = isOpen;
 
 //   ____  _        _       
 //  / ___|| |_ __ _| |_ ___ 
@@ -148,11 +148,12 @@ exports.done = done;
 function makeState() {
 	var state = {}; // The state object we will fill and return
 
-	// True once the containing object has been closed, and promises to not change again
-	state._closed = false;
+	state._closed = false; // True once the containing object has been closed, and promises to not change again
+	state.isClosed = function() { return _closed; }
+	state.isOpen = function() { return !_closed; } // Not closed yet
 
 	// Mark this object as closed, and only do this once
-	// Start your close() function with the line "if (already()) return;"
+	// Start your close() function with the line "if (state.already()) return;"
 	// The first time already() runs, it marks this object as closed and returns false
 	// Try calling it again, and it will just return true
 	state.already = function() {
@@ -204,7 +205,7 @@ var list = []; // Every object the program needs to close, and hasn't yet
 // Remove objects that got closed from the list
 function clear() {
 	for (var i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-		if (done(list[i])) // Only remove closed objects
+		if (isClosed(list[i])) // Only remove closed objects
 			list.remove(i);
 	}
 	if (!list.length) dingStop(); // Stop the ding if the list is empty
@@ -295,7 +296,7 @@ function pulseAll() {
 
 		// Pulse up the list in a single pass
 		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
-			if (open(list[i]) && hasMethod(list[i].state, "pulse")) { // Skip closed objects
+			if (isOpen(list[i]) && hasMethod(list[i].state, "pulse")) { // Skip closed objects
 				try {
 					list[i].state.pulse(); // Pulse the object so it notices things that have finished and moves to the next step
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
@@ -306,7 +307,7 @@ function pulseAll() {
 	// In a single pass after that, pulse up the list to have objects compose information for the user
 	if (screen.enough()) { // Only update the screen 5 times a second
 		for (var i = list.length - 1; i >= 0; i--) {
-			if (open(list[i]) && hasMethod(list[i].state, "pulseUser")) { // Skip closed objects
+			if (isOpen(list[i]) && hasMethod(list[i].state, "pulseUser")) { // Skip closed objects
 				try {
 					list[i].state.pulseUser(); // Pulse the object to have it compose text for the user to show current information
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect

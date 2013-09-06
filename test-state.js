@@ -31,9 +31,11 @@ function Resource() {
 	};
 	state.pulse = function() {
 
+/*
 		log("pulse disaster");
 		var d = Data("hello");
 		log(d.start(6).text());
+		*/
 
 	}
 
@@ -66,7 +68,6 @@ var mistakeStop = requireState.mistakeStop;
 
 
 
-var r = Resource();
 
 /*
 try {
@@ -90,9 +91,8 @@ try {
 //                          
 
 var close = requireState.close;
-var open = requireState.open;
-var done = requireState.done;
-var Data = requireData.Data;
+var isClosed = requireState.isClosed;
+var isOpen = requireState.isOpen;
 
 exports.testIf = function(test) {
 
@@ -114,23 +114,23 @@ exports.testIf = function(test) {
 exports.testClose = function(test) {
 
 	var r = Resource();//make a new object that we must close
-	test.ok(open(r));//starts out open
-	test.ok(!done(r));
+	test.ok(isOpen(r));//starts out open
+	test.ok(!isClosed(r));
 	close(r);//close it
-	test.ok(!open(r));//confirm it's closed
-	test.ok(done(r));
+	test.ok(!isOpen(r));//confirm it's closed
+	test.ok(isClosed(r));
 
 	var u;//not set to anything
-	test.ok(!open(u));//neither open nor closed
-	test.ok(!done(u));
+	test.ok(!isOpen(u));//neither open nor closed
+	test.ok(!isClosed(u));
 
 	var n = null;//set to null
-	test.ok(!open(n));
-	test.ok(!done(n));
+	test.ok(!isOpen(n));
+	test.ok(!isClosed(n));
 
 	var o = Data();//set to an object that doesn't need to be closed
-	test.ok(!open(o));
-	test.ok(!done(o));
+	test.ok(!isOpen(o));
+	test.ok(!isClosed(o));
 
 
 	//try closing u, n, and o also, that should probably log exceptions but keep going, you think
@@ -138,6 +138,11 @@ exports.testClose = function(test) {
 	test.done();
 }
 
+
+
+
+var r = Resource();
+close(r);
 
 
 
