@@ -23,6 +23,55 @@ var Data = requireData.Data;
 
 
 
+
+
+
+
+
+
+
+
+
+//write closeCheck() to:
+//complain if anything's left open
+//print performance statistics
+
+//make an easy way to call it at the end of a demo or program
+//and also call it at the end of every test, something like
+
+
+
+function closeTest(test) {
+	if (closeCheck()) test.fail();
+	test.done();
+}
+//figure out when to log, when to exit, and when to test fail on this
+//you want to say why it failed, that the following n objects were left open
+
+exports.testSomething = function(test) {
+
+	closeTest(test);
+}
+
+
+
+//also make sur eyou are say()ing the objects that are still open
+//and make data and file and others have text() that describe what's going on with them
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //example object that needs to get closed
 function Resource() {
 	var state = makeState();
