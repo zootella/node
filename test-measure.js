@@ -1,6 +1,4 @@
 
-var log = console.log;
-
 var requireText = require("./text");
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
@@ -12,6 +10,7 @@ var say = requireText.say;
 var numerals16 = requireText.numerals16;
 
 var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 var Time = requireMeasure.Time;
 var Size = requireMeasure.Size;
 
@@ -31,9 +30,23 @@ var Bay = requireData.Bay;
 
 
 
+//   _                
+//  | |    ___   __ _ 
+//  | |   / _ \ / _` |
+//  | |__| (_) | (_| |
+//  |_____\___/ \__, |
+//              |___/ 
 
+//run this example examples with a command like:
+//>node test-state.js example-name
 
+//example of running code that throws an exception
+if (process.argv[2] == "example-log") {
 
+	log("hi");
+	log();//blank line
+	log("a", 7, "b");//multiple arguments get separated by spaces
+}
 
 
 

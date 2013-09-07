@@ -1,6 +1,4 @@
 
-var log = console.log;
-
 var requireText = require("./text");
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
