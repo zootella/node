@@ -1,10 +1,11 @@
 
-var log = console.log;
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 
-var encrypt = require("./encrypt");
+var requireEncrypt = require("./encrypt");
 
-var randomData = encrypt.randomData;
-var uniqueData = encrypt.uniqueData;
+var randomData = requireEncrypt.randomData;
+var uniqueData = requireEncrypt.uniqueData;
 
 
 

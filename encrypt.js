@@ -1,15 +1,16 @@
 
 
 
-var log = console.log;
 
 var crypto = require("crypto");
 
-var data = require("./data");
-var Data = data.Data;
+var requireData = require("./data");
+var Data = requireData.Data;
 
-var measure = require("./measure");
-var Size = measure.Size;
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
+var Size = requireMeasure.Size;
+
 
 
 

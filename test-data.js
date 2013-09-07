@@ -1,14 +1,13 @@
 
-var log = console.log;
-
 var requireText = require("./text");
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
-
-var requireText = require("./text");
 var lines = requireText.lines;
+
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 
 var requireData = require("./data");//functions
 var Size = requireData.Size;

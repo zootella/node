@@ -4,9 +4,8 @@ var hasMethod = requireText.hasMethod;
 var line = requireText.line;
 
 var requireMeasure = require("./measure");
-
+var log = requireMeasure.log;
 var Time = requireMeasure.Time;
-
 var now = requireMeasure.now;
 var When = requireMeasure.When;
 var earlier = requireMeasure.earlier;
@@ -14,7 +13,6 @@ var recent = requireMeasure.recent;
 var Duration = requireMeasure.Duration;
 var Ago = requireMeasure.Ago;
 
-var log = requireText.log;
 
 
 
@@ -76,7 +74,7 @@ function mistakeLog(e) {
 	var s = "";
 	s += line("Mistake log:");
 	s += line(e);
-	console.log(s);
+	log(s);
 }
 
 // Log e and stop the program, this function does not return
@@ -84,7 +82,7 @@ function mistakeStop(e) {
 	var s = "";
 	s += line("Mistake stop:");
 	s += line(e);
-	console.log(s);
+	log(s);
 
 	process.exit(1); // Terminate the process right here without closing the program properly
 }
@@ -336,11 +334,11 @@ function closeCheck() {
 		for (var i = 0; i < size; i++) {
 			s += line(list[i]);
 		}
-		console.log(s);
+		log(s);
 		process.exit(1);
 	}
 
-	console.log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
+	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 }
 
 exports.closeCheck = closeCheck;

@@ -1,17 +1,16 @@
 
-var log = console.log;
-
-var requireMeasure = require("./measure");
-var Size = requireMeasure.Size;
-var multiply = requireMeasure.multiply;
-var divide = requireMeasure.divide;
-var scale = requireMeasure.scale;
-
 var requireText = require("./text");
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
+
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
+var Size = requireMeasure.Size;
+var multiply = requireMeasure.multiply;
+var divide = requireMeasure.divide;
+var scale = requireMeasure.scale;
 
 var sortText = requireText.sortText;
 var parseCheck = requireText.parseCheck;

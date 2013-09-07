@@ -1,11 +1,12 @@
 
-var log = console.log;
 
 var fs = require("fs");
 var crypto = require("crypto");
 var stream = require("stream");
 var util = require("util");
 
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 
 
 
