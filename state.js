@@ -147,9 +147,9 @@ function makeState() {
 	var state = {}; // The state object we will fill and return
 
 	state._closed = false; // True once the containing object has been closed, and promises to not change again
-	state.isClosed = function() { return _closed; }
-	state.isOpen = function() { return !_closed; } // Not closed yet
-	state.confirmOpen = function() { if (_closed) throw "state"; } // Make sure the containing object isn't closed before doing something that would change it
+	state.isClosed = function() { return state._closed; }
+	state.isOpen = function() { return !state._closed; } // Not closed yet
+	state.confirmOpen = function() { if (state._closed) throw "state"; } // Make sure the containing object isn't closed before doing something that would change it
 
 	// Mark this object as closed, and only do this once
 	// Start your close() function with the line "if (state.already()) return;"
@@ -264,7 +264,7 @@ function dingStop() { // Stop requesting these repeating pulses
 //  |_|    \__,_|_|___/\___|
 //                          
 
-var start = false; // true when we've set next tick to call pulseAll(), and it hasn't yet
+var start = false; // true when we've set next tick to call _pulse(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
 
 // An object in the program has changed or finished
@@ -274,11 +274,8 @@ function soon() {
 	// Start a pulse if one isn't already happening
 	if (!start) { // No need to start a new pulse if we're doing one now already
 		start = true;
-		setTimeout(function() { // Run this function separately and soon
-			try {
-				pulseAll();
-			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
-		}, 0); // No delay
+		setTimeout(_pulse, 0); // Run the _pulse function separately and soon
+		//TODO choose between setTimeout(f, 0), setImmediate(f), and process.nextTick(f)
 	}
 
 	// Have the pulse loop up the list again
@@ -286,7 +283,7 @@ function soon() {
 }
 
 // Pulse all the open objects in the program until none request another pulse soon
-function pulseAll() {
+function _pulse() {
 	monitorStart();
 
 	// Pulse up the list in many passes until no object requests another pulse soon
@@ -341,6 +338,7 @@ function closeCheck() {
 	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 }
 
+exports.soon = soon;
 exports.closeCheck = closeCheck;
 
 

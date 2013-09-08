@@ -30,8 +30,6 @@ var Data = requireData.Data;
 
 
 
-
-
 //write closeCheck() to:
 //complain if anything's left open
 //print performance statistics
@@ -62,7 +60,7 @@ exports.testSomething = function(test) {
 
 
 
-
+//write an example that has a resource that finishes after 2 seconds of pulsing
 
 
 
@@ -106,6 +104,24 @@ if (process.argv[2] == "example-throw") {
 	Data("hello").start(6);//throws chop
 }
 
+//example of code in a timeout function that throws an exception
+//confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
+if (process.argv[2] == "example-timeout-throw") {
+
+	setTimeout(function() {//in 4 seconds, this function will run successfully
+
+		log("ran after 4 seconds");//never runs, the uncaught exception at 2 seconds ends the node process
+
+	}, 4000);
+
+	setTimeout(function() {//in 2 seconds, this function will run and throw
+
+		log("ran after 2 seconds");
+		Data("hello").start(6);//throws chop
+
+	}, 2000);
+}
+
 //example of catching an exception and sending it to mistakeLog(e)
 if (process.argv[2] == "example-log") {
 
@@ -122,10 +138,30 @@ if (process.argv[2] == "example-stop") {
 	} catch (e) { mistakeStop(e); }
 }
 
+//example of an object getting pulsed
+if (process.argv[2] == "example-pulse") {
+
+	function ExamplePulse() {
+		var state = makeState();
+		state.close = function() {
+			if (state.already()) return;
+		};
+		state.pulse = function() {
+			log("pulse");
+		}
+		return listState({
+			state:state
+		});
+	};
+
+	log("here we go");
+	var u = ExamplePulse();//make a new unstable object, which will log on each pulse
+}
+
 //example of code in a pulse function that throws an exception
 if (process.argv[2] == "example-pulse-throw") {
 
-	function Unstable() {
+	function ExamplePulseThrow() {
 		var state = makeState();
 		state.close = function() {
 			if (state.already()) return;
@@ -138,7 +174,7 @@ if (process.argv[2] == "example-pulse-throw") {
 		});
 	};
 
-	var u = Unstable();//make a new unstable object, which will throw on the first pulse
+	var u = ExamplePulseThrow();//make a new unstable object, which will throw on the first pulse
 }
 
 //example of making an object that needs to be closed, and closing it
