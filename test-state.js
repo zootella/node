@@ -194,6 +194,13 @@ if (process.argv[2] == "example-forget") {
 
 
 
+//move some of these into pulse
+
+//write one where it makes a resource that finishes on the first pulse as fast as it can, and sees how many it can do in 10 seconds
+//then try that with settimeout, setimmediate, and nexttick
+
+
+
 
 
 
