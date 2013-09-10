@@ -52,6 +52,30 @@ var Ago = requireMeasure.Ago;
 
 
 
+//   ____                       
+//  |  _ \  ___ _ __ ___   ___  
+//  | | | |/ _ \ '_ ` _ \ / _ \ 
+//  | |_| |  __/ | | | | | (_) |
+//  |____/ \___|_| |_| |_|\___/ 
+//                              
+
+// Run a demo with a command line:
+// $ node file.js demo name
+var _demo = false;
+function demo(name) {
+	if (!_demo && process.argv[2] == "demo" && process.argv[3] == name) {
+		_demo = true; // Make sure to run only one demo even if there are two with the same name
+		return true;
+	}
+	return false;
+}
+exports.demo = demo;
+
+
+
+
+
+
 
 
 

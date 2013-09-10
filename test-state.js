@@ -1,8 +1,13 @@
 
+
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
+
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 
 var requireState = require("./state");
+var demo = requireState.demo;
 var mistakeLog = requireState.mistakeLog;
 var mistakeStop = requireState.mistakeStop;
 var close = requireState.close;
@@ -98,15 +103,15 @@ function Resource() {
 //run these examples with a command like:
 //>node test-state.js example-name
 
-//example of running code that throws an exception
-if (process.argv[2] == "example-throw") {
+//run code that throws an exception
+if (demo("throw")) {
 
 	Data("hello").start(6);//throws chop
 }
 
-//example of code in a timeout function that throws an exception
+//code in a timeout function that throws an exception
 //confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
-if (process.argv[2] == "example-timeout-throw") {
+if (demo("timeout-throw")) {
 
 	setTimeout(function() {//in 4 seconds, this function will run successfully
 
@@ -122,24 +127,24 @@ if (process.argv[2] == "example-timeout-throw") {
 	}, 2000);
 }
 
-//example of catching an exception and sending it to mistakeLog(e)
-if (process.argv[2] == "example-log") {
+//catch an exception and sand it to mistakeLog(e)
+if (demo("log")) {
 
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeLog(e); }
 }
 
-//example of catching an exception and sending it to mistakeStop(e)
-if (process.argv[2] == "example-stop") {
+//catch an exception and sand it to mistakeStop(e)
+if (demo("stop")) {
 
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeStop(e); }
 }
 
-//example of an object getting pulsed
-if (process.argv[2] == "example-pulse") {
+//an object getting pulsed
+if (demo("pulse")) {
 
 	function ExamplePulse() {
 		var state = makeState();
@@ -158,8 +163,8 @@ if (process.argv[2] == "example-pulse") {
 	var u = ExamplePulse();//make a new unstable object, which will log on each pulse
 }
 
-//example of code in a pulse function that throws an exception
-if (process.argv[2] == "example-pulse-throw") {
+//code in a pulse function that throws an exception
+if (demo("pulse-throw")) {
 
 	function ExamplePulseThrow() {
 		var state = makeState();
@@ -177,16 +182,16 @@ if (process.argv[2] == "example-pulse-throw") {
 	var u = ExamplePulseThrow();//make a new unstable object, which will throw on the first pulse
 }
 
-//example of making an object that needs to be closed, and closing it
-if (process.argv[2] == "example-close") {
+//make an object that needs to be closed, and close it
+if (demo("close")) {
 
 	var m = Resource();
 	close(m);
 	closeCheck();
 }
 
-//example of making an object that needs to be closed, and forgetting to close it
-if (process.argv[2] == "example-forget") {
+//make an object that needs to be closed, and forget to close it
+if (demo("forget")) {
 
 	var m = Resource();
 	closeCheck();//forgot to close it
@@ -201,7 +206,7 @@ if (process.argv[2] == "example-forget") {
 
 
 
-
+//writing unit tests when you can, examples when you can't, get all the basic functionality of state.js covered here
 
 
 
@@ -355,6 +360,27 @@ var f2 = newFile();
 
 program.pulse.pulseAll();
 */
+
+
+
+
+
+
+
+
+
+//make an object that needs to be closed, and forget to close it
+if (demo("forget")) {
+
+	var m = Resource();
+	closeCheck();//forgot to close it
+}
+
+
+
+
+
+
 
 
 
