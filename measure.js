@@ -466,7 +466,7 @@ exports.Ago = Ago;
 function Speed(window) {
 	check(window, 100); // The smallest allowed window is 1/10 of a second
 
-	var _created = Now();                   // When this Speed object was created, and the start of column 0
+	var _created = now();                   // When this Speed object was created, and the start of column 0
 	var _width = scale(window, 2, 3).whole; // The width in milliseconds of all the columns in time after that
 
 	var _column   = 0; // The column index, 0 or more, we last added to

@@ -213,6 +213,8 @@ if (demo("forget")) {
 
 
 
+//have a really simple demo that uses speed and just counts how fast node can run a loop
+
 
 
 

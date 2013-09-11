@@ -298,8 +298,7 @@ function soon() {
 	// Start a pulse if one isn't already happening
 	if (!start) { // No need to start a new pulse if we're doing one now already
 		start = true;
-		setTimeout(_pulse, 0); // Run the _pulse function separately and soon
-		//TODO choose between setTimeout(f, 0), setImmediate(f), and process.nextTick(f)
+		setImmediate(_pulse); // Run the _pulse function separately and soon
 	}
 
 	// Have the pulse loop up the list again

@@ -4,7 +4,6 @@ var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
-
 var make = requireText.make;
 var say = requireText.say;
 var numerals16 = requireText.numerals16;
@@ -13,6 +12,10 @@ var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var Time = requireMeasure.Time;
 var Size = requireMeasure.Size;
+var Speed = requireMeasure.Speed;
+
+var requireState = require("./state");
+var demo = requireState.demo;
 
 var requireData = require("./data");
 var Data = requireData.Data;
@@ -350,34 +353,60 @@ exports.testWhen = function(test) {
 
 
 
-
-
-
-/*
-var Speed = requireMeasure.Speed;
-
-exports.testSpeed = function(test) {
-
+//measure the speed of two distances travelled
+if (demo("speed")) {
 
 	var s = Speed(10*Time.second);
 	s.distance(50*Size.mb);//50mb right now
+	log("went 50mb");
 
-	log("hi");
 	setTimeout(function() {
 		s.distance(50*Size.mb);//50mb a second later
+		log("went another 50mb a second later");
 		log(saySpeed(s.speed(Time.second)));//that's 100mb/s
-		test.done();
 	}, 1000);
-
-
-
 }
-*/
+
+//see how fast node can loop with events, three different ways
+if (demo("set-timeout")) { eventSpeed("timeout"); }//~60 events/s
+if (demo("set-immediate")) { eventSpeed("immediate"); }//~100k events/s
+if (demo("process-next-tick")) { eventSpeed("tick"); }//node warning to use setImmediate instead
+
+function eventSpeed(method) {
+
+	var speed = Speed(Time.second);
+	var start = now();
+	var count = 0;
+	var limit = 4*Time.second;
+
+	log("this will take", limit, "ms, using", method, "method");
+	once();
+
+	function once() {
+		if (!start.expired(limit)) {//still within the time limit
+
+			//count another loop
+			count++;
+			speed.count();
+
+			//run this again in a new event right away
+			if (method == "timeout") setTimeout(once, 0);
+			else if (method == "immediate") setImmediate(once);
+			else if (method == "tick") process.nextTick(once);
+			else throw "argument";
+
+		} else {//time's up
+
+			//say how fast we went
+			log("counted", count, "loops in", start.age(), "ms");
+			log("measured speed of", speed.speed(Time.second), "loops/second");
+		}
+	}
+}
 
 
-
-
-
+//use sayunits to make these better
+//change log to not insert spaces, sometimes you don't want them, and it should be the same as say()
 
 
 
@@ -943,7 +972,8 @@ var Stripe = requireMeasure.Stripe;
 
 
 
-
+//you are sure now that it makes sense to do chunk and piece the simplest way with small fragments at the end, and the same number of hash depth for everything
+//but the functions will be the same, they will just be simpler on the inside and simpler to explain
 
 
 /*
