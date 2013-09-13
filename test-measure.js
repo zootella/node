@@ -390,9 +390,9 @@ function eventSpeed(method) {
 			speed.count();
 
 			//run this again in a new event right away
-			if (method == "timeout") setTimeout(once, 0);
+			if      (method == "timeout")   setTimeout(once, 0);
 			else if (method == "immediate") setImmediate(once);
-			else if (method == "tick") process.nextTick(once);
+			else if (method == "tick")      process.nextTick(once);
 			else throw "argument";
 
 		} else {//time's up
@@ -409,7 +409,9 @@ function eventSpeed(method) {
 //change log to not insert spaces, sometimes you don't want them, and it should be the same as say()
 
 
-
+//this is cool, but write on that shows speed in real time, and lets you pause, unpause, and restart it
+//and make it general so that it can call whatever function you give it
+//figure out how to do that in an async case, probably with event emitter or something
 
 
 
