@@ -44,11 +44,11 @@ var Bay = requireData.Bay;
 //>node test-state.js example-name
 
 //example of running code that throws an exception
-if (process.argv[2] == "example-log") {
+if (demo("log")) {
 
 	log("hi");
 	log();//blank line
-	log("a", 7, "b");//multiple arguments get separated by spaces
+	log("a", 7, "b");//multiple arguments not separated by spaces
 }
 
 

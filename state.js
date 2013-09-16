@@ -146,10 +146,11 @@ exports.mistakeStop = mistakeStop;
 
 // Close o ignoring null and exceptions
 function close(o) {
-	if (!o) return;
-	try {
-		o.state.close();
-	} catch (e) { mistakeLog(e); } // Keep going to close the next object
+	if (isOpen(o)) {
+		try {
+			o.state.close();
+		} catch (e) { mistakeLog(e); } // Keep going to close the next object
+	}
 }
 
 function isClosed(o) { return o && o.state && o.state._closed;  } // True if o exists, needs to be closed, and is closed

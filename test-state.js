@@ -43,7 +43,7 @@ var Data = requireData.Data;
 //and also call it at the end of every test, something like
 
 
-
+/*
 function closeTest(test) {
 	if (closeCheck()) test.fail();
 	test.done();
@@ -55,7 +55,7 @@ exports.testSomething = function(test) {
 
 	closeTest(test);
 }
-
+*/
 
 
 //also make sur eyou are say()ing the objects that are still open
@@ -75,16 +75,6 @@ exports.testSomething = function(test) {
 
 
 
-//example object that needs to get closed
-function Resource() {
-	var state = makeState();
-	state.close = function() {
-		if (state.already()) return;
-	};
-	return listState({
-		state:state
-	});
-};
 
 
 
@@ -100,18 +90,32 @@ function Resource() {
 //  |_|  |_|_|___/\__\__,_|_|\_\___|
 //                                  
 
-//run these examples with a command like:
-//>node test-state.js example-name
-
 //run code that throws an exception
 if (demo("throw")) {
 
 	Data("hello").start(6);//throws chop
 }
 
+//catch an exception and sand it to mistakeLog(e)
+if (demo("mistake-log")) {
+
+	try {
+		Data("hello").start(6);
+	} catch (e) { mistakeLog(e); }
+}
+
+//catch an exception and sand it to mistakeStop(e)
+if (demo("mistake-stop")) {
+
+	try {
+		Data("hello").start(6);
+	} catch (e) { mistakeStop(e); }
+}
+
 //code in a timeout function that throws an exception
 //confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
 if (demo("timeout-throw")) {
+	log("setting timeouts for 2 and 4 seconds from now");
 
 	setTimeout(function() {//in 4 seconds, this function will run successfully
 
@@ -127,21 +131,137 @@ if (demo("timeout-throw")) {
 	}, 2000);
 }
 
-//catch an exception and sand it to mistakeLog(e)
-if (demo("log")) {
 
-	try {
-		Data("hello").start(6);
-	} catch (e) { mistakeLog(e); }
+
+
+
+
+
+
+
+
+//    ____ _                
+//   / ___| | ___  ___  ___ 
+//  | |   | |/ _ \/ __|/ _ \
+//  | |___| | (_) \__ \  __/
+//   \____|_|\___/|___/\___|
+//                          
+
+exports.testIf = function(test) {
+
+	var c;
+	test.ok(!c);//not defined yet, false
+
+	c = undefined;
+	test.ok(!c);//set to undefined, false
+
+	c = null;
+	test.ok(!c);//set to null, false
+
+	c = {};
+	test.ok(c);//set to empty hash, true
+
+	test.done();
 }
 
-//catch an exception and sand it to mistakeStop(e)
-if (demo("stop")) {
+//example object that needs to get closed
+function Resource() {
+	var state = makeState();
+	state.close = function() {
+		if (state.already()) return;
+	};
+	return listState({
+		state:state
+	});
+};
 
-	try {
-		Data("hello").start(6);
-	} catch (e) { mistakeStop(e); }
+exports.testClose = function(test) {
+
+	var r = Resource();//make a new object that we must close
+	test.ok(isOpen(r));//starts out open
+	test.ok(!isClosed(r));
+	close(r);//close it
+	test.ok(!isOpen(r));//confirm it's closed
+	test.ok(isClosed(r));
+
+	var u;//not set to anything
+	test.ok(!isOpen(u));//neither open nor closed
+	test.ok(!isClosed(u));
+
+	var n = null;//set to null
+	test.ok(!isOpen(n));
+	test.ok(!isClosed(n));
+
+	var o = Data();//set to an object that doesn't need to be closed
+	test.ok(!isOpen(o));
+	test.ok(!isClosed(o));
+
+	test.done();
 }
+
+exports.testCloseTwo = function(test) {
+
+	var r1 = Resource();//make two resources
+	var r2 = Resource();
+	test.ok(isOpen(r1));//both start out open
+	test.ok(isOpen(r2));
+
+	close(r2);//close one
+	test.ok(isOpen(r1));//confirm this didn't change the first one
+	test.ok(isClosed(r2));
+
+	close(r1);//close the other one
+	test.ok(isClosed(r1));//now they're both closed
+	test.ok(isClosed(r2));
+
+	test.done();
+}
+
+//try closing u, n, and o also
+if (demo("close-stuff")) {
+	log("hi");
+
+	var r = Resource();
+	close(r);
+
+	var u;
+	close(u);//silent because u is falsy
+
+	var n = null;
+	close(n);//silent here also
+
+	var o = Data();
+	close(o);//logs the mistake because
+
+	log("but we keep going after mistake log");
+
+
+}
+
+
+
+function isSpecial(o) {
+	return o && o.state && o.state._doesntExist;//confirm this doesn't throw, rather, it returns false, because querying a member that doesn't exist returns false, you think?
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   ____        _          
+//  |  _ \ _   _| |___  ___ 
+//  | |_) | | | | / __|/ _ \
+//  |  __/| |_| | \__ \  __/
+//  |_|    \__,_|_|___/\___|
+//                          
 
 //an object getting pulsed
 if (demo("pulse")) {
@@ -219,63 +339,7 @@ if (demo("forget")) {
 
 
 
-//    ____ _                
-//   / ___| | ___  ___  ___ 
-//  | |   | |/ _ \/ __|/ _ \
-//  | |___| | (_) \__ \  __/
-//   \____|_|\___/|___/\___|
-//                          
 
-exports.testIf = function(test) {
-
-	var c;
-	test.ok(!c);//not defined yet, false
-
-	c = undefined;
-	test.ok(!c);//set to undefined, false
-
-	c = null;
-	test.ok(!c);//set to null, false
-
-	c = {};
-	test.ok(c);//set to empty hash, true
-
-	test.done();
-}
-
-exports.testClose = function(test) {
-
-	var r = Resource();//make a new object that we must close
-	test.ok(isOpen(r));//starts out open
-	test.ok(!isClosed(r));
-	close(r);//close it
-	test.ok(!isOpen(r));//confirm it's closed
-	test.ok(isClosed(r));
-
-	var u;//not set to anything
-	test.ok(!isOpen(u));//neither open nor closed
-	test.ok(!isClosed(u));
-
-	var n = null;//set to null
-	test.ok(!isOpen(n));
-	test.ok(!isClosed(n));
-
-	var o = Data();//set to an object that doesn't need to be closed
-	test.ok(!isOpen(o));
-	test.ok(!isClosed(o));
-
-
-	//try closing u, n, and o also, that should probably log exceptions but keep going, you think
-
-	test.done();
-}
-
-
-
-/*
-var r = Resource();
-close(r);
-*/
 
 
 
@@ -368,15 +432,6 @@ program.pulse.pulseAll();
 
 
 
-
-
-
-//make an object that needs to be closed, and forget to close it
-if (demo("forget")) {
-
-	var m = Resource();
-	closeCheck();//forgot to close it
-}
 
 
 

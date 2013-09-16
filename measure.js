@@ -103,9 +103,9 @@ var say = requireText.say;
 
 // Log the given list of anything on the console, prefixed with the day and time
 function log() {
-	var t = sayDayAndTime(now().time);
+	var t = sayDayAndTime(now().time) + " ";
 	for (var i = 0; i < arguments.length; i++)
-		t += " " + say(arguments[i]);
+		t += say(arguments[i]);
 	console.log(t);
 }
 
@@ -308,26 +308,6 @@ exports.Average = Average;
 
 
 
-
-
-//use the now function instead
-/*
-// A Now remembers the moment when it was made
-function Now() {
-
-	var _time = Date.now();                                 // Save the number of milliseconds between January 1970 and right now
-	function expired(t) { check(t, 0); return t <= age(); } // True if t or more milliseconds have passed since this Now was made
-	function age() { return Date.now() - _time; }           // The number of milliseconds that have passed since this Now was made
-	function text() { return sayDayAndTime(_time); }        // Convert into text like "Sat 11:09a 49.146s"
-
-	return Object.freeze({                  // Freeze the public interface your object is returning to include immutable properties
-		time:_time, expired:expired, age:age, // For instance, setting now.time doesn't change it
-		text:text,                            // Without this, you would have to access it with the function now.time()
-		type:function(){ return "Now"; }
-	});
-}
-exports.Now = Now;
-*/
 
 
 
