@@ -364,6 +364,40 @@ function closeCheck() {
 
 exports.soon = soon;
 exports.closeCheck = closeCheck;
+exports.testDone = testDone;
+
+
+
+
+
+
+//call after you've closed all the objects a demo or the program used
+function closeCheck() {
+	clear();
+	if (list.length) {
+		//print forgotten objects
+		//mistake stop to log, report, and exit
+	} else {
+		//print performance stats
+		//return to close normally
+	}
+}
+
+//call after you've closed all the objects a test used
+//use this instead of test.done() for tests that involve objects that need to be closed
+function testDone(test) {
+	clear();
+	if (list.length) {
+		//print forgotten objects
+		//call test fail
+	} else {
+		//call test done
+	}
+}
+
+//does state persist between two different tests?
+//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
+//write some code to demonstrate how this works, actually
 
 
 

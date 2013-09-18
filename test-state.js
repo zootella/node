@@ -164,6 +164,39 @@ exports.testIf = function(test) {
 	test.done();
 }
 
+exports.testMissing = function(test) {
+
+	//trying out some ways to tell between false and undefined
+	var u;//undefined
+
+	test.ok(u == undefined);//both regular == and super cautious === seem to do it
+	test.ok(!(u == true));
+	test.ok(!(u == false));
+
+	test.ok(u === undefined);
+	test.ok(!(u === true));
+	test.ok(!(u === false));
+
+	//new empty object
+	var o = {};
+	o.yes = true;//make yes or no
+	o.no = false;
+
+	test.ok(o.yes);
+	test.ok(!o.no);
+	test.ok(!o.missing);//doesn't throw, o.missing is undefined which becomes false
+
+	test.ok(o.yes       == true);//true
+	test.ok(!(o.no      == true));//false
+	test.ok(!(o.missing == true));//false
+
+	test.ok(o.yes       != undefined);//true
+	test.ok(o.no        != undefined);//true
+	test.ok(!(o.missing != undefined));//false
+
+	test.done();
+}
+
 //example object that needs to get closed
 function Resource() {
 	var state = makeState();
@@ -199,6 +232,20 @@ exports.testClose = function(test) {
 	test.done();
 }
 
+exports.testCycle = function(test) {
+
+	var r;
+	test.ok(!r);//not made yet
+	r = Resource();
+	test.ok(isOpen(r));//new and open
+	close(r);
+	test.ok(isClosed(r));//closed
+	r = null;
+	test.ok(!r);//discarded
+
+	test.done();
+}
+
 exports.testCloseTwo = function(test) {
 
 	var r1 = Resource();//make two resources
@@ -217,32 +264,8 @@ exports.testCloseTwo = function(test) {
 	test.done();
 }
 
-//try closing u, n, and o also
-if (demo("close-stuff")) {
-	log("hi");
-
-	var r = Resource();
-	close(r);
-
-	var u;
-	close(u);//silent because u is falsy
-
-	var n = null;
-	close(n);//silent here also
-
-	var o = Data();
-	close(o);//logs the mistake because
-
-	log("but we keep going after mistake log");
 
 
-}
-
-
-
-function isSpecial(o) {
-	return o && o.state && o.state._doesntExist;//confirm this doesn't throw, rather, it returns false, because querying a member that doesn't exist returns false, you think?
-}
 
 
 
@@ -319,6 +342,18 @@ if (demo("forget")) {
 
 
 
+
+//when you're done with a demo or the whole program, close check should:
+//ok:
+//forgot:
+
+//when you're just done with one test, close check should:
+//ok:
+//forgot:
+
+
+
+
 //move some of these into pulse
 
 //write one where it makes a resource that finishes on the first pulse as fast as it can, and sees how many it can do in 10 seconds
@@ -390,13 +425,6 @@ program.pulse.pulseAll();
 
 
 
-exports.testState = function(test) {
-
-	test.done();
-}
-
-
-
 
 //have two fake objects in here that need to be closed
 //test the ability of the system to show that both are closed
@@ -408,24 +436,8 @@ exports.testState = function(test) {
 
 
 
-/*
-//demo, turn this into a test
-var f;
-if (!f) log('no');
-f = newFile();
-if (open(f)) log('open');
-close(f);
-if (done(f)) log('done');
-f = null;
-if (!f) log('no');
-*/
 
-/*
-var f1 = newFile();
-var f2 = newFile();
 
-program.pulse.pulseAll();
-*/
 
 
 
