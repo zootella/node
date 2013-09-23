@@ -5,6 +5,7 @@ var line = requireText.line;
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
+var items = requireMeasure.items;
 var Time = requireMeasure.Time;
 var now = requireMeasure.now;
 var When = requireMeasure.When;
@@ -95,24 +96,41 @@ exports.demo = demo;
 
 // Log e, but let the program keep running
 function mistakeLog(e) {
-	var s = "";
-	s += line("Mistake log:");
-	s += line(e);
-	log(s);
+	log(describeException(e));
 }
 
 // Log e and stop the program, this function does not return
 function mistakeStop(e) {
-	var s = "";
-	s += line("Mistake stop:");
-	s += line(e);
-	log(s);
+	log(describeException(e));
+	exit(); // Terminate the process right here without closing the program properly
+}
 
-	process.exit(1); // Terminate the process right here without closing the program properly
+// Call after you've closed all the objects the program used
+function closeCheck() {
+	clear(); // Remove closed objects from the list
+	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
+	if (list.length) { // We should have closed them all, but didn't
+		log(describeList());
+		exit(); // Otherwise the pulse timer will keep the process running
+	}
+}
+
+// Call after you've closed all the objects a test used
+function done(test) {
+	clear(); // Remove closed objects from the list
+	if (list.length) { // We should have closed them all, but didn't
+		log(describeList());
+		test.fail();
+		exit(); // Stop here instead of running the remaining tests
+	} else {
+		test.done();
+	}
 }
 
 exports.mistakeLog = mistakeLog;
 exports.mistakeStop = mistakeStop;
+exports.closeCheck = closeCheck;
+exports.done = done;
 
 //TODO get the stack trace from the exception, keep stuff you get by default like file, line number, and ^ by line of code
 //TODO show the error to the user, like write a .txt file and shell execute it before exiting
@@ -122,6 +140,42 @@ exports.mistakeStop = mistakeStop;
 
 
 
+function describeException(e) {
+	return line("uncaught exception:") + line(e);
+}
+function describeList() {
+	var s = line(items(list.length, "object"), " not closed:"); // Compose text about the objects still open by mistake
+	for (var i = 0; i < list.length; i++)
+		s += line(list[i]); // Say each forgotten item on one or more lines of text
+	return s;
+}
+function exit() {
+	log("force exit");
+	process.exit(1); // Report a nonzero error code
+}
+
+
+
+
+//does state persist between two different tests?
+//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
+//write some code to demonstrate how this works, actually
+
+//related question: does process.exit() in a test prevent the next tests from running?
+//try it
+
+
+/*
+Fri 12:18p 55.123s unhandled exception: (for both mistake log and close)
+(information about exception)
+Fri 12:18p 55.123s 1 object not closed:
+(information about objects)
+Fri 12:18p 55.123s force exit process
+
+write Resource(name)
+and then see that _listDescribe says the name
+
+*/
 
 
 
@@ -291,6 +345,7 @@ function dingStop() { // Stop requesting these repeating pulses
 
 var start = false; // true when we've set next tick to call _pulse(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
+var screen = Ago(Time.delay); // Make sure we don't update the screen too frequently
 
 // An object in the program has changed or finished
 // Pulse soon so the object that made it can notice and take the next step forward
@@ -341,63 +396,16 @@ function _pulse() {
 	start = false; // Allow the next call to soon() to start a new pulse
 }
 
-// Make sure we don't update the screen too frequently
-var screen = Ago(Time.delay);
-
-// When the program or test is done, make sure you closed every object
-function closeCheck() {
-
-	// Make sure the program closed every object before trying to exit
-	clear();           // Remove closed objects from the list
-	if (list.length) { // We should have closed them all, but didn't
-
-		var s = line(size, " objects open:"); // Compose text about the objects still open by mistake
-		for (var i = 0; i < size; i++) {
-			s += line(list[i]);
-		}
-		log(s);
-		process.exit(1);
-	}
-
-	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
-}
-
 exports.soon = soon;
-exports.closeCheck = closeCheck;
-exports.testDone = testDone;
 
 
 
 
 
 
-//call after you've closed all the objects a demo or the program used
-function closeCheck() {
-	clear();
-	if (list.length) {
-		//print forgotten objects
-		//mistake stop to log, report, and exit
-	} else {
-		//print performance stats
-		//return to close normally
-	}
-}
 
-//call after you've closed all the objects a test used
-//use this instead of test.done() for tests that involve objects that need to be closed
-function testDone(test) {
-	clear();
-	if (list.length) {
-		//print forgotten objects
-		//call test fail
-	} else {
-		//call test done
-	}
-}
 
-//does state persist between two different tests?
-//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
-//write some code to demonstrate how this works, actually
+
 
 
 
@@ -518,7 +526,9 @@ function monitorDescribeEfficiency() {
 	s += say(timeSpentPulsing,   " ms time spent pulsing\r\n");
 	return s;
 	*/
-	return "efficiency";
+
+	var s = line("pulse efficiency:");
+	return s;
 }
 
 

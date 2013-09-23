@@ -353,6 +353,10 @@ if (demo("forget")) {
 
 
 
+//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
+
+
+
 
 //move some of these into pulse
 
@@ -373,6 +377,12 @@ if (demo("forget")) {
 
 
 
+
+
+//speed loop demos
+//generalize it to a function followed by an event
+//make it an interactive demo that shows current speed, and stop and start
+//function, event, process.nextTick, setTimer, setImmediate
 
 
 
