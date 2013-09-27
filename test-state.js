@@ -198,15 +198,39 @@ exports.testMissing = function(test) {
 }
 
 //example object that needs to get closed
-function Resource() {
+function Resource(setName) {
+
+	var _name = setName;//save the given name
+	function text() {//describe this resource as text
+		var s = "Resource";
+		if (_name) s += " " + _name;
+		return s;
+	}
+
 	var state = makeState();
 	state.close = function() {
 		if (state.already()) return;
 	};
+	state.pulse = function() {
+		var s = "pulse";
+		if (_name) s += " " + _name;
+		log(s);
+	}
+
 	return listState({
-		state:state
+		state:state,
+		text:text
 	});
 };
+
+
+//see the name in the list when you leave one open
+//see two of them pulse in a demo
+
+
+
+
+
 
 exports.testClose = function(test) {
 
@@ -343,13 +367,6 @@ if (demo("forget")) {
 
 
 
-//when you're done with a demo or the whole program, close check should:
-//ok:
-//forgot:
-
-//when you're just done with one test, close check should:
-//ok:
-//forgot:
 
 
 

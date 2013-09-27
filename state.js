@@ -96,12 +96,12 @@ exports.demo = demo;
 
 // Log e, but let the program keep running
 function mistakeLog(e) {
-	log(describeException(e));
+	log(_describeException(e));
 }
 
 // Log e and stop the program, this function does not return
 function mistakeStop(e) {
-	log(describeException(e));
+	log(_describeException(e));
 	exit(); // Terminate the process right here without closing the program properly
 }
 
@@ -110,7 +110,7 @@ function closeCheck() {
 	clear(); // Remove closed objects from the list
 	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 	if (list.length) { // We should have closed them all, but didn't
-		log(describeList());
+		log(_describeList());
 		exit(); // Otherwise the pulse timer will keep the process running
 	}
 }
@@ -119,7 +119,7 @@ function closeCheck() {
 function done(test) {
 	clear(); // Remove closed objects from the list
 	if (list.length) { // We should have closed them all, but didn't
-		log(describeList());
+		log(_describeList());
 		test.fail();
 		exit(); // Stop here instead of running the remaining tests
 	} else {
@@ -127,10 +127,31 @@ function done(test) {
 	}
 }
 
+// Force the node process to exit immediately instead of closing by itself
+// This function does not return
+function exit() {
+	log("force exit"); // Make a note the program isn't closing by itself
+	process.exit(1); // Report a nonzero error code
+}
+
+// Compose text about the given exception
+function _describeException(e) {
+	return line("uncaught exception:") + line(e);
+}
+
+// Compose text about the objects left open in the pulse list
+function _describeList() {
+	var s = line(items(list.length, "object"), " not closed:"); // Compose text about the objects still open by mistake
+	for (var i = 0; i < list.length; i++)
+		s += line(list[i]); // Say each forgotten item on one or more lines of text
+	return s;
+}
+
 exports.mistakeLog = mistakeLog;
 exports.mistakeStop = mistakeStop;
 exports.closeCheck = closeCheck;
 exports.done = done;
+exports.exit = exit;
 
 //TODO get the stack trace from the exception, keep stuff you get by default like file, line number, and ^ by line of code
 //TODO show the error to the user, like write a .txt file and shell execute it before exiting
@@ -138,21 +159,6 @@ exports.done = done;
 
 
 
-
-
-function describeException(e) {
-	return line("uncaught exception:") + line(e);
-}
-function describeList() {
-	var s = line(items(list.length, "object"), " not closed:"); // Compose text about the objects still open by mistake
-	for (var i = 0; i < list.length; i++)
-		s += line(list[i]); // Say each forgotten item on one or more lines of text
-	return s;
-}
-function exit() {
-	log("force exit");
-	process.exit(1); // Report a nonzero error code
-}
 
 
 
