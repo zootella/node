@@ -35,37 +35,9 @@ var Data = requireData.Data;
 
 
 
-//write closeCheck() to:
-//complain if anything's left open
-//print performance statistics
-
-//make an easy way to call it at the end of a demo or program
-//and also call it at the end of every test, something like
-
-
-/*
-function closeTest(test) {
-	if (closeCheck()) test.fail();
-	test.done();
-}
-//figure out when to log, when to exit, and when to test fail on this
-//you want to say why it failed, that the following n objects were left open
-
-exports.testSomething = function(test) {
-
-	closeTest(test);
-}
-*/
-
-
-//also make sur eyou are say()ing the objects that are still open
-//and make data and file and others have text() that describe what's going on with them
 
 
 
-
-
-//write an example that has a resource that finishes after 2 seconds of pulsing
 
 
 
@@ -102,6 +74,8 @@ if (demo("mistake-log")) {
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeLog(e); }
+
+	log("code after runs");
 }
 
 //catch an exception and sand it to mistakeStop(e)
@@ -463,6 +437,8 @@ program.pulse.pulseAll();
 
 
 
+//make data and file and others have text() that describe what's going on with them
+//write a demo that has a resource that finishes after 2 seconds of pulsing
 
 
 
