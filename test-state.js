@@ -176,22 +176,22 @@ function Resource(setName) {
 
 	var _name = setName;//save the given name
 	function text() {//describe this resource as text
-		var s = "Resource";
+		var s = "resource";
 		if (_name) s += " " + _name;
 		return s;
 	}
 
-	var state = makeState();
-	state.close = function() {
+	var state = makeState();//a resource has state, meaning
+	state.close = function() {//we have to remember to close it
 		if (state.already()) return;
 	};
-	state.pulse = function() {
+	state.pulse = function() {//and the program will pulse it for us
 		var s = "pulse";
 		if (_name) s += " " + _name;
 		log(s);
 	}
 
-	return listState({
+	return listState({//remember to pass the return object through listState()
 		state:state,
 		text:text
 	});
@@ -264,6 +264,15 @@ exports.testCloseTwo = function(test) {
 
 
 
+
+if (demo("close-correct")) {
+
+
+}
+
+if (demo("close-forget")) {
+	
+}
 
 
 

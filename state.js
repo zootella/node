@@ -130,13 +130,13 @@ function done(test) {
 // Force the node process to exit immediately instead of closing by itself
 // This function does not return
 function exit() {
-	log("force exit"); // Make a note the program isn't closing by itself
+	log("process exit"); // Make a note the program isn't closing by itself
 	process.exit(1); // Report a nonzero error code
 }
 
 // Compose text about the given exception
 function _describeException(e) {
-	return line("uncaught exception:") + line(e);
+	return line("exception:") + line(e);
 }
 
 // Compose text about the objects left open in the pulse list
