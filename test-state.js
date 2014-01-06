@@ -138,7 +138,7 @@ exports.testIf = function(test) {
 	c = {};
 	test.ok(c);//set to empty hash, true
 
-	test.done();
+	done(test);
 }
 
 exports.testMissing = function(test) {
@@ -171,7 +171,7 @@ exports.testMissing = function(test) {
 	test.ok(o.no        != undefined);//true
 	test.ok(!(o.missing != undefined));//false
 
-	test.done();
+	done(test);
 }
 
 //example object that needs to get closed
@@ -221,7 +221,7 @@ exports.testClose = function(test) {
 	test.ok(!isOpen(o));
 	test.ok(!isClosed(o));
 
-	test.done();
+	done(test);
 }
 
 exports.testCycle = function(test) {
@@ -235,7 +235,7 @@ exports.testCycle = function(test) {
 	r = null;
 	test.ok(!r);//discarded
 
-	test.done();
+	done(test);
 }
 
 exports.testCloseTwo = function(test) {
@@ -253,7 +253,7 @@ exports.testCloseTwo = function(test) {
 	test.ok(isClosed(r1));//now they're both closed
 	test.ok(isClosed(r2));
 
-	test.done();
+	done(test);
 }
 
 //uncomment this test to see why test.done() doesn't work
