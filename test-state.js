@@ -5,17 +5,20 @@ var log = requireMeasure.log;
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
+var now = requireMeasure.now;
+var Time = requireMeasure.Time;
 
 var requireState = require("./state");
 var demo = requireState.demo;
 var mistakeLog = requireState.mistakeLog;
 var mistakeStop = requireState.mistakeStop;
+var closeCheck = requireState.closeCheck;
+var done = requireState.done;
 var close = requireState.close;
 var isClosed = requireState.isClosed;
 var isOpen = requireState.isOpen;
 var makeState = requireState.makeState;
 var listState = requireState.listState;
-var closeCheck = requireState.closeCheck;
 
 var requireData = require("./data");
 var Data = requireData.Data;
@@ -197,15 +200,6 @@ function Resource(setName) {
 	});
 };
 
-
-//see the name in the list when you leave one open
-//see two of them pulse in a demo
-
-
-
-
-
-
 exports.testClose = function(test) {
 
 	var r = Resource();//make a new object that we must close
@@ -262,17 +256,28 @@ exports.testCloseTwo = function(test) {
 	test.done();
 }
 
-
-
-
-if (demo("close-correct")) {
-
-
+//uncomment this test to see why test.done() doesn't work
+//test.done() won't notice the unclsoed resource
+//all the tests will pass, but the process will stay open, and the resource will keep pulsing
+/*
+exports.testDoneNotGoodEnough = function(test) {
+	var r = Resource("test.done() isn't good enough");
+	test.done();
 }
+*/
 
-if (demo("close-forget")) {
-	
+//uncomment this test to see the right way to do it, done(test)
+//done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
+/*
+exports.testUseDoneTestInstead = function(test) {
+	var r = Resource("use done(test) instead");
+	done(test);
 }
+*/
+
+
+
+
 
 
 
@@ -310,7 +315,7 @@ if (demo("pulse")) {
 	};
 
 	log("here we go");
-	var u = ExamplePulse();//make a new unstable object, which will log on each pulse
+	var u = ExamplePulse();
 }
 
 //code in a pulse function that throws an exception
@@ -329,7 +334,7 @@ if (demo("pulse-throw")) {
 		});
 	};
 
-	var u = ExamplePulseThrow();//make a new unstable object, which will throw on the first pulse
+	var u = ExamplePulseThrow();//make a new object which will throw on the first pulse
 }
 
 //make an object that needs to be closed, and close it
@@ -343,8 +348,48 @@ if (demo("close")) {
 //make an object that needs to be closed, and forget to close it
 if (demo("forget")) {
 
-	var m = Resource();
+	var m = Resource("name");
 	closeCheck();//forgot to close it
+}
+
+//two objects that pulse and then close after 2 and 4 seconds
+//when both objects are closed, the process will exit
+if (demo("pulse-two")) {
+
+	function Pulse1() {
+		var state = makeState();
+		state.close = function() {
+			if (state.already()) return;
+			log("closed 1");
+		};
+		state.pulse = function() {
+			log("pulse 1");
+			if (start.expired(2*Time.second)) state.close();//close this pulse1 object
+		}
+		return listState({
+			state:state
+		});
+	};
+
+	function Pulse2() {
+		var state = makeState();
+		state.close = function() {
+			if (state.already()) return;
+			log("closed 2");
+		};
+		state.pulse = function() {
+			log("pulse 2");
+			if (start.expired(4*Time.second)) state.close();
+		}
+		return listState({
+			state:state
+		});
+	};
+
+	var start = now();//make a note of the start time
+
+	var pulse1 = Pulse1();
+	var pulse2 = Pulse2();
 }
 
 
@@ -353,31 +398,12 @@ if (demo("forget")) {
 
 
 
-//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
-
-
-
-
-//move some of these into pulse
-
-//write one where it makes a resource that finishes on the first pulse as fast as it can, and sees how many it can do in 10 seconds
-//then try that with settimeout, setimmediate, and nexttick
-
 
 
 //writing unit tests when you can, examples when you can't, get all the basic functionality of state.js covered here
 
-
-
-
-
-
-//have a really simple demo that uses speed and just counts how fast node can run a loop
-
-
-
-
-
+//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
+//then try that with settimeout, setimmediate, and nexttick
 
 //speed loop demos
 //generalize it to a function followed by an event
@@ -389,34 +415,6 @@ if (demo("forget")) {
 
 
 
-//see what happens when you call open(c) on c, which doesn't have a state inside
-
-
-//when it complains when something is open, have it write hte type, and call text() on it to have it describe itself
-
-
-
-
-
-
-/*
-//demo, turn this into a test
-var f;
-if (!f) log('no');
-f = newFile();
-if (open(f)) log('open');
-close(f);
-if (done(f)) log('done');
-f = null;
-if (!f) log('no');
-*/
-
-/*
-var f1 = newFile();
-var f2 = newFile();
-
-program.pulse.pulseAll();
-*/
 
 
 
@@ -429,30 +427,8 @@ program.pulse.pulseAll();
 
 
 
-
-
-
-
-
-
-
-//have two fake objects in here that need to be closed
-//test the ability of the system to show that both are closed
-//and to complain when one is not closed
-
-
-
-
-
-
-
-//make data and file and others have text() that describe what's going on with them
-//write a demo that has a resource that finishes after 2 seconds of pulsing
-
-
-
-
-
+//see the name in the list when you leave one open
+//see two of them pulse in a demo
 
 
 
