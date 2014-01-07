@@ -163,27 +163,6 @@ exports.exit = exit;
 
 
 
-//does state persist between two different tests?
-//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
-//write some code to demonstrate how this works, actually
-
-//related question: does process.exit() in a test prevent the next tests from running?
-//try it
-
-
-/*
-Fri 12:18p 55.123s unhandled exception: (for both mistake log and close)
-(information about exception)
-Fri 12:18p 55.123s 1 object not closed:
-(information about objects)
-Fri 12:18p 55.123s force exit process
-
-write Resource(name)
-and then see that _listDescribe says the name
-
-*/
-
-
 
 
 
@@ -389,9 +368,9 @@ function _pulse() {
 	// In a single pass after that, pulse up the list to have objects compose information for the user
 	if (screen.enough()) { // Only update the screen 5 times a second
 		for (var i = list.length - 1; i >= 0; i--) {
-			if (isOpen(list[i]) && hasMethod(list[i].state, "pulseUser")) { // Skip closed objects
+			if (isOpen(list[i]) && hasMethod(list[i].state, "pulseScreen")) { // Skip closed objects
 				try {
-					list[i].state.pulseUser(); // Pulse the object to have it compose text for the user to show current information
+					list[i].state.pulseScreen(); // Pulse the object to have it compose text for the user to show current information
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 			}
 		}
