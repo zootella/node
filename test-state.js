@@ -256,25 +256,6 @@ exports.testCloseTwo = function(test) {
 	done(test);
 }
 
-//uncomment this test to see why test.done() doesn't work
-//test.done() won't notice the unclsoed resource
-//all the tests will pass, but the process will stay open, and the resource will keep pulsing
-/*
-exports.testDoneNotGoodEnough = function(test) {
-	var r = Resource("test.done() isn't good enough");
-	test.done();
-}
-*/
-
-//uncomment this test to see the right way to do it, done(test)
-//done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
-/*
-exports.testUseDoneTestInstead = function(test) {
-	var r = Resource("use done(test) instead");
-	done(test);
-}
-*/
-
 
 
 
@@ -400,16 +381,47 @@ if (demo("pulse-two")) {
 
 
 
-//writing unit tests when you can, examples when you can't, get all the basic functionality of state.js covered here
 
-//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
-//then try that with settimeout, setimmediate, and nexttick
+
+
+
+
+
+//uncomment this test to see why test.done() doesn't work
+//test.done() won't notice the unclsoed resource
+//all the tests will pass, but the process will stay open, and the resource will keep pulsing
+/*
+exports.testDoneNotGoodEnough = function(test) {
+	var r = Resource("test.done() isn't good enough");
+	test.done();
+}
+*/
+
+//uncomment this test to see the right way to do it, done(test)
+//done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
+/*
+exports.testUseDoneTestInstead = function(test) {
+	var r = Resource("use done(test) instead");
+	done(test);
+}
+*/
+
+
+
+
+
+
+
+
+
+
 
 //speed loop demos
 //generalize it to a function followed by an event
 //make it an interactive demo that shows current speed, and stop and start
 //function, event, process.nextTick, setTimer, setImmediate
 
+//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
 
 
 
@@ -417,18 +429,19 @@ if (demo("pulse-two")) {
 
 
 
+//does state persist between two different tests? yes, it does, but write two tests to show it
+//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
+//write some code to demonstrate how this works, actually
+//ok, what if the state is in state.js, one of the tests is in test-state.js, and the second test is in test-measure.js, do they all share state
+//maybe write that into a little three file example so you don't have to clutter stuff up here
+//and then run the tests with nodeunit test-*.js or whatever
+
+//related question: does process.exit() in a test prevent the next tests from running?
+//try it, yes it does, now write a commented out test to show it
 
 
 
 
-
-
-
-
-
-
-//see the name in the list when you leave one open
-//see two of them pulse in a demo
 
 
 
