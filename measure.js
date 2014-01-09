@@ -988,12 +988,144 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
+function composeDate(t) {
+	var o = {};
+
+	o.hi = "hi";
+	o.Hi = "Hi";
+	o.HI = "HI";
+
+
+
+	return o;
+}
+
+exports.composeDate = composeDate;
 
 
 
 
+//here's where you could make the free form date
+//have this function take an international setting, rather than using the global
+/*
+	//year
+	yy 14
+	yyyy 2014
+
+	//calendar month
+	c j
+	C J
+	ccc jan
+	Ccc Jan
+	CCC JAN
+	cccc january
+	Cccc January
+	CCCC JANUARY
+
+	//number of day in month
+	n 8
+	nn 08
+
+	//day name in week
+	d w
+	D W
+	ddd wed
+	Ddd Wed
+	DDD WED
+	dddd wednesday
+	Dddd Wednesday
+	DDDD WEDNESDAY
+
+	//hour
+	12h 1
+	24h 13
+	12hh 01
+	24hh 13
+	h picks according to international setting
+	hh
+
+	//minute
+	m 3
+	mm 03
+
+	//second
+	s 7
+	ss 07
+
+	//millisecond
+	t 2
+	tt 18
+	ttt 179
+
+	//am or pm
+	a a p
+	A
+	aa am pm
+	AA AM PM
+	i only inserts if necessary based on international setting, for use with h and hh
+	I
+	ii
+	II
+
+	//english, french, and international separators
+	: passes through
+	, . pass through for english, get switched for french, get replaced for international
+	,, .. force comma and period
 
 
+	var date = new Date(t);
+	var y = date.getFullYear(); // Year
+
+	var m;
+	switch (date.getMonth()) { // Month, 0-11
+		case  0: m = "Jan"; break;
+		case  1: m = "Feb"; break;
+		case  2: m = "Mar"; break;
+		case  3: m = "Apr"; break;
+		case  4: m = "May"; break;
+		case  5: m = "Jun"; break;
+		case  6: m = "Jul"; break;
+		case  7: m = "Aug"; break;
+		case  8: m = "Sep"; break;
+		case  9: m = "Oct"; break;
+		case 10: m = "Nov"; break;
+		case 11: m = "Dec"; break;
+	}
+
+	var d = date.getDate(); // Day of the month, 1-31
+
+	var w;
+	switch (date.getDay()) { // Day of the week, 0-6
+		case 0: w = "Sun"; break;
+		case 1: w = "Mon"; break;
+		case 2: w = "Tue"; break;
+		case 3: w = "Wed"; break;
+		case 4: w = "Thu"; break;
+		case 5: w = "Fri"; break;
+		case 6: w = "Sat"; break;
+	}
+
+	var t;                           // Time of day
+	var hours = date.getHours();     // Hour 0-23
+	var minutes = date.getMinutes(); // Minute 0-59
+	if (culture.clock() == 12) {     // 12 hour time, like "12:01a", "9:30a" or "2:55p"
+		if      (hours == 0)  t = "#:#a".fill(hours + 12, widen(minutes, 2)); // 0 hours is 12a
+		else if (hours < 12)  t = "#:#a".fill(hours,      widen(minutes, 2)); // 1 hours is 1a
+		else if (hours == 12) t = "#:#p".fill(hours,      widen(minutes, 2)); // 12 hours is 12p
+		else                  t = "#:#p".fill(hours - 12, widen(minutes, 2)); // 13 hours is 1p, 23 hours is 11p
+	} else {                         // 24 hour time, like "00:01", "09:30" or "14:55"
+		t = "#:#".fill(widen(hours, 2), widen(minutes, 2));
+	}
+
+	var s = widen(date.getSeconds(), 2); // Second 0-59
+	var ms = widen(date.getMilliseconds(), 3); // Millisecond 0-999
+
+	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
+
+
+
+
+*/
 
 
 

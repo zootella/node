@@ -948,6 +948,31 @@ exports.testSayDateDay = function(test) {
 
 
 
+var composeDate = requireMeasure.composeDate;
+
+
+if (demo("compose-date")) {
+
+	var o = composeDate();
+
+	log(o.hi);
+	log(o.Hi);
+	log(o.HI);//yes, case sensitive works
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
