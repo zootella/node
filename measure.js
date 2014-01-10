@@ -988,19 +988,21 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-function composeDate(t) {
+function sayDateParts(t) {
 	var o = {};
 
-	o.hi = "hi";
-	o.Hi = "Hi";
-	o.HI = "HI";
+	var date = new Date(t);
+
+	o.yyyy = say(date.getFullYear());
+	o.yy = o.yyyy.end(2);
+
 
 
 
 	return o;
 }
 
-exports.composeDate = composeDate;
+exports.sayDateParts = sayDateParts;
 
 
 

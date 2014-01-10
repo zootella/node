@@ -948,16 +948,17 @@ exports.testSayDateDay = function(test) {
 
 
 
-var composeDate = requireMeasure.composeDate;
+var sayDateParts = requireMeasure.sayDateParts;
 
 
 if (demo("compose-date")) {
 
-	var o = composeDate();
+	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
 
-	log(o.hi);
-	log(o.Hi);
-	log(o.HI);//yes, case sensitive works
+	var o = sayDateParts(t);
+
+	log(o.yyyy);
+	log(o.yy);
 
 
 
