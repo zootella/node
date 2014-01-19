@@ -988,21 +988,80 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-function sayDateParts(t) {
-	var o = {};
+function dateParts(t, culture) {
 
 	var date = new Date(t);
+	var p = {};
 
-	o.yyyy = say(date.getFullYear());
-	o.yy = o.yyyy.end(2);
+	// Numbers
+	p.year        = date.getFullYear();     // Year
+	p.month       = date.getMonth() + 1;    // Month, 0-11
+	p.dayOfMonth  = date.getDate();         // Number of day in the month, 1-31
+	p.dayOfWeek   = date.getDay()   + 1;    // Day of the week, 0-6
+	p.hour        = date.getHours();        // Hour 0-23
+	p.minute      = date.getMinutes();      // Minute 0-59
+	p.second      = date.getSeconds();      // Second 0-59
+	p.millisecond = date.getMilliseconds(); // Millisecond 0-999
 
+	// Text
+	p.yyyy = say(p.year); // Year
+	p.yy = p.yyyy.end(2);
 
+	p.o = say(p.month); // Month, 0-11
+	p.oo = widen(p.o, 2);
+	switch (p.month) {
+		case  1: p.c = "j"; p.C = "J"; p.ccc = "jan"; p.Ccc = "Jan"; p.CCC = "JAN"; p.cccc = "january";   p.Cccc = "January";   p.CCCC = "JANUARY";   break;
+		case  2: p.c = "f"; p.C = "F"; p.ccc = "feb"; p.Ccc = "Feb"; p.CCC = "FEB"; p.cccc = "february";  p.Cccc = "February";  p.CCCC = "FEBRUARY";  break;
+		case  3: p.c = "m"; p.C = "M"; p.ccc = "mar"; p.Ccc = "Mar"; p.CCC = "MAR"; p.cccc = "march";     p.Cccc = "March";     p.CCCC = "MARCH";     break;
+		case  4: p.c = "a"; p.C = "A"; p.ccc = "apr"; p.Ccc = "Apr"; p.CCC = "APR"; p.cccc = "april";     p.Cccc = "April";     p.CCCC = "APRIL";     break;
+		case  5: p.c = "y"; p.C = "Y"; p.ccc = "may"; p.Ccc = "May"; p.CCC = "MAY"; p.cccc = "may";       p.Cccc = "May";       p.CCCC = "MAY";       break;
+		case  6: p.c = "j"; p.C = "J"; p.ccc = "jun"; p.Ccc = "Jun"; p.CCC = "JUN"; p.cccc = "june";      p.Cccc = "June";      p.CCCC = "JUNE";      break;
+		case  7: p.c = "u"; p.C = "U"; p.ccc = "jul"; p.Ccc = "Jul"; p.CCC = "JUL"; p.cccc = "july";      p.Cccc = "July";      p.CCCC = "JULY";      break;
+		case  8: p.c = "a"; p.C = "A"; p.ccc = "aug"; p.Ccc = "Aug"; p.CCC = "AUG"; p.cccc = "august";    p.Cccc = "August";    p.CCCC = "AUGUST";    break;
+		case  9: p.c = "s"; p.C = "S"; p.ccc = "sep"; p.Ccc = "Sep"; p.CCC = "SEP"; p.cccc = "september"; p.Cccc = "September"; p.CCCC = "SEPTEMBER"; break;
+		case 10: p.c = "o"; p.C = "O"; p.ccc = "oct"; p.Ccc = "Oct"; p.CCC = "OCT"; p.cccc = "october";   p.Cccc = "October";   p.CCCC = "OCTOBER";   break;
+		case 11: p.c = "n"; p.C = "N"; p.ccc = "nov"; p.Ccc = "Nov"; p.CCC = "NOV"; p.cccc = "november";  p.Cccc = "November";  p.CCCC = "NOVEMBER";  break;
+		case 12: p.c = "d"; p.C = "D"; p.ccc = "dec"; p.Ccc = "Dec"; p.CCC = "DEC"; p.cccc = "december";  p.Cccc = "December";  p.CCCC = "DECEMBER";  break;
+	}
 
+	p.n = say(p.dayOfMonth); // Number of day in the month, 1-31
+	p.nn = widen(p.n, 2);
 
-	return o;
+	switch (p.dayOfWeek) { // Day of the week, 0-6
+		case 1: p.d = "s"; p.D = "S"; p.ddd = "sun"; p.Ddd = "Sun"; p.DDD = "SUN"; p.dddd = "sunday";    p.Dddd = "Sunday";    p.DDDD = "SUNDAY";    break;
+		case 2: p.d = "m"; p.D = "M"; p.ddd = "mon"; p.Ddd = "Mon"; p.DDD = "MON"; p.dddd = "monday";    p.Dddd = "Monday";    p.DDDD = "MONDAY";    break;
+		case 3: p.d = "t"; p.D = "T"; p.ddd = "tue"; p.Ddd = "Tue"; p.DDD = "TUE"; p.dddd = "tuesday";   p.Dddd = "Tuesday";   p.DDDD = "TUESDAY";   break;
+		case 4: p.d = "w"; p.D = "W"; p.ddd = "wed"; p.Ddd = "Wed"; p.DDD = "WED"; p.dddd = "wednesday"; p.Dddd = "Wednesday"; p.DDDD = "WEDNESDAY"; break;
+		case 5: p.d = "h"; p.D = "H"; p.ddd = "thu"; p.Ddd = "Thu"; p.DDD = "THU"; p.dddd = "thursday";  p.Dddd = "Thursday";  p.DDDD = "THURSDAY";  break;
+		case 6: p.d = "f"; p.D = "F"; p.ddd = "fri"; p.Ddd = "Fri"; p.DDD = "FRI"; p.dddd = "friday";    p.Dddd = "Friday";    p.DDDD = "FRIDAY";    break;
+		case 7: p.d = "u"; p.D = "U"; p.ddd = "sat"; p.Ddd = "Sat"; p.DDD = "SAT"; p.dddd = "saturday";  p.Dddd = "Saturday";  p.DDDD = "SATURDAY";  break;
+	}
+
+	p.24H = say(p.hour); // 24 hour time, like "00:01", "09:30" or "14:55"
+	p.24HH = widen(p.hour, 2);
+	p.M = say(p.minute);
+	p.MM = widen(p.minute, 2);
+
+	// 12 hour time, like "12:01a", "9:30a" or "2:55p"
+	if      (p.hour ==  0) { p.12H = say(p.hour + 12); p.12HH = widen(p.hour + 12, 2); p.a = "a"; p.A = "A"; p.aa = "am"; p.AA = "AM";} // 0 hours is 12a
+	else if (p.hour <  12) { p.12H = say(p.hour);      p.12HH = widen(p.hour,      2); p.a = "a"; p.A = "A"; p.aa = "am"; p.AA = "AM";} // 1 hours is 1a
+	else if (p.hour == 12) { p.12H = say(p.hour);      p.12HH = widen(p.hour,      2); p.a = "p"; p.A = "P"; p.aa = "pm"; p.AA = "PM";} // 12 hours is 12p
+	else                   { p.12H = say(p.hour - 12); p.12HH = widen(p.hour - 12, 2); p.a = "p"; p.A = "P"; p.aa = "pm"; p.AA = "PM";} // 13 hours is 1p, 23 hours is 11p
+
+	if (culture == "e") { p.H = p.12H; p.HH = 12HH; p.i = p.a; p.I = p.A; p.ii = p.aa; p.II = p.AA; } // English, 12 hour
+	else                { p.H = p.24H; p.HH = 24HH; p.i = "";  p.I = "";  p.ii = "";   p.II = "";   } // French and international, 24 hour
+
+	p.S = say(p.second);
+	p.SS = widen(p.second, 2);
+
+	p.T = say(p.millisecond); // Millisecond, tick count
+	p.TT = widen(p.millisecond, 2);
+	p.TTT = widen(p.millisecond, 3);
+
+	return p;
 }
 
-exports.sayDateParts = sayDateParts;
+exports.dateParts = dateParts;
 
 
 
@@ -1010,123 +1069,13 @@ exports.sayDateParts = sayDateParts;
 //here's where you could make the free form date
 //have this function take an international setting, rather than using the global
 /*
-	//year
-	yy 14
-	yyyy 2014
 
-	//calendar month
-	c j
-	C J
-	ccc jan
-	Ccc Jan
-	CCC JAN
-	cccc january
-	Cccc January
-	CCCC JANUARY
-
-	//number of day in month
-	n 8
-	nn 08
-
-	//day name in week
-	d w
-	D W
-	ddd wed
-	Ddd Wed
-	DDD WED
-	dddd wednesday
-	Dddd Wednesday
-	DDDD WEDNESDAY
-
-	//hour
-	12h 1
-	24h 13
-	12hh 01
-	24hh 13
-	h picks according to international setting
-	hh
-
-	//minute
-	m 3
-	mm 03
-
-	//second
-	s 7
-	ss 07
-
-	//millisecond
-	t 2
-	tt 18
-	ttt 179
-
-	//am or pm
-	a a p
-	A
-	aa am pm
-	AA AM PM
-	i only inserts if necessary based on international setting, for use with h and hh
-	I
-	ii
-	II
+	p.separator, do you need that?
 
 	//english, french, and international separators
 	: passes through
 	, . pass through for english, get switched for french, get replaced for international
 	,, .. force comma and period
-
-
-	var date = new Date(t);
-	var y = date.getFullYear(); // Year
-
-	var m;
-	switch (date.getMonth()) { // Month, 0-11
-		case  0: m = "Jan"; break;
-		case  1: m = "Feb"; break;
-		case  2: m = "Mar"; break;
-		case  3: m = "Apr"; break;
-		case  4: m = "May"; break;
-		case  5: m = "Jun"; break;
-		case  6: m = "Jul"; break;
-		case  7: m = "Aug"; break;
-		case  8: m = "Sep"; break;
-		case  9: m = "Oct"; break;
-		case 10: m = "Nov"; break;
-		case 11: m = "Dec"; break;
-	}
-
-	var d = date.getDate(); // Day of the month, 1-31
-
-	var w;
-	switch (date.getDay()) { // Day of the week, 0-6
-		case 0: w = "Sun"; break;
-		case 1: w = "Mon"; break;
-		case 2: w = "Tue"; break;
-		case 3: w = "Wed"; break;
-		case 4: w = "Thu"; break;
-		case 5: w = "Fri"; break;
-		case 6: w = "Sat"; break;
-	}
-
-	var t;                           // Time of day
-	var hours = date.getHours();     // Hour 0-23
-	var minutes = date.getMinutes(); // Minute 0-59
-	if (culture.clock() == 12) {     // 12 hour time, like "12:01a", "9:30a" or "2:55p"
-		if      (hours == 0)  t = "#:#a".fill(hours + 12, widen(minutes, 2)); // 0 hours is 12a
-		else if (hours < 12)  t = "#:#a".fill(hours,      widen(minutes, 2)); // 1 hours is 1a
-		else if (hours == 12) t = "#:#p".fill(hours,      widen(minutes, 2)); // 12 hours is 12p
-		else                  t = "#:#p".fill(hours - 12, widen(minutes, 2)); // 13 hours is 1p, 23 hours is 11p
-	} else {                         // 24 hour time, like "00:01", "09:30" or "14:55"
-		t = "#:#".fill(widen(hours, 2), widen(minutes, 2));
-	}
-
-	var s = widen(date.getSeconds(), 2); // Second 0-59
-	var ms = widen(date.getMilliseconds(), 3); // Millisecond 0-999
-
-	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
-
-
-
-
 */
 
 

@@ -948,17 +948,23 @@ exports.testSayDateDay = function(test) {
 
 
 
-var sayDateParts = requireMeasure.sayDateParts;
+var dateParts = requireMeasure.dateParts;
 
 
 if (demo("compose-date")) {
 
 	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
 
-	var o = sayDateParts(t);
+	var p = dateParts(now().time);
 
-	log(o.yyyy);
-	log(o.yy);
+	log(p.year);
+	log(p.month);
+	log(p.dayOfMonth);
+	log(p.dayOfWeek);
+	log(p.hour);
+	log(p.minute);
+	log(p.second);
+	log(p.millisecond);
 
 
 
