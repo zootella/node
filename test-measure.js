@@ -947,24 +947,59 @@ exports.testSayDateDay = function(test) {
 
 
 
-
+var dateCode = requireMeasure.dateCode;
 var dateParts = requireMeasure.dateParts;
 
 
 if (demo("compose-date")) {
 
+	/*
+
 	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
 
 	var p = dateParts(now().time);
 
-	log(p.year);
-	log(p.month);
-	log(p.dayOfMonth);
-	log(p.dayOfWeek);
-	log(p.hour);
-	log(p.minute);
-	log(p.second);
-	log(p.millisecond);
+/*
+	log("year ", p.year);
+	log("month ", p.month);
+	log("day of month ", p.dayOfMonth);
+	log("day of week ", p.dayOfWeek);
+	log("hour ", p.hour);
+	log("minute ", p.minute);
+	log("second ", p.second);
+	log("millisecond ", p.millisecond);
+
+
+	log("YYYY YY # #".fill(p.YYYY, p.YY));
+	log("O OO # #".fill(p.O, p.OO));
+	log("c C ccc Ccc CCC cccc Cccc CCCC # # # # # # # #".fill(p.c, p.C, p.ccc, p.Ccc, p.CCC, p.cccc, p.Cccc, p.CCCC));
+	log("N NN # #".fill(p.N, p.NN));
+	log("d D ddd Ddd DDD dddd Dddd DDDD # # # # # # # #".fill(p.d, p.D, p.ddd, p.Ddd, p.DDD, p.dddd, p.Dddd, p.DDDD));
+	log("H24 HH24 # #".fill(p.H24, p.HH24));
+	log("M MM # #".fill(p.M, p.MM));
+	log("H12 HH12 # #".fill(p.H12, p.HH12));
+	log("a A aa AA # # # #".fill(p.a, p.A, p.aa, p.AA));
+	log("S SS # #".fill(p.S, p.SS));
+	log("T TT TTT # # #".fill(p.T, p.TT, p.TTT));
+	*/
+
+
+//	log(dateCode(now().time, "dHH12:MMaSS.TTT"));
+
+	var t = 32*Time.year + 5*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
+	var d = dateParts(t);
+	log(d.DDDD);
+	log(d.Dddd);
+	log(d.dddd);
+	log(d.DDD);
+	log(d.Ddd);
+	log(d.ddd);
+	log(d.DD);
+	log(d.dd);
+
+	log(dateCode(t, "YYYY Ccc N Ddd H12:MMa"));
+
+	log("hi");
 
 
 
