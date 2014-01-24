@@ -1039,7 +1039,18 @@ function sayDayAndTimeDEVELOPER(t) {
 //use this one for log
 
 
+//sayDate
+//sayDateAndTime
+//sayDayAndTime
+//sayDateTemplate
+//_date
 
+
+
+//have a legend guide
+// YYYY YY  year
+// 2014 14
+//and write that as a test, also
 
 
 
