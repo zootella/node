@@ -908,117 +908,7 @@ exports.sayTimeRace = sayTimeRace;
 //  |____/ \__,_|\__\___|
 //                       
 
-
-
-
-
-
-
-
-// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
-function sayDate(t) {
-	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa");
-	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM");
-	/*
-	var a = _date(t);
-	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t);
-	*/
-}
-
-// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
-function sayDateAndTime(t) {
-	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM SS#TTT".fill(culture.decimal()));
-	/*
-	var a = _date(t);
-	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
-	*/
-}
-
-// Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
-function sayDayAndTime(t) {
-	if (culture.clock() == 12) return sayDateTemplate(t, "Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return sayDateTemplate(t, "Ddd HH24:MM SS#TTT".fill(culture.decimal()));
-	/*
-	var a = _date(t);
-	return say(a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
-	*/
-}
-
 /*
-// Given a number of milliseconds since January 1970, generate information about the local date and time
-function _date(t) {
-
-	var date = new Date(t);
-	var y = date.getFullYear(); // Year
-
-	var m;
-	switch (date.getMonth()) { // Month, 0-11
-		case  0: m = "Jan"; break;
-		case  1: m = "Feb"; break;
-		case  2: m = "Mar"; break;
-		case  3: m = "Apr"; break;
-		case  4: m = "May"; break;
-		case  5: m = "Jun"; break;
-		case  6: m = "Jul"; break;
-		case  7: m = "Aug"; break;
-		case  8: m = "Sep"; break;
-		case  9: m = "Oct"; break;
-		case 10: m = "Nov"; break;
-		case 11: m = "Dec"; break;
-	}
-
-	var d = date.getDate(); // Day of the month, 1-31
-
-	var w;
-	switch (date.getDay()) { // Day of the week, 0-6
-		case 0: w = "Sun"; break;
-		case 1: w = "Mon"; break;
-		case 2: w = "Tue"; break;
-		case 3: w = "Wed"; break;
-		case 4: w = "Thu"; break;
-		case 5: w = "Fri"; break;
-		case 6: w = "Sat"; break;
-	}
-
-	var t;                           // Time of day
-	var hours = date.getHours();     // Hour 0-23
-	var minutes = date.getMinutes(); // Minute 0-59
-	if (culture.clock() == 12) {     // 12 hour time, like "12:01a", "9:30a" or "2:55p"
-		if      (hours == 0)  t = "#:#a".fill(hours + 12, widen(minutes, 2)); // 0 hours is 12a
-		else if (hours < 12)  t = "#:#a".fill(hours,      widen(minutes, 2)); // 1 hours is 1a
-		else if (hours == 12) t = "#:#p".fill(hours,      widen(minutes, 2)); // 12 hours is 12p
-		else                  t = "#:#p".fill(hours - 12, widen(minutes, 2)); // 13 hours is 1p, 23 hours is 11p
-	} else {                         // 24 hour time, like "00:01", "09:30" or "14:55"
-		t = "#:#".fill(widen(hours, 2), widen(minutes, 2));
-	}
-
-	var s = widen(date.getSeconds(), 2); // Second 0-59
-	var ms = widen(date.getMilliseconds(), 3); // Millisecond 0-999
-
-	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
-}
-*/
-
-exports.sayDate = sayDate;
-exports.sayDateAndTime = sayDateAndTime;
-exports.sayDayAndTime = sayDayAndTime;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
 Date template codes
 
 --------------------------------------  Year, in 4 and 2 digits
@@ -1045,14 +935,25 @@ HH24 H24 HH12 H12  AA aa A a
 --------------------------------------  Minute, second, and millisecond
 MM M  : SS S : TTT TT T
 15 15 : 08 8 : 078 78 78
-
 */
 
+// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
+function sayDate(t) {
+	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa");
+	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM");
+}
 
+// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
+function sayDateAndTime(t) {
+	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
+	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM SS#TTT".fill(culture.decimal()));
+}
 
-
-
-
+// Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
+function sayDayAndTime(t) {
+	if (culture.clock() == 12) return sayDateTemplate(t, "Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
+	else                       return sayDateTemplate(t, "Ddd HH24:MM SS#TTT".fill(culture.decimal()));
+}
 
 // Given a number of milliseconds since 1970 and a template string like "YYYY Ccc N Ddd H12:MMa", compose text like "2002 Jun 22 Sat 11:09a"
 function sayDateTemplate(t, s) {
@@ -1109,10 +1010,6 @@ function sayDateTemplate(t, s) {
 
 	return s;
 }
-
-
-
-
 
 // Given a number of milliseconds since 1970, compose parts of the date and time like year, month, day, and hour
 function dateParts(t) {
@@ -1184,6 +1081,9 @@ function dateParts(t) {
 	return d;
 }
 
+exports.sayDate = sayDate;
+exports.sayDateAndTime = sayDateAndTime;
+exports.sayDayAndTime = sayDayAndTime;
 exports.sayDateTemplate = sayDateTemplate;
 exports.dateParts = dateParts;
 
