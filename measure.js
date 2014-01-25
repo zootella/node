@@ -917,8 +917,8 @@ exports.sayTimeRace = sayTimeRace;
 
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
 function sayDate(t) {
-	if (culture.clock() == 12) return dateCode(t, "YYYY Ccc N Ddd H12:MMa");
-	else                       return dateCode(t, "YYYY Ccc N Ddd HH24:MM");
+	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa");
+	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM");
 	/*
 	var a = _date(t);
 	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t);
@@ -927,8 +927,8 @@ function sayDate(t) {
 
 // Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
 function sayDateAndTime(t) {
-	if (culture.clock() == 12) return dateCode(t, "YYYY Ccc N Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return dateCode(t, "YYYY Ccc N Ddd HH24:MM SS#TTT".fill(culture.decimal()));
+	if (culture.clock() == 12) return sayDateTemplate(t, "YYYY Ccc N Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
+	else                       return sayDateTemplate(t, "YYYY Ccc N Ddd HH24:MM SS#TTT".fill(culture.decimal()));
 	/*
 	var a = _date(t);
 	return say(a.y, " ", a.m, " ", a.d, " ", a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
@@ -937,14 +937,15 @@ function sayDateAndTime(t) {
 
 // Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
 function sayDayAndTime(t) {
-	if (culture.clock() == 12) return dateCode(t, "Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return dateCode(t, "Ddd HH24:MM SS#TTT".fill(culture.decimal()));
+	if (culture.clock() == 12) return sayDateTemplate(t, "Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
+	else                       return sayDateTemplate(t, "Ddd HH24:MM SS#TTT".fill(culture.decimal()));
 	/*
 	var a = _date(t);
 	return say(a.w, " ", a.t, " ", a.s, culture.decimal(), a.ms, culture.clock() == 12 ? "s" : "");
 	*/
 }
 
+/*
 // Given a number of milliseconds since January 1970, generate information about the local date and time
 function _date(t) {
 
@@ -997,6 +998,7 @@ function _date(t) {
 
 	return { y:y, m:m, d:d, w:w, t:t, s:s, ms:ms };
 }
+*/
 
 exports.sayDate = sayDate;
 exports.sayDateAndTime = sayDateAndTime;
@@ -1012,50 +1014,48 @@ exports.sayDayAndTime = sayDayAndTime;
 
 
 
-// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a" with the year, month, day, and time
-function sayDateNEW(t) {
-	if (culture.clock() == 12) return dateCode(t, "YYYY Ccc N Ddd H12:MMa");
-	else                       return dateCode(t, "YYYY Ccc N Ddd HH24:MM");
-}
-
-// Turn the given number of milliseconds since 1970 into text like "2002 Jun 22 Sat 11:09a 49.146s" with everything
-function sayDateAndTimeNEW(t) {
-	if (culture.clock() == 12) return dateCode(t, "YYYY Ccc N Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return dateCode(t, "YYYY Ccc N Ddd HH24:MM SS#TTT".fill(culture.decimal()));
-}
-
-// Turn the given number of milliseconds since 1970 into text like "Sat 11:09a 49.146s" with the day and time to milliseconds
-function sayDayAndTimeNEW(t) {
-	if (culture.clock() == 12) return dateCode(t, "Ddd H12:MMa SS#TTTs".fill(culture.decimal()));
-	else                       return dateCode(t, "Ddd HH24:MM SS#TTT".fill(culture.decimal()));
-}
 
 
 
+/*
 
-function sayDayAndTimeDEVELOPER(t) {
-	return dateCode(t, "dHH12:MMaSS.TTT");
-}
-//use this one for log
+Date template codes
 
+--------------------------------------  Year, in 4 and 2 digits
+YYYY YY
+2002 02
 
-//sayDate
-//sayDateAndTime
-//sayDayAndTime
-//sayDateTemplate
-//_date
+--------------------------------------  Month number, and month name on the calendar
+OO O  CCCC Cccc cccc CCC Ccc ccc CC cc
+05 5  JUNE June june JUN Jun jun J  j
 
+--------------------------------------  Number of day in month, leading zero or shortest possible
+NN N
+09 9
+10 10
 
+--------------------------------------  Day name in the week
+DDDD   Dddd   dddd   DDD Ddd ddd DD dd
+FRIDAY Friday friday FRI Fri fri F  f 
 
-//have a legend guide
-// YYYY YY  year
-// 2014 14
-//and write that as a test, also
+--------------------------------------  Hour on 24 and 12 hour clocks, and AM/PM text
+HH24 H24 HH12 H12  AA aa A a
+13   13  01   1    PM pm P p
+
+--------------------------------------  Minute, second, and millisecond
+MM M  : SS S : TTT TT T
+15 15 : 08 8 : 078 78 78
+
+*/
 
 
 
 
-function dateCode(t, s) {
+
+
+
+// Given a number of milliseconds since 1970 and a template string like "YYYY Ccc N Ddd H12:MMa", compose text like "2002 Jun 22 Sat 11:09a"
+function sayDateTemplate(t, s) {
 
 	var d = dateParts(t);
 
@@ -1184,7 +1184,7 @@ function dateParts(t) {
 	return d;
 }
 
-exports.dateCode = dateCode;
+exports.sayDateTemplate = sayDateTemplate;
 exports.dateParts = dateParts;
 
 

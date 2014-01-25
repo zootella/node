@@ -946,7 +946,7 @@ exports.testSayDateDay = function(test) {
 
 
 
-
+/*
 var dateCode = requireMeasure.dateCode;
 var dateParts = requireMeasure.dateParts;
 
@@ -983,7 +983,7 @@ if (demo("compose-date")) {
 	log("T TT TTT # # #".fill(p.T, p.TT, p.TTT));
 	*/
 
-
+/*
 //	log(dateCode(now().time, "dHH12:MMaSS.TTT"));
 
 	var t = 32*Time.year + 5*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
@@ -1005,7 +1005,7 @@ if (demo("compose-date")) {
 
 }
 
-
+*/
 
 
 
