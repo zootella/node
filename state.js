@@ -40,11 +40,6 @@ var Ago = requireMeasure.Ago;
 
 
 
-//finish log
-//add the time
-//have it put spaces between arguments, unlike say
-//move it to where it can use the time
-//use it everywhere instead of console.log
 
 
 
