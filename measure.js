@@ -103,7 +103,7 @@ var say = requireText.say;
 
 // Log the given list of anything on the console, prefixed with the day and time
 function log() {
-	var t = sayDateTemplate(now().time, "ddHH12:MMaSS.TTT") + " ";
+	var t = sayDateTemplate(now().time, "ddHH12:MMaSS.TTT") + "  ";
 	for (var i = 0; i < arguments.length; i++)
 		t += say(arguments[i]);
 	console.log(t);
