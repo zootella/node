@@ -29,6 +29,12 @@ var Bay = requireData.Bay;
 
 
 
+var timeZone = "m"; // The local time zone the tests are running in, set to "e" Eastern, or "m" Mountain time
+
+
+
+
+
 
 
 
@@ -330,7 +336,8 @@ exports.testWhen = function(test) {
 
 	//load a saved time
 	var w = When(1030338738133);
-	test.ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
+	if      (timeZone == "m") test.ok(w.text() == "2002 Aug 25 Sun 11:12p 18.133s");
+	else if (timeZone == "e") test.ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
 
 	test.done();
 }
@@ -897,46 +904,91 @@ exports.testSayDateDay = function(test) {
 	}
 
 	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
-	
-	f(t,
-		"2002 May 25 Sat 00:35 44·456",
-		"2002 May 25 Sat 00:35 44,456",
-		"2002 May 25 Sat 12:35a 44.456s");//midnight
 
-	t += 2*Time.hour
-	f(t,
-		"2002 May 25 Sat 02:35 44·456",
-		"2002 May 25 Sat 02:35 44,456",
-		"2002 May 25 Sat 2:35a 44.456s");//am single digit
+	if (timeZone == "m") {
 
-	t += 8*Time.hour
-	f(t,
-		"2002 May 25 Sat 10:35 44·456",
-		"2002 May 25 Sat 10:35 44,456",
-		"2002 May 25 Sat 10:35a 44.456s");//am double digit
+		f(t,
+			"2002 May 24 Fri 22:35 44·456",
+			"2002 May 24 Fri 22:35 44,456",
+			"2002 May 24 Fri 10:35p 44.456s");
 
-	t += 2*Time.hour
-	f(t,
-		"2002 May 25 Sat 12:35 44·456",
-		"2002 May 25 Sat 12:35 44,456",
-		"2002 May 25 Sat 12:35p 44.456s");//noon
+		t += 2*Time.hour
+		f(t,
+			"2002 May 25 Sat 00:35 44·456",
+			"2002 May 25 Sat 00:35 44,456",
+			"2002 May 25 Sat 12:35a 44.456s");
 
-	t += 3*Time.hour
-	f(t,
-		"2002 May 25 Sat 15:35 44·456",
-		"2002 May 25 Sat 15:35 44,456",
-		"2002 May 25 Sat 3:35p 44.456s");//pm single digit
+		t += 8*Time.hour
+		f(t,
+			"2002 May 25 Sat 08:35 44·456",
+			"2002 May 25 Sat 08:35 44,456",
+			"2002 May 25 Sat 8:35a 44.456s");
 
-	t += 8*Time.hour
-	f(t,
-		"2002 May 25 Sat 23:35 44·456",
-		"2002 May 25 Sat 23:35 44,456",
-		"2002 May 25 Sat 11:35p 44.456s");//pm double digit
+		t += 2*Time.hour
+		f(t,
+			"2002 May 25 Sat 10:35 44·456",
+			"2002 May 25 Sat 10:35 44,456",
+			"2002 May 25 Sat 10:35a 44.456s");
 
-	t += 7*Time.month + 20*Time.second + 545;
-	test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:06a");
-	test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:06a 05.001s");
-	test.ok(sayDayAndTime(t)  ==             "Wed 12:06a 05.001s");
+		t += 3*Time.hour
+		f(t,
+			"2002 May 25 Sat 13:35 44·456",
+			"2002 May 25 Sat 13:35 44,456",
+			"2002 May 25 Sat 1:35p 44.456s");//pm single digit
+
+		t += 8*Time.hour
+		f(t,
+			"2002 May 25 Sat 21:35 44·456",
+			"2002 May 25 Sat 21:35 44,456",
+			"2002 May 25 Sat 9:35p 44.456s");//pm double digit
+
+		t += 7*Time.month + 20*Time.second + 545;
+		test.ok(sayDate(t)        == "2002 Dec 24 Tue 10:06p");
+		test.ok(sayDateAndTime(t) == "2002 Dec 24 Tue 10:06p 05.001s");
+		test.ok(sayDayAndTime(t)  ==             "Tue 10:06p 05.001s");
+
+	} else if (timeZone == "e") {
+
+		f(t,
+			"2002 May 25 Sat 00:35 44·456",
+			"2002 May 25 Sat 00:35 44,456",
+			"2002 May 25 Sat 12:35a 44.456s");//midnight
+
+		t += 2*Time.hour
+		f(t,
+			"2002 May 25 Sat 02:35 44·456",
+			"2002 May 25 Sat 02:35 44,456",
+			"2002 May 25 Sat 2:35a 44.456s");//am single digit
+
+		t += 8*Time.hour
+		f(t,
+			"2002 May 25 Sat 10:35 44·456",
+			"2002 May 25 Sat 10:35 44,456",
+			"2002 May 25 Sat 10:35a 44.456s");//am double digit
+
+		t += 2*Time.hour
+		f(t,
+			"2002 May 25 Sat 12:35 44·456",
+			"2002 May 25 Sat 12:35 44,456",
+			"2002 May 25 Sat 12:35p 44.456s");//noon
+
+		t += 3*Time.hour
+		f(t,
+			"2002 May 25 Sat 15:35 44·456",
+			"2002 May 25 Sat 15:35 44,456",
+			"2002 May 25 Sat 3:35p 44.456s");//pm single digit
+
+		t += 8*Time.hour
+		f(t,
+			"2002 May 25 Sat 23:35 44·456",
+			"2002 May 25 Sat 23:35 44,456",
+			"2002 May 25 Sat 11:35p 44.456s");//pm double digit
+
+		t += 7*Time.month + 20*Time.second + 545;
+		test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:06a");
+		test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:06a 05.001s");
+		test.ok(sayDayAndTime(t)  ==             "Wed 12:06a 05.001s");
+	}
 
 	test.done();
 }
