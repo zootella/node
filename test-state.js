@@ -84,6 +84,8 @@ if (demo("mistake-stop")) {
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeStop(e); }
+
+	log("code after does not run");
 }
 
 //code in a timeout function that throws an exception
@@ -176,9 +178,8 @@ function Resource(setName) {
 
 	var _name = setName;//save the given name
 	function text() {//describe this resource as text
-		var s = "resource";
-		if (_name) s += " " + _name;
-		return s;
+		if (_name) return _name;
+		else       return "untitled resource";
 	}
 
 	var state = makeState();//a resource has state, meaning
@@ -280,6 +281,7 @@ exports.testCloseTwo = function(test) {
 if (demo("pulse")) {
 
 	function ExamplePulse() {
+
 		var state = makeState();
 		state.close = function() {
 			if (state.already()) return;
@@ -287,6 +289,7 @@ if (demo("pulse")) {
 		state.pulse = function() {
 			log("pulse");
 		}
+
 		return listState({
 			state:state
 		});
@@ -297,9 +300,11 @@ if (demo("pulse")) {
 }
 
 //code in a pulse function that throws an exception
+//pulse will catch the exception so we don't need to catch it here
 if (demo("pulse-throw")) {
 
 	function ExamplePulseThrow() {
+
 		var state = makeState();
 		state.close = function() {
 			if (state.already()) return;
@@ -307,6 +312,7 @@ if (demo("pulse-throw")) {
 		state.pulse = function() {
 			Data("hello").start(6);//throws chop
 		}
+
 		return listState({
 			state:state
 		});
@@ -321,12 +327,13 @@ if (demo("close")) {
 	var m = Resource();
 	close(m);
 	closeCheck();
+	//with no more code to run here, the process exits normally
 }
 
 //make an object that needs to be closed, and forget to close it
 if (demo("forget")) {
 
-	var m = Resource("name");
+	var m = Resource("forgotten resource 1");
 	closeCheck();//forgot to close it
 }
 
@@ -389,16 +396,17 @@ if (demo("pulse-two")) {
 //all the tests will pass, but the process will stay open, and the resource will keep pulsing
 /*
 exports.testDoneNotGoodEnough = function(test) {
-	var r = Resource("test.done() isn't good enough");
+	var r = Resource("resource test done");
 	test.done();
 }
 */
 
 //uncomment this test to see the right way to do it, done(test)
 //done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
+//nodeunit doesn't seem to respond to the failed test, but will complain that the process ended without a test being done
 /*
 exports.testUseDoneTestInstead = function(test) {
-	var r = Resource("use done(test) instead");
+	var r = Resource("resource done test");
 	done(test);
 }
 */
@@ -410,35 +418,23 @@ exports.testUseDoneTestInstead = function(test) {
 
 
 
+//nodeunit persists values between different tests
+//this example shows it in this file, but it also happens with global state in other files this file uses
 
+var globalVariable;
 
+exports.testPersists1 = function(test) {//runs first
 
-//speed loop demos
-//generalize it to a function followed by an event
-//make it an interactive demo that shows current speed, and stop and start
-//function, event, process.nextTick, setTimer, setImmediate
+	globalVariable = "value 1";//set the global variable
+	test.ok(globalVariable == "value 1");
+	done(test);
+}
 
-//make an object which finishes on the first pulse, and hook that into a loop to see how many you can do in 4s, this is a test of how fast soon is, really
+exports.testPersists2 = function(test) {//runs afterwards
 
-
-
-
-
-
-
-//does state persist between two different tests? yes, it does, but write two tests to show it
-//if you have a global var in this file, and one test sets it to "a", can the next test see the value as a?
-//write some code to demonstrate how this works, actually
-//ok, what if the state is in state.js, one of the tests is in test-state.js, and the second test is in test-measure.js, do they all share state
-//maybe write that into a little three file example so you don't have to clutter stuff up here
-//and then run the tests with nodeunit test-*.js or whatever
-
-//related question: does process.exit() in a test prevent the next tests from running?
-//try it, yes it does, now write a commented out test to show it
-
-
-
-
+	test.ok(globalVariable == "value 1");//it's still set to the value from the previous test
+	done(test);
+}
 
 
 

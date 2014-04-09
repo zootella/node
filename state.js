@@ -30,37 +30,6 @@ var Ago = requireMeasure.Ago;
 
 
 
-//things state does that you might want to test
-/*
-run a demo with a command line
-
-mistakeLog - log e, but let the program keep running
-mistakeStop - log e and stop the program
-
-closeCheck - successfully close all the objects and exit normally
-forget to close an object and have the program notice
-
-done - successfully close all the objects a test uses
-have a test forget to close an object and notice
-
-exit - force the node process to exit immediately
-
-
-close
-isClosed
-isOpen
--
-close objects that can be closed and not
-check that objects are open before and closed after
-
-state - make dummy objects that have state and need to be closed
-listState - call this somewhere the correct way
-
-soon - is there ever a reason you should need to call soon directly?
-*/
-
-
-
 
 
 
@@ -142,8 +111,8 @@ function done(test) {
 		log(_describeList());
 		test.fail();
 		exit(); // Stop here instead of running the remaining tests
-	} else {
-		test.done();
+	} else { // The test closed everything correctly
+		test.done(); // Tell nodeunit the test finished successfully
 	}
 }
 
