@@ -23,16 +23,41 @@ var Ago = requireMeasure.Ago;
 
 
 
-//design goal
-//there's only one global pulse list
-//but individual unit tests can use it, and confirm that it's put away at the end of each one
-//and two whole different applications running in the same process can share it, and it all works
-//think of it as part of the platform, not your application
 
 //have the 4s timeout built into the base, so you get it enforced for free automatically everywheres
 
 //it was bad design to have monitor make decisions, it should only measure performance, so a monitor of empty functions would work just as well
 
+
+
+//things state does that you might want to test
+/*
+run a demo with a command line
+
+mistakeLog - log e, but let the program keep running
+mistakeStop - log e and stop the program
+
+closeCheck - successfully close all the objects and exit normally
+forget to close an object and have the program notice
+
+done - successfully close all the objects a test uses
+have a test forget to close an object and notice
+
+exit - force the node process to exit immediately
+
+
+close
+isClosed
+isOpen
+-
+close objects that can be closed and not
+check that objects are open before and closed after
+
+state - make dummy objects that have state and need to be closed
+listState - call this somewhere the correct way
+
+soon - is there ever a reason you should need to call soon directly?
+*/
 
 
 
