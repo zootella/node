@@ -13,33 +13,11 @@ var requireState = require("./state");
 var demo = requireState.demo;
 
 
-//later, remove all these to have these speed demos run without extra of your code at all
 
 
 
 
 
-
-
-
-
-
-
-
-
-//measure the speed of two distances travelled
-if (demo("speed")) {
-
-	var s = Speed(10*Time.second);
-	s.distance(50*Size.mb);//50mb right now
-	log("went 50mb");
-
-	setTimeout(function() {
-		s.distance(50*Size.mb);//50mb a second later
-		log("went another 50mb a second later");
-		log(saySpeed(s.speed(Time.second)));//that's 100mb/s
-	}, 1000);
-}
 
 //see how fast node can loop with events, three different ways
 if (demo("set-timeout")) { eventSpeed("timeout"); }//~60 events/s
@@ -258,6 +236,9 @@ function demoTimeout(method) {
 		}
 	}
 }
+
+//pulse should use setImmediate because it's fast and the other options don't work
+//events are synchronous, setTimeout is slow, and process.nextTick has a warning
 
 
 

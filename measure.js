@@ -237,67 +237,6 @@ exports.check = check;
 
 
 
-// Calculate the average of a number of vales as they are produced
-function Average() {
-
-	function n()       { return _n;       } var _n       = 0; // How many values we have, 0 before you add one
-	function total()   { return _total;   } var _total   = 0; // The total sum of all the given values
-
-	function minimum() { return _minimum; } var _minimum = 0; // The smallest value we have seen, 0 before we have any values
-	function maximum() { return _maximum; } var _maximum = 0; // The largest value we have seen, 0 before we have any values
-	function recent()  { return _recent;  } var _recent  = 0; // The most recent value that you added, 0 before we have any values
-
-	// Record a new value to make it a part of this average
-	function add(value) {
-		_n++; // Count another value
-		_total += value; // Add the value to our total
-		if (_n == 1 || value < _minimum) _minimum = value; // First or smallest value
-		if (_n == 1 || value > _maximum) _maximum = value; // First or largest value
-		_recent = value; // Remember the most recent value
-	}
-
-	// The current average, rounded down to a whole number, 0 before we have any values
-	function average() {
-		if (!_n) return 0;
-		return divide(_total, _n).whole;
-	}
-
-	// The current average, 0 before we have any values
-	function averageFloat() {
-		if (!_n) return 0;
-		return divide(_total, _n).decimal; // Use the division operator to get the floating point result
-	}
-	
-	// The current average in thousandths, given 4, 5, and 6, the average is 5000
-	function averageThousandths() { return averageMultiply(1000); }
-	// The current average multiplied by the given number. */
-	function averageMultiply(m) {
-		if (!_n) return 0;
-		return scale(m, _total, _n).whole;
-	}
-
-	// Text that describes the current average, like "5.000", "Undefined" before we have any values
-	function say() {
-		if (!_n) return "Undefined";
-		throw "todo"; //TODO return Describe.decimal(averageThousandths(), 3);
-	}
-
-	return {
-		n:n, total:total,
-		minimum:minimum, maximum:maximum, recent:recent,
-		add:add,
-		average:average, averageFloat:averageFloat, averageThousandths:averageThousandths, averageMultiply:averageMultiply,
-		say:say,
-		type:function(){ return "Average"; }
-	};
-}
-
-exports.Average = Average;
-
-
-
-
-
 
 
 
@@ -434,63 +373,6 @@ exports.Ago = Ago;
 
 
 
-
-
-
-
-
-
-
-// Make a Speed object, tell it distances traveled or counts when they happen, and get the current speed
-// Given a window of 3*Time.second, the object will keep between 2 and 4 seconds of data to calculate the current speed
-function Speed(window) {
-	check(window, 100); // The smallest allowed window is 1/10 of a second
-
-	var _created = now();                   // When this Speed object was created, and the start of column 0
-	var _width = scale(window, 2, 3).whole; // The width in milliseconds of all the columns in time after that
-
-	var _column   = 0; // The column index, 0 or more, we last added to
-	var _current  = 0; // The total distance recorded in that column of time
-	var _previous = 0; // The total distance we recorded in the previous column of time
-
-	function distance(d) { return add(d, 1);    } // Record that we just traveled the given distance or counted the given number of events
-	function count()     { return add(1, 1);    } // Record that we just counted another event
-	function speed(unit) { return add(0, unit); } // Find out how fast we're going right now, 0 or more distance units or events per given time unit, like Time.second
-
-	// Given a distance to add, or 0 to add nothing, calculate our speed right now in the given unit of time and decimal places
-	// For instance, set unit to Time.second * 1000 to get the speed in thousandths of distance units per second
-	function add(distance, unit) {
-		check(distance, 0);
-		check(unit, 1);
-
-		var a = divide(_created.age(), _width);
-		var columnNow = a.whole; // The column index, 0 or more, that the current time places us in now
-		var time = a.remainder;  // How long we've been in the current column
-
-		if (columnNow != 0) time += _width;    // After column 0, we also have distances from the previous column in time
-
-		if (_column == columnNow) {            // We're still in the same column we last added a distance to, no cycle necessary
-		} else if (_column + 1 == columnNow) { // Time has moved us into the next column
-			_previous = _current;                // Cycle the totals
-			_current = 0;
-		} else {                               // Time has moved us two or more columns forward
-			_previous = 0;                       // Zero both totals
-			_current = 0;
-		}
-
-		_current += distance; // Add any given distance to the current total
-		_column = columnNow;  // Record the column number we put it in, and the column we cycled to above
-		
-		if (time < 100) return 0; // Avoid reporting huge or inaccurate speeds at the very start
-		return scale(unit, _current + _previous, time).whole; // Rate is distance over time
-	}
-
-	return {
-		distance:distance, count:count, speed:speed, add:add,
-		type:function(){ return "Speed"; }
-	};
-}
-exports.Speed = Speed;
 
 
 
@@ -1237,6 +1119,157 @@ exports.indexPieceToByte = indexPieceToByte;
 exports.stripeChunkToByte = stripeChunkToByte;
 exports.stripePieceToChunk = stripePieceToChunk;
 exports.stripePieceToByte = stripePieceToByte;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Calculate the average of a number of vales as they are produced
+function Average() {
+
+	function n()       { return _n;       } var _n       = 0; // How many values we have, 0 before you add one
+	function total()   { return _total;   } var _total   = 0; // The total sum of all the given values
+
+	function minimum() { return _minimum; } var _minimum = 0; // The smallest value we have seen, 0 before we have any values
+	function maximum() { return _maximum; } var _maximum = 0; // The largest value we have seen, 0 before we have any values
+	function recent()  { return _recent;  } var _recent  = 0; // The most recent value that you added, 0 before we have any values
+
+	// Record a new value to make it a part of this average
+	function add(value) {
+		_n++; // Count another value
+		_total += value; // Add the value to our total
+		if (_n == 1 || value < _minimum) _minimum = value; // First or smallest value
+		if (_n == 1 || value > _maximum) _maximum = value; // First or largest value
+		_recent = value; // Remember the most recent value
+	}
+
+	// The current average, rounded down to a whole number, 0 before we have any values
+	function average() {
+		if (!_n) return 0;
+		return divide(_total, _n).whole;
+	}
+
+	// The current average, 0 before we have any values
+	function averageFloat() {
+		if (!_n) return 0;
+		return divide(_total, _n).decimal; // Use the division operator to get the floating point result
+	}
+	
+	// The current average in thousandths, given 4, 5, and 6, the average is 5000
+	function averageThousandths() { return averageMultiply(1000); }
+	// The current average multiplied by the given number. */
+	function averageMultiply(m) {
+		if (!_n) return 0;
+		return scale(m, _total, _n).whole;
+	}
+
+	// Text that describes the current average, like "5.000", "Undefined" before we have any values
+	function say() {
+		if (!_n) return "Undefined";
+		throw "todo"; //TODO return Describe.decimal(averageThousandths(), 3);
+	}
+
+	return {
+		n:n, total:total,
+		minimum:minimum, maximum:maximum, recent:recent,
+		add:add,
+		average:average, averageFloat:averageFloat, averageThousandths:averageThousandths, averageMultiply:averageMultiply,
+		say:say,
+		type:function(){ return "Average"; }
+	};
+}
+
+// Make a Speed object, tell it distances traveled or counts when they happen, and get the current speed
+// Given a window of 3*Time.second, the object will keep between 2 and 4 seconds of data to calculate the current speed
+function Speed(window) {
+	check(window, 100); // The smallest allowed window is 1/10 of a second
+
+	var _created = now();                   // When this Speed object was created, and the start of column 0
+	var _width = scale(window, 2, 3).whole; // The width in milliseconds of all the columns in time after that
+
+	var _column   = 0; // The column index, 0 or more, we last added to
+	var _current  = 0; // The total distance recorded in that column of time
+	var _previous = 0; // The total distance we recorded in the previous column of time
+
+	function distance(d) { return add(d, 1);    } // Record that we just traveled the given distance or counted the given number of events
+	function count()     { return add(1, 1);    } // Record that we just counted another event
+	function speed(unit) { return add(0, unit); } // Find out how fast we're going right now, 0 or more distance units or events per given time unit, like Time.second
+
+	// Given a distance to add, or 0 to add nothing, calculate our speed right now in the given unit of time and decimal places
+	// For instance, set unit to Time.second * 1000 to get the speed in thousandths of distance units per second
+	function add(distance, unit) {
+		check(distance, 0);
+		check(unit, 1);
+
+		var a = divide(_created.age(), _width);
+		var columnNow = a.whole; // The column index, 0 or more, that the current time places us in now
+		var time = a.remainder;  // How long we've been in the current column
+
+		if (columnNow != 0) time += _width;    // After column 0, we also have distances from the previous column in time
+
+		if (_column == columnNow) {            // We're still in the same column we last added a distance to, no cycle necessary
+		} else if (_column + 1 == columnNow) { // Time has moved us into the next column
+			_previous = _current;                // Cycle the totals
+			_current = 0;
+		} else {                               // Time has moved us two or more columns forward
+			_previous = 0;                       // Zero both totals
+			_current = 0;
+		}
+
+		_current += distance; // Add any given distance to the current total
+		_column = columnNow;  // Record the column number we put it in, and the column we cycled to above
+		
+		if (time < 100) return 0; // Avoid reporting huge or inaccurate speeds at the very start
+		return scale(unit, _current + _previous, time).whole; // Rate is distance over time
+	}
+
+	return {
+		distance:distance, count:count, speed:speed, add:add,
+		type:function(){ return "Speed"; }
+	};
+}
+
+exports.Average = Average;
+exports.Speed = Speed;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

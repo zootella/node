@@ -1061,7 +1061,35 @@ exports.testChunkOverflow = function(test) {
 
 
 
-//have a really simple demo that uses speed and just counts how fast node can run a loop
+
+
+
+//measure the speed of two distances travelled
+if (demo("speed")) {
+
+	var s = Speed(10*Time.second);
+	s.distance(50*Size.mb);//50mb right now
+	log("went 50mb");
+
+	setTimeout(function() {
+		s.distance(50*Size.mb);//50mb a second later
+		log("went another 50mb a second later");
+		log(saySpeed(s.speed(Time.second)));//that's 100mb/s
+	}, 1000);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
