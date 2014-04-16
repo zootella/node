@@ -1,7 +1,5 @@
 
 
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
