@@ -8,8 +8,6 @@ var util = require("util");
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 
-
-
 var stdin = process.stdin;
 stdin.setRawMode(true); // so that we don't need a newline to receive data
 stdin.setEncoding("utf8"); // no binary
@@ -34,11 +32,6 @@ keyboard.on = function(key, cb) {
 	});
 }
 
-
-
-
-
-
 var Hasher = function() {
 	stream.Stream.call(this);
 	this.writable = true;
@@ -56,9 +49,6 @@ Hasher.prototype.end = function(data) {
 	var digest = this.shasum.digest("hex");
 	this.emit('end', digest);//send the "end" event when we're done
 };
-
-
-
 
 var hasher = new Hasher();
 
@@ -101,6 +91,10 @@ file.pipe(hasher);//of the form source.pipe(target) to move data from file to ha
 //make the command line dialog box which can take input and show progress in place
 //be able to run it standalone from the command line, and in a unit test from nodeunit
 //you don't need pause and resume, just range, progress and stop
+
+
+
+//print sum as base16, 32, and 62
 
 
 

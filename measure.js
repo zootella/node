@@ -224,36 +224,6 @@ exports.check = check;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //   _____ _                
 //  |_   _(_)_ __ ___   ___ 
 //    | | | | '_ ` _ \ / _ \
@@ -306,7 +276,7 @@ function Duration(setStart, setStop) {
 
 	// The length of this Duration in milliseconds, 0 or more
 	function time() {
-		return stop.time - start.time;
+		return _stop.time - _start.time;
 	}
 	// The length of this Duration in milliseconds, 1 or more
 	function timeSafe() {
@@ -355,68 +325,6 @@ exports.earlier = earlier;
 exports.recent = recent;
 exports.Duration = Duration;
 exports.Ago = Ago;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
