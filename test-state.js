@@ -1,10 +1,12 @@
 
-
+var requireEvents = require("events");
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var now = requireMeasure.now;
 var Time = requireMeasure.Time;
+var Speed = requireMeasure.Speed;
+var items = requireMeasure.items;
 
 var requireState = require("./state");
 var demo = requireState.demo;
@@ -36,23 +38,6 @@ var Data = requireData.Data;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //   __  __ _     _        _        
 //  |  \/  (_)___| |_ __ _| | _____ 
 //  | |\/| | / __| __/ _` | |/ / _ \
@@ -61,13 +46,15 @@ var Data = requireData.Data;
 //                                  
 
 //run code that throws an exception
-if (demo("throw")) {
+if (demo("throw")) { demoThrow(); }
+function demoThrow() {
 
 	Data("hello").start(6);//throws chop
 }
 
 //catch an exception and sand it to mistakeLog(e)
-if (demo("mistake-log")) {
+if (demo("mistake-log")) { demoMistakeLog(); }
+function demoMistakeLog() {
 
 	try {
 		Data("hello").start(6);
@@ -77,7 +64,8 @@ if (demo("mistake-log")) {
 }
 
 //catch an exception and sand it to mistakeStop(e)
-if (demo("mistake-stop")) {
+if (demo("mistake-stop")) { demoMistakeStop(); }
+function demoMistakeStop() {
 
 	try {
 		Data("hello").start(6);
@@ -88,7 +76,8 @@ if (demo("mistake-stop")) {
 
 //code in a timeout function that throws an exception
 //confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
-if (demo("timeout-throw")) {
+if (demo("timeout-throw")) { demoTimeoutThrow(); }
+function demoTimeoutThrow() {
 	log("setting timeouts for 2 and 4 seconds from now");
 
 	setTimeout(function() {//in 4 seconds, this function will run successfully
@@ -276,7 +265,8 @@ exports.testCloseTwo = function(test) {
 //                          
 
 //an object getting pulsed
-if (demo("pulse")) {
+if (demo("pulse")) { demoPulse(); }
+function demoPulse() {
 
 	function ExamplePulse() {
 
@@ -299,7 +289,8 @@ if (demo("pulse")) {
 
 //code in a pulse function that throws an exception
 //pulse will catch the exception so we don't need to catch it here
-if (demo("pulse-throw")) {
+if (demo("pulse-throw")) { demoPulseThrow(); }
+function demoPulseThrow() {
 
 	function ExamplePulseThrow() {
 
@@ -320,7 +311,8 @@ if (demo("pulse-throw")) {
 }
 
 //make an object that needs to be closed, and close it
-if (demo("close")) {
+if (demo("close")) { demoClose(); }
+function demoClose() {
 
 	var m = Resource();
 	close(m);
@@ -329,15 +321,17 @@ if (demo("close")) {
 }
 
 //make an object that needs to be closed, and forget to close it
-if (demo("forget")) {
+if (demo("forget")) { demoForget(); }
+function demoForget() {
 
-	var m = Resource("forgotten resource 1");
+	var m = Resource("forgotten resource");
 	closeCheck();//forgot to close it
 }
 
 //two objects that pulse and then close after 2 and 4 seconds
 //when both objects are closed, the process will exit
-if (demo("pulse-two")) {
+if (demo("pulse-two")) { demoPulseTwo(); }
+function demoPulseTwo() {
 
 	function Pulse1() {
 		var state = makeState();
@@ -440,6 +434,238 @@ exports.testPersists2 = function(test) {//runs afterwards
 
 
 
+
+
+
+
+
+
+
+
+
+//   _____                 _     ____                      _ 
+//  | ____|_   _____ _ __ | |_  / ___| _ __   ___  ___  __| |
+//  |  _| \ \ / / _ \ '_ \| __| \___ \| '_ \ / _ \/ _ \/ _` |
+//  | |___ \ V /  __/ | | | |_   ___) | |_) |  __/  __/ (_| |
+//  |_____| \_/ \___|_| |_|\__| |____/| .__/ \___|\___|\__,_|
+//                                    |_|                    
+
+//see how fast node can do different things
+//how fast node can run code in a loop
+if (demo("speed-loop")) { demoSpeedLoop(); }//~9 million loops/s
+function demoSpeedLoop() {
+	for (var i = 0; i < 8; i++) {
+
+		var t = Date.now();
+		var n = 0;
+
+		while (true) {
+			if (t + 1000 < Date.now()) break;
+			n++;
+		}
+
+		log(items(n, "loop"), "/1second");
+	}
+}
+
+//node events are synchronous
+//this demo will log received before sent
+//written both as a demo and a test
+if (demo("event-order")) { demoEventOrder(); }
+function demoEventOrder() {
+
+	function f() {
+		log("received");
+	}
+
+	var e = new requireEvents.EventEmitter();
+	e.on("name", f);
+
+	e.emit("name");
+	log("sent");
+}
+exports.testEventSynchronous = function(test) {
+
+	var s = "";
+
+	function f() {
+		s += "received;";
+	}
+
+	var e = new requireEvents.EventEmitter();
+	e.on("name", f);
+
+	e.emit("name");//works less like an event, more like just calling f()
+	s += "sent;";
+
+	test.ok(s == "received;sent;");//not the order you would expect
+	test.done();
+}
+
+//sending an event is just like calling a function
+//a speed loop causes a stack overflow
+//"RangeError: Maximum call stack size exceeded"
+//having f and g call each other doesn't avoid this, either
+if (demo("loop-event")) { demoLoopEvent(); }
+function demoLoopEvent() {
+
+	function f() {
+		log("logging this slows it down so it doesn't complain immediately");
+		e.emit("name");
+	}
+
+	var e = new requireEvents.EventEmitter();
+	e.on("name", f);
+	e.emit("name");
+}
+
+//we can't speed loop process.nextTick either, because node notices and complains
+//"(node) warning: Recursive process.nextTick detected. This will break in the next  version of node. Please use setImmediate for recursive deferral. RangeError: Maximum call stack size exceeded"
+//having f and g call each other doesn't avoid this, either
+if (demo("loop-tick")) { demoLoopTick(); }
+function demoLoopTick() {
+
+	function f() {
+		process.nextTick(f);
+	}
+
+	f();
+}
+
+//see how fast node can notify itself asynchronously three different ways
+if (demo("speed-timeout"))   { demoSpeed("timeout"); }
+if (demo("speed-immediate")) { demoSpeed("immediate"); }
+if (demo("speed-tick"))      { demoSpeed("tick"); }
+function demoSpeed(method) {
+
+	var l = 0;         //number of second long loops we've completed
+	var t = Date.now();//time the current loop started
+	var n = 0;         //events we've counted in the current loop
+	set();
+
+	function set() {
+		if      (method == "timeout")   setTimeout(f, 0);   //~64 timeouts/s
+		else if (method == "immediate") setImmediate(f);    //~480k immediates/s
+		else if (method == "tick")      process.nextTick(f);//node warning and error
+	}
+
+	function f() {
+		if (t + 1000 < Date.now()) {
+			log(items(n, method), "/1second");
+			l++;
+			if (l < 8) {
+				t = Date.now();
+				n = 0;
+				set();
+			}
+		} else {
+			n++;
+			set();
+		}
+	}
+}
+
+//now let's use the pulse system
+//~7k pulses/s, not as fast as immediate by itself, but plenty fast
+if (demo("speed-pulse")) { demoSpeedPulse(); }
+function demoSpeedPulse() {
+
+	function Resource() {//a resource that finishes on the first pulse
+
+		var state = makeState();
+		state.close = function() {
+			if (state.already()) return;
+		};
+		state.pulse = function() {
+			set();//close this resource on the first pulse
+		}
+
+		return listState({
+			state:state
+		});
+	};
+
+	function set() {
+		close(r);//close the resource
+		if (t + 1000 < Date.now()) {         //time's up
+			log(items(n, "pulse"), "/1second");//report results
+			l++;                               //count we completed another loop
+			if (l < 8) {     //do another loop
+				t = Date.now();//reset variables to measure performance in the loop
+				n = 0;
+				r = Resource();//make a new resource to start looping again
+			} else {       //all done
+				closeCheck();//check we closed everything before the program exits normally
+			}
+		} else {         //still within the second
+			n++;           //count another loop
+			r = Resource();//make a new resource to go again
+		}
+	}
+
+	var l = 0;         //number of loops
+	var t = Date.now();//time the current loop started
+	var n = 0;         //how many resources finished in the current loop
+	var r = Resource();//make the first resource to start the loop
+}
+
+//now for some speed tests that make it easy to put your own code in
+//first, a synchronous case where your code finishes by returning
+if (demo("speed-s")) { demoSpeedSynchronous(); }
+function demoSpeedSynchronous() {
+	for (var i = 0; i < 8; i++) {
+
+		var t = Date.now();
+		var n = 0;
+
+		while (true) {
+			if (t + 1000 < Date.now()) break;
+			yourSynchronousCodeHere();
+			n++;
+		}
+
+		log(items(n, "sync"), "/1second");
+	}
+}
+
+function yourSynchronousCodeHere() {
+
+	//return to indicate you're done
+}
+
+//second, the asynchronous case 
+if (demo("speed-a")) { demoSpeedAsynchronous(); }
+function demoSpeedAsynchronous() {
+
+	var l = 0;         //number of second long loops we've completed
+	var t = Date.now();//time the current loop started
+	var n = 0;         //events we've counted in the current loop
+	set();
+
+	function set() { yourAsynchronousCodeHere(callWhenDone); }
+	function callWhenDone() { setImmediate(f); }
+
+	function f() {
+		if (t + 1000 < Date.now()) {
+			log(items(n, "async"), "/1second");
+			l++;
+			if (l < 8) {
+				t = Date.now();
+				n = 0;
+				set();
+			}
+		} else {
+			n++;
+			set();
+		}
+	}
+}
+
+function yourAsynchronousCodeHere(callWhenDone) {
+
+	//in your own code, pass and save the reference to call it whenever and wherever you're actually done
+	callWhenDone();
+}
 
 
 

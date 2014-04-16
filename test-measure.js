@@ -50,7 +50,8 @@ var timeZone = "m"; // The local time zone the tests are running in, set to "e" 
 //>node test-state.js example-name
 
 //example of running code that throws an exception
-if (demo("log")) {
+if (demo("log")) { demoLog(); }
+function demoLog() {
 
 	log("hi");
 	log();//blank line
@@ -1065,16 +1066,17 @@ exports.testChunkOverflow = function(test) {
 
 
 //measure the speed of two distances travelled
-if (demo("speed")) {
+if (demo("speed")) { demoSpeed(); }
+function demoSpeed() {
 
 	var s = Speed(10*Time.second);
 	s.distance(50*Size.mb);//50mb right now
 	log("went 50mb");
 
 	setTimeout(function() {
-		s.distance(50*Size.mb);//50mb a second later
+		s.distance(50*Size.mb);//1 second later, another 50mb
 		log("went another 50mb a second later");
-		log(saySpeed(s.speed(Time.second)));//that's 100mb/s
+		log(saySpeed(s.speed(Time.second)));//comes out as 86mb/s
 	}, 1000);
 }
 
