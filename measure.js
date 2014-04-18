@@ -585,14 +585,14 @@ exports.saySize = saySize;
 
 // Describe the speed of the given number of bytes transferred in the given number of milliseconds
 // Optionally specify a number of decimal places and a unit
-function saySpeed(bytes, milliseconds, decimal, units) {
+function saySpeedDivide(bytes, milliseconds, decimal, units) {
 	if (!milliseconds) return ""; // Show the user blank instead of throwing on divide by 0
-	return saySpeedBps(scale(bytes, Time.second, milliseconds).round); // Calculate bytes per second
+	return saySpeed(scale(bytes, Time.second, milliseconds).round); // Calculate bytes per second
 }
 
 // Describe the given number of bytes transferred in a second
 // Optionally specify a number of decimal places and a unit
-function saySpeedBps(bytesPerSecond, decimal, units) {
+function saySpeed(bytesPerSecond, decimal, units) {
 	return saySize(bytesPerSecond, decimal, units) + "/s";
 }
 
@@ -616,8 +616,8 @@ function saySpeedTimePerMegabyte(bytesPerSecond) {
 	return sayTimeRemaining(scale(Time.second, Size.mb, bytesPerSecond).whole) + "/mb";
 }
 
+exports.saySpeedDivide = saySpeedDivide;
 exports.saySpeed = saySpeed;
-exports.saySpeedBps = saySpeedBps;
 exports.saySpeedKbps = saySpeedKbps;
 exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
 

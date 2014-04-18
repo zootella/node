@@ -11,7 +11,7 @@ var items = requireMeasure.items;
 var Duration = requireMeasure.Duration;
 var saySizeBytes = requireMeasure.saySizeBytes;
 var sayTime = requireMeasure.sayTime;
-var saySpeed = requireMeasure.saySpeed;
+var saySpeedDivide = requireMeasure.saySpeedDivide;
 var divideByZero = requireMeasure.divideByZero;
 
 
@@ -50,7 +50,7 @@ hasher.on("end", function(digest) {//receive the "end" event when hasher is done
 	var time = Duration(start).time();
 
 	log(digest);
-	log(saySpeed(size, time), ": ", saySizeBytes(size), " in ", sayTime(time));
+	log(saySpeedDivide(size, time), ": ", saySizeBytes(size), " in ", sayTime(time));
 	log(items(chunks, "chunk"), ", ", saySizeBytes(divideByZero(size, chunks).round), " average chunk size");
 });
 

@@ -683,15 +683,15 @@ exports.testSaySize = function(test) {
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
 
+var saySpeedDivide = requireMeasure.saySpeedDivide;
 var saySpeed = requireMeasure.saySpeed;
-var saySpeedBps = requireMeasure.saySpeedBps;
 var saySpeedKbps = requireMeasure.saySpeedKbps;
 var saySpeedTimePerMegabyte = requireMeasure.saySpeedTimePerMegabyte;
 
 exports.testSaySpeed = function(test) {
 
-	test.ok(saySpeed(10*Size.mb, 2*Time.second) == "5120kb/s");//10mb in 2s is 5mb/s
-	test.ok(saySpeed(1, 0) == "");//show the user blank instead of throwing on divide by zero
+	test.ok(saySpeedDivide(10*Size.mb, 2*Time.second) == "5120kb/s");//10mb in 2s is 5mb/s
+	test.ok(saySpeedDivide(1, 0) == "");//show the user blank instead of throwing on divide by zero
 
 	test.done();
 }
@@ -699,7 +699,7 @@ exports.testSaySpeed = function(test) {
 exports.testSaySpeedBps = function(test) {
 
 	function f(b, s) {
-		test.ok(saySpeedBps(b) == s);
+		test.ok(saySpeed(b) == s);
 	}
 
 	f(9, "9b/s");
@@ -1151,7 +1151,7 @@ function demoSpeed() {
 	setTimeout(function() {
 		s.distance(50*Size.mb);//1 second later, another 50mb
 		log("went another 50mb a second later");
-		log(saySpeedBps(s.speed(Time.second)));//comes out as 86mb/s
+		log(saySpeed(s.speed(Time.second)));//comes out as 86mb/s
 	}, 1000);
 }
 
