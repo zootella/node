@@ -17,6 +17,9 @@ var saySize = requireMeasure.saySize;
 var sayTime = requireMeasure.sayTime;
 var saySpeed = requireMeasure.saySpeed;
 
+var multiply = requireMeasure.multiply;
+var divide = requireMeasure.divide;
+var check = requireMeasure.check;
 
 
 
@@ -48,20 +51,34 @@ var size = 0;//how many bytes we've hashed
 var chunks = 0;//how many chunks passed through
 var average = Average();//average size of a chunk
 
+
+var timeStart = now();
+var timeFirstData;
+var timeEnd;
+
+
 hasher.on("data", function(data) {
+	chunks++;
+	size += data.length;
 	/*
 	size += data.length;
 	chunks++;
 	average.add(data.length);
 	*/
 });
+//if this is a no-op, the whole thing goes a lot faster, not sure why
 
 hasher.on("end", function(digest) {//receive the "end" event when hasher is done
-	/*
 	var time = Duration(start).time();
-	*/
 
 	log(digest);
+	log(items(chunks, "chunk"));
+	log(saySize(size), " (", items(size, "byte"), ")");
+	log(sayTime(time));
+	log(saySpeed(scale(time, 1000, size).));
+
+//bytes/chunk
+//does say fraction produce error text, not throw, on divide by 0? if not, code it, you need it for bytes/chunk
 	/*
 	log("hashed ", saySize(size), " in ", sayTime(time), " at ", saySpeed(scale(size, Time.second, time)));
 	log(items(chunks, "chunks"), " of average size ", saySize(average.average()));
@@ -75,6 +92,23 @@ var file = systemFile.createReadStream(process.argv[2]);//command line like "nod
 file.pipe(hasher);//of the form source.pipe(target) to move data from file to hasher
 
 log("started");
+
+
+
+
+
+//places that use scale to describe something
+//on divide by 0, replace throw with return ""
+sayDivide
+sayPercent
+sayProgress
+saySpeed
+
+
+
+//in divide, have a round that rounds up or down depending on what's closer, up if exactly half, don't need to worry about negative because divide doesn't support negative anyway
+
+
 
 
 

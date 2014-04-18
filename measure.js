@@ -286,7 +286,7 @@ function Duration(setStart, setStop) {
 	}
 
 	// When this duration ended and how long it took, like "Wed 1:39p 58.023s in 278ms"
-	function text() { return make(stop, " in ", time(), "ms"); }
+	function text() { return say(_stop, " in ", time(), "ms"); }
 
 	return Object.freeze({
 		start:_start, stop:_stop,
@@ -563,9 +563,16 @@ exports.saySize = saySize;
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
 
+// Describe the speed of the given number of bytes transferred in the given number of milliseconds
+// Optionally specify a number of decimal places and a unit
+function saySpeed(bytes, milliseconds, decimal, units) {
+	//TODO if milliseconds is 0, return "" rather than throwing
+	return saySpeedBps(scale(bytes, Time.second, milliseconds).whole);
+}
+
 // Describe the given number of bytes transferred in a second
 // Optionally specify a number of decimal places and a unit
-function saySpeed(bytesPerSecond, decimal, units) {
+function saySpeedBps(bytesPerSecond, decimal, units) {
 	return saySize(bytesPerSecond, decimal, units) + "/s";
 }
 
@@ -590,6 +597,7 @@ function saySpeedTimePerMegabyte(bytesPerSecond) {
 }
 
 exports.saySpeed = saySpeed;
+exports.saySpeedBps = saySpeedBps;
 exports.saySpeedKbps = saySpeedKbps;
 exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
 
