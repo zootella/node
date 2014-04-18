@@ -64,6 +64,7 @@ log("started");
 
 
 //try on an empty file
+//compare speed to raw command line, where do you have sha1sum anyways?
 
 
 

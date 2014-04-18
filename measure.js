@@ -196,15 +196,17 @@ function check(i, min) {
 // Return 0 instead of throwing an exception if d is 0
 // Who says you can't divide by zero? OH SHI-
 function divideByZero(n, d) {
-	if (!d) return 0;
+	if (d === 0) return 0; // If d is negative or not a number, still throw an exception
 	return divide(n, d);
 }
+function scaleByZero(n, m, d) { return divideByZero(multiply(n, m), d); }
 
 exports.multiply = multiply;
 exports.divide = divide;
 exports.scale = scale;
 exports.check = check;
 exports.divideByZero = divideByZero;
+exports.scaleByZero = scaleByZero;
 
 
 //things to change with check
