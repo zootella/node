@@ -462,18 +462,21 @@ exports.items = items;
 // Describe a/b like "1.234"
 // Specify decimal to include that many decimal places, otherwise round down
 function sayDivide(n, d, decimal) {
+	if (!d) return ""; // Show the user blank on divide by 0 instead of throwing
 	return commas(scale(_tens(decimal), n, d).whole, decimal);
 }
 
 // Describe a/b like "81.211% 912/1,123"
 // Specify decimal to include that many decimal places in the percentage
 function sayPercent(n, d, decimal) {
+	if (!d) return "";
 	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", commas(n), "/", commas(d));
 }
 
 // Describe a/b like "6% 1122mb/18gb"
 // Specify decimal like 1 and units like "kb" to make it like "50.0% 1,024.0kb/2,048.0kb"
 function sayProgress(n, d, decimal, units) {
+	if (!d) return "";
 	return say(commas(scale(100 * _tens(decimal), n, d).whole, decimal), "% ", saySize(n, decimal, units), "/", saySize(d, decimal, units));
 }
 
@@ -566,7 +569,7 @@ exports.saySize = saySize;
 // Describe the speed of the given number of bytes transferred in the given number of milliseconds
 // Optionally specify a number of decimal places and a unit
 function saySpeed(bytes, milliseconds, decimal, units) {
-	//TODO if milliseconds is 0, return "" rather than throwing
+	if (!milliseconds) return ""; // Show the user blank instead of throwing on divide by 0
 	return saySpeedBps(scale(bytes, Time.second, milliseconds).whole);
 }
 

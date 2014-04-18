@@ -514,13 +514,23 @@ exports.testSayDivide = function(test) {
 
 	test.ok(sayDivide(22, 7, 8) == "3.14285714");
 
+	test.ok(sayDivide(1, 0, 3) == "");//instead of throwing, divide by zero returns blank
+
 	test.done();
+}
+
+if (demo("temp")) { demoTemp(); }
+function demoTemp() {
+	log("hi");
+	sayDivide(1, 0, 3);
 }
 
 exports.testSayPercent = function(test) {
 
 	test.ok(sayPercent(1, 2, 3) == "50.000% 1/2");
 	test.ok(sayPercent(10, 30, 3) == "33.333% 10/30");
+
+	test.ok(sayPercent(1, 0, 3) == "");//instead of throwing, divide by zero returns blank
 
 	test.done();
 }
@@ -533,6 +543,8 @@ exports.testSayProgress = function(test) {
 	test.ok(sayProgress(555*Size.mb, 7*Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
 
 	test.ok(sayProgress(Size.mb, 2*Size.mb, 1, "kb") == "50.0% 1,024.0kb/2,048.0kb");
+
+	test.ok(sayProgress(Size.mb, 0) == "");//instead of throwing, divide by zero returns blank
 
 	test.done();
 }
@@ -637,8 +649,36 @@ exports.testSaySize = function(test) {
 //        |_|                    
 
 var saySpeed = requireMeasure.saySpeed;
+var saySpeedBps = requireMeasure.saySpeedBps;
 var saySpeedKbps = requireMeasure.saySpeedKbps;
 var saySpeedTimePerMegabyte = requireMeasure.saySpeedTimePerMegabyte;
+
+exports.testSaySpeed = function(test) {
+
+	test.ok(saySpeed(10*Size.mb, 2*Time.second) == "5120kb/s");//10mb in 2s is 5mb/s
+	test.ok(saySpeed(1, 0) == "");//show the user blank instead of throwing on divide by zero
+
+	test.done();
+}
+
+exports.testSaySpeedBps = function(test) {
+
+	function f(b, s) {
+		test.ok(saySpeedBps(b) == s);
+	}
+
+	f(9, "9b/s");
+	f(89, "89b/s");
+	f(789, "789b/s");
+	f(6789, "6789b/s");
+	f(56789, "55kb/s");
+	f(456789, "446kb/s");
+	f(3456789, "3375kb/s");
+	f(23456789, "22mb/s");
+	f(123456789, "117mb/s");
+
+	test.done();
+}
 
 exports.testSaySpeedKbps = function(test) {
 
@@ -667,7 +707,7 @@ exports.testSaySpeedKbps = function(test) {
 	test.done();
 }
 
-exports.testSaySpeedSecondsPerMegabyte = function(test) {
+exports.testSaySpeedTimePerMegabyte = function(test) {
 
 	function f(b, s) {
 		test.ok(saySpeedTimePerMegabyte(b) == s);
@@ -1076,7 +1116,7 @@ function demoSpeed() {
 	setTimeout(function() {
 		s.distance(50*Size.mb);//1 second later, another 50mb
 		log("went another 50mb a second later");
-		log(saySpeed(s.speed(Time.second)));//comes out as 86mb/s
+		log(saySpeedBps(s.speed(Time.second)));//comes out as 86mb/s
 	}, 1000);
 }
 
