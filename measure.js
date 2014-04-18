@@ -161,15 +161,16 @@ function divide(n, d) {
 
 	var a = {}; // Answer
 	a.whole     = Math.floor(n / d); // Round down
+	a.ceiling   = Math.ceil(n / d);  // Round up
+	a.round     = Math.round(n / d); // Round to nearest
 	a.remainder = n % d;             // Remainder
 	a.decimal   = n / d;             // Floating point number
-	a.ceiling   = Math.ceil(n / d);  // Round up
 
 	check(a.whole, 0); // Check our answer before returning it
 	check(a.remainder, 0);
 	if ((d * a.whole) + a.remainder !== n)                     Mistake.log({ name:"divide remainder", n:n, d:d, a:a });
 	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) Mistake.log({ name:"divide ceiling",   n:n, d:d, a:a });
-	return a;
+	return Object.freeze(a);
 }
 
 // Calculate (n * m) / d

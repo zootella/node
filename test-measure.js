@@ -237,6 +237,28 @@ exports.testDivide = function(test) {
 	test.done();
 }
 
+exports.testDivideRound = function(test) {
+
+	function f(n, d, round) {
+		test.ok(divide(n, d).round == round);
+	}
+
+	f(3, 7, 0);//3/7 goes down, 4/7 up
+	f(4, 7, 1);
+
+	f(3, 8, 0);//3, 4, and 5 8ths
+	f(4, 8, 1);
+	f(5, 8, 1);
+
+	f(1, 2, 1);//1 and 3 halves
+	f(3, 2, 2);
+
+	f(100, 3, 33);//one third and two thirds is 33% and 67%
+	f(200, 3, 67);
+
+	test.done();
+}
+
 exports.testScale = function(test) {
 
 	var d = scale(5, 10, 3);//multiplies first to not lose accuracy

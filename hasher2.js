@@ -97,8 +97,6 @@ log("started");
 
 
 
-//places that use scale to describe something
-//on divide by 0, replace throw with return ""
 
 
 
