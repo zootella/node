@@ -590,7 +590,20 @@ exports.testSayProgress = function(test) {
 //                   
 
 var Size = requireMeasure.Size;
+var saySizeBytes = requireMeasure.saySizeBytes;
 var saySize = requireMeasure.saySize;
+
+exports.testSaySizeBytes = function(test) {
+
+	test.ok(saySizeBytes(0) == "0b (0 bytes)");
+	test.ok(saySizeBytes(1) == "1b (1 byte)");
+	test.ok(saySizeBytes(2) == "2b (2 bytes)");
+
+	test.ok(saySizeBytes(100000) == "97kb (100,000 bytes)");
+	test.ok(saySizeBytes(101289) == "98kb (101,289 bytes)");
+
+	test.done();
+}
 
 exports.testSaySize = function(test) {
 

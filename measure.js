@@ -193,10 +193,18 @@ function check(i, min) {
 	if (i < min) throw "bounds"; // With the minimum value or larger
 }
 
+// Return 0 instead of throwing an exception if d is 0
+// Who says you can't divide by zero? OH SHI-
+function divideByZero(n, d) {
+	if (!d) return 0;
+	return divide(n, d);
+}
+
 exports.multiply = multiply;
 exports.divide = divide;
 exports.scale = scale;
 exports.check = check;
+exports.divideByZero = divideByZero;
 
 
 //things to change with check
@@ -524,6 +532,11 @@ Size.big    = 64*Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buff
 Size.max = 9007199254740992; // Largest number that JavaScript keeps as an integer, 2^53
 Object.freeze(Size);
 
+// Describe the given size like "98kb (101,289 bytes)" with the exact number of bytes in parenthesis
+function saySizeBytes(n, decimal, units) {
+	return say(saySize(n, decimal, units), " (", items(n, "byte"), ")");
+}
+
 // Describe the given number of bytes like "97kb" or "9536gb" using 4 digits or less with the most appropriate unit
 // Optionally specify a number of decimal places and a unit, like 3 and "mb" for text like "9,419.006mb"
 function saySize(n, decimal, units) {
@@ -553,6 +566,7 @@ function saySize(n, decimal, units) {
 }
 
 exports.Size = Size;
+exports.saySizeBytes = saySizeBytes;
 exports.saySize = saySize;
 
 
@@ -571,7 +585,7 @@ exports.saySize = saySize;
 // Optionally specify a number of decimal places and a unit
 function saySpeed(bytes, milliseconds, decimal, units) {
 	if (!milliseconds) return ""; // Show the user blank instead of throwing on divide by 0
-	return saySpeedBps(scale(bytes, Time.second, milliseconds).whole);
+	return saySpeedBps(scale(bytes, Time.second, milliseconds).round); // Calculate bytes per second
 }
 
 // Describe the given number of bytes transferred in a second
