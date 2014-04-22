@@ -1,0 +1,64 @@
+
+<html>
+<head>
+<title>Text Width</title>
+<style>
+
+body { font-family: "Arial"; }
+
+#measure { font-size: 500%; background-color: lightgray; }
+
+span.rlabel { font-family: monospace; }
+span.rvalue { background-color: lightgray; }
+
+
+</style>
+</head>
+<body>
+<span id="measure">this is the measuring area</span>
+<div id="display">this is the default display</div>
+<script type="text/javascript">
+
+var start = 0x00cc;
+var end   = 0x0233;
+
+console.log("hi");
+
+var m = document.getElementById("measure");
+m.innerHTML = "&#x0080; and some more to make it wider";
+console.log(m.offsetWidth);
+
+function widen(n, base, width) {
+	var s = n.toString(base);
+	while (s.length < width) s = "0" + s;
+	return s;
+}
+
+function code(i) {
+	return "&#x" + widen(i, 16, 4) + ";";
+}
+
+var find = 0;
+
+var report = "";
+var sample = "";
+for (var i = start; i <= end; i++) {
+	m.innerHTML = code(i);
+	var w = m.offsetWidth;
+	if (w > 0 && w < 100) {
+		find++;
+		report += "<span class='rlabel'>n" + widen(find, 10, 3) + " x" + widen(i, 16, 4) + " " + widen(w, 10, 2) + "px </span><span class='rvalue'>" + code(i) + "</span><br>";
+		sample += code(i) + " ";
+	}
+}
+
+document.getElementById("display").innerHTML = sample + "<br>" + report;
+
+
+
+
+
+
+</script>
+</body>
+</html>
