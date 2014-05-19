@@ -1,6 +1,9 @@
 
 var requireEvents = require("events");
 
+var requireText = require("./text");
+var toss = requireText.toss;
+
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var now = requireMeasure.now;

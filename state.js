@@ -1,5 +1,6 @@
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var line = requireText.line;
 
@@ -202,7 +203,7 @@ function makeState() {
 	state._closed = false; // True once the containing object has been closed, and promises to not change again
 	state.isClosed = function() { return state._closed; }
 	state.isOpen = function() { return !state._closed; } // Not closed yet
-	state.confirmOpen = function() { if (state._closed) throw "state"; } // Make sure the containing object isn't closed before doing something that would change it
+	state.confirmOpen = function() { if (state._closed) toss("state"); } // Make sure the containing object isn't closed before doing something that would change it
 
 	// Mark this object as closed, and only do this once
 	// Start your close() function with the line "if (state.already()) return;"

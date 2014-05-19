@@ -1,10 +1,10 @@
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
-
 var say = requireText.say;
 
 
@@ -181,16 +181,16 @@ function check(i, min) {
 
 	function _check(n) {
 		checkType(n, "number");                      // Make sure n is a number
-		if (isNaN(n))              throw "bounds";   // Not the weird not a number thing
-		if (!isFinite(n))          throw "overflow"; // Not too big for floating point
-		if (n > 9007199254740992)  throw "overflow"; // Not too big for int
-		if (n + 1 === n)           throw "overflow"; // Not too big for addition to work
-		if (Math.floor(n) !== n)   throw "type";     // A whole number
+		if (isNaN(n))              toss("bounds");   // Not the weird not a number thing
+		if (!isFinite(n))          toss("overflow"); // Not too big for floating point
+		if (n > 9007199254740992)  toss("overflow"); // Not too big for int
+		if (n + 1 === n)           toss("overflow"); // Not too big for addition to work
+		if (Math.floor(n) !== n)   toss("type");     // A whole number
 	}
 
 	_check(i);
 	_check(min);
-	if (i < min) throw "bounds"; // With the minimum value or larger
+	if (i < min) toss("bounds"); // With the minimum value or larger
 }
 
 // Return 0 instead of throwing an exception if d is 0
@@ -280,7 +280,7 @@ function Duration(setStart, setStop) {
 	if (!setStop) setStop = now();
 	checkType(setStart, "When");
 	checkType(setStop, "When");
-	if (setStop.time < setStart.time) throw "bounds"; // Make sure stop is at or after start
+	if (setStop.time < setStart.time) toss("bounds"); // Make sure stop is at or after start
 
 	var _start = setStart; // The time when this Duration started
 	var _stop = setStop;   // The time when this Duration stopped, the same as start or afterwards
@@ -564,7 +564,7 @@ function saySize(n, decimal, units) {
 		d *= 1024; // Move to the next larger unit
 		u++;
 	}
-	throw "overflow"; // We ran out of units, not really possible because Size.max is 8191tb
+	toss("overflow"); // We ran out of units, not really possible because Size.max is 8191tb
 }
 
 exports.Size = Size;
@@ -1009,7 +1009,7 @@ function indexChunkToByte(bytes, chunkIndex) {
 	check(bytes, 1);
 	check(chunkIndex, 0);
 	var chunks = numberOfChunks(bytes);
-	if (chunkIndex > chunks) throw "bounds";
+	if (chunkIndex > chunks) toss("bounds");
 	return scale(bytes, chunkIndex, chunks).whole; // Without using bignum, a 12gb file will overflow
 }
 // What chunk index the given piece index is in a file of size bytes
@@ -1018,7 +1018,7 @@ function indexPieceToChunk(bytes, pieceIndex) {
 	check(pieceIndex, 0);
 	var chunks = numberOfChunks(bytes);
 	var pieces = numberOfPieces(bytes);
-	if (pieceIndex > pieces) throw "bounds";
+	if (pieceIndex > pieces) toss("bounds");
 	return scale(chunks, pieceIndex, pieces).whole;
 }
 // Where the given piece index is in a file of size bytes
@@ -1126,7 +1126,7 @@ function Average() {
 	// Text that describes the current average, like "5.000", "Undefined" before we have any values
 	function say() {
 		if (!_n) return "Undefined";
-		throw "todo"; //TODO return Describe.decimal(averageThousandths(), 3);
+		toss("todo"); //TODO return Describe.decimal(averageThousandths(), 3);
 	}
 
 	return {

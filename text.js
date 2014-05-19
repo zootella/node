@@ -29,6 +29,30 @@
 
 
 
+//   _____             
+//  |_   _|__  ___ ___ 
+//    | |/ _ \/ __/ __|
+//    | | (_) \__ \__ \
+//    |_|\___/|___/___/
+//                     
+
+// Instead of throw "data", use toss("data")
+// This way, you can add extra details, like toss("data", {wrap:e, note:"what happened"})
+// Check like if (e.name == "data")
+function toss(name, info) {
+	if (!info) info = {};             // Make a hash if we were'nt given one
+	if (name) info.name = name;       // Save the given name into it
+	info.stack = (new Error()).stack; // Generate the call stack to here
+	throw info;                       // Throw it
+}
+
+exports.toss = toss;
+
+
+
+
+
+
 
 
 
@@ -51,7 +75,7 @@ function getType(o) {
 	return typeof o;                           // Use the typeof operator
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
-function checkType(o, name) { if (!isType(o, name)) throw "type"; } // Throw type if o is not of type name
+function checkType(o, name) { if (!isType(o, name)) toss("type"); } // Throw type if o is not of type name
 
 exports.hasMethod = hasMethod;
 exports.getType = getType;
@@ -74,20 +98,27 @@ exports.checkType = checkType;
 //                          |___/ 
 
 // Add o to the end of array a with a.add(o)
-if ("add" in Array.prototype) throw "program";
+if ("add" in Array.prototype) toss("program");
 Array.prototype.add = Array.prototype.push; // Just link to push
 
 // Remove and return the element at index i in an array with a.remove(i)
 // Shift remaining elements forward instead of leaving a hole
-if ("remove" in Array.prototype) throw "program";
+if ("remove" in Array.prototype) toss("program");
 Array.prototype.remove = function(i) {
-	if (i < 0 || i >= this.length) throw "bounds";
+	if (i < 0 || i >= this.length) toss("bounds");
 	var o = this[i];
 	this.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
 	return o;
 }
 
 //maybe write a get() that checks bounds as well, just to use when you're outside a tight loop and not absolutely sure
+
+
+
+
+
+
+
 
 
 
@@ -108,7 +139,7 @@ Array.prototype.remove = function(i) {
 // Add function f to the String type so that s.name(a, b) calls and returns name(s, a, b)
 function augment(f, name) {
 	if (name in String.prototype)
-		throw "program"; // Don't add a method to String over one already there
+		toss("program"); // Don't add a method to String over one already there
 
 	String.prototype[name] = function() { // Call this function when you call s.name()
 		var a = [this + ""]; // Coax the given this into a string, rather than an array of characters
@@ -138,7 +169,7 @@ function augment(f, name) {
 // True if s is a string with some text
 // Instead of is(), you can also just use if (s == "") or if (!s.length)
 function is(s) {
-	if (typeof s !== "string") throw "type";
+	if (typeof s !== "string") toss("type");
 	if (s.length === 0) return false;
 	return true;
 }
@@ -146,7 +177,7 @@ function is(s) {
 // True if s is a string that's blank
 // Instead of blank, you can also just use if (s != "") or if (s.length)
 function blank(s) {
-	if (typeof s !== "string") throw "type";
+	if (typeof s !== "string") toss("type");
 	if (s.length === 0) return true;
 	return false;
 }
@@ -170,7 +201,7 @@ function lower(s) {
 // You can omit i to get the code of the first character
 function code(s, i) {
 	if (!i) i = 0; // Turn undefined into 0 so the math below works
-	if (i < 0 || i > s.length - 1) throw "bounds";
+	if (i < 0 || i > s.length - 1) toss("bounds");
 	return s.charCodeAt(i);
 }
 
@@ -237,19 +268,19 @@ exports.sortText = sortText;
 // Before returning object o we parsed from text s, make sure o turns back into exactly the same text
 // This is a clever way to turn a forgiving parsing function into a very strict one
 function parseCheck(oToString, s) { // Case sensitive
-	if (oToString != s) throw "data";
+	if (oToString != s) toss("data");
 }
 function parseCheckMatch(oToString, s) { // Matches cases, use for things like base16 where both "a" and "A" are valid 10
-	if (!match(oToString, s)) throw "data";
+	if (!match(oToString, s)) toss("data");
 }
 
 // Turn a string like "123" into the number 123
 function number(s) { return _number(s, 10); }
 function number16(s) { return _number(s, 16); } // Base 16, turn "A" into 10
 function _number(s, base) {
-	if (typeof s !== "string") throw "type";
+	if (typeof s !== "string") toss("type");
 	var n = parseInt(s, base);
-	if (isNaN(n)) throw "data";
+	if (isNaN(n)) toss("data");
 	parseCheckMatch(_numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
 	return n;
 }
@@ -258,7 +289,7 @@ function _number(s, base) {
 function numerals(n) { return _numerals(n, 10); }
 function numerals16(n) { return _numerals(n, 16); } // Base 16, turn 10 into "A"
 function _numerals(n, base) {
-	if (typeof n !== "number") throw "type";
+	if (typeof n !== "number") toss("type");
 	return n.toString(base);
 }
 
@@ -311,7 +342,7 @@ function chop(s, n)   { return clip(s, 0, s.length - n); } // Chop the last n ch
 function clip(s, i, n) {                                   // Clip out part of s, clip(5, 3) is cccccCCCcc
 	if (!i) i = 0; // Turn undefined into 0 so math below works
 	if (!n) n = 0;
-	if (i < 0 || n < 0 || i + n > s.length) throw "bounds"; // Make sure the requested index and number of characters fits inside s
+	if (i < 0 || n < 0 || i + n > s.length) toss("bounds"); // Make sure the requested index and number of characters fits inside s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
@@ -391,14 +422,14 @@ function _find(s, tag, forward, scan, match) {
 	return c; // Return custom
 }
 function _findPlatform(s, tag, forward, scan, match) { // Using JavaScript
-	if (!tag.length) throw "argument";
+	if (!tag.length) toss("argument");
 	if (match) { s = s.toLocaleLowerCase(); tag = tag.toLocaleLowerCase(); } // Lowercase everything to match cases
 	return forward ? s.indexOf(tag) : s.lastIndexOf(tag); // Find the first or last index of the tag
 }
 function _findCustom(s, tag, forward, scan, match) { // Using our own code
 
 	// Get and check the lengths
-	if (!tag.length) throw "argument"; // The tag cannot be blank
+	if (!tag.length) toss("argument"); // The tag cannot be blank
 	if (s.length < tag.length) return -1; // If s is blank, return -1
 
 	// Our search will scan s from the start index through the end index
@@ -701,7 +732,7 @@ function rip(s, tag, trimItems, skipBlankItems) {
 }
 function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using s.split();
 
-	if (typeof tag !== "string") throw "type"; // Don't pass split a regular expression without realizing it
+	if (typeof tag !== "string") toss("type"); // Don't pass split a regular expression without realizing it
 	var a = s.split(tag);
 
 	if (trimItems) { // Trim each item afterwards
@@ -900,7 +931,7 @@ function decode(s) {
 	try {
 		return decodeURIComponent(s.swap("+", "%20")); // Decode plusses, then everything
 	} catch (e) {
-		if (e.name == "URIError") throw "data"; // Turn URIError into data
+		if (e.name == "URIError") toss("data", {caught:e}); // Turn URIError into data
 		else throw e; // Throw something else we didn't expect
 	}
 }
@@ -918,6 +949,8 @@ function safeFileName(s) {
 	s = s.swap("|",  "।");
 	return s;
 }
+//TODO move this into disk, and make it much better, considering additional illegal charcters, replacing illegal characters, and acting differently on different platforms
+//also the idea of sensing illegal characters and keeping a list that lasts an hour
 
 augment(encode, "encode");
 augment(decode, "decode");

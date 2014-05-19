@@ -1,10 +1,14 @@
 
+var requireText = require("./text");
+
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
+
 var requireData = require("./data");
 var Data = requireData.Data;
 var Bay = requireData.Bay;
 var base64 = requireData.base64;
 
-var requireText = require("./text");
 
 
 
@@ -15,7 +19,34 @@ var requireText = require("./text");
 
 
 
+//   _____             
+//  |_   _|__  ___ ___ 
+//    | |/ _ \/ __/ __|
+//    | | (_) \__ \__ \
+//    |_|\___/|___/___/
+//                     
 
+var toss = requireText.toss;
+
+exports.testToss = function(test) {
+
+	try {
+		toss();
+		test.fail();
+	} catch (e) {}
+
+	try {
+		toss("custom");
+		test.fail();
+	} catch (e) { test.ok(e.name == "custom"); }
+
+	try {
+		toss("custom", {note:"a note about what happened"});
+		test.fail();
+	} catch (e) { test.ok(e.name == "custom"); }
+
+	test.done();
+}
 
 
 
@@ -156,7 +187,7 @@ exports.testArray = function(test) {
 		try {
 			a.remove(i);
 			test.fail();
-		} catch (e) { test.ok(e == "bounds"); }
+		} catch (e) { test.ok(e.name == "bounds"); }
 	}
 	out(a, -1);
 	out(a, 2);
@@ -260,10 +291,10 @@ exports.testIsBlank = function(test) {
 	test.ok(blank(""));
 
 	//throws for non string
-	try { is(null);             test.fail(); } catch (e) { test.ok(e == "type"); }
-	try { is(1);                test.fail(); } catch (e) { test.ok(e == "type"); }
-	try { blank(false);         test.fail(); } catch (e) { test.ok(e == "type"); }
-	try { blank(new Buffer(0)); test.fail(); } catch (e) { test.ok(e == "type"); }
+	try { is(null);             test.fail(); } catch (e) { test.ok(e.name == "type"); }
+	try { is(1);                test.fail(); } catch (e) { test.ok(e.name == "type"); }
+	try { blank(false);         test.fail(); } catch (e) { test.ok(e.name == "type"); }
+	try { blank(new Buffer(0)); test.fail(); } catch (e) { test.ok(e.name == "type"); }
 
 	test.done();
 }
@@ -481,8 +512,8 @@ exports.testNumberNumerals = function(test) {
 	test.ok(numerals(-123.456) === "-123.456");
 
 	function bad(s) {
-		try { number(s); test.fail(); } catch (e) { test.ok(e == "data"); }
-		try { number16(s); test.fail(); } catch (e) { test.ok(e == "data"); }
+		try { number(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
+		try { number16(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
 	}
 
 	//make sure text that isn't a perfect number can't become one
@@ -610,11 +641,11 @@ exports.testClip = function(test) {
 
 	test.ok(typeof s.clip(0, 0) === "string");//make sure nothing gives us ""
 
-	try { s.clip(-1, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//before start
-	try { s.clip(8, 1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//beyond end
+	try { s.clip(-1, 1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//before start
+	try { s.clip(8, 1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//beyond end
 
-	try { s.clip(-1, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing before start
-	try { s.clip(9, 0); test.fail(); } catch (e) { test.ok(e == "bounds"); }//nothing beyond end
+	try { s.clip(-1, 0); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//nothing before start
+	try { s.clip(9, 0); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//nothing beyond end
 
 	test.done();
 }
@@ -695,7 +726,7 @@ exports.testStartsEndsHas = function(test) {
 exports.testFindLast = function(test) {
 
 	//no tag
-	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e == "argument"); }
+	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e.name == "argument"); }
 
 	//basic use
 	test.ok(0  == "abcd".find(  "ab"));//first
@@ -924,7 +955,7 @@ exports.testRip = function(test) {
 	// Make sure rip will throw if you try to give it a regular expression
 	try {
 		"hello".rip(/abc/);
-	} catch (e) { test.ok(e == "type"); }
+	} catch (e) { test.ok(e.name == "type"); }
 
 	function view(a) {
 		var s = "";
@@ -1230,7 +1261,7 @@ exports.testEncodeDecode = function(test) {
 		try {
 			encoded.decode();
 			test.fail();
-		} catch (e) { test.ok(e == "data"); }
+		} catch (e) { test.ok(e.name == "data"); }
 	}
 
 	//blank

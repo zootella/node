@@ -22,14 +22,14 @@ function sayBits(n) {
 
 
 function left(i, bits) {
-	if (bits < 0 || bits > 32) throw "range";
+	if (bits < 0 || bits > 32) toss("range");
 	var a = i << bits;
 	log(sayBits(i) + " << " + bits + " is"); log(sayBits(a)); log();
 	return a;
 }
 
 function right(i, bits) {
-	if (bits < 0 || bits > 32) throw "range";
+	if (bits < 0 || bits > 32) toss("range");
 	var a = i >>> bits;
 	log(sayBits(i) + " >> " + bits + " is"); log(sayBits(a)); log();
 	return a;

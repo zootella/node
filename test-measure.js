@@ -1,5 +1,6 @@
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
@@ -168,13 +169,13 @@ exports.testNumberBig = function(test) {
 exports.testCheck = function(test) {
 
 	//hit each of the 7 exceptions in check
-	try { check("1", 0); test.fail() } catch (e) { test.ok(e == "type"); }//make sure i is a number
-	try { check(0 / 0, 0); test.fail() } catch (e) { test.ok(e == "bounds"); }//not the weird not a number thing
-	try { check(1 / 0, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for floating point
-	try { check(9007199254740992 * 2, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for int
-	try { check(9007199254740900 + 92, 0); test.fail() } catch (e) { test.ok(e == "overflow"); }//not too big for addition to work
-	try { check(1.5, 0); test.fail() } catch (e) { test.ok(e == "type"); }//a whole number
-	try { check(0, 1); test.fail() } catch (e) { test.ok(e == "bounds"); }//with the minimum value or larger
+	try { check("1", 0); test.fail() } catch (e) { test.ok(e.name == "type"); }//make sure i is a number
+	try { check(0 / 0, 0); test.fail() } catch (e) { test.ok(e.name == "bounds"); }//not the weird not a number thing
+	try { check(1 / 0, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for floating point
+	try { check(9007199254740992 * 2, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for int
+	try { check(9007199254740900 + 92, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for addition to work
+	try { check(1.5, 0); test.fail() } catch (e) { test.ok(e.name == "type"); }//a whole number
+	try { check(0, 1); test.fail() } catch (e) { test.ok(e.name == "bounds"); }//with the minimum value or larger
 
 	test.done();
 }
@@ -199,7 +200,7 @@ exports.testMultiply = function(test) {
 	try {
 		multiply(9007199254740, 1001);//over the limit
 		test.fail();
-	} catch (e) { test.ok(e == "overflow"); }
+	} catch (e) { test.ok(e.name == "overflow"); }
 
 	test.done();
 }
@@ -229,10 +230,10 @@ exports.testDivide = function(test) {
 	test.ok(a.whole == 0 && a.remainder == 1);
 
 	//catch errors
-	try { divide("potato", 1); test.fail(); } catch (e) { test.ok(e == "type");    }//not a number
-	try { divide(1.5, 1);      test.fail(); } catch (e) { test.ok(e == "type");    }//not an integer
-	try { divide(-2, 1);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//negative
-	try { divide(10, 0);       test.fail(); } catch (e) { test.ok(e == "bounds");  }//divide by zero
+	try { divide("potato", 1); test.fail(); } catch (e) { test.ok(e.name == "type");    }//not a number
+	try { divide(1.5, 1);      test.fail(); } catch (e) { test.ok(e.name == "type");    }//not an integer
+	try { divide(-2, 1);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//negative
+	try { divide(10, 0);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//divide by zero
 
 	test.done();
 }
@@ -1089,7 +1090,7 @@ exports.testChunkExample = function(test) {
 	try {
 		log(say(stripePieceToChunk(bytes, Stripe(3, 1))));//bounds
 		test.fail();
-	} catch (e) { test.ok(e == "bounds"); }
+	} catch (e) { test.ok(e.name == "bounds"); }
 
 
 
@@ -1125,7 +1126,7 @@ exports.testChunkOverflow = function(test) {
 	try {
 		attempt(12*Size.gb);
 		test.fail();
-	} catch (e) { test.ok(e == "overflow"); }
+	} catch (e) { test.ok(e.name == "overflow"); }
 
 	test.done();
 }

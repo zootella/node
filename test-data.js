@@ -1,5 +1,6 @@
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
@@ -267,8 +268,8 @@ exports.testDataClip = function(test) {
 	//clip nothing
 	c = d._clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
 	c = d._clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
-	try { d._clip(6, 1); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 1 from the end is not
-	try { d._clip(7, 0); test.fail(); } catch (e) { test.ok(e == "chop"); }//clipping 0 from beyond the end is not
+	try { d._clip(6, 1); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//clipping 1 from the end is not
+	try { d._clip(7, 0); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//clipping 0 from beyond the end is not
 
 	//first
 	var b = d.first();
@@ -283,15 +284,15 @@ exports.testDataClip = function(test) {
 	try {
 		d.get(6);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }//throws chop
+	} catch (e) { test.ok(e.name == "chop"); }//throws chop
 
-	try { d.get(-1); test.fail(); } catch (e) { test.ok(e == "chop"); }//before the start
-	try { d.get(6); test.fail(); } catch (e) { test.ok(e == "chop"); }//after the end
+	try { d.get(-1); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//before the start
+	try { d.get(6); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//after the end
 
-	try { d._clip(-1, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out before the start
-	try { d._clip(-2, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely before the start
-	try { d._clip(5, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//sticking out after the end
-	try { d._clip(6, 2); test.fail(); } catch (e) { test.ok(e == "chop"); }//entirely after the end
+	try { d._clip(-1, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//sticking out before the start
+	try { d._clip(-2, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//entirely before the start
+	try { d._clip(5, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//sticking out after the end
+	try { d._clip(6, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//entirely after the end
 
 	test.done();
 }
@@ -406,7 +407,7 @@ exports.testClip = function(test) {
 	try {
 		c2.remove(6);//try to remove too much
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }//make sure we got chop
+	} catch (e) { test.ok(e.name == "chop"); }//make sure we got chop
 	test.ok(c2.size() == 5);//and that didn't change the clip
 
 	c2.keep(4);//use keep instead of remove
@@ -608,7 +609,7 @@ exports.testBayRemove = function(test) {
 	try {
 		b.remove(1);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 
 	test.done();
 }
@@ -653,7 +654,7 @@ exports.testBinType = function(test) {
 	try {
 		b.add(Data());//don't let the user add from a data
 		test.fail();
-	} catch (e) { test.ok(e == "type"); }
+	} catch (e) { test.ok(e.name == "type"); }
 
 	test.done();
 }
@@ -825,8 +826,8 @@ exports.testEncodeByte = function(test) {
 	test.ok(d.size() == 1);
 	test.ok(d.base16() == "ff");
 
-	try { d = toByte(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }//too small
-	try { d = toByte(256); test.fail(); } catch (e) { test.ok(e == "bounds"); }//too big
+	try { d = toByte(-1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//too small
+	try { d = toByte(256); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//too big
 
 	test.done();
 }
@@ -1040,7 +1041,7 @@ exports.testEncodeInvalid = function(test) {
 	bad32(" a2sm4qaytuuxv3kgk7iokjg5i3bygfsh ");
 	bad62(" 1Gjeg1ytanHJhBvgVijthIe35As ");
 
-	function bad16(s) { try { base16(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
+	function bad16(s) { try { base16(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
 
 	bad16("0");//odd
 	bad16("000");
@@ -1063,16 +1064,16 @@ exports.testEncodeInvalid = function(test) {
 	bad16(" 00ff ");
 	bad16("  00  ff  ");
 
-	function bad32(s) { try { base32(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
+	function bad32(s) { try { base32(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
 
 	bad32("1");//1 and 8 are illegal characters
 	bad32("88");
 
-	function bad62(s) { try { base62(s); test.fail(); } catch (e) { test.ok(e == "data"); } }
+	function bad62(s) { try { base62(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
 
 	bad62("--");//base62 doesn't use any puncutation at all
 
-	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e == "data"); } }//you cant find anything to make node's base64 throw, but the round trip check works wonders
+	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//you cant find anything to make node's base64 throw, but the round trip check works wonders
 
 	bad64("AP8A/w");//require the trailing equals
 	bad64("AP ! 8A/w==");//insert bad characters
@@ -1187,7 +1188,7 @@ exports.testParseBase16 = function(test) {
 	try {
 		base16("0607080", bay);//missing the 9
 		test.fail();
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	//it's ok, bay didn't change
 	test.ok(bay.data().base16() == "000102030405");
@@ -1251,7 +1252,7 @@ exports.testOutlineName = function(test) {
 	function invalid(exception, name) {
 		try {
 			Outline().name(name);
-		} catch (e) { test.ok(e == exception); }//get thrown the exception we expect
+		} catch (e) { test.ok(e.name == exception); }//get thrown the exception we expect
 	}
 
 	valid("abc");//outline names can only be lowercase letters and numbers
@@ -1279,7 +1280,7 @@ exports.testOutlineNameValue = function(test) {
 	try {
 		o.name(" ");//invalid name
 		test.fail();
-	} catch (e) { test.ok(e) == "data"; }
+	} catch (e) { test.ok(e.name == "data"); }
 	test.ok(o.name() == "key");//name unchanged
 
 	//set and get value
@@ -1289,7 +1290,7 @@ exports.testOutlineNameValue = function(test) {
 	try {
 		o.value(7);
 		test.fail();
-	} catch (e) { test.ok(e) == "type"; }//values must be data
+	} catch (e) { test.ok(e.name == "type"); }//values must be data
 	test.ok(o.value().same(Data("\r\n")));//value unchanged
 
 	test.done();
@@ -1376,7 +1377,7 @@ exports.testOutlineAdd = function(test) {
 	function cant(a) {
 		try {
 			o.add(a);
-		} catch (e) { test.ok(e == "type"); }
+		} catch (e) { test.ok(e.name == "type"); }
 	}
 	cant(7);
 	cant([1, 2, 3]);
@@ -1393,7 +1394,7 @@ exports.testOutlineAdd = function(test) {
 	try {
 		o.n();//undefined is not
 		test.fail();
-	} catch (e) { test.ok(e) == "invalid"; }
+	} catch (e) { test.ok(e.name == "invalid"); }
 
 	test.done();
 }
@@ -1403,7 +1404,7 @@ exports.testOutlineNavigate = function(test) {
 	var o = Outline();
 	try {
 		o.n("name1");//try navigating down to something that doesn't exist
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	o.add("name1");//add it
 	o.n("name1").value(base16("01"));//set its value
@@ -1432,7 +1433,7 @@ exports.testOutlineCompare = function(test) {
 			test.ok(sortOutline(o1, o2) > 0);
 			test.ok(sortOutline(o2, o1) < 0);
 		} else {
-			throw "invalid";
+			toss("invalid");
 		}
 	}
 
@@ -1799,7 +1800,7 @@ exports.testOutlineParseData = function(test) {
 			try {
 				outlineFromData(clip);
 				test.fail();
-			} catch (e) { test.ok(e == result); }
+			} catch (e) { test.ok(e.name == result); }
 		}
 
 		//predict how many bytes are left
@@ -1853,7 +1854,7 @@ exports.testOutlineParseText = function(test) {
 			try {
 				outlineFromText(clip);
 				test.fail();
-			} catch (e) { test.ok(e == result); }
+			} catch (e) { test.ok(e.name == result); }
 		}
 
 		//predict how many bytes are left
@@ -1892,7 +1893,7 @@ exports.testOutlineTextInvalid = function(test) {
 			try {
 				outlineFromText(clip);
 				test.fail();
-			} catch (e) { test.ok(e == result); }
+			} catch (e) { test.ok(e.name == result); }
 		}
 	}
 
@@ -1957,7 +1958,7 @@ exports.testOutlineFromLines = function(test) {
 	try {
 		outline('');
 		test.fail();
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	//a single line is
 	outline('a:');
@@ -1968,7 +1969,7 @@ exports.testOutlineFromLines = function(test) {
 			'a:',
 			'b:');
 		test.fail();
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	//the extra line is not ok
 	try {
@@ -1976,7 +1977,7 @@ exports.testOutlineFromLines = function(test) {
 			'a:',
 			'');
 		test.fail();
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	//two outlines are not ok
 	try {
@@ -1986,7 +1987,7 @@ exports.testOutlineFromLines = function(test) {
 			'b:',
 			'');
 		test.fail();
-	} catch (e) { test.ok(e == "data"); }
+	} catch (e) { test.ok(e.name == "data"); }
 
 	test.done();
 }
@@ -2011,7 +2012,7 @@ exports.testParseOutline = function(test) {
 		try {
 			_parseOutline(s);
 			test.fail();
-		} catch (e) { test.ok(e == "data"); }
+		} catch (e) { test.ok(e.name == "data"); }
 	}
 
 	invalid('');//blank not ok
@@ -2046,7 +2047,7 @@ exports.testParseGroup = function(test) {
 	try {
 		_parseGroup(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 	test.ok(clip.data().text() == "f\r\ng\r\n");//unchanged
 
 	test.done();
@@ -2064,7 +2065,7 @@ exports.testParseLine = function(test) {
 	try {
 		_parseLine(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 
 	//doesn't trim lines
 	data = Data(" one \r\n two \r\n");
@@ -2076,7 +2077,7 @@ exports.testParseLine = function(test) {
 	try {
 		_parseLine(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 
 	//mac and unix style line endings
 	data = Data("one\ntwo\n");
@@ -2088,7 +2089,7 @@ exports.testParseLine = function(test) {
 	try {
 		_parseLine(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 
 	//just a fragment
 	data = Data("fragment");
@@ -2096,7 +2097,7 @@ exports.testParseLine = function(test) {
 	try {
 		_parseLine(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 	test.ok(clip.data().text() == "fragment");//all still there
 
 	//line followed by fragment
@@ -2107,7 +2108,7 @@ exports.testParseLine = function(test) {
 	try {
 		_parseLine(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }
+	} catch (e) { test.ok(e.name == "chop"); }
 	test.ok(clip.data().text() == "fragment");//fragment still there
 
 	test.done();
@@ -2271,7 +2272,7 @@ exports.testSpanParseInvalid = function(test) {
 		try {
 			spanParse(c);//try parsing it
 			test.fail();//make sure we get an exception
-		} catch (e) { test.ok(e == expect); }//of the kind we expect
+		} catch (e) { test.ok(e.name == expect); }//of the kind we expect
 		test.ok(c.data().base16() == remain);//and check what's still in the clip
 	}
 
@@ -2298,7 +2299,7 @@ exports.testSpanParseChop = function(test) {
 	try {
 		spanParse(clip);
 		test.fail();
-	} catch (e) { test.ok(e == "chop"); }//we get a chop exception
+	} catch (e) { test.ok(e.name == "chop"); }//we get a chop exception
 	test.ok(clip.data().base16() == "fb8389");//and the clip is unchanged
 
 	//after that, all the data arrives
@@ -2364,7 +2365,7 @@ exports.testQuoteUnquote = function(test) {
 		try {
 			unquote(s);
 			test.fail();
-		} catch (e) { test.ok(e == "data"); }
+		} catch (e) { test.ok(e.name == "data"); }
 	}
 
 	both('',   '');//blank

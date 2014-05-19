@@ -1,9 +1,16 @@
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
+var sortText = requireText.sortText;
+var parseCheck = requireText.parseCheck;
+var parseCheckMatch = requireText.parseCheckMatch;
+var number = requireText.number;
+var numerals = requireText.numerals;
+var numerals16 = requireText.numerals16;
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
@@ -12,12 +19,6 @@ var multiply = requireMeasure.multiply;
 var divide = requireMeasure.divide;
 var scale = requireMeasure.scale;
 
-var sortText = requireText.sortText;
-var parseCheck = requireText.parseCheck;
-var parseCheckMatch = requireText.parseCheckMatch;
-var number = requireText.number;
-var numerals = requireText.numerals;
-var numerals16 = requireText.numerals16;
 
 
 
@@ -49,9 +50,9 @@ function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 	if (!n) return;
 
 	// Check bounds
-	if (n < 0 || sourceI < 0 || targetI < 0) throw "bounds";
-	if (sourceI + n > sourceBuffer.length) throw "bounds";
-	if (targetI + n > targetBuffer.length) throw "bounds";
+	if (n < 0 || sourceI < 0 || targetI < 0) toss("bounds");
+	if (sourceI + n > sourceBuffer.length) toss("bounds");
+	if (targetI + n > targetBuffer.length) toss("bounds");
 
 	// Copy the memory
 	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
@@ -96,7 +97,7 @@ function Data(p) {
 	else if (type == "boolean")    _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
 	else if (type == "number")     _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
 	else if (type == "string")     _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
-	else throw "type";
+	else toss("type");
 
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
@@ -122,7 +123,7 @@ function Data(p) {
 		var s = text();
 		if      (s == "t") return true;
 		else if (s == "f") return false;
-		else throw "data";
+		else toss("data");
 	}
 	
 	function size() { return _buffer.length; } // The number of bytes of data this Data object views
@@ -134,14 +135,14 @@ function Data(p) {
 	function after(i) { return _clip(i, size() - i); } // Clip out the bytes after index i in this Data, after(3) is dddDDDDDDD	
 	function chop(n)  { return _clip(0, size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
 	function _clip(i, n) {                             // Clip out part this Data, _clip(5, 3) is dddddDDDdd
-		if (i < 0 || n < 0 || i + n > size()) throw "chop"; // Make sure the requested index and number of bytes fits inside this Data
+		if (i < 0 || n < 0 || i + n > size()) toss("chop"); // Make sure the requested index and number of bytes fits inside this Data
 		return Data(_buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
 	}
 	
 	function first() { return get(0); } // Get the first byte in this Data
 	function get(i) {                   // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
 		if (!i) i = 0;                          // Turn undefined into 0 so math below works
-		if (i < 0 || i >= size()) throw "chop"; // Make sure i is in range
+		if (i < 0 || i >= size()) toss("chop"); // Make sure i is in range
 		return _buffer.readUInt8(i);
 	}
 
@@ -304,7 +305,7 @@ function Bay(a) {
 	function prepare(more) {
 
 		// Check the input
-		if (more < 0) throw "check"; // Can't be negative
+		if (more < 0) toss("bounds"); // Can't be negative
 		if (!more) return; // No more space requested
 
 		// We don't have a buffer to hold any data yet
@@ -341,7 +342,7 @@ function Bay(a) {
 	// Remove n bytes from the start of the data this Bay holds
 	function remove(n) {
 		if (!n) return; // No remove requested
-		if (n < 0 || n > hold) throw "chop";
+		if (n < 0 || n > hold) toss("chop");
 		if (n == hold) { // Remove everything
 			clear();
 		} else { // Remove from the start
@@ -353,7 +354,7 @@ function Bay(a) {
 	// Remove data from the end of this Bay, keeping only the first n bytes
 	function only(n) {
 		if (!n) { clear(); return; } // Only nothing
-		if (n < 0 || n > hold) throw "chop";
+		if (n < 0 || n > hold) toss("chop");
 		hold = n; // Remove from the end
 	}
 
@@ -493,13 +494,13 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 
 		// Whatever b is, we can't add from it
 		} else {
-			throw "type"; // Block adding from a Data, for instance, because we can't remove from the Data what we took
+			toss("type"); // Block adding from a Data, for instance, because we can't remove from the Data what we took
 		}
 	}
 
 	// Remove size bytes from the start of the data in this Bin
 	function remove(n) {
-		if (n < 0 || n > size()) throw "bounds"; // Can't be negative or more data than we have
+		if (n < 0 || n > size()) toss("bounds"); // Can't be negative or more data than we have
 		if (!n) return; // Nothing to remove
 		bufferShift(buffer, n, hold - n); // Shift the data after n to the start of buffer
 		hold -= n; // Record that we hold n fewer bytes
@@ -565,7 +566,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 // Takes an integer 0 through 255, 0x00 through 0xff, or throws bounds
 // Returns a Data object with a single byte in it with that value
 function toByte(i) {
-	if (i < 0x00 || i > 0xff) throw "bounds";
+	if (i < 0x00 || i > 0xff) toss("bounds");
 	var b = new Buffer(1); // Make a Buffer that can hold one byte
 	b.writeUInt8(i, 0); // Write the byte at the start, position 0
 	return Data(b);
@@ -651,7 +652,7 @@ function base16(s, bay) {
 		try {
 			p.add(new Buffer(s, "hex"));
 		} catch (e) {
-			if (e.message == "Invalid hex string") throw "data"; // Throw data for the exception we expect
+			if (e.message == "Invalid hex string") toss("data"); // Throw data for the exception we expect
 			else throw e; // Throw up some other exception we didn't expect
 		}
 		var d = p.parsed();
@@ -677,7 +678,7 @@ function base32(s, bay) {
 			c = s.get(i).upper();                                          // Accept uppercase and lowercase letters
 			if      (c.range("A", "Z")) code = c.code() - "A".code();      // 'A'  0 00000 through 'Z' 25 11001
 			else if (c.range("2", "7")) code = c.code() - "2".code() + 26; // '2' 26 11010 through '7' 31 11111
-			else throw "data";                                             // Invalid character
+			else toss("data");                                             // Invalid character
 
 			// Insert the bits from code into hold
 			hold = (hold << 5) | code; // Shift the bits in hold to the left 5 spaces, and copy in code there
@@ -716,7 +717,7 @@ function base62(s, bay) {
 			else if (c.range("a", "z")) code = c.code() - "a".code() + 10; // 'a' 10 001010 through 'z' 35 100011
 			else if (c.range("A", "Y")) code = c.code() - "A".code() + 36; // 'A' 36 100100 through 'Y' 60 111100
 			else if (c.range("Z", "Z")) code = 61;                         // 'Z' indicates 61 111101, 62 111110, or 63 111111 are next, we will just write four 1s
-			else throw "data";                                             // Invalid character
+			else toss("data");                                             // Invalid character
 
 			// Insert the bits from code into hold
 			if (code == 61) { hold = (hold << 4) | 15;   bits += 4; } // Insert 1111 for 'Z'
@@ -906,7 +907,7 @@ function Outline(setName, setValue) {
 		if (p !== undefined) { // We were given a new name
 			checkType(p, "string"); // Name must be a string
 			for (var i = 0; i < p.length; i++)
-				if (!p[i].range("a", "z") && !p[i].range("0", "9")) throw "data"; // With only the characters a-z and 0-9
+				if (!p[i].range("a", "z") && !p[i].range("0", "9")) toss("data"); // With only the characters a-z and 0-9
 			_name = p; // It's good, save it
 		}
 		return _name; // Return our current name
@@ -915,7 +916,7 @@ function Outline(setName, setValue) {
 		if (p !== undefined) { // We were given a new value, or a contained name to get the value of
 			if      (isType(p, "Data"))   _value = p.copyMemory(); // Copy the memory, the given data might view a file which will close
 			else if (isType(p, "string")) return n(p).value();     // Navigate to the contained name and return its value
-			else throw "type";
+			else toss("type");
 		}
 		return _value; // Return our current value
 	}
@@ -923,7 +924,7 @@ function Outline(setName, setValue) {
 	// Access contents
 	function length() { return _contents.length; } // How many outlines this one contains
 	function get(i) {                              // Get the contained outline at index i
-		if (i < 0 || i >= _contents.length) throw "bounds";
+		if (i < 0 || i >= _contents.length) toss("bounds");
 		return _contents[i];
 	}
 
@@ -939,7 +940,7 @@ function Outline(setName, setValue) {
 		if      (isType(o, "Outline")) _contents.add(o);              // Add the given outline within this one
 		else if (isType(o, "string"))  _contents.add(Outline(o));     // Just a string, add a new outline with that name
 		else if (isType(o, "Data"))    _contents.add(Outline("", o)); // Just data, add a new outline with that value
-		else throw "type";
+		else toss("type");
 	}
 
 	// True if this outline contains an outline with the given name
@@ -967,15 +968,15 @@ function Outline(setName, setValue) {
 
 	// Navigate from this outline to name within it, or throw data if name not found
 	function n(k) {
-		if (k === undefined) throw "invalid";
+		if (k === undefined) toss("invalid");
 		for (var i = 0; i < _contents.length; i++)
 			if (_contents[i].name() == k) return _contents[i]; // Return the first outline in our contents that has a matching name
-		throw "data";
+		toss("data");
 	}
 
 	// Navigate from this outline to name within it, make name if it doesn't exist yet
 	function m(k) {
-		if (k === undefined) throw "invalid";
+		if (k === undefined) toss("invalid");
 		if (!has(k)) add(Outline(k)); // If we don't have the requested name, add it
 		return n(k);
 	}
@@ -1080,11 +1081,11 @@ function outline() {
 
 		var clip = Data(s).clip();
 		var o = outlineFromText(clip);
-		if (clip.hasData()) throw "data"; // Make sure we used everything we were given
+		if (clip.hasData()) toss("data"); // Make sure we used everything we were given
 		return o;
 
 	} catch (e) {
-		if (e == "chop") e = "data"; // Throw data instead of chop, we only make one outline
+		if (e.name == "chop") toss("data", {caught:e}); // Throw data instead of chop, we only make one outline
 		throw e;
 	}
 }
@@ -1110,9 +1111,9 @@ function outlineFromText(clip) {
 	var a = [];
 	for (var i = 0; i < g.length; i++) // Parse each text line into an Outline object
 		a.add(_parseOutline(g[i]));
-	if (!a.length) throw "data";       // Make sure we got at least one line
+	if (!a.length) toss("data");       // Make sure we got at least one line
 	var o = group(a);                  // Look at indent to group a into a hierarchy
-	if (a.length) throw "data";        // Make sure there was just one outline
+	if (a.length) toss("data");        // Make sure there was just one outline
 
 	p.valid();
 	return o;
@@ -1136,7 +1137,7 @@ function _parseOutline(s) {
 	s = s.beyond(o.indent);     // Move beyond them, making s like "name:value"
 	
 	var c = s.cut(":");         // Split s around ":" to get the name and value
-	if (!c.found) throw "data"; // Make sure there is a ":"
+	if (!c.found) toss("data"); // Make sure there is a ":"
 	o.name(c.before);
 	o.value(unquote(c.after));  // Turn the quoted text back into the data it was made from
 	return o;
@@ -1167,7 +1168,7 @@ function _parseLine(clip) {
 	var p = ParseFromClip(clip);
 
 	var c = p.clip().data().cut(Data("\n")); // The line ends "\r\n" or just "\n", cut around "\n"
-	if (!c.found) throw "chop";              // A whole line hasn't arrived yet
+	if (!c.found) toss("chop");              // A whole line hasn't arrived yet
 	var b = c.before;
 	if (b.ends(Data("\r"))) b = b.chop(1);   // Remove the "\r"
 	p.clip().keep(c.after.size());           // That all worked, remove the data of the line from the clip in p
@@ -1302,8 +1303,8 @@ function spanParse(clip) {
 		n = (n << 7) | (y & 0x7f);   // Move 7 bits into the bottom of n
 		if ((y & 0x80) == 0) break;  // If the leading bit is 0, we're done
 	}
-	if (n < 0 || n > 0x0fffffff) throw "data";
-	if (!spanMake(n).same(p.parsed())) throw "data"; // Round trip check
+	if (n < 0 || n > 0x0fffffff) toss("data");
+	if (!spanMake(n).same(p.parsed())) toss("data"); // Round trip check
 
 	p.valid();
 	return n;
@@ -1312,12 +1313,12 @@ function spanParse(clip) {
 // Predict how big the number n will be turned into data, 1 or more bytes
 // While the span format is unlimited, JavaScript does bit manipulation on 32 bit integers
 function spanSize(n) {
-	if (n < 0) throw "bounds";
+	if (n < 0) toss("bounds");
 	if (n <       0x80) return 1; //  7 1s will fit in 1 byte
 	if (n <     0x4000) return 2; // 14 1s will fit in 2 bytes
 	if (n <   0x200000) return 3; // 21 1s will fit in 3 bytes
 	if (n < 0x10000000) return 4; // 28 1s will fit in 4 bytes
-	throw "bounds";
+	toss("bounds");
 }
 
 exports.spanMake = spanMake;
@@ -1384,7 +1385,7 @@ function unquote(s) {
 		if (!q1.found) break;       // No opening quote, so we got it all
 
 		var q2 = q1.after.cut('"');  // Split on the closing quote
-		if (!q2.found) throw "data"; // Must have closing quote
+		if (!q2.found) toss("data"); // Must have closing quote
 
 		bay.add(q2.before); // Copy the quoted text across, using UTF8 encoding
 		s = q2.after;       // The remaining text is after the closing quote
@@ -1449,6 +1450,11 @@ exports.quoteIs = quoteIs;
 
 
 
+//TODO, have outline() take it from javascript objects, not lines of text, that's what you'd use when coding, arrays within arrays, not fill in the text form
+//like this
+//outline(["key1", "key1", {"key2":dataValue}, "key3"])
+//duplicate key names work because you're using arrays
+//keys that have values get put in a hash, keys without values don't need to be in a hash
 
 
 

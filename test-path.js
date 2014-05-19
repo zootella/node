@@ -2,6 +2,9 @@
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 
+var requireText = require("./text");
+var toss = requireText.toss;
+
 var requireState = require("./state");
 var demo = requireState.demo;
 var mistakeLog = requireState.mistakeLog;
@@ -16,13 +19,21 @@ var listState = requireState.listState;
 
 var requireDisk = require("./disk");
 
+var requireData = require("./data");
+var outline = requireData.outline;
 
 
 
 if (demo("snippet")) { demoSnippet(); }
 function demoSnippet() {
 
-	/*
+
+
+
+/*
+
+
+
 
 //	pathLook("E:\\Desk\\test\\hello.txt", next);
 //	pathLook("E:\\Desk\\test\\folder", next);
@@ -250,13 +261,13 @@ exports.testPath = function(test) {
 		try {
 			Path(s);
 			test.fail();
-		} catch (e) { test.ok(e == "type"); }//bad paths that throw type
+		} catch (e) { test.ok(e.name == "type"); }//bad paths that throw type
 	}
 	function d(s) {
 		try {
 			Path(s);
 			test.fail();
-		} catch (e) { test.ok(e == "data"); }//bad paths that throw data
+		} catch (e) { test.ok(e.name == "data"); }//bad paths that throw data
 	}
 	function l(s) {
 		try {

@@ -3,6 +3,9 @@ var platformUtility = require("util");
 var platformFile = require("fs");
 var platformPath = require("path");
 
+var requireText = require("./text");
+var toss = requireText.toss;
+
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 

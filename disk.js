@@ -4,6 +4,7 @@ var platformFile = require("fs");
 var platformPath = require("path");
 
 var requireText = require("./text");
+var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
@@ -36,7 +37,7 @@ function platform() {
 function working() {
 	try {
 		return Path(process.cwd());
-	} catch (e) { throw "platform"; } // Not a data exception because the platform should have been able to give us text that we can correctly parse into a Path object
+	} catch (e) { toss("platform", {caught:e}); } // Not a data exception because the platform should have been able to give us text that we can correctly parse into a Path object
 }
 
 exports.platform = platform;
@@ -78,16 +79,16 @@ exports.working = working;
 function Path(s) {
 
 	checkType(s, "string");   // Make sure s is a string
-	s = _pathPrepare(s);            // Have only system, drive and share roots end with a slash
-	var r = _pathResolve(s);        // Resolve s to an absolute path
-	if (r != s) throw "data"; // If s changed, it was a relative path
+	s = _pathPrepare(s);      // Have only system, drive and share roots end with a slash
+	var r = _pathResolve(s);  // Resolve s to an absolute path
+	if (r != s) toss("data"); // If s changed, it was a relative path
 	var p = r;
 
 	var platform;
 	if      (p.starts("\\\\")) platform = "network"; // Like \\computer\share\folder
 	else if (p.starts("/"))    platform = "unix";    // Like /folder
 	else if (p.get(1) == ":")  platform = "windows"; // Like C:\folder
-	else throw "data";
+	else toss("data");
 
 	var up = _pathFolder(p);
 	if (up == p) up = null; // This is a drive, share, or the filesystem root
@@ -198,7 +199,7 @@ function pathSubtract(folder, file) {
 	log(name);
 
 	var file2 = pathAdd(folder, name); // Confirm adding it back works
-	if (file.text() != file2.text()) throw "data"; // And produces the given result
+	if (file.text() != file2.text()) toss("data"); // And produces the given result
 	return name;
 }
 
@@ -214,7 +215,7 @@ function pathCheck(folder, file) {
 		i.starts(o) &&           // And start with the folder path
 		(c == "/" || c == "\\")) // And have a slash between folder and name
 		return;                  // To be inside
-	throw "data";
+	toss("data");
 }
 
 exports.pathAdd = pathAdd;
