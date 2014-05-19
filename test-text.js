@@ -544,7 +544,7 @@ exports.testLengthGet = function(test) {
 	test.ok(s.get(0) == "a");
 	test.ok(s.get(1) == "b");
 	test.ok(s.get(2) == "c");
-	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(-1) == "");
 	test.ok(s.get(3) == "");
 
 	s = "一二三";
@@ -552,7 +552,7 @@ exports.testLengthGet = function(test) {
 	test.ok(s.get(0) == "一");
 	test.ok(s.get(1) == "二");
 	test.ok(s.get(2) == "三");
-	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(-1) == "");
 	test.ok(s.get(3) == "");
 
 	s = "中文 español English हिन्दी العربية português বাংলা русский 日本語 ਪੰਜਾਬੀ";//international string literal

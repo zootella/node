@@ -300,8 +300,7 @@ function first(s) { return get(s, 0); }
 // Get the character a distance i in characters into s, or "" if s isn't long enough
 function get(s, i) {
 	if (!i) i = 0; // Turn undefined into 0 so math below works
-	if (i < 0) throw "bounds";
-	if (i > s.length - 1) return "";
+	if (i < 0 || i > s.length - 1) return "";
 	return s.charAt(i);
 }
 

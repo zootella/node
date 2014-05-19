@@ -1,7 +1,20 @@
 
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
 
+var requireState = require("./state");
+var demo = requireState.demo;
+var mistakeLog = requireState.mistakeLog;
+var mistakeStop = requireState.mistakeStop;
+var closeCheck = requireState.closeCheck;
+var done = requireState.done;
+var close = requireState.close;
+var isClosed = requireState.isClosed;
+var isOpen = requireState.isOpen;
+var makeState = requireState.makeState;
+var listState = requireState.listState;
 
-
+var requireDisk = require("./disk");
 
 
 
@@ -250,7 +263,7 @@ exports.testPath = function(test) {
 			log(Path(s).text());
 		} catch (e) { log(e); }
 	}
-
+/*
 	if (platform() == "windows") {
 
 		//good paths that don't change
