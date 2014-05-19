@@ -363,8 +363,8 @@ exports.testIsLetterIsNumber = function(test) {
 	test.ok("2".isNumber());
 	test.ok("9".isNumber());
 
-	//blank throws bounds
-	try { "".isLetter(); test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	//blank is false, doesn't throw
+	test.ok(!"".isLetter());
 
 	function neither(c) {
 		test.ok(!c.isLetter());
@@ -545,7 +545,7 @@ exports.testLengthGet = function(test) {
 	test.ok(s.get(1) == "b");
 	test.ok(s.get(2) == "c");
 	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
-	try { s.get(3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(3) == "");
 
 	s = "一二三";
 	test.ok(s.length == 3);
@@ -553,7 +553,7 @@ exports.testLengthGet = function(test) {
 	test.ok(s.get(1) == "二");
 	test.ok(s.get(2) == "三");
 	try { s.get(-1); test.fail(); } catch (e) { test.ok(e == "bounds"); }
-	try { s.get(3);  test.fail(); } catch (e) { test.ok(e == "bounds"); }
+	test.ok(s.get(3) == "");
 
 	s = "中文 español English हिन्दी العربية português বাংলা русский 日本語 ਪੰਜਾਬੀ";//international string literal
 	s64 = "5Lit5paHIGVzcGHDsW9sIEVuZ2xpc2gg4KS54KS/4KSo4KWN4KSm4KWAINin2YTYudix2KjZitipIHBvcnR1Z3XDqnMg4Kas4Ka+4KaC4Kay4Ka+INGA0YPRgdGB0LrQuNC5IOaXpeacrOiqniDgqKrgqbDgqJzgqL7gqKzgqYA=";//same text as utf8 bytes encoded as base64

@@ -1437,7 +1437,9 @@ exports.quoteIs = quoteIs;
 
 
 
-
+//TODO
+//unify the exceptions "bounds" and "chop", probably just use "bounds" everywhere
+//this is part of a design to only have very few different kinds of exceptions, like "bounds", "data", "timeout", and so on
 
 
 

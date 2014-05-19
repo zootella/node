@@ -178,8 +178,18 @@ function code(s, i) {
 // For instance, range("m", "a", "z") == true
 // Takes three strings to look at the first character of each
 function range(s, c1, c2) { return (code(s) >= code(c1)) && (code(s) <= code(c2)); }
-function isLetter(s) { return range(s, "a", "z") || range(s, "A", "Z"); } // True if the first character in s is a letter "a" through "z" or "A" through "Z"
-function isNumber(s) { return range(s, "0", "9"); } // True if the first character in s is a digit "0" through "9"
+
+// True if the first character in s is a letter "a" through "z" or "A" through "Z"
+function isLetter(s) {
+	if (s == "") return false;
+	return range(s, "a", "z") || range(s, "A", "Z");
+}
+
+// True if the first character in s is a digit "0" through "9"
+function isNumber(s) {
+	if (s == "") return false;
+	return range(s, "0", "9");
+}
 
 // True if the given character or string is blank or entirely made up of whitespace characters
 function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
@@ -285,12 +295,13 @@ exports.numerals16 = numerals16;
 //   \____|_|_| .__/ 
 //            |_|    
 
-// Get the first character in s
+// Get the first character in s, or "" if s is ""
 function first(s) { return get(s, 0); }
-// Get the character a distance i in characters into the string s
+// Get the character a distance i in characters into s, or "" if s isn't long enough
 function get(s, i) {
 	if (!i) i = 0; // Turn undefined into 0 so math below works
-	if (i < 0 || i > s.length - 1) throw "bounds";
+	if (i < 0) throw "bounds";
+	if (i > s.length - 1) return "";
 	return s.charAt(i);
 }
 
@@ -312,7 +323,6 @@ augment(end, "end");
 augment(beyond, "beyond");
 augment(chop, "chop");
 augment(clip, "clip");
-
 
 
 
