@@ -32,7 +32,7 @@ var requireCollect = require("./collect");
 
 
 
-
+//rename sortText and sortData to compareText and compareData
 
 
 var List = requireCollect.List;
@@ -41,6 +41,12 @@ var SortedList = requireCollect.SortedList;
 var SortedSet = requireCollect.SortedSet;
 
 exports.testList = function(test) {
+
+	var list = List(sortText);
+	list.add("a");
+	log(list.text());
+	list.add("b");
+	log(list.text());
 
 	done(test);
 }

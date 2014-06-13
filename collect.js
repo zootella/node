@@ -5,6 +5,7 @@ var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
+var say = requireText.say;
 
 
 
@@ -90,6 +91,7 @@ function _list(compare) {
 			s += say(list.get(i));
 			if (i + 1 < list.n) s += ",";
 		}
+		return s;
 	}
 
 	return list;
@@ -301,7 +303,7 @@ exports.SortedSet = SortedSet;
 
 
 
-
+//have it count how many compares it does
 
 //TODO measure how slow the add and find take, put the unified meter object on that
 //and then if meter wants to use these, have it use them unmetered
