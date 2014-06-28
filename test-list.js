@@ -22,7 +22,7 @@ var requireData = require("./data");
 var outline = requireData.outline;
 var compareData = requireData.compareData;
 
-var requireCollect = require("./collect");
+var requireList = require("./list");
 
 
 
@@ -32,10 +32,10 @@ var requireCollect = require("./collect");
 
 
 
-var List = requireCollect.List;
-var Set = requireCollect.Set;
-var SortedList = requireCollect.SortedList;
-var SortedSet = requireCollect.SortedSet;
+var List = requireList.List;
+var Set = requireList.Set;
+var SortedList = requireList.SortedList;
+var SortedSet = requireList.SortedSet;
 
 exports.testList = function(test) {
 
