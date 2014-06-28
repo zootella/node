@@ -4,7 +4,7 @@ var log = requireMeasure.log;
 
 var requireText = require("./text");
 var toss = requireText.toss;
-var sortText = requireText.sortText;
+var compareText = requireText.compareText;
 
 var requireState = require("./state");
 var demo = requireState.demo;
@@ -20,7 +20,7 @@ var listState = requireState.listState;
 
 var requireData = require("./data");
 var outline = requireData.outline;
-var sortData = requireData.sortData;
+var compareData = requireData.compareData;
 
 var requireCollect = require("./collect");
 
@@ -32,9 +32,6 @@ var requireCollect = require("./collect");
 
 
 
-//rename sortText and sortData to compareText and compareData
-
-
 var List = requireCollect.List;
 var Set = requireCollect.Set;
 var SortedList = requireCollect.SortedList;
@@ -42,7 +39,7 @@ var SortedSet = requireCollect.SortedSet;
 
 exports.testList = function(test) {
 
-	var list = List(sortText);
+	var list = List(compareText);
 	list.add("a");
 	log(list.text());
 	list.add("b");

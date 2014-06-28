@@ -226,7 +226,7 @@ exports.testArray = function(test) {
 
 var is = requireText.is;
 var blank = requireText.blank;
-var sortText = requireText.sortText;
+var compareText = requireText.compareText;
 
 exports.testLengthSize = function(test) {
 
@@ -425,14 +425,14 @@ exports.testIsSpace = function(test) {
 exports.testSort = function(test) {
 
 	//make sure we got the sign right
-	test.ok(sortText("a", "b") < 0);//negative, correct order
-	test.ok(sortText("a", "a") == 0);//zero, tie
-	test.ok(sortText("b", "a") > 0);//positive, reverse order
+	test.ok(compareText("a", "b") < 0);//negative, correct order
+	test.ok(compareText("a", "a") == 0);//zero, tie
+	test.ok(compareText("b", "a") > 0);//positive, reverse order
 
 	//but what this is really good for is sorting arrays
 	function run(before, sorted) {
 		var a = before.rip(",");
-		a.sort(sortText);
+		a.sort(compareText);
 		test.ok(a + "" == sorted);
 	}
 	run("b,c,a", "a,b,c");

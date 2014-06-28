@@ -5,7 +5,7 @@ var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
-var sortText = requireText.sortText;
+var compareText = requireText.compareText;
 var parseCheck = requireText.parseCheck;
 var parseCheckMatch = requireText.parseCheckMatch;
 var number = requireText.number;
@@ -228,7 +228,7 @@ function _cutData(data, tag, forward) {
 // Determine which should appear first in sorted order
 // Zero if same, negative if d1 then d2, positive if d2 first
 // Compare each byte value 0 through 255 to sort the lowest different byte first, or shortest Data if all the bytes are a tie
-function sortData(d1, d2) {
+function compareData(d1, d2) {
 	checkType(d1, "Data");
 	checkType(d2, "Data");
 	var i = 0; // Start at the first byte
@@ -247,7 +247,7 @@ function sortData(d1, d2) {
 	}
 }
 
-exports.sortData = sortData;
+exports.compareData = compareData;
 
 
 
@@ -985,7 +985,7 @@ function Outline(setName, setValue) {
 	function sort() {
 		for (var i = 0; i < _contents.length; i++)
 			_contents[i].sort(); // Sort the contents of our contained outlines, recursively sort from the farthest edges back up
-		_contents.sort(sortOutline); // After that, sort our contents
+		_contents.sort(compareOutline); // After that, sort our contents
 	}
 
 	// Convert this outline to text and data
@@ -1007,23 +1007,23 @@ exports.Outline = Outline;
 // Determine which should appear first in sorted order
 // Zero if same, negative if o1 then o2, positive if o2 first
 // You have to sort the contained outlines of both o1 and o2 before calling this function to compare them
-function sortOutline(o1, o2) {
+function compareOutline(o1, o2) {
 	checkType(o1, "Outline");
 	checkType(o2, "Outline");
 
 	// Compare names
-	var a = sortText(o1.name(), o2.name());
+	var a = compareText(o1.name(), o2.name());
 	if (a) return a;
 
 	// Compare values
-	a = sortData(o1.value(), o2.value());
+	a = compareData(o1.value(), o2.value());
 	if (a) return a;
 
 	// Compare contained outlines, for this to work they need to already be sorted
 	var i = 0; // Start at the first contained outline
 	while (true) {
 		if (i < o1.length() && i < o2.length()) { // Compare two outlines
-			a = sortOutline(o1.get(i), o2.get(i));
+			a = compareOutline(o1.get(i), o2.get(i));
 			if (a) return a;
 		} else if (i < o2.length()) { // o2 has an outline at i but o1 is shorter, return negative for o1 then o2
 			return -1;
@@ -1036,7 +1036,7 @@ function sortOutline(o1, o2) {
 	}
 }
 
-exports.sortOutline = sortOutline;
+exports.compareOutline = compareOutline;
 
 
 
@@ -1243,7 +1243,7 @@ function outlineFromData(clip) {
 	return o;
 }
 
-exports.sortOutline = sortOutline;
+exports.compareOutline = compareOutline;
 exports.outline = outline;
 exports.outlineFromText = outlineFromText;
 exports._parseOutline = _parseOutline;

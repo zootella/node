@@ -22,7 +22,7 @@ var Bay = requireData.Bay;
 var mediumBin = requireData.mediumBin;
 var bigBin = requireData.bigBin;
 var testBin = requireData.testBin;
-var sortData = requireData.sortData;
+var compareData = requireData.compareData;
 
 var encrypt = require("./encrypt");
 var randomData = encrypt.randomData;
@@ -439,7 +439,7 @@ exports.testClipRemoveData = function(test) {
 	test.done();
 }
 
-exports.testSortData = function(test) {
+exports.testCompareData = function(test) {
 
 	//first, let's test some get
 	var d = base16("00ff0a05");
@@ -452,13 +452,13 @@ exports.testSortData = function(test) {
 		var d1 = base16(s1);
 		var d2 = base16(s2);
 		test.ok(d1.same(d2));//use find also
-		test.ok(sortData(d1, d2) == 0);
+		test.ok(compareData(d1, d2) == 0);
 	}
 	function order(s1, s2) {
 		var d1 = base16(s1);
 		var d2 = base16(s2);
-		test.ok(sortData(d1, d2) < 0);
-		test.ok(sortData(d2, d1) > 0);//reverse the order
+		test.ok(compareData(d1, d2) < 0);
+		test.ok(compareData(d2, d1) > 0);//reverse the order
 	}
 
 	same("", "");//same
@@ -1233,7 +1233,7 @@ exports.testParseBase16 = function(test) {
 //3 compact binary data for the disk and wire
 
 var Outline = requireData.Outline;
-var sortOutline = requireData.sortOutline;
+var compareOutline = requireData.compareOutline;
 var outline = requireData.outline;
 var outlineFromText = requireData.outlineFromText;
 var _parseOutline = requireData._parseOutline;
@@ -1424,14 +1424,14 @@ exports.testOutlineCompare = function(test) {
 
 	function sort(order, o1, o2) {
 		if (order == "==") {
-			test.ok(sortOutline(o1, o2) == 0);
-			test.ok(sortOutline(o2, o1) == 0);
+			test.ok(compareOutline(o1, o2) == 0);
+			test.ok(compareOutline(o2, o1) == 0);
 		} else if (order == "AZ") {
-			test.ok(sortOutline(o1, o2) < 0);
-			test.ok(sortOutline(o2, o1) > 0);
+			test.ok(compareOutline(o1, o2) < 0);
+			test.ok(compareOutline(o2, o1) > 0);
 		} else if (order == "ZA") {
-			test.ok(sortOutline(o1, o2) > 0);
-			test.ok(sortOutline(o2, o1) < 0);
+			test.ok(compareOutline(o1, o2) > 0);
+			test.ok(compareOutline(o2, o1) < 0);
 		} else {
 			toss("invalid");
 		}

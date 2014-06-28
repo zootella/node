@@ -227,7 +227,7 @@ function isSpace(s) { return s.trim() == ""; } // See if it trims down to blank
 
 // Determine which should appear first in sorted order
 // Zero if same, negative if s1 then s2, positive if s2 first
-function sortText(s1, s2) {
+function compareText(s1, s2) {
 	checkType(s1, "string");
 	checkType(s2, "string");
 	return s1.localeCompare(s2);
@@ -242,7 +242,7 @@ augment(range, "range");
 augment(isLetter, "isLetter");
 augment(isNumber, "isNumber");
 augment(isSpace, "isSpace");
-exports.sortText = sortText;
+exports.compareText = compareText;
 
 
 
@@ -1034,7 +1034,6 @@ js valueOf
 
 
 
-//write sortData(a, b) as a separate function
 
 //watch rock dots go between upper and lower case
 //watch french accents get alphebetized correctly

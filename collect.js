@@ -316,7 +316,14 @@ exports.SortedSet = SortedSet;
 
 
 
+//you probably don't have to add anything to the array prototype anymore because you can use list instead
+//can you insert things in a certain position of the list
 
+//grow this in the following ways
+//make a hash/dictionary where the keys are whatever kind of object you want, like IpPort, for instance, and the values are whatever kind of object you want
+//make twoboots that closes and clears by default
+//make the list that holds a random sample of n items of all the items you've ever given it
+//sort a list into a random order
 
 
 

@@ -1241,8 +1241,6 @@ exports.Speed = Speed;
 
 
 
-//maybe rename sortText, sortData, sortOutline to compareText, compareData, compareOutline, because that's what's really happening, that is the standard name, and o.sort() and a.sort() become distinct
-//take a look at the mdn documentation to decide about this
 
 
 
