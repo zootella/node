@@ -27,7 +27,19 @@ var requireList = require("./list");
 
 
 
+//List
 
+//size, how many items we carry
+//get, get the item at the given index, index out of bounds
+//has, true if same as something we have
+
+//insert, insert new item o at index i
+//remove, remove the item at i
+
+//clear, remove them all
+//find
+
+//sort
 
 
 
