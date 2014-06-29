@@ -27,20 +27,19 @@ var requireList = require("./list");
 
 
 
-//List
 
-//size, how many items we carry
-//get, get the item at the given index, index out of bounds
-//has, true if same as something we have
 
-//insert, insert new item o at index i
-//remove, remove the item at i
+//--list
+//size
+//get
+//insert
+//remove
+//clear
 
-//clear, remove them all
+//--each
+//add
 //find
-
 //sort
-
 
 
 
@@ -49,13 +48,26 @@ var Set = requireList.Set;
 var SortedList = requireList.SortedList;
 var SortedSet = requireList.SortedSet;
 
-exports.testList = function(test) {
+exports.testCore = function(test) {
 
 	var list = List(compareText);
+	test.ok(list.size() == 0);
+
 	list.add("a");
-	log(list.text());
+	test.ok(list.size() == 1);
+	test.ok(list.get(0) == "a");
+	test.ok(list.text() == "a");
+
 	list.add("b");
-	log(list.text());
+	test.ok(list.size() == 2);
+	test.ok(list.get(0) == "a");
+	test.ok(list.get(1) == "b");
+	test.ok(list.text() == "a,b");
+
+	done(test);
+}
+
+exports.testList = function(test) {
 
 	done(test);
 }

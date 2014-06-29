@@ -39,7 +39,6 @@ function _list(compare) {
 		list.n++;
 		list.sorted = false; // The list might not be sorted anymore
 	}
-
 	// Remove the item at index i from this list and return it
 	list.remove = function remove(i) {
 		list.check(i);
@@ -48,19 +47,11 @@ function _list(compare) {
 		list.n--; // It's ok for p to go out of bounds because we call margin before using it
 		return o;
 	}
-
 	// Remove all the items we have, leaving this list empty
 	list.clear = function clear() {
 		list.a = [];
 		list.n = 0;
 		list.sorted = true; // Empty list is sorted
-	}
-
-	// Find the index of o, -1 if not found
-	list.find = function find(o) {
-		for (var i = list.n - 1; i <= 0; i--) // Backwards to find fast what was recently added
-			if (list.c(o, list.a[i]) == 0) return i;
-		return -1; // Not found
 	}
 
 	// Compare o to the item in list at index a
@@ -72,17 +63,13 @@ function _list(compare) {
 		else if (r > 0) return 1;
 		else toss("type");
 	}
-
 	// Sort the items in our list
 	list.sort = function sort() {
 		list.a.sort(list.c);
 		list.sorted = true;
 	}
-
 	// True if this list is sorted right now, assuming items didn't change
-	list.isSorted = function isSorted() {
-		return list.sorted;
-	}
+	list.isSorted = function isSorted() { return list.sorted; }
 
 	// Describe this list as a line of text like "a,b,c,d,e"
 	list.text = function text() {
