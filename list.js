@@ -7,6 +7,10 @@ var isType = requireText.isType;
 var checkType = requireText.checkType;
 var say = requireText.say;
 
+var requireMeasure = require("./measure");
+var log = requireMeasure.log;
+var divide = requireMeasure.divide;
+
 
 
 
@@ -86,7 +90,7 @@ function _list(compare) {
 
 // Find the index of an item that matches o in list, -1 if not found
 function _findInUnsorted(list, o) {
-	for (var i = list.n - 1; i <= 0; i--) // Backwards to find fast what was recently added
+	for (var i = list.n - 1; i >= 0; i--) // Backwards to find fast what was recently added
 		if (list.c(o, list.a[i]) == 0) return i;
 	return -1; // Not found
 }
@@ -280,6 +284,7 @@ function SortedSet(compare) {
 	};
 }
 
+exports._list = _list; // Exported for testing
 exports.List = List;
 exports.Set = Set;
 exports.SortedList = SortedList;
