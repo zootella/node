@@ -29,9 +29,9 @@ var check = requireMeasure.check;
 
 // True with the chances of n in d
 function chance(n, d) {
-	check(n, 1);
-	check(d, n);
-	return random(1, d) <= n;
+	check(n, 1); // The numerator must be 1+
+	check(d, n); // The denominator must be the numerator or larger
+	return random(1, d) <= n; // May the odds be ever in your favor
 }
 
 // A random integer min through and including max
@@ -39,27 +39,30 @@ function random(min, max) {
 	check(min, 0);   // The minimum must be 0+
 	check(max, min); // The maximum must be the minimum or larger
 	var i = Math.floor(Math.random() * (max - min + 1)) + min; // From the Mozilla Developer Network
-	if (i < min || i > max) toss("platform"); // Astronomically rare, but documented as possible
+	if (i < min || i > max) toss("platform", {note:"random outside bounds"}); // Astronomically rare, but documented as possible
 	return i;
 }
 
+// 20 bytes of random data should be globally unique
+function unique() { return randomData(Size.value); }
 
-
-
-
-function unique() {
-	return randomData(Size.value);
-} // 20 bytes of random data should be globally unique
+// Make n bytes of random data
 function randomData(n) {
-	return Data(platformCrypto.randomBytes(n));
-} // Make n bytes of random data
+	check(n, 1); // Can't request 0 random bytes
+	try {
+		return Data(platformCrypto.randomBytes(n)); // Try high quality random
+	} catch (e) {
+		mistakeLog({ name:"platform", wrap:e, note:"using pseudo random instead" });
+	}
+	return Data(platformCrypto.pseudoRandomBytes(n)); // Fall back to lower quality random
+}
 
 exports.chance = chance;
 exports.random = random;
 exports.unique = unique;
 exports.randomData = randomData;
 
-
+//TODO randomBytes has an async form, maybe you should be using it instead
 
 
 //write hash, use it to have data.hash()

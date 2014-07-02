@@ -24,8 +24,8 @@ var bigBin = requireData.bigBin;
 var testBin = requireData.testBin;
 var compareData = requireData.compareData;
 
-var encrypt = require("./encrypt");
-var randomData = encrypt.randomData;
+var requireHide = require("./hide");
+var randomData = requireHide.randomData;
 
 
 

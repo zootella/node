@@ -1163,7 +1163,25 @@ function demoSpeed() {
 
 
 
+//TODO
+/*
+you figured out how to do the single line import
+all you need new from javascript is the iterate over the keys in a hash
+in the source file, make your own exports object, and use it like this
 
+available(chance, random, unique, randomData);
+
+you can even make it single line
+how that works is it has a single object on exports, and adds what's passed in there
+on exports, there's a single function, called import or something better
+then on the side where you're using it
+
+require("./measure").import(module);
+
+you're pretty sure that module is the name of the global object in a single node file
+then what import does is iterates through all of measure's stuff and copies names and references into module
+this way, you can also notice and complain when there is a conflict
+*/
 
 
 

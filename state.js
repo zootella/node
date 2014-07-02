@@ -60,14 +60,79 @@ function demo(name) {
 	}
 	return false;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// See how fast we can run the given synchronous function over and over again
+function speedLoop(f, name) {
+	for (var s = 0; s < 8; s++) {         // Repeat 8 times
+
+		var t = Date.now();                 // When we started
+		var n = 0;                          // Count how many cycles
+
+		while (true) {
+			if (t + 1000 < Date.now()) break; // Second's up, stop
+			f();                              // Run the given code
+			n++;                              // Count one more cycle
+		}
+
+		log(items(n, name), "/second");    // Report how many cycles in that second
+	}
+}
+
+// See how fast we can run the given asynchronous function over and over again
+// Returns a function for your asynchronous code to call when it's done
+function speedLoopNext(f, name) {
+
+	var s = 0;          // Number of second long loops we've completed
+	var t = Date.now(); // Time the current loop started
+	var n = 0;          // Cycles we've counted in the current loop
+
+	var callWhenDone = function () {
+		setImmediate(function() {
+
+			if (Date.now() < t + 1000) { // Still within the current second
+
+				n++; // Count we ran the given code
+				f(); // Run the given code again
+
+			} else { // Finished a second
+
+				log(items(n, name), "/second"); // Report how many cycles we completed in the last second
+				s++; // Record we finished one more second
+
+				if (s < 8) { // Still more seconds to do
+					t = Date.now(); // Reset variables to go another second
+					n = 0;
+					f();
+				}
+
+			}
+
+		});
+	}
+
+	return callWhenDone;
+}
+
+
 exports.demo = demo;
+exports.speedLoop = speedLoop;
+exports.speedLoopNext = speedLoopNext;
 
 
 
-
-
-
-
+//TODO update both of these to say how many milliseconds it took to do the very first time, then start the normal 8 seconds of speed loop tests
+//TODO rename speed loop to cycle
 
 
 
@@ -146,6 +211,7 @@ exports.exit = exit;
 //TODO get the stack trace from the exception, keep stuff you get by default like file, line number, and ^ by line of code
 //TODO show the error to the user, like write a .txt file and shell execute it before exiting
 //TODO send the error in a packet to the programmer
+//TODO in describe exception, pull out the type and note, and have wrap at the end and then document that lower, or can you just loop through all the keys in the hash actually
 
 
 

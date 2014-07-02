@@ -1,5 +1,6 @@
 
-var requireEvents = require("events");
+var platformEvent = require("events");
+var platformFile = require("fs");
 
 var requireText = require("./text");
 var toss = requireText.toss;
@@ -26,7 +27,8 @@ var listState = requireState.listState;
 var requireData = require("./data");
 var Data = requireData.Data;
 
-
+var requireHide = require("./hide");
+var unique = requireHide.unique;
 
 
 
@@ -481,7 +483,7 @@ function demoEventOrder() {
 		log("received");
 	}
 
-	var e = new requireEvents.EventEmitter();
+	var e = new platformEvent.EventEmitter();
 	e.on("name", f);
 
 	e.emit("name");
@@ -495,7 +497,7 @@ exports.testEventSynchronous = function(test) {
 		s += "received;";
 	}
 
-	var e = new requireEvents.EventEmitter();
+	var e = new platformEvent.EventEmitter();
 	e.on("name", f);
 
 	e.emit("name");//works less like an event, more like just calling f()
@@ -517,7 +519,7 @@ function demoLoopEvent() {
 		e.emit("name");
 	}
 
-	var e = new requireEvents.EventEmitter();
+	var e = new platformEvent.EventEmitter();
 	e.on("name", f);
 	e.emit("name");
 }
@@ -636,7 +638,7 @@ function yourSynchronousCodeHere() {
 	//return to indicate you're done
 }
 
-//second, the asynchronous case 
+//second, the asynchronous case
 if (demo("speed-a")) { demoSpeedAsynchronous(); }
 function demoSpeedAsynchronous() {
 
@@ -669,6 +671,74 @@ function yourAsynchronousCodeHere(callWhenDone) {
 	//in your own code, pass and save the reference to call it whenever and wherever you're actually done
 	callWhenDone();
 }
+
+
+
+
+
+
+var speedLoop = requireState.speedLoop;
+var speedLoopNext = requireState.speedLoopNext;
+
+
+
+//example of synchronous code
+if (demo("example")) { example(); }
+function example() {
+
+	function f() {//example synchronous code makes a guid
+		log("a unique value: ", unique().base62());
+	}
+
+	f();//just call our synchronous function once
+}
+
+//example using that synchronous code with speedLoop
+if (demo("example-loop")) { exampleLoop(); }
+function exampleLoop() {
+
+	function f() {//example synchronous code makes a guid
+		unique();
+	}
+
+	speedLoop(f, "unique");//give our synchronous function to speed loop, which will call it over and over
+}
+
+//example of asynchronous code
+if (demo("example-next")) { exampleNext(); }
+function exampleNext() {
+
+	function f() {//example asynchronous code looks at a file on the disk
+		platformFile.realpath("state.js", {}, next);
+		function next(e, resolvedPath) {
+			log("exception '#', resolved path '#'".fill(e, resolvedPath));
+		}
+	}
+
+	f();//just call our asynchronous function once
+}
+
+//example using that asynchronous code with speedLoopNext
+if (demo("example-loop-next")) { exampleLoopNext(); }
+function exampleLoopNext() {
+
+	function f() {//example asynchronous code looks at a file on the disk
+		platformFile.realpath("state.js", {}, next);
+		function next(e, resolvedPath) {
+			callWhenDone();
+		}
+	}
+
+	var callWhenDone = speedLoopNext(f, "look");//get the function we have to call when our code is done
+	f();//call our asynchronous function once to get the whole thing started
+}
+
+
+
+
+
+
+
 
 
 
