@@ -38,6 +38,98 @@ var unique = requireHide.unique;
 
 
 
+//   ____                       
+//  |  _ \  ___ _ __ ___   ___  
+//  | | | |/ _ \ '_ ` _ \ / _ \ 
+//  | |_| |  __/ | | | | | (_) |
+//  |____/ \___|_| |_| |_|\___/ 
+//                              
+
+var speedLoop = requireState.speedLoop;
+var speedLoopNext = requireState.speedLoopNext;
+
+//example of synchronous code
+if (demo("example")) { example(); }
+function example() {
+
+	function f() {//example synchronous code makes a guid
+		log("a unique value: ", unique().base62());
+	}
+
+	f();//just call our synchronous function once
+}
+
+//example using that synchronous code with speedLoop
+if (demo("example-loop")) { exampleLoop(); }
+function exampleLoop() {
+
+	function f() {//example synchronous code makes a guid
+		var s = unique().base62();
+	}
+
+	speedLoop(f, "unique");//give our synchronous function to speed loop, which will call it over and over
+}
+
+//example of asynchronous code
+if (demo("example-next")) { exampleNext(); }
+function exampleNext() {
+
+	function f() {//example asynchronous code looks at a file on the disk
+		platformFile.realpath("state.js", {}, next);
+		function next(e, resolvedPath) {
+			log("exception '#', resolved path '#'".fill(e, resolvedPath));
+		}
+	}
+
+	f();//just call our asynchronous function once
+}
+
+//example using that asynchronous code with speedLoopNext
+if (demo("example-loop-next")) { exampleLoopNext(); }
+function exampleLoopNext() {
+
+	function f() {//example asynchronous code looks at a file on the disk
+		platformFile.realpath("state.js", {}, next);
+		function next(e, resolvedPath) {
+			callWhenDone();
+		}
+	}
+
+	var callWhenDone = speedLoopNext(f, "look");//get the function we have to call when our code is done
+	f();//call our asynchronous function once to get the whole thing started
+}
+
+//empty speedLoop to see maximum speed
+if (demo("example-empty")) { exampleEmpty(); }
+function exampleEmpty() {
+
+	function f() {
+	}
+
+	speedLoop(f, "empty");
+}
+
+//empty speedLoopNext to see maximum speed
+if (demo("example-empty-next")) { exampleEmptyNext(); }
+function exampleEmptyNext() {
+
+	function f() {
+		callWhenDone();//ordinarily, f would call callWhenDone in a callback, but it's ok to call it directly too
+	}
+
+	var callWhenDone = speedLoopNext(f, "empty");
+	f();
+}
+
+
+
+
+//write duplicates or replacements for all these, starting with speed-timeout
+
+
+
+
+
 
 
 
@@ -671,69 +763,6 @@ function yourAsynchronousCodeHere(callWhenDone) {
 	//in your own code, pass and save the reference to call it whenever and wherever you're actually done
 	callWhenDone();
 }
-
-
-
-
-
-
-var speedLoop = requireState.speedLoop;
-var speedLoopNext = requireState.speedLoopNext;
-
-
-
-//example of synchronous code
-if (demo("example")) { example(); }
-function example() {
-
-	function f() {//example synchronous code makes a guid
-		log("a unique value: ", unique().base62());
-	}
-
-	f();//just call our synchronous function once
-}
-
-//example using that synchronous code with speedLoop
-if (demo("example-loop")) { exampleLoop(); }
-function exampleLoop() {
-
-	function f() {//example synchronous code makes a guid
-		unique();
-	}
-
-	speedLoop(f, "unique");//give our synchronous function to speed loop, which will call it over and over
-}
-
-//example of asynchronous code
-if (demo("example-next")) { exampleNext(); }
-function exampleNext() {
-
-	function f() {//example asynchronous code looks at a file on the disk
-		platformFile.realpath("state.js", {}, next);
-		function next(e, resolvedPath) {
-			log("exception '#', resolved path '#'".fill(e, resolvedPath));
-		}
-	}
-
-	f();//just call our asynchronous function once
-}
-
-//example using that asynchronous code with speedLoopNext
-if (demo("example-loop-next")) { exampleLoopNext(); }
-function exampleLoopNext() {
-
-	function f() {//example asynchronous code looks at a file on the disk
-		platformFile.realpath("state.js", {}, next);
-		function next(e, resolvedPath) {
-			callWhenDone();
-		}
-	}
-
-	var callWhenDone = speedLoopNext(f, "look");//get the function we have to call when our code is done
-	f();//call our asynchronous function once to get the whole thing started
-}
-
-
 
 
 

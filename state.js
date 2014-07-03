@@ -14,6 +14,7 @@ var earlier = requireMeasure.earlier;
 var recent = requireMeasure.recent;
 var Duration = requireMeasure.Duration;
 var Ago = requireMeasure.Ago;
+var sayTime = requireMeasure.sayTime;
 
 
 
@@ -50,7 +51,7 @@ var Ago = requireMeasure.Ago;
 //  |____/ \___|_| |_| |_|\___/ 
 //                              
 
-// Run a demo with a command line:
+// Run a demo with a command like:
 // $ node file.js demo name
 var _demo = false;
 function demo(name) {
@@ -61,23 +62,19 @@ function demo(name) {
 	return false;
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // See how fast we can run the given synchronous function over and over again
 function speedLoop(f, name) {
+
+	var t = Date.now(); // When we started
+	var n = 0;          // Count how many cycles
+
+	f(); // Measure warm up speed
+	log("first # took #".fill(name, sayTime(Date.now() - t)));
+
 	for (var s = 0; s < 8; s++) {         // Repeat 8 times
 
-		var t = Date.now();                 // When we started
-		var n = 0;                          // Count how many cycles
+		t = Date.now();                     // When we started for this second
+		n = 0;                              // Zero the counter
 
 		while (true) {
 			if (t + 1000 < Date.now()) break; // Second's up, stop
@@ -85,7 +82,7 @@ function speedLoop(f, name) {
 			n++;                              // Count one more cycle
 		}
 
-		log(items(n, name), "/second");    // Report how many cycles in that second
+		log(items(n, name), "/second");     // Report how many cycles in that second
 	}
 }
 
@@ -96,11 +93,20 @@ function speedLoopNext(f, name) {
 	var s = 0;          // Number of second long loops we've completed
 	var t = Date.now(); // Time the current loop started
 	var n = 0;          // Cycles we've counted in the current loop
+	var first = true;   // Measure warm up speed
 
 	var callWhenDone = function () {
 		setImmediate(function() {
 
-			if (Date.now() < t + 1000) { // Still within the current second
+			if (first) { // First cycle finished, measure warm up speed
+				first = false;
+
+				log("first # took #".fill(name, sayTime(Date.now() - t)));
+				t = Date.now();
+				n = 0;
+				f();
+
+			} else if (Date.now() < t + 1000) { // Still within the current second
 
 				n++; // Count we ran the given code
 				f(); // Run the given code again
@@ -111,19 +117,17 @@ function speedLoopNext(f, name) {
 				s++; // Record we finished one more second
 
 				if (s < 8) { // Still more seconds to do
+
 					t = Date.now(); // Reset variables to go another second
 					n = 0;
 					f();
 				}
-
 			}
-
 		});
 	}
 
-	return callWhenDone;
+	return callWhenDone; // Call this function when your asynchronous f() is done
 }
-
 
 exports.demo = demo;
 exports.speedLoop = speedLoop;
@@ -131,8 +135,6 @@ exports.speedLoopNext = speedLoopNext;
 
 
 
-//TODO update both of these to say how many milliseconds it took to do the very first time, then start the normal 8 seconds of speed loop tests
-//TODO rename speed loop to cycle
 
 
 

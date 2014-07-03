@@ -1181,8 +1181,20 @@ require("./measure").import(module);
 you're pretty sure that module is the name of the global object in a single node file
 then what import does is iterates through all of measure's stuff and copies names and references into module
 this way, you can also notice and complain when there is a conflict
-*/
 
+require("./measure").import(module, { and here is an object with instructions about how to deal with conflicts });
+if it hits a conflict, it throws and exception and stops the program
+then, you have to write in that hash what you want to do
+you could skip, overwrite, or rename
+code it all up and then see how common collisions like this really are
+they might be rare, and will need to be if you want to put the whole hting in a single file jquery style at the end or something
+
+also, now you can import use and test as two different levels
+import(module, {test:true, skip:["name1", "name2"], overwrite:[], rename:[{"log":"log2"}])
+by default, test is false, and you only get the actually public functions
+
+write a test for all this in multiple files, 3 files at least
+*/
 
 
 
