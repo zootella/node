@@ -547,24 +547,6 @@ exports.testPersists2 = function(test) {//runs afterwards
 //  |_____| \_/ \___|_| |_|\__| |____/| .__/ \___|\___|\__,_|
 //                                    |_|                    
 
-//see how fast node can do different things
-//how fast node can run code in a loop
-if (demo("speed-loop")) { demoSpeedLoop(); }//~9 million loops/s
-function demoSpeedLoop() {
-	for (var i = 0; i < 8; i++) {
-
-		var t = Date.now();
-		var n = 0;
-
-		while (true) {
-			if (t + 1000 < Date.now()) break;
-			n++;
-		}
-
-		log(items(n, "loop"), "/1second");
-	}
-}
-
 //node events are synchronous
 //this demo will log received before sent
 //written both as a demo and a test
@@ -638,43 +620,43 @@ function demoSpeed(method) {
 	var l = 0;         //number of second long loops we've completed
 	var t = Date.now();//time the current loop started
 	var n = 0;         //events we've counted in the current loop
-	set();
+	start();
 
-	function set() {
-		if      (method == "timeout")   setTimeout(f, 0);   //~64 timeouts/s
-		else if (method == "immediate") setImmediate(f);    //~480k immediates/s
-		else if (method == "tick")      process.nextTick(f);//node warning and error
+	function start() {
+		if      (method == "timeout")   setTimeout(end, 0);   //~64 timeouts/s
+		else if (method == "immediate") setImmediate(end);    //~480k immediates/s
+		else if (method == "tick")      process.nextTick(end);//node warning and error
 	}
 
-	function f() {
+	function end() {
 		if (t + 1000 < Date.now()) {
-			log(items(n, method), "/1second");
+			log(items(n, method), "/second");
 			l++;
 			if (l < 8) {
 				t = Date.now();
 				n = 0;
-				set();
+				start();
 			}
 		} else {
 			n++;
-			set();
+			start();
 		}
 	}
 }
 
 //now let's use the pulse system
-//~7k pulses/s, not as fast as immediate by itself, but plenty fast
+//~16k pulses/s, not as fast as immediate by itself, but plenty fast
 if (demo("speed-pulse")) { demoSpeedPulse(); }
 function demoSpeedPulse() {
 
-	function Resource() {//a resource that finishes on the first pulse
+	function SpeedResource() {//a resource that finishes on the first pulse
 
 		var state = makeState();
 		state.close = function() {
 			if (state.already()) return;
 		};
 		state.pulse = function() {
-			set();//close this resource on the first pulse
+			end();//close this resource on the first pulse
 		}
 
 		return listState({
@@ -682,90 +664,23 @@ function demoSpeedPulse() {
 		});
 	};
 
-	function set() {
+	var r;
+	function start() {
+		r = SpeedResource();//make a resource
+	}
+
+	function end() {
 		close(r);//close the resource
-		if (t + 1000 < Date.now()) {         //time's up
-			log(items(n, "pulse"), "/1second");//report results
-			l++;                               //count we completed another loop
-			if (l < 8) {     //do another loop
-				t = Date.now();//reset variables to measure performance in the loop
-				n = 0;
-				r = Resource();//make a new resource to start looping again
-			} else {       //all done
-				closeCheck();//check we closed everything before the program exits normally
-			}
-		} else {         //still within the second
-			n++;           //count another loop
-			r = Resource();//make a new resource to go again
-		}
+		callWhenDone();//have speedLoopNext record another cycle and maybe call start again
 	}
 
-	var l = 0;         //number of loops
-	var t = Date.now();//time the current loop started
-	var n = 0;         //how many resources finished in the current loop
-	var r = Resource();//make the first resource to start the loop
-}
-
-//now for some speed tests that make it easy to put your own code in
-//first, a synchronous case where your code finishes by returning
-if (demo("speed-s")) { demoSpeedSynchronous(); }
-function demoSpeedSynchronous() {
-	for (var i = 0; i < 8; i++) {
-
-		var t = Date.now();
-		var n = 0;
-
-		while (true) {
-			if (t + 1000 < Date.now()) break;
-			yourSynchronousCodeHere();
-			n++;
-		}
-
-		log(items(n, "sync"), "/1second");
+	function allDone() {//speedLoopNext calls this once after the last cycle of the last second
+		closeCheck();
 	}
+
+	var callWhenDone = speedLoopNext(start, "pulse", allDone);
+	start();
 }
-
-function yourSynchronousCodeHere() {
-
-	//return to indicate you're done
-}
-
-//second, the asynchronous case
-if (demo("speed-a")) { demoSpeedAsynchronous(); }
-function demoSpeedAsynchronous() {
-
-	var l = 0;         //number of second long loops we've completed
-	var t = Date.now();//time the current loop started
-	var n = 0;         //events we've counted in the current loop
-	set();
-
-	function set() { yourAsynchronousCodeHere(callWhenDone); }
-	function callWhenDone() { setImmediate(f); }
-
-	function f() {
-		if (t + 1000 < Date.now()) {
-			log(items(n, "async"), "/1second");
-			l++;
-			if (l < 8) {
-				t = Date.now();
-				n = 0;
-				set();
-			}
-		} else {
-			n++;
-			set();
-		}
-	}
-}
-
-function yourAsynchronousCodeHere(callWhenDone) {
-
-	//in your own code, pass and save the reference to call it whenever and wherever you're actually done
-	callWhenDone();
-}
-
-
-
 
 
 

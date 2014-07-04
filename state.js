@@ -88,7 +88,8 @@ function speedLoop(f, name) {
 
 // See how fast we can run the given asynchronous function over and over again
 // Returns a function for your asynchronous code to call when it's done
-function speedLoopNext(f, name) {
+// Pass in an allDone function if you want to know when the 8 second test is over
+function speedLoopNext(f, name, allDone) {
 
 	var s = 0;          // Number of second long loops we've completed
 	var t = Date.now(); // Time the current loop started
@@ -121,6 +122,10 @@ function speedLoopNext(f, name) {
 					t = Date.now(); // Reset variables to go another second
 					n = 0;
 					f();
+
+				} else { // That was the last second
+
+					if (allDone) allDone();
 				}
 			}
 		});
