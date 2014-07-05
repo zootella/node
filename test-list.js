@@ -5,6 +5,7 @@ var log = requireMeasure.log;
 var requireText = require("./text");
 var toss = requireText.toss;
 var compareText = requireText.compareText;
+var line = requireText.line;
 
 var requireState = require("./state");
 var demo = requireState.demo;
@@ -24,6 +25,8 @@ var compareData = requireData.compareData;
 
 var requireList = require("./list");
 
+var requireHide = require("./hide");
+var unique = requireHide.unique;
 
 
 
@@ -269,11 +272,18 @@ exports.testSortedSet = function(test) {
 if (demo("sort")) { demoSort(); }
 function demoSort() {
 
-	log("hi");
+	var l = SortedList(compareData);
 
-	//add a lot of random hash values to a list, then sort it
+	var n = 40;
 
-	//add a lot of random hash values to a sorted list, see how much slower this is
+	for (var i = 0; i < n; i++)
+		l.add(unique());
+
+	var s = line() + line();
+	for (var i = 0; i < n; i++)
+		s += line(l.get(i).base16());
+
+	log(s);
 
 }
 
@@ -283,6 +293,9 @@ function demoSort() {
 
 
 
+//add a lot of random hash values to a list, then sort it
+
+//add a lot of random hash values to a sorted list, see how much slower this is
 
 
 

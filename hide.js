@@ -62,6 +62,11 @@ exports.random = random;
 exports.unique = unique;
 exports.randomData = randomData;
 
+/*
+bridge.add(chance, random, unique, randomData);
+bridge.addForTest(_somethingForTests);
+*/
+
 //TODO randomBytes has an async form, maybe you should be using it instead
 
 
