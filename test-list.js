@@ -1,6 +1,11 @@
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
+var now = requireMeasure.now;
+var sayTime = requireMeasure.sayTime;
+var Duration = requireMeasure.Duration;
+var items = requireMeasure.items;
+var commas = requireMeasure.commas;
 
 var requireText = require("./text");
 var toss = requireText.toss;
@@ -35,6 +40,12 @@ var unique = requireHide.unique;
 
 
 
+//   ____             _           _   _     _     _     ____       _   
+//  / ___|  ___  _ __| |_ ___  __| | | |   (_)___| |_  / ___|  ___| |_ 
+//  \___ \ / _ \| '__| __/ _ \/ _` | | |   | / __| __| \___ \ / _ \ __|
+//   ___) | (_) | |  | ||  __/ (_| | | |___| \__ \ |_   ___) |  __/ |_ 
+//  |____/ \___/|_|   \__\___|\__,_| |_____|_|___/\__| |____/ \___|\__|
+//                                                                     
 
 var _list = requireList._list;
 var List = requireList.List;
@@ -260,31 +271,83 @@ exports.testSortedSet = function(test) {
 	done(test);
 }
 
-
-
-
-
-
-
-
-
-
+//see how big you can make sorted lists three different ways before things get really slow
 if (demo("sort")) { demoSort(); }
 function demoSort() {
 
-	var l = SortedList(compareData);
+	var n, t, l, d;
 
-	var n = 40;
+	function print(l) {
+		var view = 5;
+		var s = "";
+		for (var i = 0; i < view; i++)
+			s += line(l.get(i).base16());
+		s += line("...");
+		for (var i = n - view; i < n; i++)
+			s += line(l.get(i).base16());
+		return s;
+	}
 
+	n = 100000;
+	t = now();
+	l = List(compareData);
 	for (var i = 0; i < n; i++)
 		l.add(unique());
+	l.sort();
+	d = Duration(t);
+	log(line("List, add #, sort once: #".fill(commas(n), sayTime(d.time()))) + line() + print(l));//if you only need the list sorted at the end, this is absolutely the way to go
 
-	var s = line() + line();
+	n = 2000;
+	t = now();
+	l = List(compareData);
+	for (var i = 0; i < n; i++) {
+		l.add(unique());
+		l.sort();
+	}
+	d = Duration(t);
+	log(line("List, add and sort #: #".fill(commas(n), sayTime(d.time()))) + line() + print(l));//if you need the list sorted all the time, even small lists are too slow
+
+	n = 10000;
+	t = now();
+	l = SortedList(compareData);
 	for (var i = 0; i < n; i++)
-		s += line(l.get(i).base16());
+		l.add(unique());
+	d = Duration(t);
+	log(line("SortedList, add #: #".fill(commas(n), sayTime(d.time()))) + line() + print(l));//much better than sorting after every add, but not as good as sorting once at the end
+}
 
-	log(s);
+//see how large you can make a sorted list before adding new items is too slow
+//playing around with timeLimit set to 2, 5, and 10, SortedList lets you make things 10 times as big before adding gets the same amount slow
+if (demo("add")) { demoAdd(); }
+function demoAdd() {
 
+	var timeLimit = 5;//adding an item should take less than 5ms
+	var itemLimit = 50;//there should be less than 50 slow adds
+	var l, t, n;
+	log("start");
+
+	//use List and sort after every add
+	l = List(compareData);
+	n = 0;
+	while (true) {
+		t = now();
+		l.add(unique());
+		l.sort();
+		if (t.expired(timeLimit)) n++;//count another slow add
+		if (n > itemLimit) break;//too many slow adds, stop
+	}
+	log("# got too slow sorting a List after every add".fill(items(l.size(), "unique")));
+
+	//use SortedList instead
+	l = SortedList(compareData);
+	n = 0;
+	while (true) {
+		t = now();
+		l.add(unique());
+		if (t.expired(timeLimit)) n++;
+		if (n > itemLimit) break;
+	}
+	log("# got too slow using SortedList instead".fill(items(l.size(), "unique")));
 }
 
 
@@ -293,9 +356,7 @@ function demoSort() {
 
 
 
-//add a lot of random hash values to a list, then sort it
 
-//add a lot of random hash values to a sorted list, see how much slower this is
 
 
 
