@@ -43,7 +43,7 @@ function random(min, max) {
 	return i;
 }
 
-// 20 bytes of random data should be globally unique
+// 20 bytes of random data should be unique across all space and time
 function unique() { return randomData(Size.value); }
 
 // Make n bytes of random data
@@ -81,14 +81,13 @@ bridge.addForTest(_somethingForTests);
 //so, for instance, see how long it takes to generate 100 guids, and if it's more than 100ms, you should probably have an event option
 
 
-
-
-
-
 //random number
-//use underscore, _.random(a, b)
+//use the underscore library, _.random(a, b)
 
 
+
+//make a RandomValve that writes random data forever, or for as long as the range you give it
+//this is the only asynchronous random you'll need
 
 
 

@@ -1,4 +1,6 @@
 
+var platformCrypto = require("crypto");
+
 var requireText = require("./text");
 var line = requireText.line;
 
@@ -6,11 +8,16 @@ var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var sayPercent = requireMeasure.sayPercent;
 var items = requireMeasure.items;
+var Size = requireMeasure.Size;
+var Time = requireMeasure.Time;
+var now = requireMeasure.now;
+var saySize = requireMeasure.saySize;
 
 var requireHide = require("./hide");
 
 var requireState = require("./state");
 var demo = requireState.demo;
+var speedLoop = requireState.speedLoop;
 
 
 
@@ -87,8 +94,8 @@ function demoRandom() {
 }
 
 //make some guids
-if (demo("unique-show")) { demoUniqueShow(); }
-function demoUniqueShow() {
+if (demo("unique")) { demoUnique(); }
+function demoUnique() {
 
 	log("base16"); for (var i = 1; i <= 12; i++) log(unique().base16());//notice the 300ms pause at the start
 	log("base32"); for (var i = 1; i <= 12; i++) log(unique().base32());
@@ -103,91 +110,46 @@ if (demo("unique-speed")) { demoUniqueSpeed(); }
 function demoUniqueSpeed() {
 
 	function f() { unique(); }
-	demoSpeed(f, "unique");
+	speedLoop(f, "unique");
 }
-
-
-//write this basic speed demo passing it the funciton to runa dn the name of what's happening
-//put that next to demo
-
-
 
 //see if we can run the computer out of entropy
-//just show the log every 4k guids made
-//and quit if you ever get the exception, just let the exception be thrown
-//this demo just runs forever
+//running overnight on windows, this generated over a terabyte of random data without running out or any error
+if (demo("random-limit")) { demoRandomLimit(); }
+function demoRandomLimit() {
 
-//platformCrypto.randomBytes(n)
-//do it in 8kb chunks
-//report progress every 4 seconds
-//generated # of random data in # time
+	var t = now();
+	var d = 0;//total number of random bytes generated
+	var s = 4*Size.kb;//generate random data 4kb at a time
 
+	while (true) {//loop until something throws an error
 
+		if (t.expired(4*Time.second)) {//print status on a line every 4 seconds
+			t = now();
+			log("generated # of random data".fill(saySize(d)));
+		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//demo that chance(1, 2) happens 50% of the time
-//test the input bounds on chance() and random()
-//test that random(7, 7) is always 7
-//demo how fast the first and later random values are generated
-//demo that random(1, 10) each value is 10% of the total, show an even distribution
-//demo random forever and see how fast it switches to pseudo random instead
-
-
-
-
-
-
-
-
-exports.testUnique = function(test) {
-
-	done(test);
-}
-
-
-exports.testUnique = function(test) {
-
-	test.ok(unique().size() == 20);
-	test.ok(randomData(6).size() == 6);
-
-	test.ok(!unique().same(unique()));
-	test.ok(!randomData(100).same(randomData(100)));
-
-
-
-	test.done();
+		platformCrypto.randomBytes(s);//generate another 4kb of random data
+		d += s;//record that we made that much more
+	}
 }
 
 
 
 
-
-
-//things you need to do with random
-//use the async with callback
-//if entropy sources are drained, log a warning mistake, and switch to pseudorandom
-//have a function that returns a random number 1 through n
+//use charm and pulseScreen to have this show speed and distance in real time
+//this is a great use of charm without having to have streams understood and going yet
 
 
 
 
-//write a demo to confirm that if you do 1-10, you get the same probability of those, each one is 10%
+
+
+
+
+
+
+
 
 
 
