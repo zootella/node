@@ -1,8 +1,5 @@
 
-
-
-
-
+require("./load").load("filea", function () { return this; });
 
 
 
@@ -30,6 +27,8 @@ exports.functiona1 = functiona1;
 exports.functiona2 = functiona2;
 exports.functiona3 = functiona3;
 exports.functiona4 = functiona4;
+
+
 
 
 

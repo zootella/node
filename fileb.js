@@ -1,11 +1,9 @@
 
+require("./load").load("fileb", function() { return this; });
 
 
 
 
-
-
-require("./world").place("fileb", function () { return this; });
 
 
 
@@ -36,6 +34,10 @@ exports.functionb1 = functionb1;
 exports.functionb2 = functionb2;
 exports.functionb3 = functionb3;
 exports.functionb4 = functionb4;
+
+
+
+
 
 
 
