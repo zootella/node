@@ -1,4 +1,3 @@
-
 var color1 = "red";
 
 function set2() {

@@ -3,41 +3,29 @@
 
 
 
-var map = {
 
-	fileb: ["filea", "data"],
-	filec: []
+//instead of scattering what modules require what all over the place, organize it into a single world map right here
+
+var worldMap = {
+
+	fileb: ["filea", "data"], //fileb requires filea and data
+	filec: []                 //filec doesn't require anything yet
 }
 
 
 
-function batch(file, get, set, produce_this) {
-	/*
-	var files = map[file];
-	for (var i = 0; i < files.length; i++) {
-		var source = require("./" + files[i]);
-		for (s in source) {
-			if (get(s)) console.log("overwriting " + s);
-			set(s, source[s]);
-		}
-	}
-	*/
-
-	console.log(produce_this);
-
-	var o = produce_this();
-
-	var files = map[file];
-	for (var i = 0; i < files.length; i++) {
-		var source = require("./" + files[i]);
-		for (s in source) {
-			if (o[s]) console.log("overwriting " + s);
-			o[s] = source[s];
+exports.place = function (moduleName, moduleThis) {
+	var t = moduleThis();
+	var requirements = worldMap[moduleName];
+	for (var i = 0; i < requirements.length; i++) {
+		var requirement = require("./" + requirements[i]);
+		for (r in requirement) {
+			if (t[r]) console.log("warning, overwriting " + r + " in " + moduleName);
+			t[r] = requirement[r];
 		}
 	}
 }
 
-exports.batch = batch;
 
 
 
