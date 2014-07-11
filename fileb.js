@@ -44,13 +44,13 @@ function batch(files, get, set) {
 */
 
 
-
+/*
 function this_get(k) { return this[k]; }
 function this_set(k, v) { this[k] = v; }
 function produce_this() { return this; }
 
 console.log(produce_this);
-
+*/
 
 require("./world").batch("fileb", this_get, this_set, function () { return this; });
 
