@@ -4,17 +4,17 @@ var worldMap = {
 
 	// Tests
 
-	path_test: ["disk", "data", "state", "measure", "text"],
+	path_test:    [ "disk",         "data", "state", "measure", "text"],
 
-	hide_test: ["hide", "state", "measure", "text"],
+	hide_test:    [ "hide",                 "state", "measure", "text"],
 
-	disk_test: ["disk", "state", "measure", "text"],
-	data_test: ["hide", "data", "measure", "text"],
-	list_test: ["hide", "list", "data", "state", "measure", "text"],
-	state_test: ["hide", "data", "state", "measure", "text"],
+	disk_test:    [ "disk",                 "state", "measure", "text"],
+	data_test:    [ "hide",         "data",          "measure", "text"],
+	list_test:    [ "hide", "list", "data", "state", "measure", "text"],
+	state_test:   [ "hide",         "data", "state", "measure", "text"],
 
-	measure_test: ["data", "state", "measure", "text"],
-	text_test: ["data", "measure", "text"],
+	measure_test: [                 "data", "state", "measure", "text"],
+	text_test:    [                 "data",          "measure", "text"],
 
 	// Base
 
