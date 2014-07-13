@@ -2,31 +2,37 @@
 // Instead of scattering which modules require which all over the place, this world map documents and defines the structure of the entire application in a single place
 var worldMap = {
 
-	// Tests
+	// Demos
 
-	path_test:    [ "disk",         "data", "state", "measure", "text"],
+	demo_here: [], // Determine our IP addresses on the Internet
+	demo_hash: [], // Hash a file, showing speed and progress
+	//stopwatch.js should be here, probably, demo of curses, time, update
+	//TODO find the document and code list of larger demos, and list them all here
 
-	hide_test:    [ "hide",                 "state", "measure", "text"],
+	// Tests and small demos
 
-	disk_test:    [ "disk",                 "state", "measure", "text"],
-	data_test:    [ "hide",         "data",          "measure", "text"],
-	list_test:    [ "hide", "list", "data", "state", "measure", "text"],
-	state_test:   [ "hide",         "data", "state", "measure", "text"],
-
-	measure_test: [                 "data", "state", "measure", "text"],
-	text_test:    [                 "data",          "measure", "text"],
+	hide_test:    ["hide",                 "state", "measure", "text"],
+	disk_test:    ["disk",         "data"  "state", "measure", "text"],
+	data_test:    ["hide",         "data",          "measure", "text"],
+	list_test:    ["hide", "list", "data", "state", "measure", "text"],
+	state_test:   ["hide",         "data", "state", "measure", "text"],
+	measure_test: [                "data", "state", "measure", "text"],
+	text_test:    [                "data",          "measure", "text"],
 
 	// Base
 
-	hide: ["data", "measure"],
+	net: [], // Communicate to distant peers with packets and sockets
+	//TODO list more upcoming modules here, look at the old code to plan this out
 
-	disk:  ["measure", "text"],
-	data:  ["measure", "text"],
-	list:  ["measure", "text"],
-	state: ["measure", "text"],
+	hide: ["data", "measure"],  // Encrypt, decrypt, and sign data
 
-	measure: ["text"],
-	text: []
+	disk:  ["measure", "text"], // Look at and change the files and folders on the disk
+	data:  ["measure", "text"], // Search, encode, and manipulate binary data
+	list:  ["measure", "text"], // Organize objects into lists and dictionaries
+	state: ["measure", "text"], // Notice something has changed, and remember to close everything
+
+	measure: ["text"],          // Measure and communicate time, distance, and speed
+	text: []                    // Search, convert, and adjust text
 }
 
 // Load into module m all the exported functions of all the modules m requires

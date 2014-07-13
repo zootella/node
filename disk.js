@@ -69,17 +69,16 @@ exports.working = working;
 // Calling this doesn't use the disk
 function Path(s) {
 
-	checkType(s, "string");   // Make sure s is a string
-	s = _pathPrepare(s);      // Have only system, drive and share roots end with a slash
-	var r = _pathResolve(s);  // Resolve s to an absolute path
-	if (r != s) toss("data"); // If s changed, it was a relative path
-	var p = r;
+	checkType(s, "string");  // Make sure s is a string
+	var r = _pathPrepare(s); // Have only system, drive and share roots end with a slash
+	var p = _pathResolve(r); // Resolve to an absolute path
+	if (p != r) toss("data", {note:"resolve changed path", watch:{s:s, r:r, p:p}}); // If the path changed, it was a relative path
 
 	var platform;
 	if      (p.starts("\\\\")) platform = "network"; // Like \\computer\share\folder
 	else if (p.starts("/"))    platform = "unix";    // Like /folder
 	else if (p.get(1) == ":")  platform = "windows"; // Like C:\folder
-	else toss("data");
+	else toss("data", {note:"can't determine platform", watch:{p:p}});
 
 	var up = _pathFolder(p);
 	if (up == p) up = null; // This is a drive, share, or the filesystem root
@@ -115,7 +114,7 @@ function _pathPrepare(s) {
 
 	return s;
 }
-function _pathResolve(s)          { return platformPath.resolve(s); }
+function _pathResolve(s)    { return platformPath.resolve(s); }
 function _pathFolder(s)     { return platformPath.dirname(s);  }
 function _pathNameDotExt(s) { return platformPath.basename(s); }
 function _pathName(s)       { return platformPath.basename(s, _pathDotExt(s)); }

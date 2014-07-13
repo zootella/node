@@ -1,5 +1,5 @@
 
-require("./load").load("path_test", function() { return this; });
+require("./load").load("disk_test", function() { return this; });
 
 
 if (demo("snippet")) { demoSnippet(); }
@@ -481,7 +481,7 @@ exports.testPath = function(test) {
 
 
 
-
+//actually, first thing you need to do now is
 
 
 
