@@ -1,5 +1,6 @@
 
-require("./load").load("fileb", function() { return this; });
+//require("./load").load("fileb", function() { return this; });
+require("./load").use(["filea", "data"], function() { return this; });
 
 
 
@@ -46,8 +47,9 @@ functionb1();
 
 
 
-
-
+//get rid of all the yN.js files, go through them and weed them out
+//rename files data.js, data.test.js, with dots instead of hyphens
+//nodeunit test-*.js becomes nodeunit *.test.js, which is better
 
 
 
