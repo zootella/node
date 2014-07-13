@@ -1,4 +1,6 @@
 
+require("./load").load("state", function() { return this; });
+/*
 var requireText = require("./text");
 var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
@@ -15,7 +17,7 @@ var recent = requireMeasure.recent;
 var Duration = requireMeasure.Duration;
 var Ago = requireMeasure.Ago;
 var sayTime = requireMeasure.sayTime;
-
+*/
 
 
 

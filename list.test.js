@@ -1,4 +1,6 @@
 
+require("./load").load("list_test", function() { return this; });
+/*
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var now = requireMeasure.now;
@@ -32,7 +34,7 @@ var requireList = require("./list");
 
 var requireHide = require("./hide");
 var unique = requireHide.unique;
-
+*/
 
 
 
@@ -47,11 +49,13 @@ var unique = requireHide.unique;
 //  |____/ \___/|_|   \__\___|\__,_| |_____|_|___/\__| |____/ \___|\__|
 //                                                                     
 
+/*
 var _list = requireList._list;
 var List = requireList.List;
 var Set = requireList.Set;
 var SortedList = requireList.SortedList;
 var SortedSet = requireList.SortedSet;
+*/
 
 exports.testListSizeGetClear = function(test) {
 

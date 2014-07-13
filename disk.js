@@ -3,6 +3,8 @@ var platformUtility = require("util");
 var platformFile = require("fs");
 var platformPath = require("path");
 
+require("./load").load("disk", function() { return this; });
+/*
 var requireText = require("./text");
 var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
@@ -12,7 +14,7 @@ var checkType = requireText.checkType;
 
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
-
+*/
 
 
 

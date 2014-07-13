@@ -1,4 +1,6 @@
 
+require("./load").load("text_test", function() { return this; });
+/*
 var requireText = require("./text");
 
 var requireMeasure = require("./measure");
@@ -8,7 +10,7 @@ var requireData = require("./data");
 var Data = requireData.Data;
 var Bay = requireData.Bay;
 var base64 = requireData.base64;
-
+*/
 
 
 
@@ -26,7 +28,9 @@ var base64 = requireData.base64;
 //    |_|\___/|___/___/
 //                     
 
+/*
 var toss = requireText.toss;
+*/
 
 exports.testToss = function(test) {
 
@@ -60,10 +64,12 @@ exports.testToss = function(test) {
 //    |_| \__, | .__/ \___|
 //        |___/|_|         
 
+/*
 var hasMethod = requireText.hasMethod;
 var getType = requireText.getType;
 var isType = requireText.isType;
 var checkType = requireText.checkType;
+*/
 
 exports.testHasMethod = function(test) {
 
@@ -224,9 +230,11 @@ exports.testArray = function(test) {
 //   \____|_| |_|\__,_|_|  \__,_|\___|\__\___|_|   
 //                                                 
 
+/*
 var is = requireText.is;
 var blank = requireText.blank;
 var compareText = requireText.compareText;
+*/
 
 exports.testLengthSize = function(test) {
 
@@ -483,10 +491,12 @@ exports.testSort = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
+/*
 var number = requireText.number;
 var number16 = requireText.number16;
 var numerals = requireText.numerals;
 var numerals16 = requireText.numerals16;
+*/
 
 exports.testNumberNumerals = function(test) {
 
@@ -676,8 +686,10 @@ exports.testClip = function(test) {
 //  |_|   |_|_| |_|\__,_|
 //                       
 
+/*
 var same = requireText.same;
 var match = requireText.match;
+*/
 
 exports.testSameMatch = function(test) {
 
@@ -1058,10 +1070,12 @@ exports.testRip = function(test) {
 //   \____\___/|_| |_| |_| .__/ \___/|___/\___|
 //                       |_|                   
 
+/*
 var say = requireText.say;
 var line = requireText.line;
 var lines = requireText.lines;
 var table = requireText.table;
+*/
 
 exports.testSay = function(test) {
 
@@ -1201,7 +1215,9 @@ exports.testLinesTable = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
+/*
 var safeFileName = requireText.safeFileName;
+*/
 
 exports.testEncodeDecodeUriComponent = function(test) {
 

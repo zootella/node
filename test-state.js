@@ -2,6 +2,8 @@
 var platformEvent = require("events");
 var platformFile = require("fs");
 
+require("./load").load("state_test", function() { return this; });
+/*
 var requireText = require("./text");
 var toss = requireText.toss;
 
@@ -29,7 +31,7 @@ var Data = requireData.Data;
 
 var requireHide = require("./hide");
 var unique = requireHide.unique;
-
+*/
 
 
 
@@ -45,8 +47,10 @@ var unique = requireHide.unique;
 //  |____/ \___|_| |_| |_|\___/ 
 //                              
 
+/*
 var speedLoop = requireState.speedLoop;
 var speedLoopNext = requireState.speedLoopNext;
+*/
 
 //example of synchronous code
 if (demo("example")) { example(); }

@@ -3,6 +3,8 @@ var platformUtility = require("util");
 var platformFile = require("fs");
 var platformPath = require("path");
 
+require("./load").load("disk_test", function() { return this; });
+/*
 var requireText = require("./text");
 var toss = requireText.toss;
 
@@ -22,7 +24,7 @@ var makeState = requireState.makeState;
 var listState = requireState.listState;
 
 var requireDisk = require("./disk");
-
+*/
 
 
 //sources, if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
@@ -76,8 +78,10 @@ var requireDisk = require("./disk");
 //  |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
 //                                                               
 
+/*
 var platform = requireDisk.platform;
 var working = requireDisk.working;
+*/
 
 if (demo("platform")) { demoPlatform(); }
 function demoPlatform() {
@@ -114,8 +118,10 @@ function demoWorking() {
 //  |_|   \__,_|\__|_| |_| |_| \_\___||___/\___/|_| \_/ \___|
 //                                                           
 
+/*
 var _pathPrepare = requireDisk._pathPrepare;
 var _pathResolve = requireDisk._pathResolve;
+*/
 
 exports.testPathPrepare = function(test) {
 
@@ -203,11 +209,13 @@ exports.testPathResolve = function(test) {
 //  |_|   \__,_|\__|_| |_| |____/|_|_|  |_| |_|\__,_|_| |_| |_|\___|
 //                                                                  
 
+/*
 var _pathFolder = requireDisk._pathFolder;
 var _pathNameDotExt = requireDisk._pathNameDotExt;
 var _pathName = requireDisk._pathName;
 var _pathDotExt = requireDisk._pathDotExt;
 var _pathExt = requireDisk._pathExt;
+*/
 
 exports.testDirname = function(test) {
 
@@ -268,8 +276,9 @@ exports.testDirname = function(test) {
 //  |_|   \__,_|\__|_| |_|
 //                        
 
+/*
 var Path = requireDisk.Path;
-
+*/
 
 
 
@@ -317,10 +326,11 @@ exports.testPathUp = function(test) {
 //  |_|   \__,_|\__|_| |_| |_|  |_|\__,_|\__|_| |_|
 //                                                 
 
+/*
 var pathAdd = requireDisk.pathAdd;
 var pathSubtract = requireDisk.pathSubtract;
 var pathCheck = requireDisk.pathCheck;
-
+*/
 
 
 
@@ -332,8 +342,9 @@ var pathCheck = requireDisk.pathCheck;
 //  |_|   \__,_|\__|_| |_| |____/|_|___/_|\_\
 //                                           
 
+/*
 var pathLook = requireDisk.pathLook;
-
+*/
 
 
 

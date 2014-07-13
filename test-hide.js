@@ -1,6 +1,8 @@
 
 var platformCrypto = require("crypto");
 
+require("./load").load("hide_test", function() { return this; });
+/*
 var requireText = require("./text");
 var line = requireText.line;
 
@@ -18,12 +20,9 @@ var requireHide = require("./hide");
 var requireState = require("./state");
 var demo = requireState.demo;
 var speedLoop = requireState.speedLoop;
-
-
-
-/*
-require("./hide").bridge.load(module);
 */
+
+
 
 
 
@@ -36,10 +35,12 @@ require("./hide").bridge.load(module);
 //  |_| \_\__,_|_| |_|\__,_|\___/|_| |_| |_|
 //                                          
 
+/*
 var chance = requireHide.chance;
 var random = requireHide.random;
 var unique = requireHide.unique;
 var randomData = requireHide.randomData;
+*/
 
 //see how often given chances happen
 if (demo("chance")) { demoChance(); }

@@ -1,4 +1,6 @@
 
+require("./load").load("text", function() { return this; });
+
 
 
 

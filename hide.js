@@ -4,6 +4,8 @@
 
 var platformCrypto = require("crypto");
 
+require("./load").load("hide", function() { return this; });
+/*
 var requireData = require("./data");
 var Data = requireData.Data;
 
@@ -11,7 +13,7 @@ var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 var Size = requireMeasure.Size;
 var check = requireMeasure.check;
-
+*/
 
 
 

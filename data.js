@@ -1,4 +1,6 @@
 
+require("./load").load("data", function() { return this; });
+/*
 var requireText = require("./text");
 var toss = requireText.toss;
 var hasMethod = requireText.hasMethod;
@@ -18,7 +20,7 @@ var Size = requireMeasure.Size;
 var multiply = requireMeasure.multiply;
 var divide = requireMeasure.divide;
 var scale = requireMeasure.scale;
-
+*/
 
 
 

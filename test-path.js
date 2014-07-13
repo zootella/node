@@ -1,4 +1,6 @@
 
+require("./load").load("path_test", function() { return this; });
+/*
 var requireMeasure = require("./measure");
 var log = requireMeasure.log;
 
@@ -21,7 +23,7 @@ var requireDisk = require("./disk");
 
 var requireData = require("./data");
 var outline = requireData.outline;
-
+*/
 
 
 if (demo("snippet")) { demoSnippet(); }
