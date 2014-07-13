@@ -1,29 +1,5 @@
 
 require("./load").load("path_test", function() { return this; });
-/*
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-
-var requireText = require("./text");
-var toss = requireText.toss;
-
-var requireState = require("./state");
-var demo = requireState.demo;
-var mistakeLog = requireState.mistakeLog;
-var mistakeStop = requireState.mistakeStop;
-var closeCheck = requireState.closeCheck;
-var done = requireState.done;
-var close = requireState.close;
-var isClosed = requireState.isClosed;
-var isOpen = requireState.isOpen;
-var makeState = requireState.makeState;
-var listState = requireState.listState;
-
-var requireDisk = require("./disk");
-
-var requireData = require("./data");
-var outline = requireData.outline;
-*/
 
 
 if (demo("snippet")) { demoSnippet(); }

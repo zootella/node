@@ -1,26 +1,5 @@
 
 require("./load").load("data", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-var hasMethod = requireText.hasMethod;
-var getType = requireText.getType;
-var isType = requireText.isType;
-var checkType = requireText.checkType;
-var compareText = requireText.compareText;
-var parseCheck = requireText.parseCheck;
-var parseCheckMatch = requireText.parseCheckMatch;
-var number = requireText.number;
-var numerals = requireText.numerals;
-var numerals16 = requireText.numerals16;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var Size = requireMeasure.Size;
-var multiply = requireMeasure.multiply;
-var divide = requireMeasure.divide;
-var scale = requireMeasure.scale;
-*/
 
 
 

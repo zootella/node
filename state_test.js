@@ -3,35 +3,6 @@ var platformEvent = require("events");
 var platformFile = require("fs");
 
 require("./load").load("state_test", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var now = requireMeasure.now;
-var Time = requireMeasure.Time;
-var Speed = requireMeasure.Speed;
-var items = requireMeasure.items;
-
-var requireState = require("./state");
-var demo = requireState.demo;
-var mistakeLog = requireState.mistakeLog;
-var mistakeStop = requireState.mistakeStop;
-var closeCheck = requireState.closeCheck;
-var done = requireState.done;
-var close = requireState.close;
-var isClosed = requireState.isClosed;
-var isOpen = requireState.isOpen;
-var makeState = requireState.makeState;
-var listState = requireState.listState;
-
-var requireData = require("./data");
-var Data = requireData.Data;
-
-var requireHide = require("./hide");
-var unique = requireHide.unique;
-*/
 
 
 
@@ -46,11 +17,6 @@ var unique = requireHide.unique;
 //  | |_| |  __/ | | | | | (_) |
 //  |____/ \___|_| |_| |_|\___/ 
 //                              
-
-/*
-var speedLoop = requireState.speedLoop;
-var speedLoopNext = requireState.speedLoopNext;
-*/
 
 //example of synchronous code
 if (demo("example")) { example(); }

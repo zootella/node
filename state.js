@@ -1,23 +1,5 @@
 
 require("./load").load("state", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-var hasMethod = requireText.hasMethod;
-var line = requireText.line;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var items = requireMeasure.items;
-var Time = requireMeasure.Time;
-var now = requireMeasure.now;
-var When = requireMeasure.When;
-var earlier = requireMeasure.earlier;
-var recent = requireMeasure.recent;
-var Duration = requireMeasure.Duration;
-var Ago = requireMeasure.Ago;
-var sayTime = requireMeasure.sayTime;
-*/
 
 
 

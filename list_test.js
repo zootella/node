@@ -1,40 +1,5 @@
 
 require("./load").load("list_test", function() { return this; });
-/*
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var now = requireMeasure.now;
-var sayTime = requireMeasure.sayTime;
-var Duration = requireMeasure.Duration;
-var items = requireMeasure.items;
-var commas = requireMeasure.commas;
-
-var requireText = require("./text");
-var toss = requireText.toss;
-var compareText = requireText.compareText;
-var line = requireText.line;
-
-var requireState = require("./state");
-var demo = requireState.demo;
-var mistakeLog = requireState.mistakeLog;
-var mistakeStop = requireState.mistakeStop;
-var closeCheck = requireState.closeCheck;
-var done = requireState.done;
-var close = requireState.close;
-var isClosed = requireState.isClosed;
-var isOpen = requireState.isOpen;
-var makeState = requireState.makeState;
-var listState = requireState.listState;
-
-var requireData = require("./data");
-var outline = requireData.outline;
-var compareData = requireData.compareData;
-
-var requireList = require("./list");
-
-var requireHide = require("./hide");
-var unique = requireHide.unique;
-*/
 
 
 
@@ -48,14 +13,6 @@ var unique = requireHide.unique;
 //   ___) | (_) | |  | ||  __/ (_| | | |___| \__ \ |_   ___) |  __/ |_ 
 //  |____/ \___/|_|   \__\___|\__,_| |_____|_|___/\__| |____/ \___|\__|
 //                                                                     
-
-/*
-var _list = requireList._list;
-var List = requireList.List;
-var Set = requireList.Set;
-var SortedList = requireList.SortedList;
-var SortedSet = requireList.SortedSet;
-*/
 
 exports.testListSizeGetClear = function(test) {
 
@@ -86,7 +43,7 @@ exports.testListSizeGetClear = function(test) {
 
 exports.testListInsertRemove = function(test) {
 
-	var list = _list(compareText);
+	var list = _list(compareText); // Exported just for testing
 
 	list.insert("a", 0);//end
 	list.insert("b", 1);

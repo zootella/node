@@ -1,18 +1,5 @@
 
 require("./load").load("list", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-var hasMethod = requireText.hasMethod;
-var getType = requireText.getType;
-var isType = requireText.isType;
-var checkType = requireText.checkType;
-var say = requireText.say;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var divide = requireMeasure.divide;
-*/
 
 
 

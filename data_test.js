@@ -1,34 +1,5 @@
 
 require("./load").load("data_test", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-var hasMethod = requireText.hasMethod;
-var getType = requireText.getType;
-var isType = requireText.isType;
-var checkType = requireText.checkType;
-var lines = requireText.lines;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-
-var requireData = require("./data");//functions
-var Size = requireData.Size;
-var Data = requireData.Data;
-var toByte = requireData.toByte;
-var base16 = requireData.base16;
-var base32 = requireData.base32;
-var base62 = requireData.base62;
-var base64 = requireData.base64;
-var Bay = requireData.Bay;
-var mediumBin = requireData.mediumBin;
-var bigBin = requireData.bigBin;
-var testBin = requireData.testBin;
-var compareData = requireData.compareData;
-
-var requireHide = require("./hide");
-var randomData = requireHide.randomData;
-*/
 
 
 //ok, now let's write some tests!
@@ -53,11 +24,6 @@ var randomData = requireHide.randomData;
 //  | |_) | |_| |  _|  _|  __/ |   
 //  |____/ \__,_|_| |_|  \___|_|   
 //                                 
-
-/*
-var bufferShift = requireData.bufferShift;
-var bufferCopy = requireData.bufferCopy;
-*/
 
 exports.testBufferShift = function(test) {
 
@@ -1116,11 +1082,6 @@ exports.testEncodeInvalid = function(test) {
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-/*
-var ParseToBay = requireData.ParseToBay;
-var ParseFromClip = requireData.ParseFromClip;
-*/
-
 exports.testParseToBay = function(test) {
 
 	//you can give it a bay
@@ -1238,16 +1199,7 @@ exports.testParseBase16 = function(test) {
 //2 human and machine readable text for configuration files and examples in blogs, and
 //3 compact binary data for the disk and wire
 
-/*
-var Outline = requireData.Outline;
-var compareOutline = requireData.compareOutline;
-var outline = requireData.outline;
-var outlineFromText = requireData.outlineFromText;
-var _parseOutline = requireData._parseOutline;
-var _parseGroup = requireData._parseGroup;
-var _parseLine = requireData._parseLine;
-var outlineFromData = requireData.outlineFromData;
-*/
+// Outline, compareOutline, outline, outlineFromText, _parseOutline, _parseGroup, _parseLine, outlineFromData
 
 exports.testOutlineName = function(test) {
 
@@ -2199,12 +2151,6 @@ exports.testParseLine = function(test) {
 //  |____/| .__/ \__,_|_| |_|
 //        |_|                
 
-/*
-var spanMake = requireData.spanMake;
-var spanParse = requireData.spanParse;
-var spanSize = requireData.spanSize;
-*/
-
 exports.testSpan = function(test) {
 
 	function both(n, s) {
@@ -2349,13 +2295,7 @@ exports.testSpanParseChop = function(test) {
 //   \__\_\\__,_|\___/ \__\___|
 //                             
 
-/*
-var quote = requireData.quote;
-var unquote = requireData.unquote;
-var quoteCount = requireData.quoteCount;
-var quoteMore = requireData.quoteMore;
-var quoteIs = requireData.quoteIs;
-*/
+// quote, unquote, quoteCount, quoteMore, quoteIs
 
 exports.testQuoteUnquote = function(test) {
 

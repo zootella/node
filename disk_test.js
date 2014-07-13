@@ -4,27 +4,6 @@ var platformFile = require("fs");
 var platformPath = require("path");
 
 require("./load").load("disk_test", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-
-var requireState = require("./state");
-var demo = requireState.demo;
-var mistakeLog = requireState.mistakeLog;
-var mistakeStop = requireState.mistakeStop;
-var closeCheck = requireState.closeCheck;
-var done = requireState.done;
-var close = requireState.close;
-var isClosed = requireState.isClosed;
-var isOpen = requireState.isOpen;
-var makeState = requireState.makeState;
-var listState = requireState.listState;
-
-var requireDisk = require("./disk");
-*/
 
 
 //sources, if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
@@ -78,11 +57,6 @@ var requireDisk = require("./disk");
 //  |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
 //                                                               
 
-/*
-var platform = requireDisk.platform;
-var working = requireDisk.working;
-*/
-
 if (demo("platform")) { demoPlatform(); }
 function demoPlatform() {
 
@@ -117,11 +91,6 @@ function demoWorking() {
 //  |  __/ (_| | |_| | | | |  _ <  __/\__ \ (_) | |\ V /  __/
 //  |_|   \__,_|\__|_| |_| |_| \_\___||___/\___/|_| \_/ \___|
 //                                                           
-
-/*
-var _pathPrepare = requireDisk._pathPrepare;
-var _pathResolve = requireDisk._pathResolve;
-*/
 
 exports.testPathPrepare = function(test) {
 
@@ -275,10 +244,6 @@ exports.testDirname = function(test) {
 //  |  __/ (_| | |_| | | |
 //  |_|   \__,_|\__|_| |_|
 //                        
-
-/*
-var Path = requireDisk.Path;
-*/
 
 
 

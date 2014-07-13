@@ -1,29 +1,5 @@
 
 require("./load").load("measure_test", function() { return this; });
-/*
-var requireText = require("./text");
-var toss = requireText.toss;
-var hasMethod = requireText.hasMethod;
-var getType = requireText.getType;
-var isType = requireText.isType;
-var checkType = requireText.checkType;
-var make = requireText.make;
-var say = requireText.say;
-var numerals16 = requireText.numerals16;
-
-var requireMeasure = require("./measure");
-var log = requireMeasure.log;
-var Time = requireMeasure.Time;
-var Size = requireMeasure.Size;
-var Speed = requireMeasure.Speed;
-
-var requireState = require("./state");
-var demo = requireState.demo;
-
-var requireData = require("./data");
-var Data = requireData.Data;
-var Bay = requireData.Bay;
-*/
 
 
 
@@ -104,12 +80,7 @@ exports.testUnits = function(test) {
 //  |_|  |_|\__,_|\__|_| |_|
 //                          
 
-/*
-var multiply = requireMeasure.multiply;
-var divide = requireMeasure.divide;
-var scale = requireMeasure.scale;
-var check = requireMeasure.check;
-*/
+// multiply, divide, scale, check
 
 exports.testNumberNanInfinity = function(test) {
 
@@ -289,9 +260,6 @@ exports.testScale = function(test) {
 
 
 
-/*
-var Average = requireMeasure.Average;
-*/
 
 exports.testAverage = function(test) {
 
@@ -345,13 +313,7 @@ exports.testAverage = function(test) {
 //    |_| |_|_| |_| |_|\___|
 //                          
 
-/*
-var now = requireMeasure.now;
-var When = requireMeasure.When;
-var earlier = requireMeasure.earlier;
-var recent = requireMeasure.recent;
-var Duration = requireMeasure.Duration;
-*/
+// now, When, earlier, recent, Duration
 
 exports.testWhenImmutable = function(test) {
 
@@ -414,9 +376,6 @@ log(typeof Date.now());//number
 
 
 
-/*
-var Stripe2 = requireMeasure.Stripe2;
-*/
 
 exports.testStripeFrozen = function(test) {
 
@@ -476,12 +435,6 @@ exports.testStripeFrozen = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
-/*
-var widen = requireMeasure.widen;
-var commas = requireMeasure.commas;
-var items = requireMeasure.items;
-*/
-
 exports.testWiden = function(test) {
 
 	test.ok(widen("1", 3) == "001");
@@ -528,12 +481,6 @@ exports.testItems = function(test) {
 //  |  _|| | | (_| | (__| |_| | (_) | | | |
 //  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
 //                                         
-
-/*
-var sayDivide = requireMeasure.sayDivide;
-var sayPercent = requireMeasure.sayPercent;
-var sayProgress = requireMeasure.sayProgress;
-*/
 
 exports.testSayDivide = function(test) {
 
@@ -601,12 +548,6 @@ exports.testSayProgress = function(test) {
 //   ___) | |/ /  __/
 //  |____/|_/___\___|
 //                   
-
-/*
-var Size = requireMeasure.Size;
-var saySizeBytes = requireMeasure.saySizeBytes;
-var saySize = requireMeasure.saySize;
-*/
 
 exports.testSaySizeBytes = function(test) {
 
@@ -698,13 +639,6 @@ exports.testSaySize = function(test) {
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
 
-/*
-var saySpeedDivide = requireMeasure.saySpeedDivide;
-var saySpeed = requireMeasure.saySpeed;
-var saySpeedKbps = requireMeasure.saySpeedKbps;
-var saySpeedTimePerMegabyte = requireMeasure.saySpeedTimePerMegabyte;
-*/
-
 exports.testSaySpeed = function(test) {
 
 	test.ok(saySpeedDivide(10*Size.mb, 2*Time.second) == "5120kb/s");//10mb in 2s is 5mb/s
@@ -792,12 +726,6 @@ exports.testSaySpeedTimePerMegabyte = function(test) {
 //    | | | | | | | | |  __/
 //    |_| |_|_| |_| |_|\___|
 //                          
-
-/*
-var sayTime = requireMeasure.sayTime;
-var sayTimeRemaining = requireMeasure.sayTimeRemaining;
-var sayTimeRace = requireMeasure.sayTimeRace;
-*/
 
 exports.testSayTime = function(test) {
 
@@ -911,15 +839,8 @@ exports.testSayTimeRace = function(test) {
 //  |____/ \__,_|\__\___|
 //                       
 
-/*
-var sayDate = requireMeasure.sayDate;
-var sayDateAndTime = requireMeasure.sayDateAndTime;
-var sayDayAndTime = requireMeasure.sayDayAndTime;
-var sayDateTemplate = requireMeasure.sayDateTemplate;
-var dateParts = requireMeasure.dateParts;
-
-var optionCulture = requireMeasure.optionCulture;
-*/
+// sayDate, sayDateAndTime, sayDayAndTime, sayDateTemplate, dateParts
+// optionCulture
 
 exports.testSayDateDay = function(test) {
 
@@ -1056,9 +977,6 @@ exports.testSayDateDay = function(test) {
 
 
 
-/*
-var Stripe = requireMeasure.Stripe;
-*/
 
 
 
