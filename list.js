@@ -307,6 +307,8 @@ exports.SortedSet = SortedSet;
 //sort a list into a random order
 
 
+//another thing you are going to want to be able to do in the future is make a map where the keys are your own type
+//for instance, the keys might be IpPort, or the object that identifies a peer
 
 
 

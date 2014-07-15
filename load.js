@@ -7,12 +7,13 @@ var worldMap = {
 	demo_here: [], // Determine our IP addresses on the Internet
 	demo_hash: [], // Hash a file, showing speed and progress
 	//stopwatch.js should be here, probably, demo of curses, time, update
+	//secure erase disk task, secure erase an entire folder
 	//TODO find the document and code list of larger demos, and list them all here
 
 	// Tests and small demos
 
 	hide_test:    ["hide",                 "state", "measure", "text"],
-	disk_test:    ["disk",         "data"  "state", "measure", "text"],
+	disk_test:    ["disk",         "data", "state", "measure", "text"],
 	data_test:    ["hide",         "data",          "measure", "text"],
 	list_test:    ["hide", "list", "data", "state", "measure", "text"],
 	state_test:   ["hide",         "data", "state", "measure", "text"],

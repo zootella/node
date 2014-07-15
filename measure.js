@@ -1270,7 +1270,13 @@ and also use it for 1.234mb, have the 4 rounded, not chopped
 
 
 
-
+//make a single object, Meter
+//which doesn't do anything but enclose and feed every other object you have that is good at monitoring a bunch of numbers over time
+//biggest, smallest, average
+//sample
+//median, histogram
+//speeds, a variety of different windows
+//histogram of those speeds so you can understand how big the window should be
 
 
 
