@@ -2,13 +2,19 @@
 // Instead of scattering which modules require which all over the place, this world map documents and defines the structure of the entire application in a single place
 var worldMap = {
 
+	// Application
+
+	//TODO
+
 	// Demos
 
+	/*
 	demo_here: [], // Determine our IP addresses on the Internet
 	demo_hash: [], // Hash a file, showing speed and progress
 	//stopwatch.js should be here, probably, demo of curses, time, update
 	//secure erase disk task, secure erase an entire folder
 	//TODO find the document and code list of larger demos, and list them all here
+	*/
 
 	// Tests and small demos
 
