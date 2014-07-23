@@ -5,6 +5,8 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
+
+
 //actually, the next thing you need to do is check out node webkit
 //see what path you get for running from here when using the app as a usb portable
 //see what the file open dialog box is like, and what kind of path it gives you
@@ -12,6 +14,7 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
+//first, demonstrate how the platform functions Path uses change different kinds of possible input text
 exports.testPathResolve = function(test) {
 
 	var show = false;//set to true to turn on the output a test can't easily check
@@ -66,13 +69,17 @@ exports.testPathResolve = function(test) {
 
 		note("slashes");
 		l(71, "\\");//starting slash becomes root of pwd folder
-		l(72, "\\name");
-		l(73, "name\\");//name in pwd, trailing slash removed
-		l(74, "/");//same as with backslash
-		l(75, "/name");
-		l(76, "name/");
-		t(77, "C:\\folder\\\\file.ext", "C:\\folder\\file.ext");//both of these get corrected
-		t(78, "C:\\folder/file.ext",    "C:\\folder\\file.ext");
+		l(72, "\\\\");
+		l(73, "\\\\\\");
+		l(74, "//");
+		l(75, "///");//as do all these multiple forward and back slashes
+		l(76, "\\name");
+		l(77, "name\\");//name in pwd, trailing slash removed
+		l(78, "/");//same as with backslash
+		l(79, "/name");
+		l(80, "name/");
+		t(81, "C:\\folder\\\\file.ext", "C:\\folder\\file.ext");//both of these get corrected
+		t(82, "C:\\folder/file.ext",    "C:\\folder\\file.ext");
 
 		note("case");
 		t(81, "c:\\Folder", "c:\\Folder");//drive letter case stays the same
@@ -81,7 +88,7 @@ exports.testPathResolve = function(test) {
 	} else {//test running on mac and unix
 
 		note("windows");
-		l(11, "C:")//all of these are seen as filenames in the present working directory
+		l(11, "C:");//all of these are seen as filenames in the present working directory
 		l(12, "C:\\",                 "C:\\");
 		l(13, "C:\\folder",           "C:\\folder");
 		l(14, "C:\\folder\\",         "C:\\folder");
@@ -240,32 +247,272 @@ exports.testPathNameDotExt = function(test) {
 
 	} else {
 
-		//TODO set show to true and run through on mac
-
+		note("unix");
+		t(11, "/folder/image.jpg", "image.jpg", "image", ".jpg", "jpg");//common
+		t(12, "/folder/IMAGE.JPG", "IMAGE.JPG", "IMAGE", ".JPG", "JPG");//caps
+		t(13, "/folder/database.backup.bin", "database.backup.bin", "database.backup", ".bin", "bin");//double extension
+		t(14, "/folder/none",    "none",    "none",    "",  "");//no extension
+		t(15, "/folder/.hidden", ".hidden", ".hidden", "",  "");//no name, but basename correctly understands this is the name
+		t(16, "/folder/start.",  "start.",  "start",   ".", "");//invalid, but handled correctly
+		t(17, "/folder/.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
 	}
 
 	done(test);
 }
 
-exports.testPathName = function(test) {
+//second, show how we prepare text before handing it to the platform functions
+exports.testPathPrepare = function(test) {
+
+	function l(s) { log("'", _pathPrepare(s), "'"); }//log the result
+	function t(s, r) { test.ok(_pathPrepare(s) == r); }//test the result
+
+	//windows
+	t("C:",                   "C:\\");//adds trailing slash to drive root
+	t("C:\\",                 "C:\\");
+	t("C:\\folder",           "C:\\folder");
+	t("C:\\folder\\",         "C:\\folder");//removes trailing slash from folder
+	t("C:\\folder\\file.ext", "C:\\folder\\file.ext");
+
+	//network
+	t("\\\\",                                  "\\\\\\");//adds a third slash, but invalid anyways
+	t("\\\\computer",                          "\\\\computer\\");
+	t("\\\\computer\\",                        "\\\\computer\\");
+	t("\\\\computer\\share",                   "\\\\computer\\share\\");//adds trailing slash to share root
+	t("\\\\computer\\share\\",                 "\\\\computer\\share\\");
+	t("\\\\computer\\share\\folder",           "\\\\computer\\share\\folder");
+	t("\\\\computer\\share\\folder\\",         "\\\\computer\\share\\folder");//removes trailing slash from folder
+	t("\\\\computer\\share\\folder\\file.ext", "\\\\computer\\share\\folder\\file.ext");
+
+	//unix
+	t("/",                "/");//doesn't mess with unix root
+	t("/folder",          "/folder");
+	t("/folder/",         "/folder");//removes trailing slash from folder
+	t("/folder/file.ext", "/folder/file.ext");
+
+	//simple
+	t("",     "");
+	t("name", "name")
+
+	//case
+	t("c:\\Folder", "C:\\Folder");//uppercases drive letters
+	t("C:\\Folder", "C:\\Folder");
 
 	done(test);
 }
 
-exports.testPathDotExt = function(test) {
+//finally, test Path as a whole, in valid, invalid, and attack situations
+exports.testPathValid = function(test) {
+
+	function g(s, r) { test.ok(Path(s).text() == r); }//good source and intended result
+	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad source
+
+	if (platform() == "windows") {
+
+		//windows
+		g("C:",                   "C:\\");//adds trailing slash to drive root
+		g("C:\\",                 "C:\\");
+		g("C:\\folder",           "C:\\folder");
+		g("C:\\folder\\",         "C:\\folder");//removes trailing slash from folder
+		g("C:\\folder\\file.ext", "C:\\folder\\file.ext");
+
+		//network
+		b("\\\\");
+		b("\\\\computer");
+		b("\\\\computer\\");
+		g("\\\\computer\\share",                   "\\\\computer\\share\\");//adds slash to root
+		g("\\\\computer\\share\\",                 "\\\\computer\\share\\");
+		g("\\\\computer\\share\\folder",           "\\\\computer\\share\\folder");
+		g("\\\\computer\\share\\folder\\",         "\\\\computer\\share\\folder");//removes slash from folder
+		g("\\\\computer\\share\\folder\\file.ext", "\\\\computer\\share\\folder\\file.ext");
+
+		//unix
+		b("/");//unix style paths not valid when running on windows
+		b("/folder");
+		b("/folder/");
+		b("/folder/file.ext");
+
+		//simple
+		b("");
+		b("name");
+
+		//navigation
+		b(".");
+		b("./");
+		b("..");
+		b("../");
+		b("../name");
+		b("~");
+		b("C:\\folder\\..\\name");
+
+		//spaces
+		b(" ");
+		b(" name");
+		b("name ");
+		b(" C:\\folder");
+		g("C:\\folder ", "C:\\folder ");//space at the end of foldername acceptable
+
+		//slashes
+		b("\\");
+		b("\\\\");
+		b("\\\\\\");
+		b("//");
+		b("///");
+		b("\\name");
+		b("name\\");
+		b("/");
+		b("/name");
+		b("name/");
+		b("C:\\folder\\\\file.ext");
+		b("C:\\folder/file.ext");
+
+		//case
+		g("c:\\Folder", "C:\\Folder");//uppercases drive letter
+		g("C:\\Folder", "C:\\Folder");
+
+	} else {
+
+		//windows
+		b("C:");
+		b("C:\\");
+		b("C:\\folder");
+		b("C:\\folder\\");
+		b("C:\\folder\\file.ext");
+
+		//network
+		b("\\\\");
+		b("\\\\computer");
+		b("\\\\computer\\");
+		b("\\\\computer\\share");
+		b("\\\\computer\\share\\");
+		b("\\\\computer\\share\\folder");
+		b("\\\\computer\\share\\folder\\");
+		b("\\\\computer\\share\\folder\\file.ext");
+
+		//unix
+		g("/",                "/");
+		g("/folder",          "/folder");
+		g("/folder/",         "/folder");//removes trailing slash
+		g("/folder/file.ext", "/folder/file.ext");
+
+		//simple
+		b("");
+		b("name");
+
+		//navigation
+		b(".");
+		b("./");
+		b("..");
+		b("../");
+		b("../name");
+		b("~");
+		b("/folder/../name");
+
+		//spaces
+		b(" ");
+		b(" name");
+		b("name ");
+		b(" /folder");
+		g("/folder ", "/folder ");//no change
+
+		//slashes
+		b("\\");
+		b("\\name");
+		b("name\\");
+		g("/",     "/");//these two are valid unix paths, of course
+		g("/name", "/name");
+		b("name/");
+		b("/folder//file.ext", "/folder/file.ext");
+		b("/folder\\file.ext", "/folder\\file.ext");
+	}
 
 	done(test);
 }
 
-exports.testPathExt = function(test) {
+exports.testPathPlatform = function(test) {
+
+	done(test);
+}
+
+exports.testPathUp = function(test) {
+
+	done(test);
+}
+
+exports.testPathRoot = function(test) {
+
+	done(test);
+}
+
+exports.testPathParts = function(test) {
+
+	function g(s, name_ext, name, _ext, ext) {//test the result
+		var p = Path(s);
+		test.ok(p.name_ext == name_ext);
+		test.ok(p.name     == name);
+		test.ok(p._ext     == _ext);
+		test.ok(p.ext      == ext);
+	}
+	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad source
+/*
+	if (platform() == "windows") {
+
+		//windows
+		t("C:\\folder\\image.jpg", "image.jpg", "image", ".jpg", "jpg");//common
+		t("C:\\folder\\IMAGE.JPG", "IMAGE.JPG", "IMAGE", ".JPG", "JPG");//caps
+		t("C:\\folder\\database.backup.bin", "database.backup.bin", "database.backup", ".bin", "bin");//double extension
+		t("C:\\folder\\none",    "none",    "none",    "",  "");//no extension
+		t("C:\\folder\\.hidden", ".hidden", ".hidden", "",  "");//no name, but basename correctly understands this is the name
+		t("C:\\folder\\start.",  "start.",  "start",   ".", "");//invalid, but handled correctly
+		t("C:\\folder\\.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
+
+		//network
+		t("\\\\computer\\share\\folder\\image.jpg", "image.jpg", "image", ".jpg", "jpg");
+
+		//unix
+		t("/folder/image.jpg", "image.jpg", "image", ".jpg", "jpg");
+
+	} else {
+
+		//unix
+		t("/folder/image.jpg", "image.jpg", "image", ".jpg", "jpg");//common
+		t("/folder/IMAGE.JPG", "IMAGE.JPG", "IMAGE", ".JPG", "JPG");//caps
+		t("/folder/database.backup.bin", "database.backup.bin", "database.backup", ".bin", "bin");//double extension
+		t("/folder/none",    "none",    "none",    "",  "");//no extension
+		t("/folder/.hidden", ".hidden", ".hidden", "",  "");//no name, but basename correctly understands this is the name
+		t("/folder/start.",  "start.",  "start",   ".", "");//invalid, but handled correctly
+		t("/folder/.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
+	}
+*/
+
+
+
+
 
 	done(test);
 }
 
 
 
-//do all these, then do them on mac
 
 
-//ahve one which is just the most straightforward directory traversal attack, thwarted
+
+//test path up
+//test path attack
+
+
+//have path root, a link directly to the highestmost up, the up that has no up above it
+
+
+
+
+
+
+
+
+
+
+
+
+
+//have one which is just the most straightforward directory traversal attack, thwarted
 

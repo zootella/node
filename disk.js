@@ -115,10 +115,10 @@ function _pathPrepare(s) {
 	return s;
 }
 function _pathResolve(s)    { return platformPath.resolve(s); }
-function _pathFolder(s)     { return platformPath.dirname(s);  }
+function _pathFolder(s)     { return platformPath.dirname(s); }
 function _pathNameDotExt(s) { return platformPath.basename(s); }
 function _pathName(s)       { return platformPath.basename(s, _pathDotExt(s)); }
-function _pathDotExt(s)     { return platformPath.extname(s);  }
+function _pathDotExt(s)     { return platformPath.extname(s); }
 function _pathExt(s) {
 	var t = _pathDotExt(s);
 	if (t.starts(".")) t = t.beyond(1);
@@ -205,7 +205,12 @@ function pathCheck(folder, file) {
 		i.starts(o) &&           // And start with the folder path
 		(c == "/" || c == "\\")) // And have a slash between folder and name
 		return;                  // To be inside
-	toss("data");
+	toss("data", {note:"pathCheck", watch:{folder:folder, file:file}});
+
+
+
+	//TODO the / or \ won't work on mac, which allows a backslash in a filename. the path will look inside to this function but actually be alongside, which would be a successful attack. so, check the platform() type and require / or \ exactly
+	//and make sure they're both the same platform type
 }
 
 exports.pathAdd = pathAdd;
