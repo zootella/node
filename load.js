@@ -60,3 +60,10 @@ exports.load = load;
 exports.use = use;
 
 //TODO really understand how require works, what order and how many times modules are loaded
+
+//TODO alas, this doesn't work, or more correctly, it works too well: if A needs B, and B needs C, A has access to C, when it shouldn't. somehow the this pointer is becomming the global pointer, which you want to stay away from
+//make a test using all separate files in a separate folder which demonstrates this behavior
+//in the future, find a better way to do this that solves this problem, and see your test pass
+
+
+

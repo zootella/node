@@ -15,6 +15,14 @@ require("./load").load("disk_test", function() { return this; });
 
 
 //first, demonstrate how the platform functions Path uses change different kinds of possible input text
+exports.testPathSeparator = function(test) {
+
+	if (platform() == "windows") test.ok(_pathSeparator() == "\\");
+	else                         test.ok(_pathSeparator() == "/");
+
+	done(test);
+}
+
 exports.testPathResolve = function(test) {
 
 	var show = false;//set to true to turn on the output a test can't easily check

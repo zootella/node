@@ -34,6 +34,11 @@ function working() {
 exports.platform = platform;
 exports.working = working;
 
+
+
+
+
+//TODO (1)
 //TODO change to throw error("platform", e);, and have isError(e, "name") that works with both just throw "data" and the fancerier objects
 //yes, you finally figured out how you want to do exception objects here
 
@@ -84,6 +89,23 @@ function Path(s) {
 	if (up == p) up = null; // This is a drive, share, or the filesystem root
 	else up = Path(up); // Recursive call makes paths of containing folders
 
+
+
+
+//TODO (2) make sure it's shorter each time to avoid an infinite loop caused by malicious input
+/*
+
+path
+up
+if same, that's the root
+if not, must get shorter
+guard against malformed input that creates infinite loop or stack overflow
+
+*/
+
+
+
+
 	return Object.freeze({
 		platform:platform,
 		up:up, // The path to the folder that contains this one, or null if this is the path of the filesystem root, or a drive or network share root
@@ -102,6 +124,12 @@ function _pathPrepare(s) {
 
 	if (s.length > 2 && (s.ends("/") || s.ends("\\"))) s = s.chop(1); // Remove one trailing slash
 
+	//TODO (4) fails on the valid mac path /name that ends with a slash\
+	//write a test that shows this
+	//have it only remove the trailing slash of the platform we're on
+	//actually use platformPath.sep, actually
+	//write a test for that on windows and mac
+
 	if (s.first().isLetter() && s.get(1) == ":") { // Windows disk path, like "C:\folder"
 		s = s.first().upper() + s.beyond(1); // Uppercase the drive letter for appearance
 		if (s.length == 2) s += "\\"; // Trailing slash required and only on drive root
@@ -114,6 +142,7 @@ function _pathPrepare(s) {
 
 	return s;
 }
+function _pathSeparator()   { return platformPath.sep; }
 function _pathResolve(s)    { return platformPath.resolve(s); }
 function _pathFolder(s)     { return platformPath.dirname(s); }
 function _pathNameDotExt(s) { return platformPath.basename(s); }
@@ -126,6 +155,7 @@ function _pathExt(s) {
 }
 
 exports.Path = Path;
+exports._pathSeparator = _pathSeparator;
 exports._pathPrepare = _pathPrepare; // Exported for testing
 exports._pathResolve = _pathResolve;
 exports._pathFolder = _pathFolder;
@@ -208,9 +238,12 @@ function pathCheck(folder, file) {
 	toss("data", {note:"pathCheck", watch:{folder:folder, file:file}});
 
 
-
+	//TODO (3)
 	//TODO the / or \ won't work on mac, which allows a backslash in a filename. the path will look inside to this function but actually be alongside, which would be a successful attack. so, check the platform() type and require / or \ exactly
 	//and make sure they're both the same platform type
+	//and write this attack as a test, watch it get through, then make pathCheck better, and watch the same test attack thwarted
+
+
 }
 
 exports.pathAdd = pathAdd;
