@@ -274,36 +274,48 @@ exports.testPathPrepare = function(test) {
 	function l(s) { log("'", _pathPrepare(s), "'"); }//log the result
 	function t(s, r) { test.ok(_pathPrepare(s) == r); }//test the result
 
-	//windows
-	t("C:",                   "C:\\");//adds trailing slash to drive root
-	t("C:\\",                 "C:\\");
-	t("C:\\folder",           "C:\\folder");
-	t("C:\\folder\\",         "C:\\folder");//removes trailing slash from folder
-	t("C:\\folder\\file.ext", "C:\\folder\\file.ext");
+	if (platform() == "windows") {
 
-	//network
-	t("\\\\",                                  "\\\\\\");//adds a third slash, but invalid anyways
-	t("\\\\computer",                          "\\\\computer\\");
-	t("\\\\computer\\",                        "\\\\computer\\");
-	t("\\\\computer\\share",                   "\\\\computer\\share\\");//adds trailing slash to share root
-	t("\\\\computer\\share\\",                 "\\\\computer\\share\\");
-	t("\\\\computer\\share\\folder",           "\\\\computer\\share\\folder");
-	t("\\\\computer\\share\\folder\\",         "\\\\computer\\share\\folder");//removes trailing slash from folder
-	t("\\\\computer\\share\\folder\\file.ext", "\\\\computer\\share\\folder\\file.ext");
+		//simple
+		t("",     "");
+		t("name", "name");
 
-	//unix
-	t("/",                "/");//doesn't mess with unix root
-	t("/folder",          "/folder");
-	t("/folder/",         "/folder");//removes trailing slash from folder
-	t("/folder/file.ext", "/folder/file.ext");
+		//windows
+		t("C:",                   "C:\\");//adds trailing slash to drive root
+		t("C:\\",                 "C:\\");
+		t("C:\\folder",           "C:\\folder");
+		t("C:\\folder\\",         "C:\\folder");//removes trailing slash from folder
+		t("C:\\folder\\file.ext", "C:\\folder\\file.ext");
 
-	//simple
-	t("",     "");
-	t("name", "name")
+		//case
+		t("c:\\Folder", "C:\\Folder");//uppercases drive letters
+		t("C:\\Folder", "C:\\Folder");
 
-	//case
-	t("c:\\Folder", "C:\\Folder");//uppercases drive letters
-	t("C:\\Folder", "C:\\Folder");
+		//network
+		t("\\\\",                                  "\\\\\\");//adds a third slash, but invalid anyways
+		t("\\\\computer",                          "\\\\computer\\");
+		t("\\\\computer\\",                        "\\\\computer\\");
+		t("\\\\computer\\share",                   "\\\\computer\\share\\");//adds trailing slash to share root
+		t("\\\\computer\\share\\",                 "\\\\computer\\share\\");
+		t("\\\\computer\\share\\folder",           "\\\\computer\\share\\folder");
+		t("\\\\computer\\share\\folder\\",         "\\\\computer\\share\\folder");//removes trailing slash from folder
+		t("\\\\computer\\share\\folder\\file.ext", "\\\\computer\\share\\folder\\file.ext");
+
+	} else {
+
+		//simple
+		t("",     "");
+		t("name", "name");
+
+		//unix
+		t("/",                   "/");//doesn't mess with unix root
+		t("/folder",             "/folder");
+		t("/folder/",            "/folder");//removes trailing slash from folder
+		t("/folder/file.ext",    "/folder/file.ext");
+
+		//backslash
+		t("/folder/backslash\\", "/folder/backslash\\");//mac filenames can contain backslash
+	}
 
 	done(test);
 }
@@ -338,6 +350,9 @@ exports.testPathValid = function(test) {
 		b("/folder");
 		b("/folder/");
 		b("/folder/file.ext");
+
+		//backslash
+		b("/folder/backslash\\");//valid on mac, but not on windows
 
 		//simple
 		b("");
@@ -401,6 +416,9 @@ exports.testPathValid = function(test) {
 		g("/folder",          "/folder");
 		g("/folder/",         "/folder");//removes trailing slash
 		g("/folder/file.ext", "/folder/file.ext");
+
+		//backslash
+		g("/folder/backslash\\", "/folder/backslash\\");//on mac, a filename can end with a backslash
 
 		//simple
 		b("");

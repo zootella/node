@@ -122,7 +122,7 @@ guard against malformed input that creates infinite loop or stack overflow
 
 function _pathPrepare(s) {
 
-	if (s.length > 2 && (s.ends("/") || s.ends("\\"))) s = s.chop(1); // Remove one trailing slash
+	if (s.length > 2 && (s.ends(_pathSeparator()))) s = s.chop(1); // Remove one trailing slash
 
 	//TODO (4) fails on the valid mac path /name that ends with a slash\
 	//write a test that shows this
@@ -170,16 +170,6 @@ exports._pathExt = _pathExt;
 
 
 
-/*
-function isSlash(c) {
-	return c == "/" || c == "\\";
-}
-how about either("/", "\\"); returns true if s is equal to any of the given strings
-if (s == "/" || s == "\\");//before
-if (s.either("/", "\\"));//after
-not a lot shorter, really
-//make last() to go with first()
-*/
 
 
 
@@ -233,7 +223,7 @@ function pathCheck(folder, file) {
 
 	if (o.length < i.length && // The file path must be longer
 		i.starts(o) &&           // And start with the folder path
-		(c == "/" || c == "\\")) // And have a slash between folder and name
+		(c == _pathSeparator())) // And have a slash between folder and name
 		return;                  // To be inside
 	toss("data", {note:"pathCheck", watch:{folder:folder, file:file}});
 
