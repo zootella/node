@@ -81,9 +81,32 @@ function Path(s) {
 	else if (p.get(1) == ":")  platform = "windows"; // Like C:\folder
 	else toss("data", {note:"can't determine platform", watch:{p:p}});
 
+/*
 	var up = _pathFolder(p);
 	if (up == p) up = null; // This is a drive, share, or the filesystem root
 	else up = Path(up); // Recursive call makes paths of containing folders
+*/
+
+	var up = [];//array of paths higher than p, ending with the root above p
+	var h = p;//the current path we're on, starting with p
+	while (true) {
+		var u = _pathFolder(h);//u is the path one step higher than h
+		if (u == h) {//same, h is the root
+			break;
+		} else if (u.length < h.length && h.starts(u)) {//shorter and starting, it's the folder above
+			up.add(Path(u));//save it in our array of higher paths
+			h = u;//move up and loop to get the next one
+		} else {
+			toss("data", {note:"up", watch:{p:p, h:h, u:u}});
+		}
+	}
+
+
+	var higher = null;
+	if (up.length) higher = up[0];
+	var root = null;
+	if (up.length) root = up[up.length - 1];
+
 
 
 
@@ -97,12 +120,28 @@ if not, must get shorter
 guard against malformed input that creates infinite loop or stack overflow
 */
 
+//what you really want is not pointers up, but a single array that has all the up, lastmost being the path of the root
+//and also an up pointer, the first element of the array
+//and also a root pointer, the last element of the array
+//and also a number of how many levels up it has, the number of elements in the array
 
+/*
+	var o = {};
+	o.platform = platform;
+
+
+
+
+	return Object.freeze(o);
+*/
 
 
 	return Object.freeze({
 		platform:platform,
+
 		up:up, // The path to the folder that contains this one, or null if this is the path of the filesystem root, or a drive or network share root
+		higher:higher, root:root,
+
 
 		name_ext:_pathNameDotExt(p), // "file.ext"
 		name:_pathName(p),           // "file"
@@ -112,6 +151,11 @@ guard against malformed input that creates infinite loop or stack overflow
 		text:function() { return p; }, // The entire absolute path
 		type:function(){ return "Path"; }
 	});
+
+	//if this p is the root, higher hsould be null, and root should be itself
+	//you can do this actually, just make r, fill it, set a member inside to itself, then freeze and return it
+	//you could use the same trick to put this path in array 0, actually
+	//write tests that confirm it all works
 }
 
 function _pathPrepare(s) {

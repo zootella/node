@@ -315,6 +315,7 @@ exports.testPathPrepare = function(test) {
 
 		//backslash
 		t("/folder/backslash\\", "/folder/backslash\\");//mac filenames can contain backslash
+		t("/\\", "/\\");//valid file named just backslash in the mac root
 	}
 
 	done(test);
@@ -353,6 +354,7 @@ exports.testPathValid = function(test) {
 
 		//backslash
 		b("/folder/backslash\\");//valid on mac, but not on windows
+		b("/\\");//valid file named just backslash in the mac root
 
 		//simple
 		b("");
@@ -419,6 +421,7 @@ exports.testPathValid = function(test) {
 
 		//backslash
 		g("/folder/backslash\\", "/folder/backslash\\");//on mac, a filename can end with a backslash
+		g("/\\", "/\\");//valid file named just backslash in the mac root
 
 		//simple
 		b("");
@@ -460,9 +463,59 @@ exports.testPathPlatform = function(test) {
 }
 
 exports.testPathUp = function(test) {
+	//up, root, levels, and the array
+
+
+/*
+	var p;
+
+	p = Path("C:\\folder1\\folder2\\folder3\\file4.ext");
+	test.ok(p.up.length == 4);
+	test.ok(p.up[0].text() == "C:\\folder1\\folder2\\folder3");
+	test.ok(p.up[1].text() == "C:\\folder1\\folder2");
+	test.ok(p.up[2].text() == "C:\\folder1");
+	test.ok(p.up[3].text() == "C:\\");
+	test.ok(p.higher.text() == "C:\\folder1\\folder2\\folder3");
+	test.ok(p.root.text() == "C:\\");
+
+	p = Path("C:\\file4.ext");
+	test.ok(p.up.length == 1);
+	test.ok(p.up[0].text() == "C:\\");
+	test.ok(p.higher.text() == "C:\\");
+	test.ok(p.root.text() == "C:\\");
+
+	p = Path("C:\\");
+	test.ok(p.up.length == 0);
+	test.ok(!p.higher);
+	test.ok(!p.root);
+	*/
+
+
+
+
+
+
+
+
 
 	done(test);
 }
+
+
+if (demo("up")) { demoUp(); }
+function demoUp() {
+
+	var p = Path("C:\\folder1\\folder2\\folder3\\file4.ext");
+
+	log(p.up.length);
+
+
+
+
+}
+
+
+
 
 exports.testPathRoot = function(test) {
 
@@ -541,4 +594,19 @@ exports.testPathParts = function(test) {
 
 
 //have one which is just the most straightforward directory traversal attack, thwarted
+
+
+
+
+
+
+
+
+
+//plan for illegal filenames
+//replace known shortlist of illegal characters with unicode lookalikes
+//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
+//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
+
+
 
