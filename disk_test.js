@@ -7,12 +7,16 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
-//actually, the next thing you need to do is check out node webkit
-//see what path you get for running from here when using the app as a usb portable
-//see what the file open dialog box is like, and what kind of path it gives you
 
 
 
+
+//   ____       _   _       ____  _       _    __                      
+//  |  _ \ __ _| |_| |__   |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___  
+//  | |_) / _` | __| '_ \  | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \ 
+//  |  __/ (_| | |_| | | | |  __/| | (_| | |_|  _| (_) | |  | | | | | |
+//  |_|   \__,_|\__|_| |_| |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
+//                                                                     
 
 //first, demonstrate how the platform functions Path uses change different kinds of possible input text
 exports.testPathSeparator = function(test) {
@@ -268,6 +272,13 @@ exports.testPathNameDotExt = function(test) {
 	done(test);
 }
 
+//   ____       _   _       ____                                
+//  |  _ \ __ _| |_| |__   |  _ \ _ __ ___ _ __   __ _ _ __ ___ 
+//  | |_) / _` | __| '_ \  | |_) | '__/ _ \ '_ \ / _` | '__/ _ \
+//  |  __/ (_| | |_| | | | |  __/| | |  __/ |_) | (_| | | |  __/
+//  |_|   \__,_|\__|_| |_| |_|   |_|  \___| .__/ \__,_|_|  \___|
+//                                        |_|                   
+
 //second, show how we prepare text before handing it to the platform functions
 exports.testPathPrepare = function(test) {
 
@@ -308,10 +319,10 @@ exports.testPathPrepare = function(test) {
 		t("name", "name");
 
 		//unix
-		t("/",                   "/");//doesn't mess with unix root
-		t("/folder",             "/folder");
-		t("/folder/",            "/folder");//removes trailing slash from folder
-		t("/folder/file.ext",    "/folder/file.ext");
+		t("/",                "/");//doesn't mess with unix root
+		t("/folder",          "/folder");
+		t("/folder/",         "/folder");//removes trailing slash from folder
+		t("/folder/file.ext", "/folder/file.ext");
 
 		//backslash
 		t("/folder/backslash\\", "/folder/backslash\\");//mac filenames can contain backslash
@@ -320,6 +331,13 @@ exports.testPathPrepare = function(test) {
 
 	done(test);
 }
+
+//   ____       _   _     
+//  |  _ \ __ _| |_| |__  
+//  | |_) / _` | __| '_ \ 
+//  |  __/ (_| | |_| | | |
+//  |_|   \__,_|\__|_| |_|
+//                        
 
 //finally, test Path as a whole, in valid, invalid, and attack situations
 exports.testPathValid = function(test) {
@@ -459,80 +477,146 @@ exports.testPathValid = function(test) {
 
 exports.testPathPlatform = function(test) {
 
+	if (platform() == "windows") {
+
+		test.ok(Path("C:\\").platform == "windows");
+		test.ok(Path("C:\\file.ext").platform == "windows");
+		test.ok(Path("C:\\folder\\file.ext").platform == "windows");
+		test.ok(Path("Z:\\file.ext").platform == "windows");
+
+		test.ok(Path("\\\\computer\\share\\").platform == "network");
+		test.ok(Path("\\\\computer\\share\\file.ext").platform == "network");
+		test.ok(Path("\\\\computer\\share\\folder\\file.ext").platform == "network");
+
+	} else {
+
+		test.ok(Path("/").platform == "unix");
+		test.ok(Path("/file.ext").platform == "unix");
+		test.ok(Path("/folder/file.ext").platform == "unix");
+	}
+
 	done(test);
 }
 
 exports.testPathUp = function(test) {
-	//up, root, levels, and the array
 
-
-/*
 	var p;
 
-	p = Path("C:\\folder1\\folder2\\folder3\\file4.ext");
-	test.ok(p.up.length == 4);
-	test.ok(p.up[0].text() == "C:\\folder1\\folder2\\folder3");
-	test.ok(p.up[1].text() == "C:\\folder1\\folder2");
-	test.ok(p.up[2].text() == "C:\\folder1");
-	test.ok(p.up[3].text() == "C:\\");
-	test.ok(p.higher.text() == "C:\\folder1\\folder2\\folder3");
-	test.ok(p.root.text() == "C:\\");
+	if (platform() == "windows") {
 
-	p = Path("C:\\file4.ext");
-	test.ok(p.up.length == 1);
-	test.ok(p.up[0].text() == "C:\\");
-	test.ok(p.higher.text() == "C:\\");
-	test.ok(p.root.text() == "C:\\");
+		//windows
+		p = Path("C:\\folder1\\folder2\\folder3\\file.ext");
+		test.ok(p.step.length == 5);
+		test.ok(p.step[0].text() == "C:\\folder1\\folder2\\folder3\\file.ext");
+		test.ok(p.step[1].text() == "C:\\folder1\\folder2\\folder3");
+		test.ok(p.step[2].text() == "C:\\folder1\\folder2");
+		test.ok(p.step[3].text() == "C:\\folder1");
+		test.ok(p.step[4].text() == "C:\\");
+		test.ok(p.up.text()   == "C:\\folder1\\folder2\\folder3");
+		test.ok(p.root.text() == "C:\\");
 
-	p = Path("C:\\");
-	test.ok(p.up.length == 0);
-	test.ok(!p.higher);
-	test.ok(!p.root);
-	*/
+		p = Path("C:\\file.ext");
+		test.ok(p.step.length == 2);
+		test.ok(p.step[0].text() == "C:\\file.ext");
+		test.ok(p.step[1].text() == "C:\\");
+		test.ok(p.up.text()   == "C:\\");
+		test.ok(p.root.text() == "C:\\");
 
+		p = Path("C:\\");
+		test.ok(p.step.length == 1);
+		test.ok(p.step[0].text() == "C:\\");
+		test.ok(!p.up);
+		test.ok(p.root.text() == "C:\\");
 
+		//network
+		p = Path("\\\\computer\\share\\folder1\\folder2\\file.ext");
+		test.ok(p.step.length == 4);
+		test.ok(p.step[0].text() == "\\\\computer\\share\\folder1\\folder2\\file.ext");
+		test.ok(p.step[1].text() == "\\\\computer\\share\\folder1\\folder2");
+		test.ok(p.step[2].text() == "\\\\computer\\share\\folder1");
+		test.ok(p.step[3].text() == "\\\\computer\\share\\");
+		test.ok(p.up.text()   == "\\\\computer\\share\\folder1\\folder2");
+		test.ok(p.root.text() == "\\\\computer\\share\\");
 
+		p = Path("\\\\computer\\share\\file.ext");
+		test.ok(p.step.length == 2);
+		test.ok(p.step[0].text() == "\\\\computer\\share\\file.ext");
+		test.ok(p.step[1].text() == "\\\\computer\\share\\");
+		test.ok(p.up.text()   == "\\\\computer\\share\\");
+		test.ok(p.root.text() == "\\\\computer\\share\\");
 
+		p = Path("\\\\computer\\share\\");
+		test.ok(p.step.length == 1);
+		test.ok(p.step[0].text() == "\\\\computer\\share\\");
+		test.ok(!p.up);
+		test.ok(p.root.text() == "\\\\computer\\share\\");
 
+	} else {
 
+		//unix
+		p = Path("/folder1/folder2/folder3/file.ext");
+		test.ok(p.step.length == 5);
+		test.ok(p.step[0].text() == "/folder1/folder2/folder3/file.ext");
+		test.ok(p.step[1].text() == "/folder1/folder2/folder3");
+		test.ok(p.step[2].text() == "/folder1/folder2");
+		test.ok(p.step[3].text() == "/folder1");
+		test.ok(p.step[4].text() == "/");
+		test.ok(p.up.text()   == "/folder1/folder2/folder3");
+		test.ok(p.root.text() == "/");
 
+		p = Path("/file.ext");
+		test.ok(p.step.length == 2);
+		test.ok(p.step[0].text() == "/file.ext");
+		test.ok(p.step[1].text() == "/");
+		test.ok(p.up.text()   == "/");
+		test.ok(p.root.text() == "/");
 
+		p = Path("/");
+		test.ok(p.step.length == 1);
+		test.ok(p.step[0].text() == "/");
+		test.ok(!p.up);
+		test.ok(p.root.text() == "/");
 
-	done(test);
-}
+		//backslash
+		p = Path("/folder/backslash\\");//on mac, a filename can end with a backslash
+		test.ok(p.step.length == 3);
+		test.ok(p.step[0].text() == "/folder/backslash\\");
+		test.ok(p.step[1].text() == "/folder");
+		test.ok(p.step[2].text() == "/");
+		test.ok(p.up.text()   == "/folder");
+		test.ok(p.root.text() == "/");
 
-
-if (demo("up")) { demoUp(); }
-function demoUp() {
-
-	var p = Path("C:\\folder1\\folder2\\folder3\\file4.ext");
-
-	log(p.up.length);
-
-
-
-
-}
-
-
-
-
-exports.testPathRoot = function(test) {
+		p = Path("/\\");//valid file named just backslash in the mac root
+		test.ok(p.step.length == 2);
+		test.ok(p.step[0].text() == "/\\");
+		test.ok(p.step[1].text() == "/");
+		test.ok(p.up.text()   == "/");
+		test.ok(p.root.text() == "/");
+	}
 
 	done(test);
 }
 
 exports.testPathParts = function(test) {
 
-	function g(s, name_ext, name, _ext, ext) {//test the result
+	function l(s) {//look at the result
+		var p = Path(s);
+		log();
+		log(p.text());
+		log("  name_ext  '", p.name_ext, "'");
+		log("  name      '", p.name,     "'");
+		log("      _ext  '", p._ext,     "'");
+		log("       ext  '", p.ext,      "'");
+	}
+	function t(s, name_ext, name, _ext, ext) {//test the result of good input
 		var p = Path(s);
 		test.ok(p.name_ext == name_ext);
 		test.ok(p.name     == name);
 		test.ok(p._ext     == _ext);
 		test.ok(p.ext      == ext);
 	}
-	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad source
-/*
+	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad input
+
 	if (platform() == "windows") {
 
 		//windows
@@ -542,13 +626,24 @@ exports.testPathParts = function(test) {
 		t("C:\\folder\\none",    "none",    "none",    "",  "");//no extension
 		t("C:\\folder\\.hidden", ".hidden", ".hidden", "",  "");//no name, but basename correctly understands this is the name
 		t("C:\\folder\\start.",  "start.",  "start",   ".", "");//invalid, but handled correctly
-		t("C:\\folder\\.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
+		b("C:\\folder\\.");//invalid, navigation code
 
 		//network
 		t("\\\\computer\\share\\folder\\image.jpg", "image.jpg", "image", ".jpg", "jpg");
 
-		//unix
-		t("/folder/image.jpg", "image.jpg", "image", ".jpg", "jpg");
+		//dots
+		b("C:\\.");//bad because contains navigation codes . and ..
+		b("C:\\..");
+		b("C:\\...");
+
+		t("C:\\name1.name2", "name1.name2", "name1", ".name2", "name2");
+		b("C:\\name1..name2");
+		b("C:\\name1...name2");
+
+		//                     name_ext         name            _ext      ext
+		t( "C:\\name1.name2.",  "name1.name2.", "name1.name2",  ".",      "");
+		t("C:\\.name1.name2",  ".name1.name2",  ".name1",       ".name2", "name2");
+		t("C:\\.name1.name2.", ".name1.name2.", ".name1.name2", ".",      "");
 
 	} else {
 
@@ -559,11 +654,38 @@ exports.testPathParts = function(test) {
 		t("/folder/none",    "none",    "none",    "",  "");//no extension
 		t("/folder/.hidden", ".hidden", ".hidden", "",  "");//no name, but basename correctly understands this is the name
 		t("/folder/start.",  "start.",  "start",   ".", "");//invalid, but handled correctly
-		t("/folder/.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
+		b("/folder/.");//invalid, navigation code
+
+		//backslash
+		t("/folder/backslash\\", "backslash\\", "backslash\\", "", "");//mac filenames can contain backslash
+		t("/\\",                 "\\",          "\\",          "", "");
 	}
-*/
+
+	done(test);
+}
 
 
+
+
+
+
+
+
+
+
+//   ____       _   _       __  __       _   _     
+//  |  _ \ __ _| |_| |__   |  \/  | __ _| |_| |__  
+//  | |_) / _` | __| '_ \  | |\/| |/ _` | __| '_ \ 
+//  |  __/ (_| | |_| | | | | |  | | (_| | |_| | | |
+//  |_|   \__,_|\__|_| |_| |_|  |_|\__,_|\__|_| |_|
+//                                                 
+
+exports.testPathResolveTo = function(test) {
+
+	done(test);
+}
+
+exports.testPathCheck = function(test) {
 
 
 
@@ -574,26 +696,16 @@ exports.testPathParts = function(test) {
 
 
 
-
-//test path up
-//test path attack
-
-
-//have path root, a link directly to the highestmost up, the up that has no up above it
-
-
-
-
-
-
-
-
-
-
-
-
-
 //have one which is just the most straightforward directory traversal attack, thwarted
+
+
+//folder: /folder/subfolder
+//file:   /folder/subfolder\file
+//make sure we can tell that file is *not* inside folder, just write a test for this
+
+
+
+
 
 
 
@@ -607,6 +719,17 @@ exports.testPathParts = function(test) {
 //replace known shortlist of illegal characters with unicode lookalikes
 //then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
 //remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
+
+
+
+
+//actually, the next thing you need to do is check out node webkit
+//see what path you get for running from here when using the app as a usb portable
+//see what the file open dialog box is like, and what kind of path it gives you
+//and same stuff on mac and ubuntu
+//and run from network share on windows
+
+
 
 
 

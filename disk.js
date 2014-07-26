@@ -42,12 +42,6 @@ exports.working = working;
 
 
 
-
-
-
-
-
-
 //   ____       _   _     
 //  |  _ \ __ _| |_| |__  
 //  | |_) / _` | __| '_ \ 
@@ -55,107 +49,54 @@ exports.working = working;
 //  |_|   \__,_|\__|_| |_|
 //                        
 
-
-
-//at this level, everything is a single adjustment, no recursion to deal with trees
-
-// OBJECTS
-
-
-
-// PATH
-
 // An absolute file system path that looks right for the kind of computer we're running on
 // Give this an absolute path and it will confirm that it looks right, give it a relative path, and it will throw data
 // Calling this doesn't use the disk
 function Path(s) {
 
+	// Resolve to make sure it's absolute
 	checkType(s, "string");  // Make sure s is a string
 	var r = _pathPrepare(s); // Have only system, drive and share roots end with a slash
 	var p = _pathResolve(r); // Resolve to an absolute path
 	if (p != r) toss("data", {note:"resolve changed path", watch:{s:s, r:r, p:p}}); // If the path changed, it was a relative path
 
-	var platform;
-	if      (p.starts("\\\\")) platform = "network"; // Like \\computer\share\folder
-	else if (p.starts("/"))    platform = "unix";    // Like /folder
-	else if (p.get(1) == ":")  platform = "windows"; // Like C:\folder
+	// Platform type
+	var o = {}; // The object we will fill, freeze, and return
+	if      (p.starts("\\\\")) o.platform = "network"; // Like \\computer\share\folder
+	else if (p.starts("/"))    o.platform = "unix";    // Like /folder
+	else if (p.get(1) == ":")  o.platform = "windows"; // Like C:\folder
 	else toss("data", {note:"can't determine platform", watch:{p:p}});
 
-/*
-	var up = _pathFolder(p);
-	if (up == p) up = null; // This is a drive, share, or the filesystem root
-	else up = Path(up); // Recursive call makes paths of containing folders
-*/
-
-	var up = [];//array of paths higher than p, ending with the root above p
-	var h = p;//the current path we're on, starting with p
+	// Containing folders
+	o.step = [o]; // An array of paths starting with this one, then the containing folders, ending with the root
+	var i = p; // Start here
 	while (true) {
-		var u = _pathFolder(h);//u is the path one step higher than h
-		if (u == h) {//same, h is the root
+		var j = _pathFolder(i); // j is the path one step higher than i
+		if (j == i) { // We reached the root
 			break;
-		} else if (u.length < h.length && h.starts(u)) {//shorter and starting, it's the folder above
-			up.add(Path(u));//save it in our array of higher paths
-			h = u;//move up and loop to get the next one
-		} else {
-			toss("data", {note:"up", watch:{p:p, h:h, u:u}});
+		} else if (j.length < i.length && i.starts(j)) { // Shorter and starting, j is the folder above
+			o.step.add(Path(j)); // Parse and save it in the step array
+			i = j; // Move up and loop again to get the next higher containing folder or root
+		} else { // If j isn't the same as i, make sure it's shorter and matches the start
+			toss("data", {note:"step", watch:{p:p, i:i, j:j}});
 		}
 	}
+	o.up = null; // The path above this one, null if this is the root
+	if (o.step.length > 1) o.up = o.step[1];
+	o.root = o.step[o.step.length - 1]; // The path to the drive or share root above us, a link to this one if this is the root
 
+	// File name parts
+	o.name_ext = _pathNameDotExt(p), // "file.ext"
+	o.name = _pathName(p),           // "file"
+	o._ext = _pathDotExt(p),         // ".ext"
+	o.ext = _pathExt(p),             // "ext"
 
-	var higher = null;
-	if (up.length) higher = up[0];
-	var root = null;
-	if (up.length) root = up[up.length - 1];
-
-
-
-
-
-//TODO make sure it's shorter each time to avoid an infinite loop caused by malicious input
-/*
-path
-up
-if same, that's the root
-if not, must get shorter
-guard against malformed input that creates infinite loop or stack overflow
-*/
-
-//what you really want is not pointers up, but a single array that has all the up, lastmost being the path of the root
-//and also an up pointer, the first element of the array
-//and also a root pointer, the last element of the array
-//and also a number of how many levels up it has, the number of elements in the array
-
-/*
-	var o = {};
-	o.platform = platform;
-
-
-
-
-	return Object.freeze(o);
-*/
-
-
-	return Object.freeze({
-		platform:platform,
-
-		up:up, // The path to the folder that contains this one, or null if this is the path of the filesystem root, or a drive or network share root
-		higher:higher, root:root,
-
-
-		name_ext:_pathNameDotExt(p), // "file.ext"
-		name:_pathName(p),           // "file"
-		_ext:_pathDotExt(p),         // ".ext"
-		ext:_pathExt(p),             // "ext"
-
-		text:function() { return p; }, // The entire absolute path
-		type:function(){ return "Path"; }
-	});
-
-	//if this p is the root, higher hsould be null, and root should be itself
-	//you can do this actually, just make r, fill it, set a member inside to itself, then freeze and return it
-	//you could use the same trick to put this path in array 0, actually
-	//write tests that confirm it all works
+	// Finished object
+	o.text = function() { return p; }, // The entire absolute path
+	o.type = function() { return "Path"; }
+	Object.freeze(o.step);
+	Object.freeze(o);
+	return o;
 }
 
 function _pathPrepare(s) {
@@ -187,8 +128,8 @@ function _pathExt(s) {
 }
 
 exports.Path = Path;
-exports._pathSeparator = _pathSeparator;
-exports._pathPrepare = _pathPrepare; // Exported for testing
+exports._pathSeparator = _pathSeparator; // Exported for testing
+exports._pathPrepare = _pathPrepare;
 exports._pathResolve = _pathResolve;
 exports._pathFolder = _pathFolder;
 exports._pathNameDotExt = _pathNameDotExt;
@@ -204,18 +145,21 @@ exports._pathExt = _pathExt;
 
 
 
-
-// PATH MATH
-
+//   ____       _   _       __  __       _   _     
+//  |  _ \ __ _| |_| |__   |  \/  | __ _| |_| |__  
+//  | |_) / _` | __| '_ \  | |\/| |/ _` | __| '_ \ 
+//  |  __/ (_| | |_| | | | | |  | | (_| | |_| | | |
+//  |_|   \__,_|\__|_| |_| |_|  |_|\__,_|\__|_| |_|
+//                                                 
 
 /*
-Some parameter and variable names for path math functions:
+Parameter and variable names for path math functions:
 
-folder  C:\folder                     Absolute path to a root folder
+folder  C:\folder                     Absolute path to a folder
 file    C:\folder\subfolder\file.ext  Absolute path to something in that folder
 name              subfolder\file.ext  Relative path of the file in the folder
 
-use the functions like this:
+Use the functions like this:
 
 file = pathAdd(folder, name);
 name = pathSubtract(folder, file);
@@ -226,16 +170,16 @@ function pathAdd(folder, name) {
 	checkType(folder, "Path"); // Make sure folder is an absolute Path object
 	checkType(name, "string"); // The relative path name is just a string
 
-	var s = platformPath.resolve(folder.text(), name);
+	var s = _pathResolveTo(folder.text(), name);
 	log(s);
 	var file = Path(s);
 
-	pathCheck(folder, file); // Make sure file is inside folder
+	pathCheck(folder, file); // Check at the end
 	return file;
 }
 
 function pathSubtract(folder, file) {
-	pathCheck(folder, file);
+	pathCheck(folder, file); // Check at the start
 
 	var name = file.text().after(folder.text().length + 1); // Beyond slash
 	log(name);
@@ -258,21 +202,14 @@ function pathCheck(folder, file) {
 		(c == _pathSeparator())) // And have a slash between folder and name
 		return;                  // To be inside
 	toss("data", {note:"pathCheck", watch:{folder:folder, file:file}});
-
-	//TODO
-	//folder: /folder/subfolder
-	//file:   /folder/subfolder\file
-	//make sure we can tell that file is *not* inside folder, just write a test for this
-
-
-
-
-
 }
+
+function _pathResolveTo(from, to) { return platformPath.resolve(from, to); }
 
 exports.pathAdd = pathAdd;
 exports.pathSubtract = pathSubtract;
 exports.pathCheck = pathCheck;
+exports._pathResolveTo = _pathResolveTo; // Exported for testing
 
 
 
@@ -285,6 +222,30 @@ exports.pathCheck = pathCheck;
 
 
 
+
+
+
+
+
+
+
+
+//   _____ _ _      
+//  |  ___(_) | ___ 
+//  | |_  | | |/ _ \
+//  |  _| | | |  __/
+//  |_|   |_|_|\___|
+//                  
+
+
+
+//at this level, everything is a single adjustment, no recursion to deal with trees
+
+// OBJECTS
+
+
+
+// PATH
 
 // FILE
 
@@ -425,7 +386,15 @@ exports.pathLook = pathLook;
 
 
 
+//before tasks, you're going to have to get streams going in here
 
+
+//   _____         _    
+//  |_   _|_ _ ___| | __
+//    | |/ _` / __| |/ /
+//    | | (_| \__ \   < 
+//    |_|\__,_|___/_|\_\
+//                      
 
 
 
