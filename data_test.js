@@ -1212,6 +1212,7 @@ exports.testOutlineName = function(test) {
 	function invalid(exception, name) {
 		try {
 			Outline().name(name);
+			test.fail();
 		} catch (e) { test.ok(e.name == exception); }//get thrown the exception we expect
 	}
 
@@ -1224,8 +1225,8 @@ exports.testOutlineName = function(test) {
 	invalid("data", "sector-7");
 	invalid("data", "α5");
 
-	invalid("type", undefined);//they must be strings
-	invalid("type", []);
+	valid("type", undefined);//like blank
+	invalid("type", []);//they must be strings
 	invalid("type", Data());
 
 	test.done();
@@ -1337,6 +1338,7 @@ exports.testOutlineAdd = function(test) {
 	function cant(a) {
 		try {
 			o.add(a);
+			test.fail();
 		} catch (e) { test.ok(e.name == "type"); }
 	}
 	cant(7);
@@ -1364,6 +1366,7 @@ exports.testOutlineNavigate = function(test) {
 	var o = Outline();
 	try {
 		o.n("name1");//try navigating down to something that doesn't exist
+		test.fail();
 	} catch (e) { test.ok(e.name == "data"); }
 
 	o.add("name1");//add it

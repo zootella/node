@@ -933,6 +933,7 @@ exports.testRip = function(test) {
 	// Make sure rip will throw if you try to give it a regular expression
 	try {
 		"hello".rip(/abc/);
+		test.fail();
 	} catch (e) { test.ok(e.name == "type"); }
 
 	function view(a) {
@@ -1212,7 +1213,7 @@ exports.testEncodeDecodeUriComponent = function(test) {
 	test.ok(decodeURIComponent("+") == "+");//plus stays plus, doesn't become space
 	try {
 		decodeURIComponent("%");//just a percent throws URIError
-		tst.fail();
+		test.fail();
 	} catch (e) { test.ok(e.name == "URIError"); }
 
 	//looking at plus and space

@@ -343,7 +343,7 @@ exports.testPathPrepare = function(test) {
 exports.testPathValid = function(test) {
 
 	function g(s, r) { test.ok(Path(s).text() == r); }//good source and intended result
-	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad source
+	function b(s) { try { Path(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//bad source
 
 	if (platform() == "windows") {
 
@@ -462,14 +462,14 @@ exports.testPathValid = function(test) {
 		g("/folder ", "/folder ");//no change
 
 		//slashes
-		b("\\");
+		b("\\");//valid names on mac, but relative not absolute paths
 		b("\\name");
 		b("name\\");
 		g("/",     "/");//these two are valid unix paths, of course
 		g("/name", "/name");
 		b("name/");
-		b("/folder//file.ext", "/folder/file.ext");
-		b("/folder\\file.ext", "/folder\\file.ext");
+		b("/folder//file.ext");
+		g("/folder\\file.ext", "/folder\\file.ext");
 	}
 
 	done(test);
@@ -615,7 +615,7 @@ exports.testPathParts = function(test) {
 		test.ok(p._ext     == _ext);
 		test.ok(p.ext      == ext);
 	}
-	function b(s) { try { Path(s); } catch (e) { test.ok(e.name == "data"); } }//bad input
+	function b(s) { try { Path(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//bad input
 
 	if (platform() == "windows") {
 
@@ -634,11 +634,11 @@ exports.testPathParts = function(test) {
 		//dots
 		b("C:\\.");//bad because contains navigation codes . and ..
 		b("C:\\..");
-		b("C:\\...");
-
-		t("C:\\name1.name2", "name1.name2", "name1", ".name2", "name2");
-		b("C:\\name1..name2");
-		b("C:\\name1...name2");
+		t("C:\\...",  "...",  "..",  ".", "");//more dots let through
+		t("C:\\....", "....", "...", ".", "");
+		t("C:\\name1.name2",   "name1.name2",   "name1",   ".name2", "name2");
+		t("C:\\name1..name2",  "name1..name2",  "name1.",  ".name2", "name2");
+		t("C:\\name1...name2", "name1...name2", "name1..", ".name2", "name2");
 
 		//                     name_ext         name            _ext      ext
 		t( "C:\\name1.name2.",  "name1.name2.", "name1.name2",  ".",      "");
@@ -682,17 +682,59 @@ exports.testPathParts = function(test) {
 
 exports.testPathResolveTo = function(test) {
 
+	function l(from, to) { log(_pathResolveTo(from, to)); }
+	function t(from, to, result) { test.ok(_pathResolveTo(from, to) == result); }
+
+	if (platform() == "windows") {
+
+		//windows
+		t("C:\\folder",     "file.ext", "C:\\folder\\file.ext");//intended use
+		t("C:\\folder\\",   "file.ext", "C:\\folder\\file.ext");//allows trailing backslash
+		t("C:\\folder",   "\\file.ext", "C:\\file.ext");//on filename causes it to go up
+		t("C:\\folder/",    "file.ext", "C:\\folder\\file.ext");//same behavior with the wrong slash
+		t("C:\\folder",    "/file.ext", "C:\\file.ext");
+		t("C:\\",         "\\file.ext", "C:\\file.ext");//can't go up, so stays beneath root
+		t("C:\\",          "/file.ext", "C:\\file.ext");
+
+		//network
+		t("\\\\computer\\share\\folder",     "file.ext", "\\\\computer\\share\\folder\\file.ext");//intended use
+		t("\\\\computer\\share\\folder\\",   "file.ext", "\\\\computer\\share\\folder\\file.ext");//allows trailing backslash
+		t("\\\\computer\\share\\folder",   "\\file.ext", "\\\\computer\\share\\file.ext");//on filename causes it to go up
+		t("\\\\computer\\share\\folder/",    "file.ext", "\\\\computer\\share\\folder\\file.ext");//same behavior with the wrong slash
+		t("\\\\computer\\share\\folder",    "/file.ext", "\\\\computer\\share\\file.ext");
+		t("\\\\computer\\share\\",         "\\file.ext", "\\\\computer\\share\\file.ext");//can't go up
+		t("\\\\computer\\share\\",          "/file.ext", "\\\\computer\\share\\file.ext");
+
+	} else {
+
+		//unix
+		t("/folder",     "file.ext", "/folder/file.ext");//backslash is valid for a filename on mac
+		t("/folder\\",   "file.ext", "/folder\\/file.ext");
+		t("/folder",   "\\file.ext", "/folder/\\file.ext");
+		t("/folder/",    "file.ext", "/folder/file.ext");
+		t("/folder",    "/file.ext", "/file.ext");
+		t("/",         "\\file.ext", "/\\file.ext");
+		t("/",          "/file.ext", "/file.ext");
+	}
+
 	done(test);
 }
 
 exports.testPathCheck = function(test) {
 
+	function g(folder, file) { pathCheck(folder, file); }
+	function b(folder, file) { try { pathCheck(folder, file); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
+
 
 
 	done(test);
 }
 
 
+
+
+
+//just go through disktest1 and disktest2, deleting covered stuff, looking for a kind of path that matters that isn't tested here yet
 
 
 

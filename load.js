@@ -59,11 +59,20 @@ function use(l, f) {
 exports.load = load;
 exports.use = use;
 
+
+
 //TODO really understand how require works, what order and how many times modules are loaded
 
-//TODO alas, this doesn't work, or more correctly, it works too well: if A needs B, and B needs C, A has access to C, when it shouldn't. somehow the this pointer is becomming the global pointer, which you want to stay away from
-//make a test using all separate files in a separate folder which demonstrates this behavior
-//in the future, find a better way to do this that solves this problem, and see your test pass
+//TODO alas, this doesn't work
+//or more correctly, it works too well: if A needs B, and B needs C, A has access to C, when it shouldn't
+//somehow the this pointer is becomming the global pointer, which you want to stay away from
+//if you say if (t === global) that will be true
+//after a full evening of trying to fix it, you can't get the module pointer
+//you can't add something to this in a file so that naming myFunction works without this.myFunction
+//even experiments where you wrapped each entire module in a function didn't yield a solution
+//using eval("var ...") does work, but that's even worse than global, for security and speed
+//so, keeping it like this now. you can easily change it later if you ever figure out it's possible
+
 
 
 
