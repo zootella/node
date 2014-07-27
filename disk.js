@@ -172,6 +172,8 @@ function pathAdd(folder, name) {
 
 	var file = Path(_pathResolveTo(folder.text(), name));
 
+	var i = folder.text() + _pathSeparator() + name; // Confirm adding the strings is the same
+	if (file.text() != i) toss("data", {note:"round trip", watch:{folder:folder, name:name}});
 	pathCheck(folder, file); // Check after
 	return file;
 }
@@ -179,10 +181,10 @@ function pathAdd(folder, name) {
 function pathSubtract(folder, file) {
 	pathCheck(folder, file); // Check before
 
-	var name = file.text().after(folder.text().length + 1); // Beyond slash
+	var name = file.text().beyond(folder.text().length + 1); // Beyond slash
 
-	var i = pathAdd(folder, name); // Confirm adding it back works
-	if (file.text() != i.text()) toss("data", {watch:{folder:folder, file:file}}); // And produces the given result
+	var i = pathAdd(folder, name); // Confirm adding it back is the same
+	if (file.text() != i.text()) toss("data", {note:"round trip", watch:{folder:folder, file:file}});
 	return name;
 }
 

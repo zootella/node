@@ -828,21 +828,23 @@ exports.testPathAdd = function(test) {
 		//windows
 		g("C:\\folder", "file.ext", "C:\\folder\\file.ext");
 
-		//navigation
+		//attack
 		b("C:\\downloads", "..\\autoexec.bat");//directory traversal attack thwarted
 
-		b("C:\\downloads", "../autoexec.bat");//variations
-		g("C:\\downloads", "..autoexec.bat",  "C:\\downloads\\..autoexec.bat");//ok because kept in folder
-		g("C:\\downloads", ".\\autoexec.bat", "C:\\downloads\\autoexec.bat");
-		g("C:\\downloads", "./autoexec.bat",  "C:\\downloads\\autoexec.bat");
-		g("C:\\downloads", ".autoexec.bat",   "C:\\downloads\\.autoexec.bat");
-
-		g("C:\\folder1", "folder2\\..\\file.ext", "C:\\folder1\\file.ext");//navigation that works
+		//navigation
+		b("C:\\folder", "../file.ext");//variations
+		g("C:\\folder", "..file.ext", "C:\\folder\\..file.ext");//dots in filename
+		b("C:\\folder", ".\\file.ext");
+		b("C:\\folder", "./file.ext");
+		g("C:\\folder", ".file.ext",  "C:\\folder\\.file.ext");
+		b("C:\\folder1", "folder2\\..\\file.ext");//navigation valid, but blocked by round trip check
 
 		//slashes
 		b("C:\\folder", "\\file.ext");
 		b("C:\\folder", "\\\\file.ext");
 		b("C:\\folder", "/file.ext");
+
+		//network
 
 
 
@@ -851,6 +853,8 @@ exports.testPathAdd = function(test) {
 
 
 	} else {
+
+		//unix
 	}
 
 	done(test);
@@ -874,6 +878,9 @@ exports.testPathSubtract = function(test) {
 	}
 
 	if (platform() == "windows") {
+
+		g("C:\\folder", "C:\\folder\\file.ext", "file.ext");
+
 	} else {
 	}
 
