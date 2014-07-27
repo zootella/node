@@ -170,22 +170,19 @@ function pathAdd(folder, name) {
 	checkType(folder, "Path"); // Make sure folder is an absolute Path object
 	checkType(name, "string"); // The relative path name is just a string
 
-	var s = _pathResolveTo(folder.text(), name);
-	log(s);
-	var file = Path(s);
+	var file = Path(_pathResolveTo(folder.text(), name));
 
-	pathCheck(folder, file); // Check at the end
+	pathCheck(folder, file); // Check after
 	return file;
 }
 
 function pathSubtract(folder, file) {
-	pathCheck(folder, file); // Check at the start
+	pathCheck(folder, file); // Check before
 
 	var name = file.text().after(folder.text().length + 1); // Beyond slash
-	log(name);
 
-	var file2 = pathAdd(folder, name); // Confirm adding it back works
-	if (file.text() != file2.text()) toss("data"); // And produces the given result
+	var i = pathAdd(folder, name); // Confirm adding it back works
+	if (file.text() != i.text()) toss("data", {watch:{folder:folder, file:file}}); // And produces the given result
 	return name;
 }
 
@@ -195,13 +192,11 @@ function pathCheck(folder, file) {
 
 	var o = folder.text();
 	var i = file.text();
-	var c = i.get(o.length);
+	var s = i.get(o.length);
 
-	if (o.length < i.length && // The file path must be longer
-		i.starts(o) &&           // And start with the folder path
-		(c == _pathSeparator())) // And have a slash between folder and name
-		return;                  // To be inside
-	toss("data", {note:"pathCheck", watch:{folder:folder, file:file}});
+	if (o.length >= i.length)  toss("data", {note:"short",  watch:{folder:folder, file:file}});
+	if (!i.starts(o))          toss("data", {note:"starts", watch:{folder:folder, file:file}});
+	if (s != _pathSeparator()) toss("data", {note:"slash",  watch:{folder:folder, file:file}});
 }
 
 function _pathResolveTo(from, to) { return platformPath.resolve(from, to); }

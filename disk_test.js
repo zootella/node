@@ -722,10 +722,160 @@ exports.testPathResolveTo = function(test) {
 
 exports.testPathCheck = function(test) {
 
-	function g(folder, file) { pathCheck(folder, file); }
-	function b(folder, file) { try { pathCheck(folder, file); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
+	function l(folder, file) {
+		try {
+			pathCheck(Path(folder), Path(file));
+			log("ok");
+		} catch (e) { log(e.name, ": ", e.note); }//also show the exception note
+	}
+	function g(folder, file) { pathCheck(Path(folder), Path(file)); }
+	function b(folder, file) {
+		try {
+			pathCheck(Path(folder), Path(file));
+			test.fail();
+		} catch (e) { test.ok(e.name == "data"); }
+	}
+
+	if (platform() == "windows") {
+
+		//windows
+		g("C:\\folder1\\folder2", "C:\\folder1\\folder2\\file.ext");//good
+		b("C:\\folder1\\folder2", "C:\\folder1\\file.ext");//bad because neighboring
+		b("C:\\folder1\\folder2", "C:\\file.ext");//bad because above
+
+		b("C:\\folder",  "C:\\folder");//data short, invalid because file must be longer
+		b("C:\\folderA", "C:\\folderB\\file.ext");//data starts, invalid because file must start with folder
+		b("C:\\folder1", "C:\\folder1-file.ext");//data slash, invalid because after folder in file must be a slash
+
+		b("C:\\folder",  "C:\\folder\\");//not shorter, Path removes trailing slash
+		b("C:\\folder",  "C:\\folder2");//missing separating slash
+
+		g("C:\\folder",  "C:\\folder\\file.ext");//correct slash
+		b("C:\\folder",  "C:\\folder/file.ext");//wrong slash, stopped by Path function
+
+		b("C:\\", "D:\\");//different drives
+
+		b("C:\\folder", "C:\\folder\\");
+		b("C:\\folder", "C:\\folder\\\\");
+		b("C:\\folder", "C:\\folder\\/");
+		g("C:\\folder", "C:\\folder\\a");
+
+		//network
+		g("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\folder2\\file.ext");
+		b("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\file.ext");
+		b("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\file.ext");
+
+		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder");
+		b("\\\\computer\\share\\folderA", "\\\\computer\\share\\folderB\\file.ext");
+		b("\\\\computer\\share\\folder1", "\\\\computer\\share\\folder1-file.ext");
+
+		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder\\");
+		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder2");
+
+		b("\\\\computer\\shareA", "\\\\computer\\shareB");//different shares
+		b("\\\\computer\\share",  "\\\\computer\\shareB");
+
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\");
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\\\");
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\/");
+		g("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\a");
+
+	} else {
+
+		//unix
+		g("/folder1/folder2", "/folder1/folder2/file.ext");//good
+		b("/folder1/folder2", "/folder1/file.ext");//bad because neighboring
+		b("/folder1/folder2", "/file.ext");//bad because above
+
+		b("/folder",  "/folder");//data short, invalid because file must be longer
+		b("/folderA", "/folderB/file.ext");//data starts, invalid because file must start with folder
+		b("/folder1", "/folder1-file.ext");//data slash, invalid because after folder in file must be a slash
+
+		b("/folder",  "/folder/");//not shorter, Path removes trailing slash
+		b("/folder",  "/folder2");//missing separating slash
+
+		g("/folder", "/folder/file.ext");//correct slash
+		b("/folder", "/folder\\file.ext");//wrong slash, file path is valid for mac, but stopped by pathCheck
+
+		b("/folder", "/folder/");
+		b("/folder", "/folder//");
+		g("/folder", "/folder/\\");//ok because a mac file can be named just backslash
+		g("/folder", "/folder/a");
+	}
+
+	done(test);
+}
+
+exports.testPathAdd = function(test) {
+
+	function l(folder, name) {
+		try {
+			log(pathAdd(Path(folder), name));
+		} catch (e) { log(e.name, ": ", e.note); }
+	}
+	function b(folder, name) {
+		try {
+			pathAdd(Path(folder), name);
+			test.fail();
+		} catch (e) { test.ok(e.name == "data"); }
+	}
+	function g(folder, name, file) {
+		test.ok(file == pathAdd(Path(folder), name).text());
+	}
+
+	if (platform() == "windows") {
+
+		//windows
+		g("C:\\folder", "file.ext", "C:\\folder\\file.ext");
+
+		//navigation
+		b("C:\\downloads", "..\\autoexec.bat");//directory traversal attack thwarted
+
+		b("C:\\downloads", "../autoexec.bat");//variations
+		g("C:\\downloads", "..autoexec.bat",  "C:\\downloads\\..autoexec.bat");//ok because kept in folder
+		g("C:\\downloads", ".\\autoexec.bat", "C:\\downloads\\autoexec.bat");
+		g("C:\\downloads", "./autoexec.bat",  "C:\\downloads\\autoexec.bat");
+		g("C:\\downloads", ".autoexec.bat",   "C:\\downloads\\.autoexec.bat");
+
+		g("C:\\folder1", "folder2\\..\\file.ext", "C:\\folder1\\file.ext");//navigation that works
+
+		//slashes
+		b("C:\\folder", "\\file.ext");
+		b("C:\\folder", "\\\\file.ext");
+		b("C:\\folder", "/file.ext");
 
 
+
+
+
+
+
+	} else {
+	}
+
+	done(test);
+}
+
+exports.testPathSubtract = function(test) {
+
+	function l(folder, file) {
+		try {
+			log(pathSubtract(Path(folder), Path(file)));
+		} catch (e) { log(e.name, ": ", e.note); }
+	}
+	function b(folder, file) {
+		try {
+			pathSubtract(Path(folder), Path(file));
+			test.fail();
+		} catch (e) { test.ok(e.name == "data"); }
+	}
+	function g(folder, file, name) {
+		test.ok(name == pathSubtract(Path(folder), Path(file)));
+	}
+
+	if (platform() == "windows") {
+	} else {
+	}
 
 	done(test);
 }
@@ -734,11 +884,8 @@ exports.testPathCheck = function(test) {
 
 
 
-//just go through disktest1 and disktest2, deleting covered stuff, looking for a kind of path that matters that isn't tested here yet
-
-
-
 //have one which is just the most straightforward directory traversal attack, thwarted
+//this is for pathAdd("C:\\downloads", "..\\autoexec.bat");
 
 
 //folder: /folder/subfolder
@@ -751,6 +898,9 @@ exports.testPathCheck = function(test) {
 
 
 
+
+
+//just go through disktest1 and disktest2, deleting covered stuff, looking for a kind of path that matters that isn't tested here yet
 
 
 
