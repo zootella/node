@@ -1,4 +1,6 @@
 
+var platformUtility = require("util");
+
 require("./load").load("measure", function() { return this; });
 
 
@@ -102,7 +104,10 @@ function log() {
 	console.log(t);
 }
 
+var inspect = platformUtility.inspect; // Rename instead of wrapping
+
 exports.log = log;
+exports.inspect = inspect;
 
 
 

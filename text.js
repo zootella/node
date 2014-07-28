@@ -52,6 +52,16 @@ exports.toss = toss;
 
 
 
+//TODO put a text() function in there
+//have it call text() on info.wrap, and each item in info.watch
+//pull the name of the function that called toss out of stack, and have that as info.from
+//rename info e, that's what it's called in the code that uses toss
+//nicely format stack, put that alongside
+//and write a demo that tosses, catches, and logs an e to show of all this, obviously
+
+//have toss inject e.text() to show name, note, watch, from, and stack
+//right now you just get [Object object]
+//and you coudl use inspect, but that creates a big mess and still has [Function function] instead of calling text()
 
 
 

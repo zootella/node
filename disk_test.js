@@ -11,6 +11,281 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
+
+
+
+
+//   ____       _   _       ____                                             
+//  |  _ \ __ _| |_| |__   / ___| _   _ _ __ ___  _ __ ___   __ _ _ __ _   _ 
+//  | |_) / _` | __| '_ \  \___ \| | | | '_ ` _ \| '_ ` _ \ / _` | '__| | | |
+//  |  __/ (_| | |_| | | |  ___) | |_| | | | | | | | | | | | (_| | |  | |_| |
+//  |_|   \__,_|\__|_| |_| |____/ \__,_|_| |_| |_|_| |_| |_|\__,_|_|   \__, |
+//                                                                     |___/ 
+
+//before a thousand lines of detail, the most common and important use and protection of the path functions
+exports.testPathSummary = function(test) {
+
+	var p;
+	function badPath(s)                { try { Path(s);                    test.fail(); } catch (e) {} }
+	function badAdd(folder, name)      { try { pathAdd(folder, name);      test.fail(); } catch (e) {} }
+	function badSubtract(folder, file) { try { pathSubtract(folder, file); test.fail(); } catch (e) {} }
+	function badCheck(folder, file)    { try { pathCheck(folder, file);    test.fail(); } catch (e) {} }
+
+	//validation
+
+	if (platform() == "windows") {
+
+		//running on windows, path accepts and validates drive and network absolute paths
+		test.ok(Path("C:\\").text() == "C:\\");//makes sure it's absolute or throws data
+		test.ok(Path("C:\\folder").text() == "C:\\folder");
+		test.ok(Path("C:\\folder\\file.ext").text() == "C:\\folder\\file.ext");
+
+		test.ok(Path("\\\\computer\\share\\").text() == "\\\\computer\\share\\");//also works for network paths
+		test.ok(Path("\\\\computer\\share\\folder").text() == "\\\\computer\\share\\folder");
+		test.ok(Path("\\\\computer\\share\\folder\\file.ext").text() == "\\\\computer\\share\\folder\\file.ext");
+
+		//drive and share roots get corrected to have a trailing slash
+		test.ok(Path("C:").text() == "C:\\");//adds the missing slash
+		test.ok(Path("\\\\computer\\share").text() == "\\\\computer\\share\\");
+
+		//folders get corrected to not have a trailing slash
+		test.ok(Path("C:\\folder\\").text() == "C:\\folder");//removes the trailing slash
+		test.ok(Path("\\\\computer\\share\\folder\\").text() == "\\\\computer\\share\\folder");
+		badPath("C:\\folder\\\\");//only one extra trailing slash is allowed, however
+
+		//blank, individual filenames, relative paths, and path navigation are importantly blocked
+		badPath("");//blank, blocked
+		badPath("file.ext");//just a filename, blocked
+		badPath("folder\\file.ext");//relative path down, blocked
+		badPath("..\\file.ext");//relative path trying to go up, blocked
+		badPath("C:\\folder\\..\\file.ext");//absolute but has navigation, blocked
+
+		//on windows, mac and unix paths are blocked
+		badPath("/");
+		badPath("/name");
+
+	} else {
+
+		//running on mac, absolute paths have to be unix style, which are a lot better
+		test.ok(Path("/").text() == "/");
+		test.ok(Path("/folder").text() == "/folder");
+		test.ok(Path("/folder/file.ext").text() == "/folder/file.ext");
+
+		//a single extra trailing slash on a folder is removed
+		test.ok(Path("/folder/").text() == "/folder");
+		badPath("/folder//");//double not ok
+
+		//on mac and unix, backslash is a valid character for a filename
+		test.ok(Path("/has\\backslash").text() == "/has\\backslash");
+		test.ok(Path("/\\").text() == "/\\");//a file or folder named just backslash at the unix root
+
+		//blank, individual filenames, relative paths, and path navigation are importantly blocked
+		badPath("");//blank, blocked
+		badPath("file.ext");//just a filename, blocked
+		badPath("folder/file.ext");//relative path down, blocked
+		badPath("../file.ext");//relative path trying to go up, blocked
+		badPath("/folder/../file.ext");//absolute but has navigation, blocked
+
+		//on mac and unix, windows drive and network paths are blocked
+		badPath("C:\\");
+		badPath("C:\\name");
+		badPath("\\\\computer\\share\\");
+		badPath("\\\\computer\\share\\name");
+	}
+
+	//parts
+
+	if (platform() == "windows") {
+
+		//use path.platform to see what type it is
+		test.ok(Path("C:\\file.ext").platform == "windows");
+		test.ok(Path("\\\\computer\\share\\file.ext").platform == "network");
+
+		//it's easy to get at all the parts of the file name and extension
+		p = Path("C:\\folder\\file.ext");
+		test.ok(p.name_ext == "file.ext");
+		test.ok(p.name     == "file"    );
+		test.ok(p._ext     ==     ".ext");
+		test.ok(p.ext      ==      "ext");
+
+		p = Path("C:\\folder\\file");//a folder, or a file with no extension
+		test.ok(p.name_ext == "file");
+		test.ok(p.name     == "file");
+		test.ok(p._ext     ==     "");
+		test.ok(p.ext      ==     "");
+
+		p = Path("C:\\folder\\file.backup.ext");//two extensions
+		test.ok(p.name_ext == "file.backup.ext");
+		test.ok(p.name     == "file.backup"    );
+		test.ok(p._ext     ==            ".ext");
+		test.ok(p.ext      ==             "ext");
+
+		p = Path("C:\\folder\\.hidden");//named to be hidden on unix
+		test.ok(p.name_ext == ".hidden");//the name is the name, not the extension
+		test.ok(p.name     == ".hidden");
+		test.ok(p._ext     ==        "");
+		test.ok(p.ext      ==        "");
+
+		p = Path("\\\\computer\\share\\folder\\file.ext");//works the same on network shares
+		test.ok(p.name_ext == "file.ext");
+		test.ok(p.name     == "file"    );
+		test.ok(p._ext     ==     ".ext");
+		test.ok(p.ext      ==      "ext");
+
+	} else {
+
+		//use path.platform to see what type it is
+		test.ok(Path("/file.ext").platform == "unix");
+
+		//it's easy to get at all the parts of the file name and extension
+		p = Path("/folder/file.ext");
+		test.ok(p.name_ext == "file.ext");
+		test.ok(p.name     == "file"    );
+		test.ok(p._ext     ==     ".ext");
+		test.ok(p.ext      ==      "ext");
+
+		p = Path("/folder/file");//a folder, or a file with no extension
+		test.ok(p.name_ext == "file");
+		test.ok(p.name     == "file");
+		test.ok(p._ext     ==     "");
+		test.ok(p.ext      ==     "");
+
+		p = Path("/folder/file.backup.ext");//two extensions
+		test.ok(p.name_ext == "file.backup.ext");
+		test.ok(p.name     == "file.backup"    );
+		test.ok(p._ext     ==            ".ext");
+		test.ok(p.ext      ==             "ext");
+
+		p = Path("/folder/.hidden");//named to be hidden on unix
+		test.ok(p.name_ext == ".hidden");//the name is the name, not the extension
+		test.ok(p.name     == ".hidden");
+		test.ok(p._ext     ==        "");
+		test.ok(p.ext      ==        "");
+	}
+
+	//up
+
+	if (platform() == "windows") {
+
+		//use up, root, and step to get all the paths up to the root
+		p = Path("C:\\f1\\f2\\file.ext");
+		test.ok(p.up.text()    == "C:\\f1\\f2");//up is the containing folder
+		test.ok(p.up.up.text() == "C:\\f1");//go up twice
+		test.ok(p.root.text()  == "C:\\");//root is the highest containing path
+		test.ok(!p.root.up);//root has no up
+
+		test.ok(p.step.length == 4);//there is also an array with all the paths
+		test.ok(p.step[0].text() == "C:\\f1\\f2\\file.ext");//starting with this one
+		test.ok(p.step[1].text() == "C:\\f1\\f2");
+		test.ok(p.step[2].text() == "C:\\f1");
+		test.ok(p.step[3].text() == "C:\\");//and ending with the drive root
+
+		//also works for network shares
+		p = Path("\\\\c\\s\\f1\\f2\\file.ext");
+		test.ok(p.up.text()    == "\\\\c\\s\\f1\\f2");//up is the containing folder
+		test.ok(p.up.up.text() == "\\\\c\\s\\f1");//go up twice
+		test.ok(p.root.text()  == "\\\\c\\s\\");//root is the highest containing path
+		test.ok(!p.root.up);//root has no up
+
+		test.ok(p.step.length == 4);//there is also an array with all the paths
+		test.ok(p.step[0].text() == "\\\\c\\s\\f1\\f2\\file.ext");//starting with this one
+		test.ok(p.step[1].text() == "\\\\c\\s\\f1\\f2");
+		test.ok(p.step[2].text() == "\\\\c\\s\\f1");
+		test.ok(p.step[3].text() == "\\\\c\\s\\");//and ending with the share root
+
+	} else {
+
+		//use up, root, and step to get all the paths up to the root
+		p = Path("/f1/f2/file.ext");
+		test.ok(p.up.text()    == "/f1/f2");//up is the containing folder
+		test.ok(p.up.up.text() == "/f1");//go up twice
+		test.ok(p.root.text()  == "/");//root is the highest containing path
+		test.ok(!p.root.up);//root has no up
+
+		test.ok(p.step.length == 4);//there is also an array with all the paths
+		test.ok(p.step[0].text() == "/f1/f2/file.ext");//starting with this one
+		test.ok(p.step[1].text() == "/f1/f2");
+		test.ok(p.step[2].text() == "/f1");
+		test.ok(p.step[3].text() == "/");//and ending with the filesystem root
+	}
+
+	//add
+
+	if (platform() == "windows") {
+
+		//use path add to add a relative path to an absolute one
+		test.ok(pathAdd(Path("C:\\f1"), "file").text() == "C:\\f1\\file");
+		test.ok(pathAdd(Path("C:\\"), "f1\\f2\\file").text() == "C:\\f1\\f2\\file");
+
+		//very importantly, pathAdd guards against the directory traversal attack
+		badAdd(Path("C:\\downloads"), "..\\autoexec.bat");
+		badAdd(Path("C:\\f1"), "f2\\..\\file");//all navigation is blocked, even this example which still lands in f1
+		badAdd(Path("C:\\folder"), "\\file");//strict about file names, doesn't like the starting slash
+		badAdd(Path("C:\\folder"), "file\\");//or an ending one
+
+		//same for network paths
+		test.ok(pathAdd(Path("\\\\c\\s\\f1"), "file").text() == "\\\\c\\s\\f1\\file");
+		test.ok(pathAdd(Path("\\\\c\\s\\"), "f1\\f2\\file").text() == "\\\\c\\s\\f1\\f2\\file");
+		badAdd(Path("\\\\c\\s\\downloads"), "..\\autoexec.bat");
+		badAdd(Path("\\\\c\\s\\f1"), "f2\\..\\file");
+		badAdd(Path("\\\\c\\s\\folder"), "\\file");
+		badAdd(Path("\\\\c\\s\\folder"), "file\\");
+
+	} else {
+
+		//use path add to add a relative path to an absolute one
+		test.ok(pathAdd(Path("/f1"), "file").text() == "/f1/file");
+		test.ok(pathAdd(Path("/"), "f1/f2/file").text() == "/f1/f2/file");
+
+		//very importantly, pathAdd guards against the directory traversal attack
+		badAdd(Path("/downloads"), "../autoexec.bat");
+		badAdd(Path("/f1"), "f2/../file");//all navigation is blocked, even this example which still lands in f1
+		badAdd(Path("/folder"), "/file");//strict about file names, doesn't like the starting slash
+		badAdd(Path("/folder"), "file/");//or an ending one
+	}
+
+	//subtract
+
+	if (platform() == "windows") {
+
+	} else {
+
+	}
+
+	//check
+
+	if (platform() == "windows") {
+
+		//add and subtract use path check to make sure a second path is within a first one
+		pathCheck(Path("C:\\"),   Path("C:\\name"));
+		pathCheck(Path("C:\\f1"), Path("C:\\f1\\name"));
+
+		//the file path must be
+		badCheck(Path("C:\\folder"), Path("C:\\folder"));//longer
+		badCheck(Path("C:\\folder"), Path("C:\\folde2"));//must start with the folder path
+		badCheck(Path("C:\\folder"), Path("C:\\folder2"));//and have a separating backslash between them
+
+		//case is strict, this would be inside on windows, but maybe not on mac
+		badCheck(Path("C:\\folder"), Path("C:\\Folder\\file"));
+
+	} else {
+
+		//add and subtract use path check to make sure a second path is within a first one
+		pathCheck(Path("/"),   Path("/name"));
+		pathCheck(Path("/f1"), Path("/f1/name"));
+
+		//the file path must be
+		badCheck(Path("/folder"), Path("/folder"));//longer
+		badCheck(Path("/folder"), Path("/folde2"));//must start with the folder path
+		badCheck(Path("/folder"), Path("/folder2"));//and have a separating slash between them
+
+		//backslash is a valid file name character on unix
+		badCheck(Path("/folder"), Path("/folder\\file"));//you can't use it to sneak in something that looks like a subfolder
+	}
+
+	done(test);
+}
+
 //   ____       _   _       ____  _       _    __                      
 //  |  _ \ __ _| |_| |__   |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___  
 //  | |_) / _` | __| '_ \  | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \ 
@@ -760,6 +1035,8 @@ exports.testPathCheck = function(test) {
 		b("C:\\folder", "C:\\folder\\/");
 		g("C:\\folder", "C:\\folder\\a");
 
+		g("C:\\", "C:\\file.ext");//root
+
 		//network
 		g("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\folder2\\file.ext");
 		b("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\file.ext");
@@ -779,6 +1056,8 @@ exports.testPathCheck = function(test) {
 		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\\\");
 		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\/");
 		g("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\a");
+
+		g("\\\\computer\\share\\", "\\\\computer\\share\\file.ext");//root
 
 	} else {
 
@@ -801,17 +1080,24 @@ exports.testPathCheck = function(test) {
 		b("/folder", "/folder//");
 		g("/folder", "/folder/\\");//ok because a mac file can be named just backslash
 		g("/folder", "/folder/a");
+
+		g("/", "/file.ext");//root
 	}
 
 	done(test);
 }
+
+
+
 
 exports.testPathAdd = function(test) {
 
 	function l(folder, name) {
 		try {
 			log(pathAdd(Path(folder), name));
-		} catch (e) { log(e.name, ": ", e.note); }
+		} catch (e) {
+			log(e.name, ": ", e.note);
+		}
 	}
 	function b(folder, name) {
 		try {
@@ -826,35 +1112,64 @@ exports.testPathAdd = function(test) {
 	if (platform() == "windows") {
 
 		//windows
-		g("C:\\folder", "file.ext", "C:\\folder\\file.ext");
+		g("C:\\f1\\f2", "f3\\f4\\file.ext", "C:\\f1\\f2\\f3\\f4\\file.ext");
+		g("C:\\f1",             "file.ext", "C:\\f1\\file.ext");
+		g("C:\\",               "file.ext", "C:\\file.ext");
+		g("C:\\",       "f1\\f2\\file.ext", "C:\\f1\\f2\\file.ext");
 
 		//attack
 		b("C:\\downloads", "..\\autoexec.bat");//directory traversal attack thwarted
 
 		//navigation
 		b("C:\\folder", "../file.ext");//variations
-		g("C:\\folder", "..file.ext", "C:\\folder\\..file.ext");//dots in filename
+		g("C:\\folder", "..file.ext", "C:\\folder\\..file.ext");//dots allowed in filename
 		b("C:\\folder", ".\\file.ext");
 		b("C:\\folder", "./file.ext");
-		g("C:\\folder", ".file.ext",  "C:\\folder\\.file.ext");
+		g("C:\\folder", ".file.ext",  "C:\\folder\\.file.ext");//dots allowed in filename
 		b("C:\\folder1", "folder2\\..\\file.ext");//navigation valid, but blocked by round trip check
 
 		//slashes
 		b("C:\\folder", "\\file.ext");
 		b("C:\\folder", "\\\\file.ext");
 		b("C:\\folder", "/file.ext");
+		b("C:\\", "\\file.ext");
+		b("C:\\", "\\\\file.ext");
+		b("C:\\", "/file.ext");
 
 		//network
-
-
-
-
-
-
+		g("\\\\c\\s\\f1\\f2", "f3\\f4\\file.ext", "\\\\c\\s\\f1\\f2\\f3\\f4\\file.ext");
+		g("\\\\c\\s\\f1",             "file.ext", "\\\\c\\s\\f1\\file.ext");
+		g("\\\\c\\s\\",               "file.ext", "\\\\c\\s\\file.ext");
+		g("\\\\c\\s\\",       "f1\\f2\\file.ext", "\\\\c\\s\\f1\\f2\\file.ext");
 
 	} else {
 
 		//unix
+		g("/f1/f2", "f3/f4/file.ext", "/f1/f2/f3/f4/file.ext");
+		g("/f1",          "file.ext", "/f1/file.ext");
+		g("/",            "file.ext", "/file.ext");
+		g("/",      "f1/f2/file.ext", "/f1/f2/file.ext");
+
+		//attack
+		b("/downloads", "../autoexec.bat");//directory traversal attack thwarted
+
+/*
+		//navigation
+		b("/folder", "../file.ext");//variations
+		g("/folder", "..file.ext", "/folder/..file.ext");//dots allowed in filename
+		b("/folder", ".\\file.ext");
+		b("/folder", "./file.ext");
+		g("/folder", ".file.ext",  "/folder/.file.ext");//dots allowed in filename
+		b("/folder1", "folder2\\..\\file.ext");//navigation valid, but blocked by round trip check
+
+		//slashes
+		b("C:\\folder", "\\file.ext");
+		b("C:\\folder", "\\\\file.ext");
+		b("C:\\folder", "/file.ext");
+		b("C:\\", "\\file.ext");
+		b("C:\\", "\\\\file.ext");
+		b("C:\\", "/file.ext");
+		*/
 	}
 
 	done(test);
@@ -881,12 +1196,18 @@ exports.testPathSubtract = function(test) {
 
 		g("C:\\folder", "C:\\folder\\file.ext", "file.ext");
 
+
+
+
+
+
 	} else {
 	}
 
 	done(test);
 }
 
+//when testing subtract, give it on that cuts right in the middle of the folder name
 
 
 
@@ -927,6 +1248,24 @@ exports.testPathSubtract = function(test) {
 //see what the file open dialog box is like, and what kind of path it gives you
 //and same stuff on mac and ubuntu
 //and run from network share on windows
+
+
+//TODO
+//have toss pull out the name of the function that called toss from the call stack
+//you don't really need the whole call stack, line numbers, all that, just the name of the function is enough
+//this would be e.from == "pathCheck" for instance
+
+//also, toss needs to loop through watch and call say on each of those
+//otherwise your debug log will just say [Function] rather than useful text
+
+//add your own inspect
+/*
+var platformUtility = require("util");
+var inspect = platformUtility.inspect;
+*/
+
+
+
 
 
 

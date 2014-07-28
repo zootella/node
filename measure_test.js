@@ -37,6 +37,13 @@ function demoLog() {
 	log("a", 7, "b");//multiple arguments not separated by spaces
 }
 
+if (demo("inspect")) { demoInspect(); }
+function demoInspect() {
+
+	log(inspect(this));//just a shorter name for util.inspect()
+}
+
+
 
 
 

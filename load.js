@@ -24,7 +24,7 @@ var worldMap = {
 	list_test:    ["hide", "list", "data", "state", "measure", "text"],
 	state_test:   ["hide",         "data", "state", "measure", "text"],
 	measure_test: [                "data", "state", "measure", "text"],
-	text_test:    [                "data",          "measure", "text"],
+	text_test:    ["disk",         "data", "state", "measure", "text"],
 
 	// Base
 

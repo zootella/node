@@ -37,6 +37,18 @@ exports.testToss = function(test) {
 	test.done();
 }
 
+if (demo("toss")) { demoToss(); }
+function demoToss() {
+	try {
+
+		pathCheck(Path("C:\\name"), Path("C:\\name2"));//tosses because name2 is longer, and starts with name, but doesn't have a slash to actually be inside
+
+	} catch (e) { log(e); }//see how much you get just from logging e, like name, note, watch, from, and stack
+}
+//TODO have toss inject e.text() to show name, note, watch, from, and stack
+
+
+
 
 
 
