@@ -248,6 +248,8 @@ exports.testPathSummary = function(test) {
 
 	if (platform() == "windows") {
 
+		//TODO
+
 	} else {
 
 	}
@@ -1153,6 +1155,8 @@ exports.testPathAdd = function(test) {
 		//attack
 		b("/downloads", "../autoexec.bat");//directory traversal attack thwarted
 
+
+//TODO some of these work because backslash is valid, predict which and bring them in that way
 /*
 		//navigation
 		b("/folder", "../file.ext");//variations
@@ -1207,7 +1211,48 @@ exports.testPathSubtract = function(test) {
 	done(test);
 }
 
+
+
+
+
+//move to path.js and path_test.js, so you can start file and just focus on that
+
+//now, when you are familiar with all the tests, is a great time to melt disk_test1 and 2
+//just look thorugh and keep a section where potentially new paths might be, then either turn those into a test, or just delete them
+
+
+//test paths like              C:\name            \\cptr\shr\name    /name
+var                            testDrive,         testShare,         testSlash;
+if (platform() == "windows") { testDrive = true;  testShare = true;  testSlash = false; }//on windows
+else                         { testDrive = false; testShare = false; testSlash = true;  }//on mac and linux
+
+
+if (testDrive) {
+
+}
+
+if (testShare) {
+
+}
+
+if (testSlash) {
+
+}
+
+
+
+
+
+//TODO show how check is strict about case, even on windows
+//this is fine because you keep the paths separate in settings, add them together, then check them
+//so if there is a case mismatch, it indictes something fishy
+//and on unix, it's a different folder, so it really matters
+
 //when testing subtract, give it on that cuts right in the middle of the folder name
+
+
+
+//after doing the detailed test subtract, go up and do the summary subtract at the top
 
 
 
