@@ -35,15 +35,16 @@ var worldMap = {
 	net: [], // Communicate to distant peers with packets and sockets
 	//TODO list more upcoming modules here, look at the old code to plan this out
 
-	hide: ["data", "measure"],  // Encrypt, decrypt, and sign data
 
 	disk:  ["measure", "text"], // Look at and change the files and folders on the disk
 	path:  ["measure", "text"], // Parse file system paths
+	environment: ["path"],            // Get information about the computer we're running on
+
+	hide: ["data", "measure"],  // Encrypt, decrypt, and sign data
 	data:  ["measure", "text"], // Search, encode, and manipulate binary data
 	list:  ["measure", "text"], // Organize objects into lists and dictionaries
 	state: ["measure", "text"], // Notice something has changed, and remember to close everything
 
-	environment: [],            // Get information about the computer we're running on
 
 	measure: ["text"],          // Measure and communicate time, distance, and speed
 	text: []                    // Search, convert, and adjust text

@@ -14,239 +14,6 @@ require("./load").load("disk", function() { return this; });
 
 
 
-//   _____            _                                      _   
-//  | ____|_ ____   _(_)_ __ ___  _ __  _ __ ___   ___ _ __ | |_ 
-//  |  _| | '_ \ \ / / | '__/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __|
-//  | |___| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ 
-//  |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
-//                                                               
-
-// The operating system platform we're running on, "windows", "mac", or "unix"
-function platform() {
-	var s = process.platform; // "darwin", "freebsd", "linux", "sunos" or "win32"
-	if      (s == "darwin")   return "mac";     // Darwin contains win, irony
-	else if (s.starts("win")) return "windows"; // Works in case s is "win64"
-	else                      return "unix";
-}
-
-// The path to the present working directory our process was started with
-function working() {
-	try {
-		return Path(process.cwd());
-	} catch (e) { toss("platform", {caught:e}); } // Not a data exception because the platform should have been able to give us text that we can correctly parse into a Path object
-}
-
-exports.platform = platform;
-exports.working = working;
-
-//TODO wrap and demo other environment querying platform functions
-//both from node and node webkit, which has some of it's own, you think
-//here's also where you could profile memory and other performance stats of the platform your js is running on
-
-
-
-
-
-
-
-
-
-//   ____       _   _     
-//  |  _ \ __ _| |_| |__  
-//  | |_) / _` | __| '_ \ 
-//  |  __/ (_| | |_| | | |
-//  |_|   \__,_|\__|_| |_|
-//                        
-
-// An absolute file system path that looks right for the kind of computer we're running on
-// Give this an absolute path and it will confirm that it looks right, give it a relative path, and it will throw data
-// Calling this doesn't use the disk
-function Path(s) {
-
-	// Resolve to make sure it's absolute
-	checkType(s, "string");  // Make sure s is a string
-	var r = _pathPrepare(s); // Have only system, drive and share roots end with a slash
-	var p = _pathResolve(r); // Resolve to an absolute path
-	if (p != r) toss("data", {note:"resolve changed path", watch:{s:s, r:r, p:p}}); // If the path changed, it was a relative path
-
-	// Platform type
-	var o = {}; // The object we will fill, freeze, and return
-	if      (p.starts("\\\\")) o.platform = "network"; // Like \\computer\share\folder
-	else if (p.starts("/"))    o.platform = "unix";    // Like /folder
-	else if (p.get(1) == ":")  o.platform = "windows"; // Like C:\folder
-	else toss("data", {note:"can't determine platform", watch:{p:p}});
-
-	// Containing folders
-	o.step = [o]; // An array of paths starting with this one, then the containing folders, ending with the root
-	var i = p; // Start here
-	while (true) {
-		var j = _pathFolder(i); // j is the path one step higher than i
-		if (j == i) { // We reached the root
-			break;
-		} else if (j.length < i.length && i.starts(j)) { // Shorter and starting, j is the folder above
-			o.step.add(Path(j)); // Parse and save it in the step array
-			i = j; // Move up and loop again to get the next higher containing folder or root
-		} else { // If j isn't the same as i, make sure it's shorter and matches the start
-			toss("data", {note:"step", watch:{p:p, i:i, j:j}});
-		}
-	}
-	o.up = null; // The path above this one, null if this is the root
-	if (o.step.length > 1) o.up = o.step[1];
-	o.root = o.step[o.step.length - 1]; // The path to the drive or share root above us, a link to this one if this is the root
-
-	// File name parts
-	o.name_ext = _pathNameDotExt(p), // "file.ext"
-	o.name = _pathName(p),           // "file"
-	o._ext = _pathDotExt(p),         // ".ext"
-	o.ext = _pathExt(p),             // "ext"
-
-	// Finished object
-	o.text = function() { return p; }, // The entire absolute path
-	o.type = function() { return "Path"; }
-	Object.freeze(o.step);
-	Object.freeze(o);
-	return o;
-}
-
-function _pathPrepare(s) {
-
-	if (s.length > 2 && (s.ends(_pathSeparator()))) s = s.chop(1); // Remove one trailing slash
-
-	if (s.first().isLetter() && s.get(1) == ":") { // Windows disk path, like "C:\folder"
-		s = s.first().upper() + s.beyond(1); // Uppercase the drive letter for appearance
-		if (s.length == 2) s += "\\"; // Trailing slash required and only on drive root
-	}
-
-	if (s.starts("\\\\")) { // Windows network share path, like "\\computer\share\folder"
-		var c = s.beyond(2).cut("\\"); // Cut like "computer" and "share\folder"
-		if (!c.after.has("\\")) s += "\\"; // Trailing slash required and only on share root
-	}
-
-	return s;
-}
-function _pathSeparator()   { return platformPath.sep; }
-function _pathResolve(s)    { return platformPath.resolve(s); }
-function _pathFolder(s)     { return platformPath.dirname(s); }
-function _pathNameDotExt(s) { return platformPath.basename(s); }
-function _pathName(s)       { return platformPath.basename(s, _pathDotExt(s)); }
-function _pathDotExt(s)     { return platformPath.extname(s); }
-function _pathExt(s) {
-	var t = _pathDotExt(s);
-	if (t.starts(".")) t = t.beyond(1);
-	return t;
-}
-
-exports.Path = Path;
-exports._pathSeparator = _pathSeparator; // Exported for testing
-exports._pathPrepare = _pathPrepare;
-exports._pathResolve = _pathResolve;
-exports._pathFolder = _pathFolder;
-exports._pathNameDotExt = _pathNameDotExt;
-exports._pathName = _pathName;
-exports._pathDotExt = _pathDotExt;
-exports._pathExt = _pathExt;
-
-
-
-
-
-
-
-
-//   ____       _   _       __  __       _   _     
-//  |  _ \ __ _| |_| |__   |  \/  | __ _| |_| |__  
-//  | |_) / _` | __| '_ \  | |\/| |/ _` | __| '_ \ 
-//  |  __/ (_| | |_| | | | | |  | | (_| | |_| | | |
-//  |_|   \__,_|\__|_| |_| |_|  |_|\__,_|\__|_| |_|
-//                                                 
-
-/*
-Parameter and variable names for path math functions:
-
-folder  C:\folder                     Absolute path to a folder
-file    C:\folder\subfolder\file.ext  Absolute path to something in that folder
-name              subfolder\file.ext  Relative path of the file in the folder
-
-Use the functions like this:
-
-file = pathAdd(folder, name);
-name = pathSubtract(folder, file);
-pathCheck(folder, file);              Make sure file is in folder, or throw data
-*/
-
-function pathAdd(folder, name) {
-	checkType(folder, "Path"); // Make sure folder is an absolute Path object
-	checkType(name, "string"); // The relative path name is just a string
-
-	var file1t = _pathResolveTo(folder.text(), name); // Method 1, use platform
-	var file2t = folder.text().onEnd(_pathSeparator()) + name; // Method 2, add strings
-
-	var file1p = Path(file1t); // Send both through Path
-	var file2p = Path(file2t);
-	var file1pt = file1p.text();
-	var file2pt = file2p.text();
-
-	if (!(file1t == file2t && file2t == file1pt && file1pt == file2pt)) toss("data", {note:"round trip", watch:{folder:folder, name:name}}); // Confirm all 4 are the same
-	pathCheck(folder, file1p); // Check after
-	return file1p;
-}
-
-function pathSubtract(folder, file) {
-	pathCheck(folder, file); // Check before
-
-	var name = file.text().beyond(folder.text().length + 1); // Beyond separator
-
-	var i = pathAdd(folder, name); // Confirm adding it back is the same
-	if (file.text() != i.text()) toss("data", {note:"round trip", watch:{folder:folder, file:file}});
-	return name;
-}
-
-function pathCheck(folder, file) {
-	checkType(folder, "Path");
-	checkType(file, "Path");
-
-	var o = folder.text();
-	var i = file.text();
-	if (!(o.length < i.length)) toss("data", {note:"short",  watch:{folder:folder, file:file}});
-	if (!i.starts(o))           toss("data", {note:"starts", watch:{folder:folder, file:file}});
-
-	var s = i.get(o.ends(_pathSeparator()) ? o.length - 1 : o.length); // Roots end with slash
-	if (s != _pathSeparator())  toss("data", {note:"slash",  watch:{folder:folder, file:file}});
-}
-
-function _pathResolveTo(from, to) { return platformPath.resolve(from, to); }
-
-exports.pathAdd = pathAdd;
-exports.pathSubtract = pathSubtract;
-exports.pathCheck = pathCheck;
-exports._pathResolveTo = _pathResolveTo; // Exported for testing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//this is a good place to bring in the list of illegal file names
-//move it out of text, for crying out loud
-//also note specific illegals, like com1
-
-
-
-
 
 
 
@@ -442,6 +209,45 @@ exports.pathLook = pathLook;
 
 
 
+
+
+//sources: if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
+//posix man pages
+//node docs
+//java chan
+//win32 backup.exe
+//win32 lwire.dll
+
+//in the api, but not used in this first pass
+//truncate a file without opening it
+//get and change permissions
+//deal with symbolic links
+//get and modify timestamps
+//fsync flush to disk
+//watch for changes on a file or directory
+
+//make sure you can deal with
+//unicode paths
+//avoid files already there
+//illegal characters on the filesystem you happen to be on
+//windows disk and network neighborhood paths
+//paths longer than max path characters
+//get present working directory
+//see what kind of paths you get in node webkit running from disk and a network share
+//node cant read or set the windows readonly attribute, does this prevent it from deleting a read only file, is there a solution other than a child process
+
+//does it work with really big files, larger than a dword
+//does it work with really long paths, longer than max path characters
+
+//maybe don't throw exceptions at all, maybe exceptions dont work well with async, just catch them and keep them and read them as values
+
+//bake util.inspect into log
+
+//don't make this more complicated than you need it to be--all you need to do is make sure that functions only get passed absolute paths, you don't have to naviagate or add or substract paths, or compare paths, or change capitalization, and if you did, node's path library is there to help
+//get node webkit going so you can run it from windows disk, windows share, and mac, and linux, and see what the current path looks like and portable paths, and see what kinds of paths you get from the file open dialog box
+//don't use realpath, the cache means its slow, just go right to the actual thing you want to do with the path, like open it or create it or see if it's available or list it
+
+//once path is done, that's where you could add in methods like up, down, so on, the path arithmatic offered by the node path module
 
 
 
