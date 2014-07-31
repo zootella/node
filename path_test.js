@@ -1251,37 +1251,22 @@ exports.testPathSubtract = function(test) {
 
 
 
-
-
-//move to path.js and path_test.js, so you can start file and just focus on that
-
-//now, when you are familiar with all the tests, is a great time to melt disk_test1 and 2
-//just look thorugh and keep a section where potentially new paths might be, then either turn those into a test, or just delete them
-
-
-
-
-//TODO show how check is strict about case, even on windows
+//show how check is strict about case, even on windows
 //this is fine because you keep the paths separate in settings, add them together, then check them
 //so if there is a case mismatch, it indictes something fishy
 //and on unix, it's a different folder, so it really matters
 
 //when testing subtract, give it on that cuts right in the middle of the folder name
 
-
+//folder: /folder/subfolder
+//file:   /folder/subfolder\file
+//make sure we can tell that file is *not* inside folder, just write a test for this
 
 //after doing the detailed test subtract, go up and do the summary subtract at the top
 
 
 
 
-//have one which is just the most straightforward directory traversal attack, thwarted
-//this is for pathAdd("C:\\downloads", "..\\autoexec.bat");
-
-
-//folder: /folder/subfolder
-//file:   /folder/subfolder\file
-//make sure we can tell that file is *not* inside folder, just write a test for this
 
 
 
@@ -1291,63 +1276,24 @@ exports.testPathSubtract = function(test) {
 
 
 
-//just go through disktest1 and disktest2, deleting covered stuff, looking for a kind of path that matters that isn't tested here yet
 
 
 
 
 
 
-//plan for illegal filenames
-//replace known shortlist of illegal characters with unicode lookalikes
-//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
-//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
 
 
 
 
-//actually, the next thing you need to do is check out node webkit
-//see what path you get for running from here when using the app as a usb portable
-//see what the file open dialog box is like, and what kind of path it gives you
-//and same stuff on mac and ubuntu
-//and run from network share on windows
-
-
-//TODO
-//have toss pull out the name of the function that called toss from the call stack
-//you don't really need the whole call stack, line numbers, all that, just the name of the function is enough
-//this would be e.from == "pathCheck" for instance
-
-//also, toss needs to loop through watch and call say on each of those
-//otherwise your debug log will just say [Function] rather than useful text
-
-//add your own inspect
-/*
-var platformUtility = require("util");
-var inspect = platformUtility.inspect;
-*/
 
 
 
 
-//deemed not good
-/*
-//test paths like              C:\name            \\cptr\shr\name    /name
-var                            testDrive,         testShare,         testSlash;
-if (platform() == "windows") { testDrive = true;  testShare = true;  testSlash = false; }//on windows
-else                         { testDrive = false; testShare = false; testSlash = true;  }//on mac and linux
 
-if (testDrive) {
 
-}
 
-if (testShare) {
 
-}
 
-if (testSlash) {
-
-}
-*/
 
 

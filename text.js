@@ -63,6 +63,13 @@ exports.toss = toss;
 //right now you just get [Object object]
 //and you coudl use inspect, but that creates a big mess and still has [Function function] instead of calling text()
 
+//have toss pull out the name of the function that called toss from the call stack
+//you don't really need the whole call stack, line numbers, all that, just the name of the function is enough
+//this would be e.from == "pathCheck" for instance
+
+//also, toss needs to loop through watch and call say on each of those
+//otherwise your debug log will just say [Function] rather than useful text
+
 
 
 
@@ -843,6 +850,9 @@ function _say(o) {
 	else                               return o + "";       // Last resort, add to blank
 }
 
+//TODO if o.text is a string, return that before calling the function
+//what if small immutable objects had .text instead of .text(), and say knew to look for both
+
 // Use this line separator when composing text
 var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows
 
@@ -948,25 +958,8 @@ function decode(s) {
 	}
 }
 
-// Replace characters not allowed in Windows file names with acceptable ones
-function safeFileName(s) {
-	s = s.swap("\"", "”"); // Pick Unicode characters that look similar
-	s = s.swap("\\", "﹨");
-	s = s.swap("/",  "⁄");
-	s = s.swap(":",  "։");
-	s = s.swap("*",  "﹡");
-	s = s.swap("?",  "﹖");
-	s = s.swap("<",  "‹");
-	s = s.swap(">",  "›");
-	s = s.swap("|",  "।");
-	return s;
-}
-//TODO move this into disk, and make it much better, considering additional illegal charcters, replacing illegal characters, and acting differently on different platforms
-//also the idea of sensing illegal characters and keeping a list that lasts an hour
-
 augment(encode, "encode");
 augment(decode, "decode");
-exports.safeFileName = safeFileName;
 
 
 

@@ -29,7 +29,10 @@ function demoWorking() {
 
 //TODO try these on every platform, including:
 //command lines: desktop windows git, windows dos, desktop mac, desktop ubuntu, linode debian or whatever
-//node webkit windows: desktop windows, mac, ubuntu
+//node webkit windows: desktop windows drive, desktop windows network share, desktop mac, desktop ubuntu
+
+//get node webkit going so you can run it from windows disk, windows share, and mac, and linux
+//see what paths look like from the file open and choose folder dialog boxes
 
 
 

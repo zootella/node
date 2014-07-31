@@ -28,6 +28,16 @@ require("./load").load("disk", function() { return this; });
 //here's where you do the resolve that has next and looks at the disk actually
 
 
+//don't use realpath
+//the cache means its slow
+//rather, just go right to the actual thing you want to do with the path, like open it or create it
+//then, query the object node gives you back to see what the path became
+//and if it changed at all, or in a bad way, close and throw
+
+//have a demo that follows a symlink and detects it this way
+//your demo probably can't make the symlink, so have a comment with instructions about how to do that
+
+
 
 
 
@@ -192,7 +202,7 @@ exports.pathLook = pathLook;
 
 
 
-//before tasks, you're going to have to get streams going in here
+//before tasks, you're going to have to get streams going in here, which is great
 
 
 //   _____         _    
@@ -206,6 +216,31 @@ exports.pathLook = pathLook;
 
 
 
+
+//sources: if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
+//posix man pages
+//node docs
+//java chan
+//win32 backup.exe
+//win32 lwire.dll
+
+//in the api, but not used in this first pass
+//truncate a file without opening it
+//get and change permissions
+//deal with symbolic links
+//get and modify timestamps
+//fsync flush to disk
+//watch for changes on a file or directory
+
+
+
+
+//write tests to show you can deal with:
+//unicode paths with non english characters
+//really big files, larger than a dword
+//really long paths, longer than max path characters, win32 has the unicode path that starts with a bunch of slashes
+//illegal characters on the filesystem you happen to be saving to, could be an ntfs disk mounted on a mac
+//node cant read or set the windows readonly attribute, does this prevent it from deleting a read only file, is there a solution other than a child process
 
 
 

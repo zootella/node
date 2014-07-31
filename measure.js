@@ -1190,7 +1190,7 @@ function Speed(window) {
 exports.Average = Average;
 exports.Speed = Speed;
 
-
+//TODO Average.say() should be Average.text()
 
 
 

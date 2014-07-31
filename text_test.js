@@ -1290,14 +1290,6 @@ exports.testEncodeDecode = function(test) {
 	test.done();
 }
 
-exports.testSafeFileName = function(test) {
-
-	test.ok(safeFileName("normal") == "normal");
-	test.ok(safeFileName('"\\/:*?<>|') == '”﹨⁄։﹡﹖‹›।');
-
-	test.done();
-}
-
 
 
 

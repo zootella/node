@@ -199,70 +199,47 @@ exports._pathResolveTo = _pathResolveTo; // Exported for testing
 
 
 
+// Replace characters not allowed in Windows file names with acceptable ones
+function safeFileName(s) {
+	s = s.swap("\"", "”"); // Pick Unicode characters that look similar
+	s = s.swap("\\", "﹨");
+	s = s.swap("/",  "⁄");
+	s = s.swap(":",  "։");
+	s = s.swap("*",  "﹡");
+	s = s.swap("?",  "﹖");
+	s = s.swap("<",  "‹");
+	s = s.swap(">",  "›");
+	s = s.swap("|",  "।");
+	return s;
+}
 
-//sources: if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
-//posix man pages
-//node docs
-//java chan
-//win32 backup.exe
-//win32 lwire.dll
+exports.safeFileName = safeFileName;
 
-//in the api, but not used in this first pass
-//truncate a file without opening it
-//get and change permissions
-//deal with symbolic links
-//get and modify timestamps
-//fsync flush to disk
-//watch for changes on a file or directory
+/*
+exports.testSafeFileName = function(test) {
 
-//make sure you can deal with
-//unicode paths
-//avoid files already there
-//illegal characters on the filesystem you happen to be on
-//windows disk and network neighborhood paths
-//paths longer than max path characters
-//get present working directory
-//see what kind of paths you get in node webkit running from disk and a network share
-//node cant read or set the windows readonly attribute, does this prevent it from deleting a read only file, is there a solution other than a child process
+	test.ok(safeFileName("normal") == "normal");
+	test.ok(safeFileName('"\\/:*?<>|') == '”﹨⁄։﹡﹖‹›।');
 
-//does it work with really big files, larger than a dword
-//does it work with really long paths, longer than max path characters
+	test.done();
+}
+*/
 
-//maybe don't throw exceptions at all, maybe exceptions dont work well with async, just catch them and keep them and read them as values
+//TODO
+//considering additional illegal charcters, replacing illegal characters, and acting differently on different platforms and file systems
+//also the idea of sensing illegal characters and keeping a list that lasts an hour
+//also note specific illegals, like com1, from online documentation
 
-//bake util.inspect into log
+//plan for illegal filenames
+//replace known shortlist of illegal characters with unicode lookalikes
+//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
+//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
 
-//don't make this more complicated than you need it to be--all you need to do is make sure that functions only get passed absolute paths, you don't have to naviagate or add or substract paths, or compare paths, or change capitalization, and if you did, node's path library is there to help
-//get node webkit going so you can run it from windows disk, windows share, and mac, and linux, and see what the current path looks like and portable paths, and see what kinds of paths you get from the file open dialog box
-//don't use realpath, the cache means its slow, just go right to the actual thing you want to do with the path, like open it or create it or see if it's available or list it
+//alongside this
+//write code to avoid a file already there with (2)
+//just composes a new path with the (2) on it, or (3) and so on
 
-//once path is done, that's where you could add in methods like up, down, so on, the path arithmatic offered by the node path module
-
-
-
-
-
-
-
-//what if small immutable objects had .text instead of .text(), and say knew to look for both
-
-
-
-
-
-
-//path.dirname
-//path.basename
-
-
-//p.drive()
-
-//p.up(), or returns null
-//p.nameExt()
-//p.name()
-//p.ext()
-
-//should you have up, or should you return an array of folders, or an array of paths up to the drive
+//not sure what you call this section, something like path stupidness, file name
 
 
 
@@ -271,25 +248,6 @@ exports._pathResolveTo = _pathResolveTo; // Exported for testing
 
 
 
-
-
-//notice how it returns the same thing when you give it a drive root
-//you could use that to parse out teh drive root, if you wanted
-
-
-
-
-
-
-
-
-
-
-
-
-//this is a good place to bring in the list of illegal file names
-//move it out of text, for crying out loud
-//also note specific illegals, like com1
 
 
 
