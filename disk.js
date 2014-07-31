@@ -9,6 +9,10 @@ require("./load").load("disk", function() { return this; });
 
 
 
+//TODO break out environment.js, path.js, disk.js
+
+
+
 
 
 //   _____            _                                      _   
@@ -35,6 +39,12 @@ function working() {
 
 exports.platform = platform;
 exports.working = working;
+
+//TODO wrap and demo other environment querying platform functions
+//both from node and node webkit, which has some of it's own, you think
+//here's also where you could profile memory and other performance stats of the platform your js is running on
+
+
 
 
 
@@ -231,7 +241,9 @@ exports._pathResolveTo = _pathResolveTo; // Exported for testing
 
 
 
-
+//this is a good place to bring in the list of illegal file names
+//move it out of text, for crying out loud
+//also note specific illegals, like com1
 
 
 

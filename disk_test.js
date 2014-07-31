@@ -10,6 +10,34 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
+//   _____            _                                      _   
+//  | ____|_ ____   _(_)_ __ ___  _ __  _ __ ___   ___ _ __ | |_ 
+//  |  _| | '_ \ \ / / | '__/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __|
+//  | |___| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ 
+//  |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
+//                                                               
+
+if (demo("platform")) { demoPlatform(); }
+function demoPlatform() {
+
+	log("process.platform  ", process.platform);
+	log("platform()        ", platform());
+}
+
+if (demo("working")) { demoWorking(); }
+function demoWorking() {
+
+	log("process.cwd()  ", process.cwd());
+	log("working()      ", working());//working() returns a Path that log calls text() on
+}
+
+//TODO try these on every platform, including:
+//command lines: desktop windows git, windows dos, desktop mac, desktop ubuntu, linode debian or whatever
+//node webkit windows: desktop windows, mac, ubuntu
+
+
+
+
 
 
 
@@ -367,12 +395,19 @@ exports.testPathResolve = function(test) {
 		l(78, "/");//same as with backslash
 		l(79, "/name");
 		l(80, "name/");
-		t(81, "C:\\folder\\\\file.ext", "C:\\folder\\file.ext");//both of these get corrected
-		t(82, "C:\\folder/file.ext",    "C:\\folder\\file.ext");
+
+		note("flip");
+		t(81, "C:\\a\\b",         "C:\\a\\b");//backslash is correct
+		t(82, "C:\\a\\\\b",       "C:\\a\\b");//resolve corrects double backslash
+		t(83, "C:\\a/b",          "C:\\a\\b");//on windows, resolve flips forward slash backwards
+		t(84, "C:\\a//b",         "C:\\a\\b");//resolve corrects all of these as well
+		t(85, "C:\\a//\\b",       "C:\\a\\b");
+		t(86, "C:\\a\\//b",       "C:\\a\\b");
+		t(87, "C:\\a\\/\\\\///b", "C:\\a\\b");
 
 		note("case");
-		t(81, "c:\\Folder", "c:\\Folder");//drive letter case stays the same
-		t(82, "C:\\Folder", "C:\\Folder");
+		t(91, "c:\\Folder", "c:\\Folder");//drive letter case stays the same
+		t(92, "C:\\Folder", "C:\\Folder");
 
 	} else {//test running on mac and unix
 
@@ -428,6 +463,15 @@ exports.testPathResolve = function(test) {
 		l(76, "name/");//name in pwd, but trailing slash removed
 		t(77, "/folder//file.ext", "/folder/file.ext");//double forward slash corrected
 		t(78, "/folder\\file.ext", "/folder\\file.ext");//backslash remains in file name
+
+		note("flip");
+		t(81, "/a/b",          "/a/b");//forward slash is correct
+		t(82, "/a\\b",         "/a\\b");//backslash can be in a filename
+		t(83, "/a//b",         "/a/b");//resolve corrects double slash
+		t(84, "/a//b",         "/a/b");//multiple forward slashes become a single forward slash
+		t(85, "/a//\\b",       "/a/\\b");
+		t(86, "/a\\//b",       "/a\\/b");
+		t(87, "/a\\/\\\\///b", "/a\\/\\\\/b");
 	}
 
 	done(test);
@@ -561,6 +605,37 @@ exports.testPathPrepare = function(test) {
 
 	function l(s) { log("'", _pathPrepare(s), "'"); }//log the result
 	function t(s, r) { test.ok(_pathPrepare(s) == r); }//test the result
+
+	/*
+	_pathPrepare() gets text ready before handing it to the platform's resolve
+	uppercase drive letters, just for show
+	remove a single trailing slash
+	put a trailing slash on the root of the unix filesystem, a windows drive, and a network share, only
+
+	before                              after
+
+	c:                                  C:\
+	c:\                                 C:\
+	c:\folder                           C:\folder
+	c:\folder\                          C:\folder
+	c:\folder\subfolder                 C:\folder\subfolder
+	c:\folder\subfolder\                C:\folder\subfolder
+
+	\\computer\share                    \\computer\share\
+	\\computer\share\                   \\computer\share\
+	\\computer\share\folder             \\computer\share\folder
+	\\computer\share\folder\            \\computer\share\folder
+	\\computer\share\folder\subfolder   \\computer\share\folder\subfolder
+	\\computer\share\folder\subfolder\  \\computer\share\folder\subfolder
+
+	/                                   /
+	/folder                             /folder
+	/folder/                            /folder
+	/folder/subfolder                   /folder/subfolder
+	/folder/subfolder/                  /folder/subfolder
+
+	this way, the platform's resolve(), which removes trailing slashes from non drive root paths, will only change the path when it makes a relative path absolute, which we notice and guard against
+	*/
 
 	if (platform() == "windows") {
 
@@ -1221,26 +1296,6 @@ exports.testPathSubtract = function(test) {
 //just look thorugh and keep a section where potentially new paths might be, then either turn those into a test, or just delete them
 
 
-//test paths like              C:\name            \\cptr\shr\name    /name
-var                            testDrive,         testShare,         testSlash;
-if (platform() == "windows") { testDrive = true;  testShare = true;  testSlash = false; }//on windows
-else                         { testDrive = false; testShare = false; testSlash = true;  }//on mac and linux
-
-
-if (testDrive) {
-
-}
-
-if (testShare) {
-
-}
-
-if (testSlash) {
-
-}
-
-
-
 
 
 //TODO show how check is strict about case, even on windows
@@ -1311,6 +1366,26 @@ var inspect = platformUtility.inspect;
 
 
 
+
+//deemed not good
+/*
+//test paths like              C:\name            \\cptr\shr\name    /name
+var                            testDrive,         testShare,         testSlash;
+if (platform() == "windows") { testDrive = true;  testShare = true;  testSlash = false; }//on windows
+else                         { testDrive = false; testShare = false; testSlash = true;  }//on mac and linux
+
+if (testDrive) {
+
+}
+
+if (testShare) {
+
+}
+
+if (testSlash) {
+
+}
+*/
 
 
 
