@@ -18,8 +18,12 @@ var worldMap = {
 
 	// Tests and small demos
 
+	disk_test:        ["disk", "path", "environment", "data", "state", "measure", "text"],
+	path_test:        ["disk", "path", "environment", "data", "state", "measure", "text"],
+	environment_test: ["disk", "path", "environment", "data", "state", "measure", "text"],
+
+
 	hide_test:    ["hide",                 "state", "measure", "text"],
-	disk_test:    ["disk",         "data", "state", "measure", "text"],
 	data_test:    ["hide",         "data",          "measure", "text"],
 	list_test:    ["hide", "list", "data", "state", "measure", "text"],
 	state_test:   ["hide",         "data", "state", "measure", "text"],
@@ -34,9 +38,12 @@ var worldMap = {
 	hide: ["data", "measure"],  // Encrypt, decrypt, and sign data
 
 	disk:  ["measure", "text"], // Look at and change the files and folders on the disk
+	path:  ["measure", "text"], // Parse file system paths
 	data:  ["measure", "text"], // Search, encode, and manipulate binary data
 	list:  ["measure", "text"], // Organize objects into lists and dictionaries
 	state: ["measure", "text"], // Notice something has changed, and remember to close everything
+
+	environment: [],            // Get information about the computer we're running on
 
 	measure: ["text"],          // Measure and communicate time, distance, and speed
 	text: []                    // Search, convert, and adjust text

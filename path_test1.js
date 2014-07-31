@@ -1,6 +1,5 @@
 
-
-require("./load").load("disk_test", function() { return this; });
+require("./load").load("path_test", function() { return this; });
 
 
 //sources: if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete

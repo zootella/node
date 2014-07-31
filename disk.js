@@ -9,7 +9,6 @@ require("./load").load("disk", function() { return this; });
 
 
 
-//TODO break out environment.js, path.js, disk.js
 
 
 

@@ -1,5 +1,5 @@
 
-require("./load").load("disk_test", function() { return this; });
+require("./load").load("path_test", function() { return this; });
 
 
 if (demo("snippet")) { demoSnippet(); }
