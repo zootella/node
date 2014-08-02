@@ -250,6 +250,13 @@ exports.pathLook = pathLook;
 
 
 
+//plan for illegal filenames
+//replace known shortlist of illegal characters with unicode lookalikes
+//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
+//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
+
+
+
 
 
 

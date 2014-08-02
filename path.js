@@ -12,9 +12,6 @@ require("./load").load("path", function() { return this; });
 
 
 
-
-
-
 //   ____       _   _     
 //  |  _ \ __ _| |_| |__  
 //  | |_) / _` | __| '_ \ 
@@ -64,9 +61,10 @@ function Path(s) {
 	o._ext = _pathDotExt(p),         // ".ext"
 	o.ext = _pathExt(p),             // "ext"
 
-	// Math methods
+	// Methods
 	o.add      = function(name)   { return pathAdd(o, name);        } // "C:\a".add("b") == "C:\a\b"
 	o.subtract = function(folder) { return pathSubtract(folder, o); } // "C:\a\b".subtract("C:\a") == "b"
+	o.number   = function(n)      { return pathNumber(o, n);        } // "C:\folder\file (2).ext"
 
 	// Finished object
 	o.text = function() { return p; }, // The entire absolute path
@@ -197,67 +195,47 @@ exports._pathResolveTo = _pathResolveTo; // Exported for testing
 
 
 
+//   _____ _ _        _   _                      
+//  |  ___(_) | ___  | \ | | __ _ _ __ ___   ___ 
+//  | |_  | | |/ _ \ |  \| |/ _` | '_ ` _ \ / _ \
+//  |  _| | | |  __/ | |\  | (_| | | | | | |  __/
+//  |_|   |_|_|\___| |_| \_|\__,_|_| |_| |_|\___|
+//                                               
 
+// Replace characters not allowed in file names with acceptable ones
+function replaceReservedCharacters(s, p) {
+	if (!p) p = platform(); // If the caller didn't choose a platform, use the one we're running on
 
+	if (p == "windows") { // Make the filename safe for Windows
 
+		s = s.swap("<",  "‹"); // Pick Unicode characters that look similar
+		s = s.swap(">",  "›");
+		s = s.swap(":",  "։");
+		s = s.swap("\"", "”");
+		s = s.swap("/",  "⁄");
+		s = s.swap("\\", "﹨");
+		s = s.swap("|",  "।");
+		s = s.swap("?",  "﹖");
+		s = s.swap("*",  "﹡");
 
+	} else if (p == "mac") { // Make the filename safe for mac
 
+		s = s.swap(":",  "։"); // Only the colon is not allowed
 
-// Replace characters not allowed in Windows file names with acceptable ones
-function safeFileName(s) {
-	s = s.swap("\"", "”"); // Pick Unicode characters that look similar
-	s = s.swap("\\", "﹨");
-	s = s.swap("/",  "⁄");
-	s = s.swap(":",  "։");
-	s = s.swap("*",  "﹡");
-	s = s.swap("?",  "﹖");
-	s = s.swap("<",  "‹");
-	s = s.swap(">",  "›");
-	s = s.swap("|",  "।");
+	} // Unix allows everything in a filename, so don't change it
+
 	return s;
 }
 
-exports.safeFileName = safeFileName;
-
-/*
-exports.testSafeFileName = function(test) {
-
-	test.ok(safeFileName("normal") == "normal");
-	test.ok(safeFileName('"\\/:*?<>|') == '”﹨⁄։﹡﹖‹›।');
-
-	test.done();
+// Add a number to a path like "C:\folder\file (2).ext" to avoid a file already there
+function pathNumber(path, n) {
+	check(n, 1); // Must be 1 or more
+	if (n == 1) return path; // No number 1, just the path
+	return path.up.add("# (#)#".fill(path.name, n, path._ext)); // Compose the new path
 }
-*/
 
-//TODO
-//considering additional illegal charcters, replacing illegal characters, and acting differently on different platforms and file systems
-//also the idea of sensing illegal characters and keeping a list that lasts an hour
-//also note specific illegals, like com1, from online documentation
-
-//plan for illegal filenames
-//replace known shortlist of illegal characters with unicode lookalikes
-//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
-//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
-
-//alongside this
-//write code to avoid a file already there with (2)
-//just composes a new path with the (2) on it, or (3) and so on
-
-//not sure what you call this section, something like path stupidness, file name
-
-
-
-
-
-
-
-//have path.isRoot true or false
-//have path.add(name) as a link to addPath(), returns the new path so you can keep chaining that way
-
-
-
-
-
+exports.replaceReservedCharacters = replaceReservedCharacters;
+exports.pathNumber = pathNumber;
 
 
 

@@ -1387,6 +1387,67 @@ exports.testPathSubtract = function(test) {
 
 
 
+//   _____ _ _        _   _                      
+//  |  ___(_) | ___  | \ | | __ _ _ __ ___   ___ 
+//  | |_  | | |/ _ \ |  \| |/ _` | '_ ` _ \ / _ \
+//  |  _| | | |  __/ | |\  | (_| | | | | | |  __/
+//  |_|   |_|_|\___| |_| \_|\__,_|_| |_| |_|\___|
+//                                               
+
+exports.testReplaceReservedCharacters = function(test) {
+
+	test.ok(replaceReservedCharacters("file.ext",   "windows") == "file.ext");
+	test.ok(replaceReservedCharacters('"\\/:*?<>|', "windows") == '”﹨⁄։﹡﹖‹›।');
+
+	test.ok(replaceReservedCharacters("file.ext",   "mac") == "file.ext");
+	test.ok(replaceReservedCharacters('"\\/:*?<>|', "mac") == '"\\/։*?<>|');//just the colon changes
+
+	test.ok(replaceReservedCharacters("file.ext",   "unix") == "file.ext");
+	test.ok(replaceReservedCharacters('"\\/:*?<>|', "unix") == '"\\/:*?<>|');//nothing changes
+
+	done(test);
+}
+
+exports.testPathNumber = function(test) {
+
+	if (platform() == "windows") {
+
+		//drive
+		test.ok(pathNumber(Path("C:\\folder\\file.ext"), 2).text() == "C:\\folder\\file (2).ext");
+		test.ok(pathNumber(Path("C:\\folder\\.hidden"), 2).text()  == "C:\\folder\\.hidden (2)");
+		test.ok(pathNumber(Path("C:\\folder\\file"), 2).text()     == "C:\\folder\\file (2)");
+
+		//share
+		test.ok(pathNumber(Path("\\\\c\\s\\folder\\file.ext"), 2).text() == "\\\\c\\s\\folder\\file (2).ext");
+		test.ok(pathNumber(Path("\\\\c\\s\\folder\\.hidden"), 2).text()  == "\\\\c\\s\\folder\\.hidden (2)");
+		test.ok(pathNumber(Path("\\\\c\\s\\folder\\file"), 2).text()     == "\\\\c\\s\\folder\\file (2)");
+
+		//method
+		var p = Path("C:\\folder\\file.ext");
+		test.ok(p.number(1).text() == "C:\\folder\\file.ext");
+		test.ok(p.number(2).text() == "C:\\folder\\file (2).ext");
+		test.ok(p.number(3).text() == "C:\\folder\\file (3).ext");
+		test.ok(p.number(4).text() == "C:\\folder\\file (4).ext");
+		test.ok(p.number(567).text() == "C:\\folder\\file (567).ext");
+
+	} else {
+
+		//unix
+		test.ok(pathNumber(Path("/folder/file.ext"), 2).text() == "/folder/file (2).ext");
+		test.ok(pathNumber(Path("/folder/.hidden"), 2).text()  == "/folder/.hidden (2)");
+		test.ok(pathNumber(Path("/folder/file"), 2).text()     == "/folder/file (2)");
+
+		//method
+		var p = Path("/folder/file.ext");
+		test.ok(p.number(1).text() == "/folder/file.ext");
+		test.ok(p.number(2).text() == "/folder/file (2).ext");
+		test.ok(p.number(3).text() == "/folder/file (3).ext");
+		test.ok(p.number(4).text() == "/folder/file (4).ext");
+		test.ok(p.number(567).text() == "/folder/file (567).ext");
+	}
+
+	done(test);
+}
 
 
 
