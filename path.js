@@ -69,8 +69,7 @@ function Path(s) {
 	// Finished object
 	o.text = function() { return p; }, // The entire absolute path
 	o.type = "Path";
-	freeze(o);
-	return o;
+	return freeze(o);
 }
 
 function _pathPrepare(s) {
