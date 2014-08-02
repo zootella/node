@@ -1122,7 +1122,7 @@ function Average() {
 	}
 
 	// Text that describes the current average, like "5.000", "Undefined" before we have any values
-	function say() {
+	function text() {
 		if (!_n) return "Undefined";
 		toss("todo"); //TODO return Describe.decimal(averageThousandths(), 3);
 	}
@@ -1132,7 +1132,7 @@ function Average() {
 		minimum:minimum, maximum:maximum, recent:recent,
 		add:add,
 		average:average, averageFloat:averageFloat, averageThousandths:averageThousandths, averageMultiply:averageMultiply,
-		say:say,
+		text:text,
 		type:"Average"
 	};
 }

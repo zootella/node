@@ -95,11 +95,6 @@ exports.toss = toss;
 
 
 
-//TODO for small immutable objects, have o.text and o.type be strings, not functions
-
-//what if small immutable objects had .text instead of .text(), and say knew to look for both
-//update say and checkType to be able to read this form
-//search freeze to change objects over to use this alternative method
 
 
 
