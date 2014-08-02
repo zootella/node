@@ -38,7 +38,7 @@ require("./load").load("text", function() { return this; });
 //  |_|  |_|  \___|\___/___\___|
 //                              
 
-var freezeImmutableObjects = true; // Offers more protection, but really slows things down
+var freezeImmutableObjects = true; // Guards against changing an immutable object, but slows things down
 function freezeOn() { return freezeImmutableObjects; } // True if we're freezing immutable objects
 function freeze(o) { return freezeOn() ? Object.freeze(o) : o; } // Freeze the given object if freezing is turned on
 
