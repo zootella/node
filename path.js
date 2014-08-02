@@ -65,8 +65,8 @@ function Path(s) {
 	o.ext = _pathExt(p),             // "ext"
 
 	// Math methods
-	o.add      = function(name) { return pathAdd(o, name); }
-	o.subtract = function(file) { return pathSubtract(o, file); }
+	o.add      = function(name)   { return pathAdd(o, name);        } // "C:\a".add("b") == "C:\a\b"
+	o.subtract = function(folder) { return pathSubtract(folder, o); } // "C:\a\b".subtract("C:\a") == "b"
 
 	// Finished object
 	o.text = function() { return p; }, // The entire absolute path

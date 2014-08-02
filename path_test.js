@@ -6,6 +6,8 @@ require("./load").load("path_test", function() { return this; });
 
 
 
+
+
 //   ____       _   _       ____                                             
 //  |  _ \ __ _| |_| |__   / ___| _   _ _ __ ___  _ __ ___   __ _ _ __ _   _ 
 //  | |_) / _` | __| '_ \  \___ \| | | | '_ ` _ \| '_ ` _ \ / _` | '__| | | |
@@ -200,6 +202,22 @@ exports.testPathSummary = function(test) {
 		test.ok(p.step[3].text() == "/");//and ending with the filesystem root
 	}
 
+	//math methods
+
+	if (platform() == "windows") {
+
+		test.ok(Path("C:\\a").add("b").text() == "C:\\a\\b");//add a file or folder name to the end of a path
+		test.ok(Path("C:\\a\\b").subtract(Path("C:\\a")) == "b");//subtract a shorter path from a longer one to get the relative path between them
+
+		test.ok(Path("\\\\c\\s\\a").add("b").text() == "\\\\c\\s\\a\\b");//also works for network paths
+		test.ok(Path("\\\\c\\s\\a\\b").subtract(Path("\\\\c\\s\\a")) == "b");
+
+	} else {
+
+		test.ok(Path("/a").add("b").text() == "/a/b");//and unix paths
+		test.ok(Path("/a/b").subtract(Path("/a")) == "b");
+	}
+
 	//add
 
 	if (platform() == "windows") {
@@ -239,10 +257,19 @@ exports.testPathSummary = function(test) {
 
 	if (platform() == "windows") {
 
-		//TODO
+		//drive
+		test.ok(pathSubtract(Path("C:\\"),     Path("C:\\file.ext"))             == "file.ext");
+		test.ok(pathSubtract(Path("C:\\a\\b"), Path("C:\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
+
+		//network
+		test.ok(pathSubtract(Path("\\\\c\\s\\"),     Path("\\\\c\\s\\file.ext"))             == "file.ext");
+		test.ok(pathSubtract(Path("\\\\c\\s\\a\\b"), Path("\\\\c\\s\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
 
 	} else {
 
+		//unix
+		test.ok(pathSubtract(Path("/"),    Path("/file.ext"))         == "file.ext");
+		test.ok(pathSubtract(Path("/a/b"), Path("/a/b/c/d/file.ext")) == "c/d/file.ext");
 	}
 
 	//check
@@ -278,6 +305,13 @@ exports.testPathSummary = function(test) {
 
 	done(test);
 }
+
+
+
+
+
+
+
 
 //   ____       _   _       ____  _       _    __                      
 //  |  _ \ __ _| |_| |__   |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___  
@@ -556,6 +590,13 @@ exports.testPathNameDotExt = function(test) {
 	done(test);
 }
 
+
+
+
+
+
+
+
 //   ____       _   _       ____                                
 //  |  _ \ __ _| |_| |__   |  _ \ _ __ ___ _ __   __ _ _ __ ___ 
 //  | |_) / _` | __| '_ \  | |_) | '__/ _ \ '_ \ / _` | '__/ _ \
@@ -646,6 +687,13 @@ exports.testPathPrepare = function(test) {
 
 	done(test);
 }
+
+
+
+
+
+
+
 
 //   ____       _   _     
 //  |  _ \ __ _| |_| |__  
@@ -986,8 +1034,6 @@ exports.testPathParts = function(test) {
 
 
 
-
-
 //   ____       _   _       __  __       _   _     
 //  |  _ \ __ _| |_| |__   |  \/  | __ _| |_| |__  
 //  | |_) / _` | __| '_ \  | |\/| |/ _` | __| '_ \ 
@@ -1169,6 +1215,8 @@ exports.testPathAdd = function(test) {
 	function g(folder, name, file) {
 		test.ok(file == pathAdd(Path(folder), name).text());
 		test.ok(name == pathSubtract(Path(folder), Path(file)));//also use these to test subtract
+		test.ok(Path(folder).add(name).text() == file);//also test using the methods on path
+		test.ok(Path(file).subtract(Path(folder)) == name);
 	}
 
 	if (platform() == "windows") {
@@ -1275,6 +1323,8 @@ exports.testPathSubtract = function(test) {
 	function g(folder, file, name) {
 		test.ok(name == pathSubtract(Path(folder), Path(file)));
 		test.ok(file == pathAdd(Path(folder), name).text());//also use these to test add
+		test.ok(Path(file).subtract(Path(folder)) == name);//also test using the methods on path
+		test.ok(Path(folder).add(name).text() == file);
 	}
 
 	if (platform() == "windows") {
@@ -1324,33 +1374,11 @@ exports.testPathSubtract = function(test) {
 		g("/y/z", "/y/z/b/a/file.ext", "b/a/file.ext");
 
 		//bad
-		g("/folder/subfolder", "/folder/subfolder\\file");//fails pathCheck
+		b("/folder/subfolder", "/folder/subfolder\\file");//fails pathCheck
 	}
 
 	done(test);
 }
-
-
-
-
-exports.testPathMathMethods = function(test) {
-
-
-	var p = Path("C:\\folder");
-	log(p.add("file.ext"));
-
-
-
-	done(test);
-}
-
-
-
-
-
-
-
-
 
 
 
