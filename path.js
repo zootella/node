@@ -158,7 +158,7 @@ function pathAdd(folder, name) {
 function pathSubtract(folder, file) {
 	pathCheck(folder, file); // Check before
 
-	var name = file.text().beyond(folder.text().length + 1); // Beyond separator
+	var name = file.text().beyond(folder.text().length + (folder.text().ends(_pathSeparator()) ? 0 : 1)); // Beyond separator
 
 	var i = pathAdd(folder, name); // Confirm adding it back is the same
 	if (file.text() != i.text()) toss("data", {note:"round trip", watch:{folder:folder, file:file}});
@@ -246,6 +246,9 @@ exports.testSafeFileName = function(test) {
 
 
 
+
+//have path.isRoot true or false
+//have path.add(name) as a link to addPath(), returns the new path so you can keep chaining that way
 
 
 

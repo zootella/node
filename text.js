@@ -52,7 +52,9 @@ exports.toss = toss;
 
 
 
-//TODO put a text() function in there
+//TODO make toss e.text()
+
+//put a text() function in there
 //have it call text() on info.wrap, and each item in info.watch
 //pull the name of the function that called toss out of stack, and have that as info.from
 //rename info e, that's what it's called in the code that uses toss
@@ -70,6 +72,13 @@ exports.toss = toss;
 //also, toss needs to loop through watch and call say on each of those
 //otherwise your debug log will just say [Function] rather than useful text
 
+
+
+//TODO for small immutable objects, have o.text and o.type be strings, not functions
+
+//what if small immutable objects had .text instead of .text(), and say knew to look for both
+//update say and checkType to be able to read this form
+//search freeze to change objects over to use this alternative method
 
 
 
@@ -849,9 +858,6 @@ function _say(o) {
 	else if (hasMethod(o, "toString")) return o.toString(); // Use toString() instead
 	else                               return o + "";       // Last resort, add to blank
 }
-
-//TODO if o.text is a string, return that before calling the function
-//what if small immutable objects had .text instead of .text(), and say knew to look for both
 
 // Use this line separator when composing text
 var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows

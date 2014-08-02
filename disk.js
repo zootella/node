@@ -243,6 +243,13 @@ exports.pathLook = pathLook;
 //node cant read or set the windows readonly attribute, does this prevent it from deleting a read only file, is there a solution other than a child process
 
 
+//things that might take a long time, and what to do about it
+//wake up a sleeping usb hard drive, try again if the first 4s didn't work out
+//write one byte several gigabytes out into a new file, read or write every 100mb or so so you can get progress on the way there to tell if its stuck and not autoquit at 4s
+//get a directory listing for a folder that has thousands of files, get the files in groups of several hundred so you can get progress incrementally rather than it taking more than 4s and a lot of memory to bring in the whole list at once
+
+
+
 
 
 

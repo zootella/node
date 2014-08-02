@@ -21,8 +21,24 @@
 //try twice then give up for good, have that be the default for a task
 
 
+//these are the rules for an asynchronous task
+//1 after 4 seconds, it cancels the task
+//2 it tries twice before giving up
+//you can query it whenever for statistics on how fast its going, or how long its been waiting
+//the code that does this is abstract and easily pluggable into anything
+
+
 //maybe don't throw exceptions at all, maybe exceptions dont work well with async
 //just catch them and keep them and read them as values
+
+
+
+
+
+
+
+
+
 
 
 

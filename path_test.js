@@ -1002,7 +1002,7 @@ exports.testPathResolveTo = function(test) {
 
 	if (platform() == "windows") {
 
-		//windows
+		//drive
 		t("C:\\folder",     "file.ext", "C:\\folder\\file.ext");//intended use
 		t("C:\\folder\\",   "file.ext", "C:\\folder\\file.ext");//allows trailing backslash
 		t("C:\\folder",   "\\file.ext", "C:\\file.ext");//on filename causes it to go up
@@ -1053,51 +1053,68 @@ exports.testPathCheck = function(test) {
 
 	if (platform() == "windows") {
 
-		//windows
+		//drive
 		g("C:\\folder1\\folder2", "C:\\folder1\\folder2\\file.ext");//good
 		b("C:\\folder1\\folder2", "C:\\folder1\\file.ext");//bad because neighboring
 		b("C:\\folder1\\folder2", "C:\\file.ext");//bad because above
 
+		//checks
 		b("C:\\folder",  "C:\\folder");//data short, invalid because file must be longer
 		b("C:\\folderA", "C:\\folderB\\file.ext");//data starts, invalid because file must start with folder
 		b("C:\\folder1", "C:\\folder1-file.ext");//data slash, invalid because after folder in file must be a slash
 
-		b("C:\\folder",  "C:\\folder\\");//not shorter, Path removes trailing slash
-		b("C:\\folder",  "C:\\folder2");//missing separating slash
+		//separator
+		b("C:\\folder", "C:\\folder\\");//not shorter, Path removes trailing slash
+		b("C:\\folder", "C:\\folder2");//missing separating slash
 
-		g("C:\\folder",  "C:\\folder\\file.ext");//correct slash
-		b("C:\\folder",  "C:\\folder/file.ext");//wrong slash, stopped by Path function
-
-		b("C:\\", "D:\\");//different drives
+		//slash
+		g("C:\\folder", "C:\\folder\\file.ext");//correct slash
+		b("C:\\folder", "C:\\folder/file.ext");//wrong slash, stopped by Path function
 
 		b("C:\\folder", "C:\\folder\\");
 		b("C:\\folder", "C:\\folder\\\\");
 		b("C:\\folder", "C:\\folder\\/");
 		g("C:\\folder", "C:\\folder\\a");
 
-		g("C:\\", "C:\\file.ext");//root
+		//root
+		g("C:\\", "C:\\file.ext");
+		b("C:\\", "D:\\");//different drives
+		b("C:\\", "D:\\file.ext");
+
+		//case
+		b("C:\\Folder", "C:\\folder\\file.ext");//actually the same folder on windows, but not ok on unix, where Folder and folder are two different folders side by side. pathCheck blocks on all platforms to be extra careful
+		g("c:\\Folder", "C:\\Folder\\file.ext");//ok because Path uppercases drive letters
 
 		//network
 		g("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\folder2\\file.ext");
 		b("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\folder1\\file.ext");
 		b("\\\\computer\\share\\folder1\\folder2", "\\\\computer\\share\\file.ext");
 
+		//checks
 		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder");
 		b("\\\\computer\\share\\folderA", "\\\\computer\\share\\folderB\\file.ext");
 		b("\\\\computer\\share\\folder1", "\\\\computer\\share\\folder1-file.ext");
 
-		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder\\");
-		b("\\\\computer\\share\\folder",  "\\\\computer\\share\\folder2");
+		//separator
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\");
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder2");
 
-		b("\\\\computer\\shareA", "\\\\computer\\shareB");//different shares
-		b("\\\\computer\\share",  "\\\\computer\\shareB");
+		//slash
+		g("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\file.ext");
+		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder/file.ext");
 
 		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\");
 		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\\\");
 		b("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\/");
 		g("\\\\computer\\share\\folder", "\\\\computer\\share\\folder\\a");
 
-		g("\\\\computer\\share\\", "\\\\computer\\share\\file.ext");//root
+		//root
+		g("\\\\computer\\shareC\\", "\\\\computer\\shareC\\file.ext");
+		b("\\\\computer\\shareC\\", "\\\\computer\\shareD\\");//different shares
+		b("\\\\computer\\shareC\\", "\\\\computer\\shareD\\file.ext");
+
+		//case
+		b("\\\\Computer\\Share", "\\\\computer\\share\\file.ext");
 
 	} else {
 
@@ -1106,13 +1123,16 @@ exports.testPathCheck = function(test) {
 		b("/folder1/folder2", "/folder1/file.ext");//bad because neighboring
 		b("/folder1/folder2", "/file.ext");//bad because above
 
+		//checks
 		b("/folder",  "/folder");//data short, invalid because file must be longer
 		b("/folderA", "/folderB/file.ext");//data starts, invalid because file must start with folder
 		b("/folder1", "/folder1-file.ext");//data slash, invalid because after folder in file must be a slash
 
-		b("/folder",  "/folder/");//not shorter, Path removes trailing slash
-		b("/folder",  "/folder2");//missing separating slash
+		//separator
+		b("/folder", "/folder/");//not shorter, Path removes trailing slash
+		b("/folder", "/folder2");//missing separating slash
 
+		//slash
 		g("/folder", "/folder/file.ext");//correct slash
 		b("/folder", "/folder\\file.ext");//wrong slash, file path is valid for mac, but stopped by pathCheck
 
@@ -1121,14 +1141,15 @@ exports.testPathCheck = function(test) {
 		g("/folder", "/folder/\\");//ok because a mac file can be named just backslash
 		g("/folder", "/folder/a");
 
-		g("/", "/file.ext");//root
+		//root
+		g("/", "/file.ext");
+
+		//case
+		b("/Folder", "/folder/file.ext");//importantly blocked on unix, where Folder and folder are two different folders side by side
 	}
 
 	done(test);
 }
-
-
-
 
 exports.testPathAdd = function(test) {
 
@@ -1147,18 +1168,29 @@ exports.testPathAdd = function(test) {
 	}
 	function g(folder, name, file) {
 		test.ok(file == pathAdd(Path(folder), name).text());
+		test.ok(name == pathSubtract(Path(folder), Path(file)));//also use these to test subtract
 	}
 
 	if (platform() == "windows") {
 
-		//windows
-		g("C:\\f1\\f2", "f3\\f4\\file.ext", "C:\\f1\\f2\\f3\\f4\\file.ext");
-		g("C:\\f1",             "file.ext", "C:\\f1\\file.ext");
-		g("C:\\",               "file.ext", "C:\\file.ext");
-		g("C:\\",       "f1\\f2\\file.ext", "C:\\f1\\f2\\file.ext");
+		//drive
+		g("C:\\",           "file.ext", "C:\\file.ext");
+		g("C:\\",        "a\\file.ext", "C:\\a\\file.ext");
+		g("C:\\",     "b\\a\\file.ext", "C:\\b\\a\\file.ext");
+
+		g("C:\\y",          "file.ext", "C:\\y\\file.ext");
+		g("C:\\y",       "a\\file.ext", "C:\\y\\a\\file.ext");
+		g("C:\\y",    "b\\a\\file.ext", "C:\\y\\b\\a\\file.ext");
+
+		g("C:\\y\\z",       "file.ext", "C:\\y\\z\\file.ext");
+		g("C:\\y\\z",    "a\\file.ext", "C:\\y\\z\\a\\file.ext");
+		g("C:\\y\\z", "b\\a\\file.ext", "C:\\y\\z\\b\\a\\file.ext");
 
 		//attack
 		b("C:\\downloads", "..\\autoexec.bat");//directory traversal attack thwarted
+
+		//blank
+		b("C:\\folder", "");//fails round trip test
 
 		//navigation
 		b("C:\\folder", "../file.ext");//variations
@@ -1177,41 +1209,51 @@ exports.testPathAdd = function(test) {
 		b("C:\\", "/file.ext");
 
 		//network
-		g("\\\\c\\s\\f1\\f2", "f3\\f4\\file.ext", "\\\\c\\s\\f1\\f2\\f3\\f4\\file.ext");
-		g("\\\\c\\s\\f1",             "file.ext", "\\\\c\\s\\f1\\file.ext");
-		g("\\\\c\\s\\",               "file.ext", "\\\\c\\s\\file.ext");
-		g("\\\\c\\s\\",       "f1\\f2\\file.ext", "\\\\c\\s\\f1\\f2\\file.ext");
+		g("\\\\c\\s\\",           "file.ext", "\\\\c\\s\\file.ext");
+		g("\\\\c\\s\\",        "a\\file.ext", "\\\\c\\s\\a\\file.ext");
+		g("\\\\c\\s\\",     "b\\a\\file.ext", "\\\\c\\s\\b\\a\\file.ext");
+
+		g("\\\\c\\s\\y",          "file.ext", "\\\\c\\s\\y\\file.ext");
+		g("\\\\c\\s\\y",       "a\\file.ext", "\\\\c\\s\\y\\a\\file.ext");
+		g("\\\\c\\s\\y",    "b\\a\\file.ext", "\\\\c\\s\\y\\b\\a\\file.ext");
+
+		g("\\\\c\\s\\y\\z",       "file.ext", "\\\\c\\s\\y\\z\\file.ext");
+		g("\\\\c\\s\\y\\z",    "a\\file.ext", "\\\\c\\s\\y\\z\\a\\file.ext");
+		g("\\\\c\\s\\y\\z", "b\\a\\file.ext", "\\\\c\\s\\y\\z\\b\\a\\file.ext");
 
 	} else {
 
 		//unix
-		g("/f1/f2", "f3/f4/file.ext", "/f1/f2/f3/f4/file.ext");
-		g("/f1",          "file.ext", "/f1/file.ext");
-		g("/",            "file.ext", "/file.ext");
-		g("/",      "f1/f2/file.ext", "/f1/f2/file.ext");
+		g("/",        "file.ext", "/file.ext");
+		g("/",      "a/file.ext", "/a/file.ext");
+		g("/",    "b/a/file.ext", "/b/a/file.ext");
+
+		g("/y",       "file.ext", "/y/file.ext");
+		g("/y",     "a/file.ext", "/y/a/file.ext");
+		g("/y",   "b/a/file.ext", "/y/b/a/file.ext");
+
+		g("/y/z",     "file.ext", "/y/z/file.ext");
+		g("/y/z",   "a/file.ext", "/y/z/a/file.ext");
+		g("/y/z", "b/a/file.ext", "/y/z/b/a/file.ext");
 
 		//attack
 		b("/downloads", "../autoexec.bat");//directory traversal attack thwarted
 
-
-//TODO some of these work because backslash is valid, predict which and bring them in that way
-/*
 		//navigation
-		b("/folder", "../file.ext");//variations
-		g("/folder", "..file.ext", "/folder/..file.ext");//dots allowed in filename
-		b("/folder", ".\\file.ext");
-		b("/folder", "./file.ext");
-		g("/folder", ".file.ext",  "/folder/.file.ext");//dots allowed in filename
-		b("/folder1", "folder2\\..\\file.ext");//navigation valid, but blocked by round trip check
+		b("/folder",  "../file.ext");
+		g("/folder",  "..file.ext",            "/folder/..file.ext");//dot allowed in filename
+		g("/folder",  ".\\file.ext",           "/folder/.\\file.ext");//dot and backslash allowed in filename
+		b("/folder",  "./file.ext");
+		g("/folder",  ".file.ext",             "/folder/.file.ext");
+		g("/folder1", "folder2\\..\\file.ext", "/folder1/folder2\\..\\file.ext");
 
 		//slashes
-		b("C:\\folder", "\\file.ext");
-		b("C:\\folder", "\\\\file.ext");
-		b("C:\\folder", "/file.ext");
-		b("C:\\", "\\file.ext");
-		b("C:\\", "\\\\file.ext");
-		b("C:\\", "/file.ext");
-		*/
+		b("/folder", "/file.ext");
+		b("/folder", "//file.ext");
+		g("/folder", "\\file.ext", "/folder/\\file.ext");//ok because backslash valid filename character
+		b("/", "/file.ext");
+		b("/", "//file.ext");
+		g("/", "\\file.ext", "/\\file.ext");
 	}
 
 	done(test);
@@ -1232,39 +1274,61 @@ exports.testPathSubtract = function(test) {
 	}
 	function g(folder, file, name) {
 		test.ok(name == pathSubtract(Path(folder), Path(file)));
+		test.ok(file == pathAdd(Path(folder), name).text());//also use these to test add
 	}
 
 	if (platform() == "windows") {
 
-		g("C:\\folder", "C:\\folder\\file.ext", "file.ext");
+		//drive
+		g("C:\\",     "C:\\file.ext",             "file.ext");
+		g("C:\\",     "C:\\a\\file.ext",          "a\\file.ext");
+		g("C:\\",     "C:\\b\\a\\file.ext",       "b\\a\\file.ext");
 
+		g("C:\\y",    "C:\\y\\file.ext",          "file.ext");
+		g("C:\\y",    "C:\\y\\a\\file.ext",       "a\\file.ext");
+		g("C:\\y",    "C:\\y\\b\\a\\file.ext",    "b\\a\\file.ext");
 
+		g("C:\\y\\z", "C:\\y\\z\\file.ext",       "file.ext");
+		g("C:\\y\\z", "C:\\y\\z\\a\\file.ext",    "a\\file.ext");
+		g("C:\\y\\z", "C:\\y\\z\\b\\a\\file.ext", "b\\a\\file.ext");
 
+		//network
+		g("\\\\c\\s\\",     "\\\\c\\s\\file.ext",             "file.ext");
+		g("\\\\c\\s\\",     "\\\\c\\s\\a\\file.ext",          "a\\file.ext");
+		g("\\\\c\\s\\",     "\\\\c\\s\\b\\a\\file.ext",       "b\\a\\file.ext");
 
+		g("\\\\c\\s\\y",    "\\\\c\\s\\y\\file.ext",          "file.ext");
+		g("\\\\c\\s\\y",    "\\\\c\\s\\y\\a\\file.ext",       "a\\file.ext");
+		g("\\\\c\\s\\y",    "\\\\c\\s\\y\\b\\a\\file.ext",    "b\\a\\file.ext");
 
+		g("\\\\c\\s\\y\\z", "\\\\c\\s\\y\\z\\file.ext",       "file.ext");
+		g("\\\\c\\s\\y\\z", "\\\\c\\s\\y\\z\\a\\file.ext",    "a\\file.ext");
+		g("\\\\c\\s\\y\\z", "\\\\c\\s\\y\\z\\b\\a\\file.ext", "b\\a\\file.ext");
+
+		//bad
+		b("C:\\folder", "C:\\folderfile");//fails pathCheck
 
 	} else {
+
+		//unix
+		g("/",    "/file.ext",         "file.ext");
+		g("/",    "/a/file.ext",       "a/file.ext");
+		g("/",    "/b/a/file.ext",     "b/a/file.ext");
+
+		g("/y",   "/y/file.ext",       "file.ext");
+		g("/y",   "/y/a/file.ext",     "a/file.ext");
+		g("/y",   "/y/b/a/file.ext",   "b/a/file.ext");
+
+		g("/y/z", "/y/z/file.ext",     "file.ext");
+		g("/y/z", "/y/z/a/file.ext",   "a/file.ext");
+		g("/y/z", "/y/z/b/a/file.ext", "b/a/file.ext");
+
+		//bad
+		g("/folder/subfolder", "/folder/subfolder\\file");//fails pathCheck
 	}
 
 	done(test);
 }
-
-
-
-//show how check is strict about case, even on windows
-//this is fine because you keep the paths separate in settings, add them together, then check them
-//so if there is a case mismatch, it indictes something fishy
-//and on unix, it's a different folder, so it really matters
-
-//when testing subtract, give it on that cuts right in the middle of the folder name
-
-//folder: /folder/subfolder
-//file:   /folder/subfolder\file
-//make sure we can tell that file is *not* inside folder, just write a test for this
-
-//after doing the detailed test subtract, go up and do the summary subtract at the top
-
-
 
 
 
