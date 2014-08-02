@@ -67,7 +67,7 @@ function Path(s) {
 	o.number   = function(n)      { return pathNumber(o, n);        } // "C:\folder\file (2).ext"
 
 	// Finished object
-	o.text = function() { return p; }, // The entire absolute path
+	o.text = p, // The entire absolute path
 	o.type = "Path";
 	return freeze(o);
 }
@@ -142,13 +142,13 @@ function pathAdd(folder, name) {
 	checkType(folder, "Path"); // Make sure folder is an absolute Path object
 	checkType(name, "string"); // The relative path name is just a string
 
-	var file1t = _pathResolveTo(folder.text(), name); // Method 1, use platform
-	var file2t = folder.text().onEnd(_pathSeparator()) + name; // Method 2, add strings
+	var file1t = _pathResolveTo(folder.text, name); // Method 1, use platform
+	var file2t = folder.text.onEnd(_pathSeparator()) + name; // Method 2, add strings
 
 	var file1p = Path(file1t); // Send both through Path
 	var file2p = Path(file2t);
-	var file1pt = file1p.text();
-	var file2pt = file2p.text();
+	var file1pt = file1p.text;
+	var file2pt = file2p.text;
 
 	if (!(file1t == file2t && file2t == file1pt && file1pt == file2pt)) toss("data", {note:"round trip", watch:{folder:folder, name:name}}); // Confirm all 4 are the same
 	pathCheck(folder, file1p); // Check after
@@ -158,10 +158,10 @@ function pathAdd(folder, name) {
 function pathSubtract(folder, file) {
 	pathCheck(folder, file); // Check before
 
-	var name = file.text().beyond(folder.text().length + (folder.text().ends(_pathSeparator()) ? 0 : 1)); // Beyond separator
+	var name = file.text.beyond(folder.text.length + (folder.text.ends(_pathSeparator()) ? 0 : 1)); // Beyond separator
 
 	var i = pathAdd(folder, name); // Confirm adding it back is the same
-	if (file.text() != i.text()) toss("data", {note:"round trip", watch:{folder:folder, file:file}});
+	if (file.text != i.text) toss("data", {note:"round trip", watch:{folder:folder, file:file}});
 	return name;
 }
 
@@ -169,8 +169,8 @@ function pathCheck(folder, file) {
 	checkType(folder, "Path");
 	checkType(file, "Path");
 
-	var o = folder.text();
-	var i = file.text();
+	var o = folder.text;
+	var i = file.text;
 	if (!(o.length < i.length)) toss("data", {note:"short",  watch:{folder:folder, file:file}});
 	if (!i.starts(o))           toss("data", {note:"starts", watch:{folder:folder, file:file}});
 

@@ -95,13 +95,8 @@ exports.toss = toss;
 
 
 
-//TODO for small immutable objects, have o.text and o.type be strings, not functions
 
-//what if small immutable objects had .text instead of .text(), and say knew to look for both
-//update say and checkType to be able to read this form
 
-//actually only path would need to use this now
-//it's kind of cool, though, so you're going to do it
 
 
 
@@ -886,7 +881,7 @@ function line() {
 function _say(o) {
 	if      (typeof o == "string")      return o;            // Strings pass through
 	else if (typeof o == "number")      return numerals(o);  // Convert a number into numerals
-//	else if (typeof o.text == "string") return o.text;       // Use the object's text member
+	else if (typeof o.text == "string") return o.text;       // Use the object's text member
 	else if (hasMethod(o, "text"))      return o.text();     // Call the object's text() method
 	else if (hasMethod(o, "toString"))  return o.toString(); // Use toString() instead
 	else                                return o + "";       // Last resort, add to blank
