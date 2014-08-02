@@ -1333,10 +1333,16 @@ exports.testPathSubtract = function(test) {
 
 
 
+exports.testPathMathMethods = function(test) {
+
+
+	var p = Path("C:\\folder");
+	log(p.add("file.ext"));
 
 
 
-
+	done(test);
+}
 
 
 

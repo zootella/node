@@ -64,6 +64,10 @@ function Path(s) {
 	o._ext = _pathDotExt(p),         // ".ext"
 	o.ext = _pathExt(p),             // "ext"
 
+	// Math methods
+	o.add      = function(name) { return pathAdd(o, name); }
+	o.subtract = function(file) { return pathSubtract(o, file); }
+
 	// Finished object
 	o.text = function() { return p; }, // The entire absolute path
 	o.type = function() { return "Path"; }
