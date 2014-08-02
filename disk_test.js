@@ -9,6 +9,10 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
+//at long last, you can open a file
+//you can see what it's like to write functions that to from file to string and from string to file
+
+
 
 
 
