@@ -73,7 +73,7 @@ function File() {
 	//and if realpath != path, maybe close the file and throw data
 
 	return {
-		type:function(){ return "File"; }
+		type:"File"
 	};
 }
 

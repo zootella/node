@@ -100,8 +100,8 @@ exports.testType = function(test) {
 	var b = Bay();
 
 	//here's a way to make sure the var you've been given is a Data object
-	test.ok(d.type() == "Data");
-	test.ok(b.type() == "Bay");
+	test.ok(d.type == "Data");
+	test.ok(b.type == "Bay");
 
 	test.done();
 }

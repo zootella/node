@@ -31,6 +31,27 @@ require("./load").load("text", function() { return this; });
 
 
 
+//   _____                      
+//  |  ___| __ ___  ___ _______ 
+//  | |_ | '__/ _ \/ _ \_  / _ \
+//  |  _|| | |  __/  __// /  __/
+//  |_|  |_|  \___|\___/___\___|
+//                              
+
+var freezeImmutableObjects = true; // Offers more protection, but really slows things down
+function freezeOn() { return freezeImmutableObjects; } // True if we're freezing immutable objects
+function freeze(o) { return freezeOn() ? Object.freeze(o) : o; } // Freeze the given object if freezing is turned on
+
+exports.freezeOn = freezeOn;
+exports.freeze = freeze;
+
+
+
+
+
+
+
+
 //   _____             
 //  |_   _|__  ___ ___ 
 //    | |/ _ \/ __/ __|
@@ -99,8 +120,8 @@ function hasMethod(o, name) { return o && typeof o[name] == "function"; }
 
 // Text that describes the type of o, like "string" or "Data"
 function getType(o) {
-	if (hasMethod(o, "type")) return o.type(); // Ask the type() method we add to custom objects
-	return typeof o;                           // Use the typeof operator
+	if (o && typeof o.type == "string") return o.type; // Use the type string we add to custom objects
+	return typeof o;                                   // Use the typeof operator
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) toss("type"); } // Throw type if o is not of type name
@@ -109,6 +130,15 @@ exports.hasMethod = hasMethod;
 exports.getType = getType;
 exports.isType = isType;
 exports.checkType = checkType;
+
+//TODO why does hasMethod need to use o[name], while getType must use o.type
+//change either to the other and tests start failing, which is weird
+
+
+
+
+
+
 
 
 

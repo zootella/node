@@ -230,7 +230,7 @@ function List(compare) {
 		size:list.size, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:function(){ return "List"; }
+		type:"List"
 	};
 }
 
@@ -243,7 +243,7 @@ function Set(compare) {
 		size:list.size, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:function(){ return "Set"; }
+		type:"Set"
 	};
 }
 
@@ -256,7 +256,7 @@ function SortedList(compare) {
 		size:list.size, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:function(){ return "SortedList"; }
+		type:"SortedList"
 	};
 }
 
@@ -269,7 +269,7 @@ function SortedSet(compare) {
 		size:list.size, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:function(){ return "SortedSet"; }
+		type:"SortedSet"
 	};
 }
 

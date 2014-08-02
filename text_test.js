@@ -118,7 +118,7 @@ exports.testGetType = function(test) {
 	test.ok("object" == getType(new Buffer(0)));//node object
 	test.ok("object" == getType(new Buffer(8)));
 
-	//program object with type() method
+	//program object with type member
 	test.ok("Bay"  == getType(Bay()));
 	test.ok("Data" == getType(Bay().data()));
 	test.ok("Clip" == getType(Bay().data().clip()));

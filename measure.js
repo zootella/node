@@ -168,7 +168,7 @@ function divide(n, d) {
 	check(a.remainder, 0);
 	if ((d * a.whole) + a.remainder !== n)                     Mistake.log({ name:"divide remainder", n:n, d:d, a:a });
 	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) Mistake.log({ name:"divide ceiling",   n:n, d:d, a:a });
-	return Object.freeze(a);
+	return freeze(a);
 }
 
 // Calculate (n * m) / d
@@ -252,10 +252,10 @@ function When(t) {
 	function age() { return Date.now() - _time; }           // The number of milliseconds that have passed since this when
 	function text() { return sayDateAndTime(_time); }       // Convert into text like "2002 Jun 22 Sat 11:09a 49.146s"
 
-	return Object.freeze({                  // Freeze the public interface your object is returning to include immutable properties
+	return freeze({                         // Freeze the public interface your object is returning to include immutable properties
 		time:_time, expired:expired, age:age, // For instance, setting now.time doesn't change it
 		text:text,                            // Without this, you would have to access it with the function now.time()
-		type:function(){ return "When"; }
+		type:"When"
 	});
 }
 
@@ -297,10 +297,10 @@ function Duration(setStart, setStop) {
 	// When this duration ended and how long it took, like "Wed 1:39p 58.023s in 278ms"
 	function text() { return say(_stop, " in ", time(), "ms"); }
 
-	return Object.freeze({
+	return freeze({
 		start:_start, stop:_stop,
 		time:time, timeSafe:timeSafe, text:text,
-		type:function(){ return "Duration"; }
+		type:"Duration"
 	});
 }
 
@@ -324,7 +324,7 @@ function Ago(i) {
 
 	return {
 		enough:enough,
-		type:function(){ return "Ago"; }
+		type:"Ago"
 	};
 }
 
@@ -395,7 +395,7 @@ function Culture() {
 	return {
 		set:set, get:get,
 		separator:separator, decimal:decimal, clock:clock,
-		type:function(){ return "Culture"; }
+		type:"Culture"
 	};
 }
 var culture = Culture();
@@ -956,10 +956,10 @@ function Stripe(set_i, set_w) {
 
 	function text() { return "i#w#".fill(_i, _w); }
 
-	return Object.freeze({
+	return freeze({
 		i:_i, w:_w, z:_z,
 		same:same, text:text,
-		type:function(){ return "Stripe"; }
+		type:"Stripe"
 	});
 }
 exports.Stripe = Stripe;
@@ -1133,7 +1133,7 @@ function Average() {
 		add:add,
 		average:average, averageFloat:averageFloat, averageThousandths:averageThousandths, averageMultiply:averageMultiply,
 		say:say,
-		type:function(){ return "Average"; }
+		type:"Average"
 	};
 }
 
@@ -1183,7 +1183,7 @@ function Speed(window) {
 
 	return {
 		distance:distance, count:count, speed:speed, add:add,
-		type:function(){ return "Speed"; }
+		type:"Speed"
 	};
 }
 
@@ -1228,24 +1228,6 @@ exports.Speed = Speed;
 
 
 
-
-//make your own log that takes any number of anythings, calls say on each one, and also logs to a file later if you want
-
-//have return freeze({})
-//and is there anywhere you wouldn't want to use that, actually?
-//that prevents you from messing up an object, but does it prevent you from making a mutable object?
-
-
-
-
-
-
-
-
-
-//look thorugh existing objects to find others that have immutable members that can be just .i, not .i()
-//in fact, what would happen if you did return Object.freeze({}) for every object? why not just do that
-//that woudl work, right? it woudl just mean the functions can't change to a different function, members inside can still change
 
 
 

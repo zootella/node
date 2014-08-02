@@ -57,6 +57,9 @@ exports.bufferCopy = bufferCopy;
 
 
 
+
+
+
 //   ____        _        
 //  |  _ \  __ _| |_ __ _ 
 //  | | | |/ _` | __/ _` |
@@ -80,88 +83,79 @@ function Data(p) {
 	else if (type == "string")     _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
 	else toss("type");
 
+	var o = {}; // The object we will fill and return
+
 	// Make a Clip object around this Data
 	// You can remove bytes from the start of the clip to keep track of what you've processed
-	// The size of a Data object cannot change, while Clip can.
-	function clip() { return Clip(this); }
+	// The size of a Data object cannot change, while Clip can
+	o.clip = function() { return Clip(o); }
 
 	// Make a copy of the memory this Data object views
 	// Afterwards, the object that holds the data can close, and the copy will still view it
-	function copyMemory() { return Bay(this).data(); } // Make a Bay object which will copy the data
+	o.copyMemory = function() { return Bay(o).data(); } // Make a Bay object which will copy the data
 
 	// Convert this Data into a node Buffer object
-	function buffer() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
+	o.buffer = function() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
 	// On binary data, text() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
-	function text() { return buffer().toString("utf8"); } //TODO confirm the lines of gobbledygook
+	o.text = function() { return _buffer.toString("utf8"); } //TODO confirm the lines of gobbledygook
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
-	function toNumber() { return number(text()); }
+	o.toNumber = function() { return number(o.text()); }
 
 	// Get the boolean in this Data, throw if it doesn't view the text "t" or "f"
-	function toBoolean() {
-		var s = text();
+	o.toBoolean = function() {
+		var s = o.text();
 		if      (s == "t") return true;
 		else if (s == "f") return false;
 		else toss("data");
 	}
-	
-	function size() { return _buffer.length; } // The number of bytes of data this Data object views
-	function isEmpty() { return _buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
-	function hasData() { return _buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
 
-	function start(n) { return _clip(0, n); }          // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
-	function end(n)   { return _clip(size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
-	function after(i) { return _clip(i, size() - i); } // Clip out the bytes after index i in this Data, after(3) is dddDDDDDDD	
-	function chop(n)  { return _clip(0, size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
-	function _clip(i, n) {                             // Clip out part this Data, _clip(5, 3) is dddddDDDdd
-		if (i < 0 || n < 0 || i + n > size()) toss("chop"); // Make sure the requested index and number of bytes fits inside this Data
-		return Data(_buffer.slice(i, i + n)); // Make and return a Data that clips around the requested part of this one
+	o.size    = function() { return _buffer.length;      } // The number of bytes of data this Data object views
+	o.isEmpty = function() { return _buffer.length == 0; } // True if this Data object is empty, it has a size of 0 bytes
+	o.hasData = function() { return _buffer.length != 0; } // True if this Data object views some data, it has a size of 1 or more bytes
+
+	o.start = function(n) { return o._clip(0, n);            } // Clip out the first n bytes of this Data, start(3) is DDDddddddd	
+	o.end   = function(n) { return o._clip(o.size() - n, n); } // Clip out the last n bytes of this Data, end(3) is dddddddDDD	
+	o.after = function(i) { return o._clip(i, o.size() - i); } // Clip out the bytes after index i in this Data, after(3) is dddDDDDDDD	
+	o.chop  = function(n) { return o._clip(0, o.size() - n); } // Chop the last n bytes off the end of this Data, returning the start before them, chop(3) is DDDDDDDddd	
+	o._clip = function(i, n) {                                 // Clip out part this Data, _clip(5, 3) is dddddDDDdd
+		if (i < 0 || n < 0 || i + n > o.size()) toss("chop");    // Make sure the requested index and number of bytes fits inside this Data
+		return Data(_buffer.slice(i, i + n));                    // Make and return a Data that clips around the requested part of this one
 	}
-	
-	function first() { return get(0); } // Get the first byte in this Data
-	function get(i) {                   // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
-		if (!i) i = 0;                          // Turn undefined into 0 so math below works
-		if (i < 0 || i >= size()) toss("chop"); // Make sure i is in range
+
+	o.first = function() { return o.get(0); }   // Get the first byte in this Data
+	o.get   = function(i) {                     // Get the byte i bytes into this Data, returns a number 0x00 0 through 0xff 255
+		if (!i) i = 0;                            // Turn undefined into 0 so math below works
+		if (i < 0 || i >= o.size()) toss("chop"); // Make sure i is in range
 		return _buffer.readUInt8(i);
 	}
 
-	// True if this Data object views the same data as the given one
-	function same(d) {
-		if (size() != d.size()) return false;           // Compare the sizes
-		else if (size() == 0) return true;              // If both are empty, they are the same
-		return _searchData(this, d, true, false) != -1; // Search at the start only
+	o.same = function(d) {                         // True if this Data object views the same data as the given one
+		if (o.size() != d.size()) return false;      // Compare the sizes
+		else if (o.size() == 0) return true;         // If both are empty, they are the same
+		return _searchData(o, d, true, false) != -1; // Search at the start only
 	}
-	
-	function starts(d) { return _searchData(this, d, true,  false) != -1; } // True if this Data starts with d
-	function ends(d)   { return _searchData(this, d, false, false) != -1; } // True if this Data ends with d
-	function has(d)    { return _searchData(this, d, true,  true)  != -1; } // True if this Data contains d
 
-	function find(d) { return _searchData(this, d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
-	function last(d) { return _searchData(this, d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
+	o.starts = function(d) { return _searchData(o, d, true,  false) != -1; } // True if this Data starts with d
+	o.ends   = function(d) { return _searchData(o, d, false, false) != -1; } // True if this Data ends with d
+	o.has    = function(d) { return _searchData(o, d, true,  true)  != -1; } // True if this Data contains d
 
-	function cut(d)     { return _cutData(this, d, true);  } // Split this Data around d, clipping out the parts before and after it
-	function cutLast(d) { return _cutData(this, d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
+	o.find = function(d) { return _searchData(o, d, true,  true); } // Find the distance in bytes from the start of this Data to where d first appears, -1 if not found
+	o.last = function(d) { return _searchData(o, d, false, true); } // Find the distance in bytes from the start of this Data to where d last appears, -1 if not found
 
-	// Encoding this data into text using
-	function base16() { return toBase16(this); } // Base 16, each byte will become 2 characters, "00" through "ff"
-	function base32() { return toBase32(this); } // Base 32, each 5 bits will become a character a-z and 2-7
-	function base62() { return toBase62(this); } // Base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
-	function base64() { return toBase64(this); } // Base 64
-	function quote()  { return toquote(this);  } // Base 16 with text in quotes, like '"hello"0d0a' 
+	o.cut     = function(d) { return _cutData(o, d, true);  } // Split this Data around d, clipping out the parts before and after it
+	o.cutLast = function(d) { return _cutData(o, d, false); } // Split this Data around the place d last appears, clipping out the parts before and after it
 
-	return {
-		clip:clip, copyMemory:copyMemory,
-		buffer:buffer, text:text, toNumber:toNumber, toBoolean:toBoolean,
-		size:size, isEmpty:isEmpty, hasData:hasData,
-		start:start, end:end, after:after, chop:chop, _clip:_clip,
-		first:first, get:get,
-		same:same, starts:starts, ends:ends, has:has, find:find, last:last,
-		cut:cut, cutLast:cutLast,
-		base16:base16, base32:base32, base62:base62, base64:base64, quote:quote,
-		type:function(){ return "Data"; }
-	};
+	o.base16 = function() { return toBase16(o); } // Base 16, each byte will become 2 characters, "00" through "ff"
+	o.base32 = function() { return toBase32(o); } // Base 32, each 5 bits will become a character a-z and 2-7
+	o.base62 = function() { return toBase62(o); } // Base 62, each 4 or 6 bits will become a character 0-9, a-z, and A-Z
+	o.base64 = function() { return toBase64(o); } // Base 64
+	o.quote  = function() { return toquote(o);  } // Base 16 with text in quotes, like '"hello"0d0a'
+
+	o.type = "Data";
+	return freeze(o);
 }
 exports.Data = Data;
 
@@ -356,7 +350,7 @@ function Bay(a) {
 		add:add, prepare:prepare,
 		keep:keep, remove:remove, only:only, clear:clear,
 		data:data,
-		type:function(){ return "Bay"; }
+		type:"Bay"
 	};
 }
 exports.Bay = Bay;
@@ -514,7 +508,7 @@ function Bin(c) { // Make a new Bin with a capacity of c bytes
 		data:data, size:size, capacity:capacity, space:space,
 		hasData:hasData, isEmpty:isEmpty, hasSpace:hasSpace, isFull:isFull,
 		add:add, remove:remove, keep:keep, clear:clear,
-		type:function(){ return "Bin"; }
+		type:"Bin"
 	};
 }
 
@@ -788,7 +782,7 @@ function Clip(d) {
 		data:data, copy:copy,
 		size:size, isEmpty:isEmpty, hasData:hasData,
 		remove:remove, keep:keep,
-		type:function(){ return "Clip"; }
+		type:"Clip"
 	};
 }
 
@@ -980,7 +974,7 @@ function Outline(setName, setValue) {
 		n:n, m:m,
 		sort:sort,
 		text:text, data:data,
-		type:function(){ return "Outline"; }
+		type:"Outline"
 	};
 }
 exports.Outline = Outline;

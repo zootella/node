@@ -324,10 +324,12 @@ exports.testAverage = function(test) {
 
 exports.testWhenImmutable = function(test) {
 
-	var w = now();//remember the time right now
-	var time = w.time;//get it
-	w.time = 7;//try to change it
-	test.ok(time == w.time);//confirm that didn't work
+	if (freezeOn()) {//only test this if freeze is turned on
+		var w = now();//remember the time right now
+		var time = w.time;//get it
+		w.time = 7;//try to change it
+		test.ok(time == w.time);//confirm that didn't work
+	}
 
 	test.done();
 }

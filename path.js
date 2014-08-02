@@ -68,9 +68,8 @@ function Path(s) {
 
 	// Finished object
 	o.text = function() { return p; }, // The entire absolute path
-	o.type = function() { return "Path"; }
-	Object.freeze(o.step);
-	Object.freeze(o);
+	o.type = "Path";
+	freeze(o);
 	return o;
 }
 
