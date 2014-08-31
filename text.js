@@ -1,4 +1,7 @@
 
+var platformUtility = require("util");
+var platformPath = require("path");
+
 require("./load").load("text", function() { return this; });
 
 
@@ -52,6 +55,12 @@ exports.freeze = freeze;
 
 
 
+
+
+
+
+
+
 //   _____             
 //  |_   _|__  ___ ___ 
 //    | |/ _ \/ __/ __|
@@ -60,38 +69,91 @@ exports.freeze = freeze;
 //                     
 
 // Instead of throw "data", use toss("data")
-// This way, you can add extra details, like toss("data", {wrap:e, note:"what happened"})
+// This way, you can add extra details, like toss("data", {note:"what happened", caught:e, watch:{a:a, b:b, c:c}});
 // Check like if (e.name == "data")
-function toss(name, info) {
-	if (!info) info = {};             // Make a hash if we were'nt given one
-	if (name) info.name = name;       // Save the given name into it
-	info.stack = (new Error()).stack; // Generate the call stack to here
-	throw info;                       // Throw it
+function toss(name, e)    { throw  _mistake(name, e, (new Error()).stack); } // Throw it
+function Mistake(name, e) { return _mistake(name, e, (new Error()).stack); } // Return it without throwing it
+function _mistake(name, e, stack) {
+	if (!e) e = {};          // Make a blank object to fill if we weren't given one to add to
+	if (name) e.name = name; // Save the given name into it
+	e.stack = stack;         // Generate the call stack to here
+	e.text = function() { return _sayMistake(e); } // Add the function that will describe the exception as text
+	e.type = "Mistake";                           // Mark this as a custom program exception
+	return e;
+}
+
+// Describe e, a program Mistake our code created and threw
+function _sayMistake(e) {
+	var s = "";
+	if (e.name)  s += line(e.name);
+	if (e.stack) s += line(stackLine(e.stack));
+	if (e.note)  s += line(e.note);
+	if (e.watch) {
+		for (w in e.watch) s += line(w, ": ", e.watch[w]);
+	}
+	if (e.caught) {
+		s += line();
+		s += say("caught ", e.caught);
+	}
+	return s;
+}
+
+// The given call stack in a single line, like "demoName() a() b() c() Path() 31" with the line number that called toss()
+function stackLine(stack) {
+	var p = stackParse(stack);
+	var s = "";
+	for (var i = p.length - 1; i >= 1; i--) { // Skip the 0th element at the end, which is the function toss()
+		if (p[i].here && p[i].functionName != "") s += " " + p[i].functionName;
+		if (i == 1) s += " " + p[i].file + ":" + p[i].line; // End with the filename and line number that calls toss()
+	}
+	return s.trim();
+}
+
+// Parse the given stack text into an array of keys and values
+function stackParse(stack) {
+	var r = [];                          // The array we will fill and return
+	var a = stack.rip("\n    at ");      // Make an array of the lines of the call stack
+	for (var i = 1; i < a.length; i++) { // Start with 1 to skip over "Error" at the start
+		var l = a[i];                      // A single line of the call stack
+
+		var p = l;        // The path and line number in parenthesis, the whole line if there are no parenthesis
+		var b = "";       // The part before the parenthesis, blank if there are no parenthesis
+		if (l.has("(")) { // There are parenthesis
+			p = l.parse("(", ")");
+			b = l.before("(").trim();
+		}
+
+		// The filename
+		var f = p;
+		if (f.has(platformPath.sep)) f = f.afterLast(platformPath.sep);
+		f = f.before(":");
+
+		var h = p.starts(process.cwd());          // True if the file is here in the current working directory
+		var n = p.beforeLast(":").afterLast(":"); // The line number
+
+		// The function name
+		var u = b;
+		if (u.has(".")) u = u.afterLast(".");
+		if (u.has("<")) u = ""; // Blank out "Object.<anonymous>" which is pretty useless
+		if (u != "") u += "()"; // Really make it look like a function
+
+		r.add({here:h, file:f, line:n, functionName:u});
+	}
+	return r;
 }
 
 exports.toss = toss;
+exports.Mistake = Mistake;
+exports.stackLine = stackLine;
+exports.stackParse = stackParse;
 
 
 
-//TODO make toss e.text()
 
-//put a text() function in there
-//have it call text() on info.wrap, and each item in info.watch
-//pull the name of the function that called toss out of stack, and have that as info.from
-//rename info e, that's what it's called in the code that uses toss
-//nicely format stack, put that alongside
-//and write a demo that tosses, catches, and logs an e to show of all this, obviously
 
-//have toss inject e.text() to show name, note, watch, from, and stack
-//right now you just get [Object object]
-//and you coudl use inspect, but that creates a big mess and still has [Function function] instead of calling text()
 
-//have toss pull out the name of the function that called toss from the call stack
-//you don't really need the whole call stack, line numbers, all that, just the name of the function is enough
-//this would be e.from == "pathCheck" for instance
 
-//also, toss needs to loop through watch and call say on each of those
-//otherwise your debug log will just say [Function] rather than useful text
+
 
 
 
@@ -112,24 +174,25 @@ exports.toss = toss;
 //    |_| \__, | .__/ \___|
 //        |___/|_|         
 
+// True if o is an object with a property named name that is of the given type
+function hasPropertyOfType(o, name, type) { return o && typeof o[name] == type; }
+
 // True if o is an object with a function o.name() you can call
-function hasMethod(o, name) { return o && typeof o[name] == "function"; }
+function hasMethod(o, name) { return hasPropertyOfType(o, name, "function"); }
 
 // Text that describes the type of o, like "string" or "Data"
 function getType(o) {
-	if (o && typeof o.type == "string") return o.type; // Use the type string we add to custom objects
-	return typeof o;                                   // Use the typeof operator
+	if (hasPropertyOfType(o, "type", "string")) return o.type; // Use the type string we add to custom objects
+	return typeof o;                                           // Use the typeof operator
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) toss("type"); } // Throw type if o is not of type name
 
+exports.hasPropertyOfType = hasPropertyOfType;
 exports.hasMethod = hasMethod;
 exports.getType = getType;
 exports.isType = isType;
 exports.checkType = checkType;
-
-//TODO why does hasMethod need to use o[name], while getType must use o.type
-//change either to the other and tests start failing, which is weird
 
 
 
@@ -193,16 +256,21 @@ Array.prototype.remove = function(i) {
 
 // Add function f to the String type so that s.name(a, b) calls and returns name(s, a, b)
 function augment(f, name) {
-	if (name in String.prototype)
-		toss("program"); // Don't add a method to String over one already there
+	if (name in String.prototype) toss("program"); // Don't add a method to String over one already there
 
 	String.prototype[name] = function() { // Call this function when you call s.name()
-		var a = [this + ""]; // Coax the given this into a string, rather than an array of characters
+		var a = [this + ""]; // Coax this into a string, rather than an array of characters
 		for (var i = 0; i < arguments.length; i++) // After this, add all the arguments from name(s)
 			a.push(arguments[i]);
-		return f.apply(this, a); // Call name(s, a) and return the result
+		return f.apply(this, a); // Call f(s, a) and return the result
 	}
 }
+
+
+
+
+
+
 
 
 
@@ -879,12 +947,13 @@ function line() {
 
 // Turn anything into text the best way possible
 function _say(o) {
-	if      (typeof o == "string")      return o;            // Strings pass through
-	else if (typeof o == "number")      return numerals(o);  // Convert a number into numerals
-	else if (typeof o.text == "string") return o.text;       // Use the object's text member
-	else if (hasMethod(o, "text"))      return o.text();     // Call the object's text() method
-	else if (hasMethod(o, "toString"))  return o.toString(); // Use toString() instead
-	else                                return o + "";       // Last resort, add to blank
+	if      (typeof o == "string")           return o;                          // Strings pass through
+	else if (typeof o == "number")           return numerals(o);                // Convert a number into numerals
+	else if (o instanceof Error)             return platformUtility.inspect(o); // Inspect to see the inside
+	else if (o && typeof o.text == "string") return o.text;                     // Use the object's text member
+	else if (hasMethod(o, "text"))           return o.text();                   // Call the object's text() method
+	else if (hasMethod(o, "toString"))       return o.toString();               // Use toString() instead
+	else                                     return o + "";                     // Last resort, add to blank
 }
 
 // Use this line separator when composing text
@@ -992,8 +1061,17 @@ function decode(s) {
 	}
 }
 
+// Turn newlines in s into paragraph marks to make s format well on a single line
+function pilcrow(s) {
+	var p = "¶"; // Unicode pilcrow character c2b6
+	s = swap(s, "\r\n", p); // Replace Windows newlines, the two bytes 0d0a
+	s = swap(s,   "\n", p); // Replace Unix newlines, the single byte 0a
+	return s;
+}
+
 augment(encode, "encode");
 augment(decode, "decode");
+augment(pilcrow, "pilcrow");
 
 
 

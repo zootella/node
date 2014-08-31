@@ -10,43 +10,6 @@ require("./load").load("text_test", function() { return this; });
 
 
 
-//   _____             
-//  |_   _|__  ___ ___ 
-//    | |/ _ \/ __/ __|
-//    | | (_) \__ \__ \
-//    |_|\___/|___/___/
-//                     
-
-exports.testToss = function(test) {
-
-	try {
-		toss();
-		test.fail();
-	} catch (e) {}
-
-	try {
-		toss("custom");
-		test.fail();
-	} catch (e) { test.ok(e.name == "custom"); }
-
-	try {
-		toss("custom", {note:"a note about what happened"});
-		test.fail();
-	} catch (e) { test.ok(e.name == "custom"); }
-
-	test.done();
-}
-
-if (demo("toss")) { demoToss(); }
-function demoToss() {
-	try {
-
-		pathCheck(Path("C:\\name"), Path("C:\\name2"));//tosses because name2 is longer, and starts with name, but doesn't have a slash to actually be inside
-
-	} catch (e) { log(e); }//see how much you get just from logging e, like name, note, watch, from, and stack
-}
-//TODO have toss inject e.text() to show name, note, watch, from, and stack
-
 
 
 
@@ -61,7 +24,61 @@ function demoToss() {
 //    |_| \__, | .__/ \___|
 //        |___/|_|         
 
-// hasMethod, getType, isType, checkType
+// hasPropertyOfType, hasMethod, getType, isType, checkType
+
+exports.testHasPropertyOfType = function(test) {
+
+	var u;//undefined
+	test.ok(!hasPropertyOfType(u, "name", "string"));
+	test.ok(!hasPropertyOfType(u, "name", "function"));
+
+	var s = "hi";//string
+	test.ok(!hasPropertyOfType(s, "name", "string"));
+	test.ok(!hasPropertyOfType(s, "name", "function"));
+	test.ok(hasPropertyOfType(s, "charAt", "function"));//comes with the platform
+	test.ok(hasPropertyOfType(s, "rip", "function"));//a function we added
+
+	var e = {};//empty object
+	test.ok(!hasPropertyOfType(e, "name", "string"));
+	test.ok(!hasPropertyOfType(e, "name", "function"));
+
+	var a = [];//empty array
+	test.ok(!hasPropertyOfType(a, "name", "string"));
+	test.ok(!hasPropertyOfType(a, "name", "function"));
+	test.ok(hasPropertyOfType(a, "splice", "function"));//comes with the platform
+	test.ok(hasPropertyOfType(a, "add", "function"));//a function we added
+
+	var o = {};//object with
+	o.name1 = "string value";//string property
+	o.name2 = function() { return "return value"; }//function property
+
+	test.ok(!hasPropertyOfType(o, "name",  "string"));//still no property named "name"
+	test.ok(!hasPropertyOfType(o, "name",  "function"));
+
+	test.ok(hasPropertyOfType(o,  "name1", "string"));
+	test.ok(!hasPropertyOfType(o, "name1", "function"));
+
+	test.ok(!hasPropertyOfType(o, "name2", "string"));
+	test.ok(hasPropertyOfType(o,  "name2", "function"));
+
+	var d = Data();//custom program objects
+	var p = working();//Path object
+
+	test.ok(hasPropertyOfType(d, "type", "string"));//type is always a string
+	test.ok(hasPropertyOfType(p, "type", "string"));
+	test.ok(hasPropertyOfType(d, "text", "function"));//Data has a text function
+	test.ok(hasPropertyOfType(p, "text", "string"));//Path is immutable and has a text string
+
+	test.ok(!hasPropertyOfType(d, "type", "function"));//valid names, incorrect types
+	test.ok(!hasPropertyOfType(p, "type", "function"));
+	test.ok(!hasPropertyOfType(d, "text", "string"));
+	test.ok(!hasPropertyOfType(p, "text", "function"));
+
+	test.ok(hasPropertyOfType(d, "base16", "function"));//methods
+	test.ok(hasPropertyOfType(p, "subtract", "function"));
+
+	test.done();
+}
 
 exports.testHasMethod = function(test) {
 
@@ -1290,9 +1307,15 @@ exports.testEncodeDecode = function(test) {
 	test.done();
 }
 
+exports.testEncodeDecode = function(test) {
 
+	test.ok("¶".data().base16() == "c2b6");//we're using the standard unicode pilcrow character
+	test.ok("\n".pilcrow().data().base16() == "c2b6");//utf8
 
+	test.ok("windows newline\r\nunix newline\nextra line".pilcrow() == "windows newline¶unix newline¶extra line");
 
+	test.done();
+}
 
 
 

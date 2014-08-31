@@ -74,13 +74,13 @@ function Data(p) {
 
 	// Find or make a Data object out of p
 	var type = getType(p);
-	if      (type == "Data")       return p;        // Return the same Data instead of creating a new one based on it
-	else if (hasMethod(p, "data")) return p.data(); // If the given object has a data() method, use it
-	else if (Buffer.isBuffer(p))   _buffer = p;     // Wrap this new Data around the given buffer without copying or slicing it
+	if      (Buffer.isBuffer(p))   _buffer = p;                         // Wrap this new Data around the given buffer without copying or slicing it
 	else if (type == "undefined")  _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
 	else if (type == "boolean")    _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
 	else if (type == "number")     _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
 	else if (type == "string")     _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
+	else if (type == "Data")       return p;                            // Return the same Data instead of creating a new one based on it
+	else if (hasMethod(p, "data")) return p.data();                     // If the given object has a data() method, use it
 	else toss("type");
 
 	var o = {}; // The object we will fill and return
@@ -98,8 +98,9 @@ function Data(p) {
 	o.buffer = function() { return _buffer; } // Let the caller access our internal buffer object, they can't change it
 
 	// If you know this Data has text bytes, look at them all as a String using UTF-8 encoding
-	// On binary data, text() produces lines of gobbledygook but doesn't throw an exception, you may want base16() instead
-	o.text = function() { return _buffer.toString("utf8"); } //TODO confirm the lines of gobbledygook
+	// On binary data, text() produces lines of gobbledygook and doesn't throw an exception
+	// Turning that text back into data is usually different, so use base16() instead
+	o.text = function() { return _buffer.toString("utf8"); }
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
 	o.toNumber = function() { return number(o.text()); }
@@ -229,6 +230,26 @@ exports.compareData = compareData;
 
 
 
+
+
+
+
+
+
+
+//   ____  _        _             
+//  / ___|| |_ _ __(_)_ __   __ _ 
+//  \___ \| __| '__| | '_ \ / _` |
+//   ___) | |_| |  | | | | | (_| |
+//  |____/ \__|_|  |_|_| |_|\__, |
+//                          |___/ 
+
+// Give String a data() method so you can do "a".data() instead of Data("a")
+if (!String.prototype.data) {
+	String.prototype.data = function() {
+		return Data(this + ""); // this is the string, but as an array of characters, so add blank
+	}
+};
 
 
 

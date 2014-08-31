@@ -24,11 +24,11 @@ var worldMap = {
 
 
 	hide_test:    ["hide",                 "state", "measure", "text"],
-	data_test:    ["hide",         "data",          "measure", "text"],
+	data_test:    ["hide",         "data", "state", "measure", "text"],
 	list_test:    ["hide", "list", "data", "state", "measure", "text"],
 	state_test:   ["hide",         "data", "state", "measure", "text"],
 	measure_test: [                "data", "state", "measure", "text"],
-	text_test:    ["disk",         "data", "state", "measure", "text"],
+	text_test:    ["disk", "environment", "data", "state", "measure", "text"],
 
 	// Base
 
@@ -36,15 +36,14 @@ var worldMap = {
 	//TODO list more upcoming modules here, look at the old code to plan this out
 
 
+	environment: ["path"],      // Get information about the computer we're running on
 	disk:  ["measure", "text"], // Look at and change the files and folders on the disk
 	path:  ["measure", "text"], // Parse file system paths
-	environment: ["path"],            // Get information about the computer we're running on
 
 	hide: ["data", "measure"],  // Encrypt, decrypt, and sign data
 	data:  ["measure", "text"], // Search, encode, and manipulate binary data
 	list:  ["measure", "text"], // Organize objects into lists and dictionaries
 	state: ["measure", "text"], // Notice something has changed, and remember to close everything
-
 
 	measure: ["text"],          // Measure and communicate time, distance, and speed
 	text: []                    // Search, convert, and adjust text

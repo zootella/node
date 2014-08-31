@@ -34,6 +34,6 @@ exports.working = working;
 //TODO wrap and demo other environment querying platform functions
 //both from node and node webkit, which has some of it's own, you think
 //here's also where you could profile memory and other performance stats of the platform your js is running on
-
+//in addition to process.cwd(), there is also __dirname, which may be the same here, different in node webkit, you need to figure it out
 
 

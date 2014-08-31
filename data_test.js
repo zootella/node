@@ -466,6 +466,31 @@ exports.testCompareData = function(test) {
 
 
 
+//   ____  _        _             
+//  / ___|| |_ _ __(_)_ __   __ _ 
+//  \___ \| __| '__| | '_ \ / _` |
+//   ___) | |_| |  | | | | | (_| |
+//  |____/ \__|_|  |_|_| |_|\__, |
+//                          |___/ 
+
+exports.testDataString = function(test) {
+
+	test.ok(Data("hello").size() == 5);//turn a string into data the normal way, or
+	test.ok("hello".data().size() == 5);//the fancy way with the data method we added to string
+
+	test.ok("hello\r\n".data().quote() == '"hello"0d0a');//easier than Data("hello\r\n").quote()
+
+	test.done();
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1051,6 +1076,26 @@ exports.testEncodeInvalid = function(test) {
 	test.done();
 };
 
+if (demo("random")) { demoRandom(); }
+function demoRandom() {
+
+	//confirm turning random binary data into text doesn't throw an exception
+	for (var i = 0; i < 10000; i++) {
+		randomData(random(1, 256)).text();//a random amount of random data, up to 256 bytes
+	}
+
+	//show that data1 -> text -> data2 changes the data, adding lots of "efbfbd"
+	for (var i = 0; i < 10; i++) {
+
+		var d1 = randomData(random(1, 16));//1 to 16 bytes of random data
+		var t  = d1.text();
+		var d2 = t.data();
+
+		log();
+		log(d1.base16());
+		log(d2.base16());
+	}
+}
 
 
 

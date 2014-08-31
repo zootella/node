@@ -11,6 +11,15 @@ require("./load").load("state_test", function() { return this; });
 
 
 
+
+
+
+
+
+
+
+
+
 //   ____                       
 //  |  _ \  ___ _ __ ___   ___  
 //  | | | |/ _ \ '_ ` _ \ / _ \ 
@@ -94,72 +103,10 @@ function exampleEmptyNext() {
 
 
 
-//write duplicates or replacements for all these, starting with speed-timeout
 
 
 
 
-
-
-
-
-
-
-//   __  __ _     _        _        
-//  |  \/  (_)___| |_ __ _| | _____ 
-//  | |\/| | / __| __/ _` | |/ / _ \
-//  | |  | | \__ \ || (_| |   <  __/
-//  |_|  |_|_|___/\__\__,_|_|\_\___|
-//                                  
-
-//run code that throws an exception
-if (demo("throw")) { demoThrow(); }
-function demoThrow() {
-
-	Data("hello").start(6);//throws chop
-}
-
-//catch an exception and sand it to mistakeLog(e)
-if (demo("mistake-log")) { demoMistakeLog(); }
-function demoMistakeLog() {
-
-	try {
-		Data("hello").start(6);
-	} catch (e) { mistakeLog(e); }
-
-	log("code after runs");
-}
-
-//catch an exception and sand it to mistakeStop(e)
-if (demo("mistake-stop")) { demoMistakeStop(); }
-function demoMistakeStop() {
-
-	try {
-		Data("hello").start(6);
-	} catch (e) { mistakeStop(e); }
-
-	log("code after does not run");
-}
-
-//code in a timeout function that throws an exception
-//confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
-if (demo("timeout-throw")) { demoTimeoutThrow(); }
-function demoTimeoutThrow() {
-	log("setting timeouts for 2 and 4 seconds from now");
-
-	setTimeout(function() {//in 4 seconds, this function will run successfully
-
-		log("ran after 4 seconds");//never runs, the uncaught exception at 2 seconds ends the node process
-
-	}, 4000);
-
-	setTimeout(function() {//in 2 seconds, this function will run and throw
-
-		log("ran after 2 seconds");
-		Data("hello").start(6);//throws chop
-
-	}, 2000);
-}
 
 
 

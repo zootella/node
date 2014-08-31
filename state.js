@@ -133,6 +133,17 @@ exports.speedLoopNext = speedLoopNext;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 //   __  __ _     _        _        
 //  |  \/  (_)___| |_ __ _| | _____ 
 //  | |\/| | / __| __/ _` | |/ / _ \
@@ -142,12 +153,12 @@ exports.speedLoopNext = speedLoopNext;
 
 // Log e, but let the program keep running
 function mistakeLog(e) {
-	log(_describeException(e));
+	_logException(e);
 }
 
 // Log e and stop the program, this function does not return
 function mistakeStop(e) {
-	log(_describeException(e));
+	_logException(e);
 	exit(); // Terminate the process right here without closing the program properly
 }
 
@@ -156,7 +167,7 @@ function closeCheck() {
 	clear(); // Remove closed objects from the list
 	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 	if (list.length) { // We should have closed them all, but didn't
-		log(_describeList());
+		log(_sayList());
 		exit(); // Otherwise the pulse timer will keep the process running
 	}
 }
@@ -165,7 +176,7 @@ function closeCheck() {
 function done(test) {
 	clear(); // Remove closed objects from the list
 	if (list.length) { // We should have closed them all, but didn't
-		log(_describeList());
+		log(_sayList());
 		test.fail();
 		exit(); // Stop here instead of running the remaining tests
 	} else { // The test closed everything correctly
@@ -181,12 +192,16 @@ function exit() {
 }
 
 // Compose text about the given exception
-function _describeException(e) {
-	return line("exception:") + line(e);
+function _logException(e) {
+	var s = say(e);
+	log(s);
+	//TODO show s in a window on the screen
+	//TODO save s to a text file and open it so it appears even if the program is otherwise broken
+	//TODO send s in a udp packet to a server
 }
 
 // Compose text about the objects left open in the pulse list
-function _describeList() {
+function _sayList() {
 	var s = line(items(list.length, "object"), " not closed:"); // Compose text about the objects still open by mistake
 	for (var i = 0; i < list.length; i++)
 		s += line(list[i]); // Say each forgotten item on one or more lines of text
@@ -199,10 +214,6 @@ exports.closeCheck = closeCheck;
 exports.done = done;
 exports.exit = exit;
 
-//TODO get the stack trace from the exception, keep stuff you get by default like file, line number, and ^ by line of code
-//TODO show the error to the user, like write a .txt file and shell execute it before exiting
-//TODO send the error in a packet to the programmer
-//TODO in describe exception, pull out the type and note, and have wrap at the end and then document that lower, or can you just loop through all the keys in the hash actually
 
 
 
