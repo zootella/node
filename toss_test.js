@@ -491,15 +491,23 @@ exports.testMistake8 = function(test) {
 
 
 
-//TODO
-//test in node webkit, the our code means a path in pwd trick might not work
-//later, the one line summary would be a cool part of an asynchronous call stack
-//combine toss and mistake
-//rename path's underscore functions to not have underscores, you're overusing underscore unnecessarily
-//text has toss, state has mistake, all the tests are here, move them to state_test.js when done
+
 //have mistakeLog(name, e), which calls Mistake, and then logs it, change every call to mistakeLog to not make up the fake object inline
+//no, because then you can't log an already caught exception
+//so this is ok, and also a lot easier, and matches mistakeStop
+//mistakeLog(e)
+//mistakeLog(Mistake())
+
+
+
+//look at combining or rebalancing between text:toss and state:mistake
+//text has toss, state has mistake, all the tests are here, move them to state_test.js when done
+
+//rename path's underscore functions to not have underscores, you're overusing underscore unnecessarily
 //in path, test C:file.ext, the path style before dos had folders
 
+//later, the one line summary would be a cool part of an asynchronous call stack
+//test in node webkit, the our code means a path in pwd trick might not work
 
 
 
