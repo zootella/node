@@ -492,11 +492,12 @@ exports.testMistake8 = function(test) {
 
 
 
-//have mistakeLog(name, e), which calls Mistake, and then logs it, change every call to mistakeLog to not make up the fake object inline
-//no, because then you can't log an already caught exception
-//so this is ok, and also a lot easier, and matches mistakeStop
-//mistakeLog(e)
-//mistakeLog(Mistake())
+
+
+
+
+
+
 
 
 

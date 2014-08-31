@@ -45,7 +45,7 @@ function randomData(n) {
 	try {
 		return Data(platformCrypto.randomBytes(n)); // Try high quality random
 	} catch (e) {
-		mistakeLog({ name:"platform", caught:e, note:"using pseudo random instead" });
+		mistakeLog(Mistake("platform", {note:"using pseudo random instead", caught:e, watch:{n:n}}));
 	}
 	return Data(platformCrypto.pseudoRandomBytes(n)); // Fall back to lower quality random
 }

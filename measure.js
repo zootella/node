@@ -166,8 +166,8 @@ function divide(n, d) {
 
 	check(a.whole, 0); // Check our answer before returning it
 	check(a.remainder, 0);
-	if ((d * a.whole) + a.remainder !== n)                     mistakeLog({ name:"divide remainder", n:n, d:d, a:a });
-	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) mistakeLog({ name:"divide ceiling",   n:n, d:d, a:a });
+	if ((d * a.whole) + a.remainder !== n)                     mistakeLog(Mistake("platform", {note:"remainder", watch:{n:n, d:d}}));
+	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) mistakeLog(Mistake("platform", {note:"ceiling",   watch:{n:n, d:d}}));
 	return freeze(a);
 }
 
