@@ -1,4 +1,6 @@
 
+var platformFile = require("fs");
+
 require("./load").load("text_test", function() { return this; });
 
 
@@ -150,7 +152,23 @@ exports.testGetType = function(test) {
 	test.done();
 }
 
+exports.testGetTypeError = function(test) {
 
+	platformFile.open("notfound.ext", "r", function(e, file) {//make a platform error object
+		var o = {};//and an empty object
+
+		test.ok(typeof o == "object");//typeof sees both as just objects
+		test.ok(typeof e == "object");
+
+		test.ok(!(o instanceof Error));//instanceof sees the error
+		test.ok(e instanceof Error);
+
+		test.ok(getType(o) == "object");//getType can distinguish the two
+		test.ok(getType(e) == "Error");
+
+		test.done();//mark the test done in the callback
+	});
+}
 
 
 

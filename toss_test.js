@@ -4,7 +4,6 @@ var platformFile = require("fs");
 
 require("./load").load("state_test", function() { return this; });
 
-//TODO write here, then move into state_test.js
 
 
 
@@ -81,6 +80,67 @@ function demoTimeoutThrow() {
 
 
 
+
+
+
+
+
+
+//test to confirm that toss throws an exception, and code can catch it and see what name it has
+
+exports.testToss = function(test) {
+
+	try {
+		toss();//blank ok
+		test.fail();//this line doesn't run
+	} catch (e) {}
+
+	try {
+		toss("custom");
+		test.fail();
+	} catch (e) { test.ok(e.name == "custom"); }//the name we expect
+
+	done(test);
+}
+
+
+
+
+
+
+
+
+
+
+//examples of a real exceptions with details
+
+if (demo("path-1")) { demoPath1(); }
+function demoPath1() {
+	try {
+
+		pathCheck(Path("C:\\name"), Path("C:\\name2"));
+
+	} catch (e) { log(e); }
+}
+
+if (demo("path-2")) { demoPath2(); }
+function demoPath2() {
+
+	try { a(); } catch (e) { log(e); }
+	function a() { b(); }
+	function b() { c(); }
+	function c() { Path("file.ext"); }
+}
+
+
+
+
+
+
+
+
+
+
 //demos that catch or receive example exceptions
 
 if (demo("mistake-1")) { catchMistake(mistake1); }
@@ -90,47 +150,192 @@ if (demo("mistake-4")) { catchMistake(mistake4); }
 if (demo("mistake-5")) { getMistake(mistake5); }
 if (demo("mistake-6")) { getMistake(mistake6); }
 if (demo("mistake-7")) { getMistake(mistake7); }
+if (demo("mistake-8")) { catchMistake(mistake8); }
+
+//demo exceptions lead to mistake stop, as they would in a bigger program
+
 function catchMistake(f) {//synchronous behavior
 	try {
 		f();//call the given function f
 	} catch (e) { mistakeStop(e); }//and catch the exception e that it throws
 }
+
 function getMistake(f) {//asynchronous behavior
 	f(function (e) { mistakeStop(e); });//call the given function f, giving it a function that will receive the exception e later
 }
 
-function mistake1() {//throw a simple mistake
+//example functions that throw or pass exceptions, what e.text() looks like in the demo, and tests
+
+//1. throw a simple mistake
+/*
+data
+catchMistake() mistake1() toss_test.js:164
+
+*/
+function mistake1() {
 	toss("data");
 }
+exports.testMistake1 = function(test) {
+	try {
+		mistake1();
+		test.fail();
+	} catch (e) {
+		var s = say(e);
+		test.ok(e.name == "data");
+		test.ok(isType(e, "Mistake"));
+		test.ok(s.starts("data"));
+		test.ok(s.has("mistake1()"));
+	}
+	done(test);
+}
 
-function mistake2() {//throw a detailed mistake, with all the bells and whistles
+//2. throw a detailed mistake, with all the bells and whistles
+/*
+data
+catchMistake() mistake2() toss_test.js:172
+note about what happened
+a: apple
+b: banana
+c: carrot
+d: Text in a Data object
+
+*/
+function mistake2() {
 	var a = "apple";
 	var b = "banana";
 	var c = "carrot";
 	var d = Data("Text in a Data object");
 	toss("data", {note:"note about what happened", watch:{a:a, b:b, c:c, d:d}});
 }
+exports.testMistake2 = function(test) {
+	try {
+		mistake2();
+		test.fail();
+	} catch (e) {
+		var s = say(e);
+		test.ok(e.name == "data");
+		test.ok(e.note == "note about what happened");
+		test.ok(isType(e, "Mistake"));
+		test.ok(s.starts("data"));
+		test.ok(s.has("mistake2()"));
+		test.ok(s.has("a: apple"));
+		test.ok(s.has("d: Text in a Data object"));
+	}
+	done(test);
+}
 
-function mistake3() {//throw a deep mistake, with a long call stack of program functions
+//3. throw a deep mistake, with a long call stack of program functions
+/*
+data
+catchMistake() mistake3() a() b() c() toss_test.js:178
+
+*/
+function mistake3() {
 	function a() { b(); }
 	function b() { c(); }
 	function c() { toss("data"); }
 	a();
 }
+exports.testMistake3 = function(test) {
+	try {
+		mistake3();
+		test.fail();
+	} catch (e) {
+		var s = say(e);
+		test.ok(e.name == "data");
+		test.ok(isType(e, "Mistake"));
+		test.ok(s.starts("data"));
+		test.ok(s.has("mistake3() a() b() c()"));
+	}
+	done(test);
+}
 
-function mistake4() {//throw a nested mistake, with a caught mistake inside
+//4. throw a nested mistake, with a caught mistake inside
+/*
+data
+catchMistake() mistake4() toss_test.js:185
+
+caught chop
+catchMistake() mistake4() start() _clip() data.js:125
+
+*/
+function mistake4() {
 	try {
 		Data("hello").start(6);//throws chop
 	} catch (e) { toss("data", {caught:e}); }//catch chop, wrap it in a data exception, and throw that
 }
+exports.testMistake4 = function(test) {
+	try {
+		mistake4();
+		test.fail();
+	} catch (e) {
+		var s = say(e);
 
-function mistake5(f) {//pass to f(e) a platform error, no program mistake at all, nothing thrown
+		test.ok(e.name == "data");
+		test.ok(isType(e, "Mistake"));
+
+		test.ok(e.caught.name == "chop");
+		test.ok(isType(e.caught, "Mistake"));
+
+		test.ok(s.starts("data"));
+		test.ok(s.has("caught chop"));
+		test.ok(s.has("mistake4() start() _clip()"));
+	}
+	done(test);
+}
+
+//5. pass to f(e) a platform error, no program mistake at all, nothing thrown
+/*
+{ [Error: ENOENT, open 'c:\node\notfound.ext']
+  errno: 34,
+  code: 'ENOENT',
+  path: 'c:\\node\\notfound.ext' }
+*/
+function mistake5(f) {
 	platformFile.open("notfound.ext", "r", function(error, file) {
 		if (error) f(error);
 	});
 }
+exports.testMistake5 = function(test) {
+	try {
+		mistake4();
+		test.fail();
+	} catch (e) {
+		var s = say(e);
 
-function mistake6(f) {//pass to f(e) a platform error enclosed in a tossed and then caught mistake
+
+
+
+
+
+
+
+/*
+		test.ok(e.name == "data");
+		test.ok(isType(e, "Mistake"));
+
+		test.ok(e.caught.name == "chop");
+		test.ok(isType(e.caught, "Mistake"));
+
+		test.ok(s.starts("data"));
+		test.ok(s.has("caught chop"));
+		test.ok(s.has("mistake4() start() _clip()"));
+		*/
+	}
+	done(test);
+}
+
+//6. pass to f(e) a platform error enclosed in a tossed and then caught mistake
+/*
+data
+toss_test.js:198
+
+caught { [Error: ENOENT, open 'c:\node\notfound.ext']
+  errno: 34,
+  code: 'ENOENT',
+  path: 'c:\\node\\notfound.ext' }
+*/
+function mistake6(f) {
 	platformFile.open("notfound.ext", "r", function(error, file) {
 		if (error) {
 			try {
@@ -139,8 +344,32 @@ function mistake6(f) {//pass to f(e) a platform error enclosed in a tossed and t
 		}
 	});
 }
+exports.testMistake6 = function(test) {
 
-function mistake7(done) {//a combination of everything fancy
+
+
+
+	done(test);
+}
+
+//7. a combination of everything fancy
+/*
+program
+next() a() b() c() d() e() f() toss_test.js:228
+settings not available
+
+caught disk
+next() a() b() c() toss_test.js:219
+couldnt open file
+name: notfound.ext
+access: r
+
+caught { [Error: ENOENT, open 'c:\node\notfound.ext']
+  errno: 34,
+  code: 'ENOENT',
+  path: 'c:\\node\\notfound.ext' }
+*/
+function mistake7(done) {
 
 	var name   = "notfound.ext";
 	var access = "r";
@@ -171,197 +400,29 @@ function mistake7(done) {//a combination of everything fancy
 		}
 	}
 }
+exports.testMistake7 = function(test) {
 
-
-
-
-
-
-//   _____             
-//  |_   _|__  ___ ___ 
-//    | |/ _ \/ __/ __|
-//    | | (_) \__ \__ \
-//    |_|\___/|___/___/
-//                     
-
-exports.testToss = function(test) {
-
-	try {
-		toss();
-		test.fail();
-	} catch (e) {}
-
-	try {
-		toss("custom");
-		test.fail();
-	} catch (e) { test.ok(e.name == "custom"); }
-
-	try {
-		toss("custom", {note:"a note about what happened"});
-		test.fail();
-	} catch (e) { test.ok(e.name == "custom"); }
-
-	test.done();
-}
-
-if (demo("toss")) { demoToss(); }
-function demoToss() {
-	try {
-
-		pathCheck(Path("C:\\name"), Path("C:\\name2"));//tosses because name2 is longer, and starts with name, but doesn't have a slash to actually be inside
-
-	} catch (e) { log(e); }//see how much you get just from logging e, like name, note, watch, from, and stack
-}
-//TODO have toss inject e.text() to show name, note, watch, from, and stack
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//text has toss
-//state has mistake
-//you're writing new tests here in disk, but obviously put them in the right place afterwards
-
-
-
-
-
-
-
-
-
-
-//Object.Data.o.get (e:\Desk\Dropbox\node\data.js:131:31)
-//is turning, quite correctly, into just get() 131
-//but that's not enough, so maybe include the filename at the end, get() data.js:131
-
-
-
-/*
-exports.testSayToss = function(test) {
-
-
-	try {
-
-		toss("data");
-	} catch (e) { test.ok(e.name == "data"); }
-
-	var d = base16("aabbccddeeff");
-	try { d._clip(6, 1); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//clipping 1 from the end is not
 
 
 
 	done(test);
 }
-*/
 
+//8. a completely blank toss
 /*
-exports.testHasMethod = function(test) {
+exception
+catchMistake() mistake8() toss_test.js:237
 
-//	test.ok(hasMethod(Data(), "base62"));//there
-
-/*
-	fuzz(Data(), "base62", "function");
-
-	var o = Data();
-	var name = 
-
-	log("square ", (o && typeof o[name] == result);
-	log("dot    ", (o && typeof o.name == result);
-
-
-
-
-
-	test.done();
-}
 */
-
-
-
-exports.testDataOut = function(test) {
-
-	//buffer
-	var d = base16("0d0a");
-
-
-	test.done();
-};
-
-
-
-
-
-
-/*
-exports.testSayToss = function(test) {
-
-	var a = "apple";
-	var b = "banana";
-	var c = "carrot";
-	var d;
-	if (platform() == "windows") d = Path("D:\\downloads");
-	else                         d = Path("/downloads");
-
-
-	try {
-		toss("data", {note:"situation explained", watch:{a:a, b:b, c:c, d:d}});
-	} catch (e) { log(e); }
-
-	test.done();
+function mistake8() {
+	toss();
 }
-*/
+exports.testMistake8 = function(test) {
 
 
 
 
-
-
-
-
-
-
-
-
-if (demo("say-toss")) { demoSayToss(); }
-function demoSayToss() {
-
-	try { a(); } catch (e) { log(e); }
-	function a() { b(); }
-	function b() { c(); }
-	function c() { Path("file.ext"); }
-}
-
-
-
-
-
-// Show the given raw call stack text, and what we can parse from it
-function sayStack(stack) {
-	var a = parseCallStack(stack);
-	var s = "";
-	s += line();
-	s += line(stack);
-	s += line();
-	for (var i = 0; i < a.length; i++)
-		s += line("here:'#' file:'#' line:'#' function:'#'".fill(a[i].here, a[i].file, a[i].line, a[i].functionName))
-	return s;
+	done(test);
 }
 
 
@@ -369,18 +430,41 @@ function sayStack(stack) {
 
 
 
-//TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //test in node webkit, the our code means a path in pwd trick might not work
-//pull the last function name from the call stack so you can write code like if (e.from == "pathCheck")
-//get a common platform error like file not found to see what those look like
 //later, the one line summary would be a cool part of an asynchronous call stack
 //combine toss and mistake
 //rename path's underscore functions to not have underscores, you're overusing underscore unnecessarily
 
-//get the stack trace from the exception, keep stuff you get by default like file, line number, and ^ by line of code
-//show the error to the user, like write a .txt file and shell execute it before exiting
-//send the error in a packet to the programmer
-//in describe exception, pull out the type and note, and have wrap at the end and then document that lower, or can you just loop through all the keys in the hash actually
 
 //if it's just throw("data"), confirm that is just one line on the log, not even a newline, if you want it that way
 //write tests, not just demos, because the summary form doesn't incldue paths that are specific to where we're running now
@@ -390,20 +474,6 @@ function sayStack(stack) {
 
 
 
-//here's how to make your error
-/*
-fs.open(path, flags, [mode], callback)#
-Asynchronous file open. See open(2). flags can be:
-
-'r' - Open file for reading. An exception occurs if the file does not exist.
-*/
-
-
-
-
-//an easy way to figure out what's going on with . and [] would be to install the other in each, and have it log when somethign comes in that works for the primary but not the secondary
-//then maybe you can really understand it, write tests that demonstrate what you found out, and have a single safe consistant way for both
-//yeah, that's worth doing
 
 
 
@@ -421,6 +491,18 @@ Asynchronous file open. See open(2). flags can be:
 
 
 
+//text has toss
+//state has mistake
+//you're writing new tests here, move them to the start of state_test.js when they're done
+
+
+
+
+
+
+
+
+//in path, test C:file.ext, the path style before dos had folders
 
 
 
@@ -434,38 +516,6 @@ Asynchronous file open. See open(2). flags can be:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//some more text and data
-
-if (demo("more-data")) { demoData(); }
-function demoData() {
-
-	log("hi");
-
-	log("hello".data().size());
-
-
-
-
-
-}
 
 
 

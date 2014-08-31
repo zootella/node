@@ -78,14 +78,14 @@ function _mistake(name, e, stack) {
 	if (name) e.name = name; // Save the given name into it
 	e.stack = stack;         // Generate the call stack to here
 	e.text = function() { return _sayMistake(e); } // Add the function that will describe the exception as text
-	e.type = "Mistake";                           // Mark this as a custom program exception
-	return e;
+	e.type = "Mistake";                            // Mark this as a custom program exception
+	return freeze(e);
 }
 
 // Describe e, a program Mistake our code created and threw
 function _sayMistake(e) {
 	var s = "";
-	if (e.name)  s += line(e.name);
+	if (e.name)  s += line(e.name); else s += line("exception"); // Toss name is optional
 	if (e.stack) s += line(stackLine(e.stack));
 	if (e.note)  s += line(e.note);
 	if (e.watch) {
@@ -142,10 +142,23 @@ function stackParse(stack) {
 	return r;
 }
 
+// Show the given raw call stack text, and what we parsed from it
+function stackSay(stack) {
+	var a = stackParse(stack);
+	var s = "";
+	s += line();
+	s += line(stack); // A string with newlines
+	s += line();
+	for (var i = 0; i < a.length; i++)
+		s += line("here:'#' file:'#' line:'#' function:'#'".fill(a[i].here, a[i].file, a[i].line, a[i].functionName))
+	return s;
+}
+
 exports.toss = toss;
 exports.Mistake = Mistake;
 exports.stackLine = stackLine;
 exports.stackParse = stackParse;
+exports.stackSay = stackSay;
 
 
 
@@ -182,8 +195,9 @@ function hasMethod(o, name) { return hasPropertyOfType(o, name, "function"); }
 
 // Text that describes the type of o, like "string" or "Data"
 function getType(o) {
-	if (hasPropertyOfType(o, "type", "string")) return o.type; // Use the type string we add to custom objects
-	return typeof o;                                           // Use the typeof operator
+	if (o instanceof Error) return "Error"; // Identify platform error objects, typeof o is just "object"
+	else if (hasPropertyOfType(o, "type", "string")) return o.type; // Use the type string we add to custom objects
+	else return typeof o;                                           // Use the typeof operator
 }
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) toss("type"); } // Throw type if o is not of type name
