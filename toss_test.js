@@ -459,98 +459,14 @@ exports.testMistake8 = function(test) {
 
 
 
-
+//TODO
 //test in node webkit, the our code means a path in pwd trick might not work
 //later, the one line summary would be a cool part of an asynchronous call stack
 //combine toss and mistake
 //rename path's underscore functions to not have underscores, you're overusing underscore unnecessarily
-
-
-//if it's just throw("data"), confirm that is just one line on the log, not even a newline, if you want it that way
-//write tests, not just demos, because the summary form doesn't incldue paths that are specific to where we're running now
-
-//try out and improve sayError, maybe use inspect
-
-
-
-
-
-
-
-
-
-//ok, you moved mistake to state, but then data tests started failing, until you adjusted something in load
-//you don't like this--write a little function near the top of text, have it use toss, call it from a demo in disk, and confirm that text functions can use toss
-//because toss is called in exceptional circumstances, it would be bad if it didn't work reliably, because you might not find out until data arrives that causes a toss line to run, and only then would it not work, and you'd never know
-//and then also, just move this whole section back to the top of text
-//mistake stays, toss goes back to the top of text, mistake in state gets a little simpler, you can roll back the change you made to load, this is a great solution
-
-
-//have mistakeLog(name, e), which calls Mistake, and then logs it
-
-
-
-
-//text has toss
-//state has mistake
-//you're writing new tests here, move them to the start of state_test.js when they're done
-
-
-
-
-
-
-
-
+//text has toss, state has mistake, all the tests are here, move them to state_test.js when done
+//have mistakeLog(name, e), which calls Mistake, and then logs it, change every call to mistakeLog to not make up the fake object inline
 //in path, test C:file.ext, the path style before dos had folders
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
