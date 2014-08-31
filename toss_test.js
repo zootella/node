@@ -24,7 +24,7 @@ require("./load").load("state_test", function() { return this; });
 
 
 
-//examples of how exceptions behave
+//demos of basic use
 
 //run code that throws an exception
 if (demo("throw")) { demoThrow(); }
@@ -79,14 +79,7 @@ function demoTimeoutThrow() {
 
 
 
-
-
-
-
-
-
-
-//test to confirm that toss throws an exception, and code can catch it and see what name it has
+//test of basic use
 
 exports.testToss = function(test) {
 
@@ -110,9 +103,7 @@ exports.testToss = function(test) {
 
 
 
-
-
-//examples of a real exceptions with details
+//demos of real exceptions with details
 
 if (demo("path-1")) { demoPath1(); }
 function demoPath1() {
@@ -141,7 +132,7 @@ function demoPath2() {
 
 
 
-//demos that catch or receive example exceptions
+//demos and tests that catch or receive example exceptions
 
 if (demo("mistake-1")) { catchMistake(mistake1); }
 if (demo("mistake-2")) { catchMistake(mistake2); }
@@ -151,20 +142,14 @@ if (demo("mistake-5")) { getMistake(mistake5); }
 if (demo("mistake-6")) { getMistake(mistake6); }
 if (demo("mistake-7")) { getMistake(mistake7); }
 if (demo("mistake-8")) { catchMistake(mistake8); }
-
-//demo exceptions lead to mistake stop, as they would in a bigger program
-
 function catchMistake(f) {//synchronous behavior
 	try {
 		f();//call the given function f
 	} catch (e) { mistakeStop(e); }//and catch the exception e that it throws
 }
-
 function getMistake(f) {//asynchronous behavior
 	f(function (e) { mistakeStop(e); });//call the given function f, giving it a function that will receive the exception e later
 }
-
-//example functions that throw or pass exceptions, what e.text() looks like in the demo, and tests
 
 //1. throw a simple mistake
 /*
@@ -180,13 +165,16 @@ exports.testMistake1 = function(test) {
 		mistake1();
 		test.fail();
 	} catch (e) {
-		var s = say(e);
+
+		test.ok(isType(e, "Mistake"));//look at e
 		test.ok(e.name == "data");
-		test.ok(isType(e, "Mistake"));
+
+		var s = say(e);//check text form
 		test.ok(s.starts("data"));
 		test.ok(s.has("mistake1()"));
+
+		done(test);
 	}
-	done(test);
 }
 
 //2. throw a detailed mistake, with all the bells and whistles
@@ -212,16 +200,19 @@ exports.testMistake2 = function(test) {
 		mistake2();
 		test.fail();
 	} catch (e) {
-		var s = say(e);
+
+		test.ok(isType(e, "Mistake"));//look at e
 		test.ok(e.name == "data");
 		test.ok(e.note == "note about what happened");
-		test.ok(isType(e, "Mistake"));
+
+		var s = say(e);//check text form
 		test.ok(s.starts("data"));
 		test.ok(s.has("mistake2()"));
 		test.ok(s.has("a: apple"));
 		test.ok(s.has("d: Text in a Data object"));
+
+		done(test);
 	}
-	done(test);
 }
 
 //3. throw a deep mistake, with a long call stack of program functions
@@ -241,13 +232,16 @@ exports.testMistake3 = function(test) {
 		mistake3();
 		test.fail();
 	} catch (e) {
-		var s = say(e);
+
+		test.ok(isType(e, "Mistake"));//look at e
 		test.ok(e.name == "data");
-		test.ok(isType(e, "Mistake"));
+
+		var s = say(e);//check text form
 		test.ok(s.starts("data"));
 		test.ok(s.has("mistake3() a() b() c()"));
+
+		done(test);
 	}
-	done(test);
 }
 
 //4. throw a nested mistake, with a caught mistake inside
@@ -269,22 +263,23 @@ exports.testMistake4 = function(test) {
 		mistake4();
 		test.fail();
 	} catch (e) {
-		var s = say(e);
 
+		test.ok(isType(e, "Mistake"));//look at e
 		test.ok(e.name == "data");
-		test.ok(isType(e, "Mistake"));
 
-		test.ok(e.caught.name == "chop");
+		test.ok(e.caught.name == "chop");//look at e.caught
 		test.ok(isType(e.caught, "Mistake"));
 
+		var s = say(e);//check text form
 		test.ok(s.starts("data"));
 		test.ok(s.has("caught chop"));
 		test.ok(s.has("mistake4() start() _clip()"));
+
+		done(test);
 	}
-	done(test);
 }
 
-//5. pass to f(e) a platform error, no program mistake at all, nothing thrown
+//5. pass to f(e) a platform error, no program mistake at all, nothing thrown or caught
 /*
 { [Error: ENOENT, open 'c:\node\notfound.ext']
   errno: 34,
@@ -297,32 +292,20 @@ function mistake5(f) {
 	});
 }
 exports.testMistake5 = function(test) {
-	try {
-		mistake4();
-		test.fail();
-	} catch (e) {
-		var s = say(e);
+	mistake5(function (e) {
 
+		test.ok(isType(e, "Error"));//look at e
+		test.ok(e.errno == 34);
+		test.ok(e.code == "ENOENT");
+		test.ok(e.path.ends("notfound.ext"));
 
+		var s = say(e);//check text form
+		test.ok(s.has("[Error: ENOENT, open '"));
+		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("code: 'ENOENT',"));
 
-
-
-
-
-
-/*
-		test.ok(e.name == "data");
-		test.ok(isType(e, "Mistake"));
-
-		test.ok(e.caught.name == "chop");
-		test.ok(isType(e.caught, "Mistake"));
-
-		test.ok(s.starts("data"));
-		test.ok(s.has("caught chop"));
-		test.ok(s.has("mistake4() start() _clip()"));
-		*/
-	}
-	done(test);
+		done(test);//mark the text done in the callback to make sure it gets called
+	});
 }
 
 //6. pass to f(e) a platform error enclosed in a tossed and then caught mistake
@@ -345,11 +328,24 @@ function mistake6(f) {
 	});
 }
 exports.testMistake6 = function(test) {
+	mistake6(function (e) {
 
+		test.ok(isType(e, "Mistake"));//look at e
+		test.ok(e.name == "data");
 
+		test.ok(isType(e.caught, "Error"));//look at the caught and contained error
+		test.ok(e.caught.errno == 34);
+		test.ok(e.caught.code == "ENOENT");
+		test.ok(e.caught.path.ends("notfound.ext"));
 
+		var s = say(e);//check text form
+		test.ok(s.starts("data"));
+		test.ok(s.has("caught { [Error: ENOENT, open '"));
+		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("code: 'ENOENT',"));
 
-	done(test);
+		done(test);
+	});
 }
 
 //7. a combination of everything fancy
@@ -401,11 +397,38 @@ function mistake7(done) {
 	}
 }
 exports.testMistake7 = function(test) {
+	mistake7(function (e) {
 
+		test.ok(isType(e, "Mistake"));//look at e
+		test.ok(e.name == "program");
+		test.ok(e.note == "settings not available");
 
+		test.ok(isType(e.caught, "Mistake"));//caught and kept inside
+		test.ok(e.caught.name == "disk");
+		test.ok(e.caught.note == "couldnt open file");
+		test.ok(e.caught.watch.name == "notfound.ext");
+		test.ok(e.caught.watch.access == "r");
 
+		test.ok(isType(e.caught.caught, "Error"));//inside again
+		test.ok(e.caught.caught.errno == 34);
+		test.ok(e.caught.caught.code == "ENOENT");
+		test.ok(e.caught.caught.path.ends("notfound.ext"));
 
-	done(test);
+		var s = say(e);//check text form
+		test.ok(s.starts("program"));
+		test.ok(s.has("a() b() c() d() e() f()"));
+		test.ok(s.has("settings not available"));
+
+		test.ok(s.has("caught disk"));
+		test.ok(s.has("couldnt open file"));
+		test.ok(s.has("name: notfound.ext"));
+
+		test.ok(s.has("caught { [Error: ENOENT, open '"));
+		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("code: 'ENOENT',"));
+
+		done(test);
+	});
 }
 
 //8. a completely blank toss
@@ -415,14 +438,23 @@ catchMistake() mistake8() toss_test.js:237
 
 */
 function mistake8() {
-	toss();
+	toss();//not even a name
 }
 exports.testMistake8 = function(test) {
+	try {
+		mistake8();
+		test.fail();
+	} catch (e) {
 
+		test.ok(isType(e, "Mistake"));//look at e
+		test.ok(!e.name);//no name, not even a blank name
 
+		var s = say(e);//check text form
+		test.ok(s.starts("exception"));//say labels it an exception when there is no name
+		test.ok(s.has("mistake8()"));
 
-
-	done(test);
+		done(test);
+	}
 }
 
 
