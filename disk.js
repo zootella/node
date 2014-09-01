@@ -312,7 +312,7 @@ function Monitor(next) {//monitor the completion of an asynchronous call
 
 	o.state = makeState();//a resource has state, meaning
 	o.state.close = function() {//we have to remember to close it
-		if (state.already()) return;
+		if (o.state.already()) return;
 	};
 	o.state.pulse = function() {//and the program will pulse it for us
 		if (t.expired(Time.timeout)) {
@@ -338,7 +338,7 @@ function Monitor(next) {//monitor the completion of an asynchronous call
 
 
 
-function Result(t, e, a) {
+function Result(t, e, a) {//time, error, answer
 	var o = {};
 
 	// Properties you can look at directly

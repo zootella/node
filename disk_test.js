@@ -142,13 +142,50 @@ function pathDelete(path, next) {
 
 
 
+//rename Monitor m to Task task, if everything is a single letter, they all get to look the same
+//the pair then is Task and Result
+
+
+//next step
+//write a demo Resource that uses the o method of objects, which is what you should probably standardize on everywhere, and closes itself using close(o), to confirm that you can
+
+
+//the problem with isClosed(o) is, it should throw or whatever if o is bad, not just return false
+//so maybe instead have callback() {
+//if (task.state.isClosed()) return;
+//and if that's useful, maybe makeState(o), which mixes in state, and isClosed, isOpen, close
+//now that you're using o, there are more options
+
+
+//confirm you can do something wrong in a callback, not catch it, and node will shut you down
+//do an actual example, easiest is {}.notfound;
+//demonstrate this in a demo for safe keeping, also
+
+
+//yeah, instead of
+/*
+current design:
+
+var o = {};
+o.state = makeState();
+
+new possible design:
+
+var o = makeState();
+
+gives you one that already has the state variables and methods
+this is a lot more like a base class
+*/
+
+
+//have listState check that you added a close method
 
 
 
 
 
-
-
+//this is a good test, uncomment and fix and use it
+/*
 exports.testResult = function(test) {
 
 	var t = now();
@@ -196,11 +233,63 @@ exports.testResult = function(test) {
 
 	done(test);
 }
+*/
 
 
 
 
+//yes, change state to be like this
 
+//var o = mustClose();
+//and o comes at you preloaded with _closed, isClosed, and so on
+
+//don't have o.isOpen(), use !o.isClosed()
+
+//write close(a, b, c), that's the only function
+//don't have global functions isClosed, isOpen, use the method o.isClosed()
+
+//done this way, you don't need listState anymore, mustClose adds it to the list right at the start, and the caller will put in the close method before pulse runs on that
+//see what happens when you forget to add a close, you expect that the next pulse will just throw
+
+//name wise, it's not called State anymore, it's called Close
+//make that the magic word to avoid elsewhere, have all the premixed in members contain the word close
+//rename already to alreadyClosed
+
+//you don't need confirmOpen, but see where you were using it in the java code just in case
+
+//equally acceptable ways to close o are
+//close(o), using the a, b, c, that doesn't complain if you hand it anything
+//o.close(), calling the method directly
+//have close(a, b, c) be fine if a is null or undefined, but if it's a string, or an object that doesnt' have a close(), have it throw, because that's a coding error that should be noticed
+
+
+//all of closed is this
+/*
+
+//preloaded
+o._closed
+o.isClosed()
+o.alreadyClosed()
+
+//required for you to add
+o.close()
+
+//optional for you to add
+o.pulse()
+o.pulseScreen()
+
+*/
+//that's pretty tight and simple
+
+//names to say: close, pulse
+//names to avoid: state, open, done
+
+
+
+//start out with a test to make sure that double closure oh my god what does it mean works
+//see if an outsider can call functions that can access a local variable in the innermost, and outer, function
+//if so, this is an awesome way to make _closed private
+//even see what happens if the outermost user has their own _closed variable, or doesnt' matter, really
 
 
 
