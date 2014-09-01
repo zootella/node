@@ -603,6 +603,7 @@ exports.testMissing = function(test) {
 	done(test);
 }
 
+/*
 //example object that needs to get closed
 function Resource(setName) {
 
@@ -627,7 +628,31 @@ function Resource(setName) {
 		text:text
 	});
 };
+*/
 
+//example object that needs to get closed
+function Resource(setName) {
+	var o = mustClose();
+
+	var _name = setName;//save the given name
+	o.text = function() {//describe this resource as text
+		if (_name) return _name;
+		else       return "untitled resource";
+	}
+
+	o.close = function() {//we have to remember to close it
+		if (o.alreadyClosed()) return;
+	};
+	o.pulse = function() {//and the program will pulse it for us
+		var s = "pulse";
+		if (_name) s += " " + _name;
+		log(s);
+	}
+
+	return o;
+};
+
+/*
 exports.testClose = function(test) {
 
 	var r = Resource();//make a new object that we must close
@@ -651,39 +676,38 @@ exports.testClose = function(test) {
 
 	done(test);
 }
+*/
 
 exports.testCycle = function(test) {
 
 	var r;
 	test.ok(!r);//not made yet
 	r = Resource();
-	test.ok(isOpen(r));//new and open
+	test.ok(!r.isClosed());//new and open
 	close(r);
-	test.ok(isClosed(r));//closed
+	test.ok(r.isClosed());//closed
 	r = null;
 	test.ok(!r);//discarded
 
-	done(test);
+	done(test);		
 }
 
 exports.testCloseTwo = function(test) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
-	test.ok(isOpen(r1));//both start out open
-	test.ok(isOpen(r2));
+	test.ok(!r1.isClosed());//both start out open
+	test.ok(!r2.isClosed());
 
 	close(r2);//close one
-	test.ok(isOpen(r1));//confirm this didn't change the first one
-	test.ok(isClosed(r2));
+	test.ok(!r1.isClosed());//confirm this didn't change the first one
 
 	close(r1);//close the other one
-	test.ok(isClosed(r1));//now they're both closed
-	test.ok(isClosed(r2));
+	test.ok(r1.isClosed());//now they're both closed
+	test.ok(r2.isClosed());
 
 	done(test);
 }
-
 
 
 

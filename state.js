@@ -219,7 +219,6 @@ exports.exit = exit;
 
 
 
-/*
 //new close!
 
 // Close the given objects, ignoring null and exceptions
@@ -251,19 +250,21 @@ function mustClose() {
 	};
 
 	/*
+	// Functions for you to add to o, o.close() is required, o.pulse() and o.pulseScreen() are optional
+
 	// Close your objects inside, put away resources, and never change again
-	// Your object must add this function
-	o.close = function() { if (o.alreadyClosed()) return; (then close your contents) };
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+		// Then close your contents here
+	};
 
 	// Notice things inside your object that have changed or finished, and do the next step to move forward
-	// Add your own function, and the program will call it periodically
 	o.pulse = function() {};
 
 	// Compose text and information for the user based on the current state of things
-	// Add your own function, and the program will call it periodically
 	o.pulseScreen = function() {};
 	*/
-/*
+
 	// Add the given new object that needs to be closed to the program's list of open objects to keep track of it
 	// It's safe to add to the end of the list even during a pulse because we loop by index number
 	// The objects in the list are in the order they were made, so contained objects are after those that made them
@@ -277,7 +278,6 @@ exports.close = close;
 exports.mustClose = mustClose;
 
 //end of new close! stuff that covers over below is commented out
-*/
 
 
 
@@ -291,6 +291,7 @@ exports.mustClose = mustClose;
 //   \____|_|\___/|___/\___|
 //                          
 
+/*
 // Close o ignoring null and exceptions
 function close(o) {
 	if (isOpen(o)) {
@@ -306,6 +307,7 @@ function isOpen(o) { return o && o.state && !o.state._closed; } // True if o exi
 exports.close = close;
 exports.isClosed = isClosed;
 exports.isOpen = isOpen;
+*/
 
 //   ____  _        _       
 //  / ___|| |_ __ _| |_ ___ 
@@ -314,6 +316,7 @@ exports.isOpen = isOpen;
 //  |____/ \__\__,_|\__\___|
 //                          
 
+/*
 // Make a state inside your object so the program will pulse it, and notice if you forget to later close it
 function makeState() {
 	var state = {}; // The state object we will fill and return
@@ -363,6 +366,7 @@ function listState(o) {
 
 exports.makeState = makeState;
 exports.listState = listState;
+*/
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -376,7 +380,7 @@ var list = []; // Every object the program needs to close, and hasn't yet
 // Remove objects that got closed from the list
 function clear() {
 	for (var i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-		if (isClosed(list[i])) // Only remove closed objects
+		if (list[i].isClosed()) // Only remove closed objects
 			list.remove(i);
 	}
 	if (!list.length) dingStop(); // Stop the ding if the list is empty
