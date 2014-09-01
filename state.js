@@ -219,15 +219,65 @@ exports.exit = exit;
 
 
 
+/*
+//new close!
 
+// Close the given objects, ignoring null and exceptions
+function close() {
+	for (var i = 0; i < arguments.length; i++) { // Use like close(o) or close(o1, o2, o3)
+		var o = arguments[i];
+		try {
+			if (o) o.close(); // Skip null and undefined, but log a mistake if o exists but doesn't have close()
+		} catch (e) { mistakeLog(e); } // Keep going to close the next object
+	}
+}
 
+// Make your object so the program will pulse it, and notice if you forget to later close it
+function mustClose() {
+	var o = {}; // The start of your object we will fill and return
 
+	var _isClosed = false; // True once the containing object has been closed, and promises to not change again
+	o.isClosed = function() { return _isClosed; }
 
+	// Mark this object as closed, and only do this once
+	// Start your close() function with the line "if (o.alreadyClosed()) return;"
+	// The first time already() runs, it marks this object as closed and returns false
+	// Try calling it again, and it will just return true
+	o.alreadyClosed = function() {
+		if (_isClosed) return true; // We're already closed, return true to return from the close() function
+		_isClosed = true;           // Mark this object as now permanently closed
+		soon();                         // Have the program pulse soon so the object that made this one can notice it finished
+		return false;                   // Return false to run the contents of your close() function this first and only time
+	};
 
+	/*
+	// Close your objects inside, put away resources, and never change again
+	// Your object must add this function
+	o.close = function() { if (o.alreadyClosed()) return; (then close your contents) };
 
+	// Notice things inside your object that have changed or finished, and do the next step to move forward
+	// Add your own function, and the program will call it periodically
+	o.pulse = function() {};
 
+	// Compose text and information for the user based on the current state of things
+	// Add your own function, and the program will call it periodically
+	o.pulseScreen = function() {};
+	*/
+/*
+	// Add the given new object that needs to be closed to the program's list of open objects to keep track of it
+	// It's safe to add to the end of the list even during a pulse because we loop by index number
+	// The objects in the list are in the order they were made, so contained objects are after those that made them
+	list.add(o);
+	dingStart(); // Start the ding if it's not started already
+	soon();      // Have the program pulse this new object soon
+	return o;    // Return the same object to pass it through
+};
 
+exports.close = close;
+exports.mustClose = mustClose;
 
+//end of new close! stuff that covers over below is commented out
+*/
 
 
 

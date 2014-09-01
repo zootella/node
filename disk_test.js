@@ -295,6 +295,77 @@ o.pulseScreen()
 
 
 
+function addCore() {
+	var o = {};//the object we will fill and return
+
+	var _color = "white";//local variable not attached to o
+	o.getColor = function () { return _color; }
+	o.setColor = function (c) { _color = c; }
+
+	return o;
+}
+
+function addMore(o) {//the object we will add more to
+
+	var _shape = "amorphous";//another local variable also not attached to o
+	o.getShape = function () { return _shape; }
+	o.setShape = function (s) { _shape = s; }
+}
+
+exports.testDoubleClosure = function(test) {//omg what does it mean
+
+	var o = addCore();//make a new object that has color
+	addMore(o);//add to it the ability to hold shape
+
+	var p = addCore();//make another one to show they don't clash
+	addMore(p);
+
+	test.ok(o.getColor() == "white");//reading the defaults works
+	test.ok(o.getShape() == "amorphous");
+
+	o.setColor("blue");//and you can change them both
+	o.setShape("triangle");
+	test.ok(o.getColor() == "blue");
+	test.ok(o.getShape() == "triangle");
+
+	test.ok(o.getColor());
+	test.ok(o.getShape());
+	test.ok(!o._color);//the enclosed local variables are really private
+	test.ok(!o._shape);
+
+	test.ok(p.getColor() == "white");//none of that changed the second object
+	test.ok(p.getShape() == "amorphous");
+	p.setColor("red");
+	p.setShape("circle");
+	test.ok(p.getColor() == "red");//which can be changed independently
+	test.ok(p.getShape() == "circle");
+	test.ok(o.getColor() == "blue");//separate of the first one
+	test.ok(o.getShape() == "triangle");
+
+	done(test);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
