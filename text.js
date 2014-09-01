@@ -76,19 +76,20 @@ mistakeLog(Mistake("data", {note:"what happened", caught:e, watch:{a:a, b:b, c:c
 Check like if (e.name == "data")
 */
 
-function toss(name, e)    { throw  _mistake(name, e, (new Error()).stack); } // Throw it
-function Mistake(name, e) { return _mistake(name, e, (new Error()).stack); } // Return it without throwing it
-function _mistake(name, e, stack) {
+function toss(name, e)    { throw  mistakeMake(name, e, (new Error()).stack); } // Throw it
+function Mistake(name, e) { return mistakeMake(name, e, (new Error()).stack); } // Return it without throwing it
+
+function mistakeMake(name, e, stack) {
 	if (!e) e = {};          // Make a blank object to fill if we weren't given one to add to
 	if (name) e.name = name; // Save the given name into it
 	e.stack = stack;         // Generate the call stack to here
-	e.text = function() { return _sayMistake(e); } // Add the function that will describe the exception as text
-	e.type = "Mistake";                            // Mark this as a custom program exception
+	e.text = function() { return mistakeSay(e); } // Add the function that will describe the exception as text
+	e.type = "Mistake";                           // Mark this as a custom program exception
 	return freeze(e);
 }
 
 // Describe e, a program Mistake our code created and threw
-function _sayMistake(e) {
+function mistakeSay(e) {
 	var s = "";
 	if (e.name)  s += line(e.name); else s += line("exception"); // Toss name is optional
 	if (e.stack) s += line(stackLine(e.stack));
@@ -161,9 +162,6 @@ function stackSay(stack) {
 
 exports.toss = toss;
 exports.Mistake = Mistake;
-exports.stackLine = stackLine;
-exports.stackParse = stackParse;
-exports.stackSay = stackSay;
 
 
 

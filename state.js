@@ -193,7 +193,7 @@ function exit() {
 
 // Compose text about the given exception
 function _logException(e) {
-	var s = say(e);
+	var s = say(e); // Works even if e isn't a mistake or error, and things are really broken
 	log(s);
 	//TODO show s in a window on the screen
 	//TODO save s to a text file and open it so it appears even if the program is otherwise broken
