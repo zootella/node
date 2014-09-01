@@ -163,6 +163,9 @@ function stackSay(stack) {
 exports.toss = toss;
 exports.Mistake = Mistake;
 
+//TODO find and use or make a system that does not just 1 call stack, 2 catch and nest, which you already have, but 3 build a story across multiple events, the single line call stack from stackLine() would work well with this
+//TODO test in node webkit, the our code means a path in pwd trick that stackParse uses might not work
+
 
 
 

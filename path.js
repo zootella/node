@@ -246,3 +246,16 @@ exports.pathNumber = pathNumber;
 
 
 
+
+
+
+
+//TODO rename path's underscore functions to not have underscores, you're using these elsewhere and overusing underscore as a signal of private
+//TODO test "C:file.ext", the path style before dos had folders, Path throws on resolved changed, but you should add a test for that
+
+
+
+
+
+
+
