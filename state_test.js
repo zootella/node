@@ -603,33 +603,6 @@ exports.testMissing = function(test) {
 	done(test);
 }
 
-/*
-//example object that needs to get closed
-function Resource(setName) {
-
-	var _name = setName;//save the given name
-	function text() {//describe this resource as text
-		if (_name) return _name;
-		else       return "untitled resource";
-	}
-
-	var state = makeState();//a resource has state, meaning
-	state.close = function() {//we have to remember to close it
-		if (state.already()) return;
-	};
-	state.pulse = function() {//and the program will pulse it for us
-		var s = "pulse";
-		if (_name) s += " " + _name;
-		log(s);
-	}
-
-	return listState({//remember to pass the return object through listState()
-		state:state,
-		text:text
-	});
-};
-*/
-
 //example object that needs to get closed
 function Resource(setName) {
 	var o = mustClose();
@@ -710,6 +683,17 @@ exports.testCloseTwo = function(test) {
 }
 
 
+//test close(a, b) just to make sure that works
+//throw in null and undefined
+//throw in "hi", and see mistake log log it, but keep going
+//close(r1, null, undefined, "hi", r2)
+//r1 and r2 boht get closed
+//null and undefined get ignored
+//hi gets mistake logged, but that's it
+//this might have to be a demo to see th emistake log, that's fine
+
+
+
 
 
 
@@ -736,18 +720,16 @@ if (demo("pulse")) { demoPulse(); }
 function demoPulse() {
 
 	function ExamplePulse() {
+		var o = mustClose();
 
-		var state = makeState();
-		state.close = function() {
-			if (state.already()) return;
+		o.close = function() {
+			if (state.alreadyClosed()) return;
 		};
-		state.pulse = function() {
+		o.pulse = function() {
 			log("pulse");
 		}
 
-		return listState({
-			state:state
-		});
+		return o;
 	};
 
 	log("here we go");
@@ -760,18 +742,16 @@ if (demo("pulse-throw")) { demoPulseThrow(); }
 function demoPulseThrow() {
 
 	function ExamplePulseThrow() {
+		var o = mustClose();
 
-		var state = makeState();
-		state.close = function() {
-			if (state.already()) return;
+		o.close = function() {
+			if (o.alreadyClosed()) return;
 		};
-		state.pulse = function() {
+		o.pulse = function() {
 			Data("hello").start(6);//throws chop
 		}
 
-		return listState({
-			state:state
-		});
+		return o;
 	};
 
 	var u = ExamplePulseThrow();//make a new object which will throw on the first pulse
@@ -801,33 +781,29 @@ if (demo("pulse-two")) { demoPulseTwo(); }
 function demoPulseTwo() {
 
 	function Pulse1() {
-		var state = makeState();
-		state.close = function() {
-			if (state.already()) return;
+		var o = mustClose();
+		o.close = function() {
+			if (o.alreadyClosed()) return;
 			log("closed 1");
 		};
-		state.pulse = function() {
+		o.pulse = function() {
 			log("pulse 1");
-			if (start.expired(2*Time.second)) state.close();//close this pulse1 object
+			if (start.expired(2*Time.second)) close(o);//close this pulse1 object
 		}
-		return listState({
-			state:state
-		});
+		return o;
 	};
 
 	function Pulse2() {
-		var state = makeState();
-		state.close = function() {
-			if (state.already()) return;
+		var o = mustClose();
+		o.close = function() {
+			if (o.alreadyClosed()) return;
 			log("closed 2");
 		};
-		state.pulse = function() {
+		o.pulse = function() {
 			log("pulse 2");
-			if (start.expired(4*Time.second)) state.close();
+			if (start.expired(4*Time.second)) close(o);
 		}
-		return listState({
-			state:state
-		});
+		return o;
 	};
 
 	var start = now();//make a note of the start time
@@ -846,29 +822,6 @@ function demoPulseTwo() {
 
 
 
-
-
-
-
-//uncomment this test to see why test.done() doesn't work
-//test.done() won't notice the unclsoed resource
-//all the tests will pass, but the process will stay open, and the resource will keep pulsing
-/*
-exports.testDoneNotGoodEnough = function(test) {
-	var r = Resource("resource test done");
-	test.done();
-}
-*/
-
-//uncomment this test to see the right way to do it, done(test)
-//done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
-//nodeunit doesn't seem to respond to the failed test, but will complain that the process ended without a test being done
-/*
-exports.testUseDoneTestInstead = function(test) {
-	var r = Resource("resource done test");
-	done(test);
-}
-*/
 
 
 
@@ -1020,18 +973,16 @@ if (demo("speed-pulse")) { demoSpeedPulse(); }
 function demoSpeedPulse() {
 
 	function SpeedResource() {//a resource that finishes on the first pulse
+		var o = mustClose();
 
-		var state = makeState();
-		state.close = function() {
-			if (state.already()) return;
+		o.close = function() {
+			if (o.alreadyClosed()) return;
 		};
-		state.pulse = function() {
+		o.pulse = function() {
 			end();//close this resource on the first pulse
 		}
 
-		return listState({
-			state:state
-		});
+		return o;
 	};
 
 	var r;
@@ -1061,7 +1012,37 @@ function demoSpeedPulse() {
 
 
 
+//   _____         _     ____                   
+//  |_   _|__  ___| |_  |  _ \  ___  _ __   ___ 
+//    | |/ _ \/ __| __| | | | |/ _ \| '_ \ / _ \
+//    | |  __/\__ \ |_  | |_| | (_) | | | |  __/
+//    |_|\___||___/\__| |____/ \___/|_| |_|\___|
+//                                              
+
+//keep these two at the end of the file so no code afterwards calls test(done)
+
+//uncomment this test to see why test.done() doesn't work
+//test.done() won't notice the unclosed resource
+//all the tests will pass, but the process will stay open, and the resource will keep pulsing
+/*
+exports.testDoneNotGoodEnough = function(test) {
+	var r = Resource("resource test done");
+	test.done();
+}
+*/
+
+//uncomment this test to see the right way to do it, done(test)
+//done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
+//nodeunit doesn't seem to respond to the failed test, but will complain that the process ended without a test being done
+/*
+exports.testUseDoneTestInstead = function(test) {
+	var r = Resource("resource done test");
+	done(test);
+}
+*/
 
 
 
+
+//TODO rename done(test) to testDone(test)
 

@@ -29,6 +29,7 @@ var worldMap = {
 	state_test:   ["path", "hide",         "data", "state", "measure", "text"],
 	measure_test: [                "data", "state", "measure", "text"],
 	text_test:    ["disk", "environment", "data", "state", "measure", "text"],
+	//TODO replace this whole section with a single core: [everything in order], and have all the tests load that, it's silly and arbitrary to cherry pick here
 
 	// Base
 

@@ -153,7 +153,7 @@ function pathDelete(path, next) {
 //the problem with isClosed(o) is, it should throw or whatever if o is bad, not just return false
 //so maybe instead have callback() {
 //if (task.state.isClosed()) return;
-//and if that's useful, maybe makeState(o), which mixes in state, and isClosed, isOpen, close
+//and if that's useful, maybe mustClose(o), which mixes in state, and isClosed, isOpen, close
 //now that you're using o, there are more options
 
 
@@ -167,18 +167,19 @@ function pathDelete(path, next) {
 current design:
 
 var o = {};
-o.state = makeState();
+o.state = mustClose();
 
 new possible design:
 
-var o = makeState();
+var o = mustClose();
 
 gives you one that already has the state variables and methods
 this is a lot more like a base class
 */
 
 
-//have listState check that you added a close method
+//have list State check that you added a close method
+//well, can't do that anymore, see what happens if you mustClose and then don't, it should be an exception that leads to mistakeStop
 
 
 
@@ -248,7 +249,7 @@ exports.testResult = function(test) {
 //write close(a, b, c), that's the only function
 //don't have global functions isClosed, isOpen, use the method o.isClosed()
 
-//done this way, you don't need listState anymore, mustClose adds it to the list right at the start, and the caller will put in the close method before pulse runs on that
+//done this way, you don't need list State anymore, mustClose adds it to the list right at the start, and the caller will put in the close method before pulse runs on that
 //see what happens when you forget to add a close, you expect that the next pulse will just throw
 
 //name wise, it's not called State anymore, it's called Close
@@ -359,10 +360,34 @@ exports.testDoubleClosure = function(test) {//omg what does it mean
 
 
 
+/*
+
+//let more of the call stack show through
+//have a setting that shows or hides the raw call stack
+
+//TODO, ok, if you look at the whole call stack, is there anywhere that it says 751
+//yes:
+
+here:'true' file:'text.js' line:'79' function:'toss()'
+here:'true' file:'data.js' line:'125' function:'_clip()'
+here:'true' file:'data.js' line:'120' function:'start()'
+here:'true' file:'state_test.js' line:'751' function:'pulse()'
+here:'true' file:'state.js' line:'484' function:'_pulse [as _onImmediate]()'
+here:'false' file:'timers.js' line:'330' function:'processImmediate [as _immedia
+teCallback]()'
+
+remove " [as _onImmediate]"
+have files and lines on all of them, like this
+remove Object. and o., but don't have it just take the last part, you want Data.get(), not get()
 
 
+state.js:484 _pulse()
+state_test.js:751 pulse()
+data.js:120 start()
+data.js:125 _clip()
 
 
+*/
 
 
 

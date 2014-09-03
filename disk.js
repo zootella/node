@@ -308,13 +308,12 @@ function Monitor(next) {//monitor the completion of an asynchronous call
 	var t = now();//t start time
 
 
-	var o = {};
+	var o = mustClose();
 
-	o.state = makeState();//a resource has state, meaning
-	o.state.close = function() {//we have to remember to close it
-		if (o.state.already()) return;
+	o.close = function() {//we have to remember to close it
+		if (o.alreadyClosed()) return;
 	};
-	o.state.pulse = function() {//and the program will pulse it for us
+	o.pulse = function() {//and the program will pulse it for us
 		if (t.expired(Time.timeout)) {
 			close(o);
 			next(Result(t, Mistake("timeout"), null));
@@ -333,7 +332,7 @@ function Monitor(next) {//monitor the completion of an asynchronous call
 		next(Result(t, null, a));
 	}
 
-	return listState(o);
+	return o;
 };
 
 
