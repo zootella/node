@@ -17,25 +17,6 @@ require("./load").load("disk", function() { return this; });
 
 
 
-//   ____       _   _       ____  _     _    
-//  |  _ \ __ _| |_| |__   |  _ \(_)___| | __
-//  | |_) / _` | __| '_ \  | | | | / __| |/ /
-//  |  __/ (_| | |_| | | | | |_| | \__ \   < 
-//  |_|   \__,_|\__|_| |_| |____/|_|___/_|\_\
-//                                           
-
-
-//here's where you do the resolve that has next and looks at the disk actually
-
-
-//don't use realpath
-//the cache means its slow
-//rather, just go right to the actual thing you want to do with the path, like open it or create it
-//then, query the object node gives you back to see what the path became
-//and if it changed at all, or in a bad way, close and throw
-
-//have a demo that follows a symlink and detects it this way
-//your demo probably can't make the symlink, so have a comment with instructions about how to do that
 
 
 
@@ -45,123 +26,164 @@ require("./load").load("disk", function() { return this; });
 
 
 
-
-//   _____ _ _      
-//  |  ___(_) | ___ 
-//  | |_  | | |/ _ \
-//  |  _| | | |  __/
-//  |_|   |_|_|\___|
-//                  
-
-
-
-//at this level, everything is a single adjustment, no recursion to deal with trees
-
-// OBJECTS
-
-
-
-// PATH
-
-// FILE
 
 // An open file on the disk with access to its data
-function File() {
+// Wrap a file descriptor d in a File object to notice if you forget to close it
+function File(descriptor) {
+	var o = mustClose();
 
+	o.close = function() { // Close the open disk file
+		if (o.alreadyClosed()) return;
 
-	//when you open the file, see what path it has, sort of like fs.realpath
-	//and if realpath != path, maybe close the file and throw data
+		fileClose(o.descriptor); // No callback provided
+		o.descriptor = null;
+	}
 
-	return {
-		type:"File"
-	};
+	o.descriptor = function() { return descriptor; } // Access to the platform file descriptor we hold
+
+	o.type = "File";
+	return o;
 }
 
 exports.File = File;
 
-// FUNCTIONS that get used as methods
 
-//given a String
-//make a path
-function parsePath(s) {
-	/*
-	fs.realpath(path, cache, callback);
-	path.resolve(p) === p;//true if p is absolute
-	*/
+
+
+
+
+
+
+
+
+
+function parsePath(s, next) {
+	fs.realpath(path, null, callback);
+
+	function callback(error, resolvedPath) {
+
+	}
 }
 
-//given a Path
-//type, like folder or file or available
-function pathLook(p, next) {
+
+/*
+fs.realpath(path, [cache], callback)#
+Asynchronous realpath(2). The callback gets two arguments (err, resolvedPath). May use process.cwd to resolve relative paths. cache is an object literal of mapped paths that can be used to force a specific path resolution or avoid additional fs.stat calls for known real paths.
+
+Example:
+
+var cache = {'/etc':'/private/etc'};
+fs.realpath('/etc/passwd', cache, function (err, resolvedPath) {
+	if (err) throw err;
+	console.log(resolvedPath);
+});
+*/
+
+
+
+
+
+
+
+
+function pathLook(path, next) {
 	try {
 
-		checkType(p, "Path");
-		var t = now();
-		platformFile.stat(p.text, callback);
+		var task = Task(next);
+		platformFile.stat(absolute(path).text, callback);
+		return task;
 
-	} catch (e) { next(resultError(time, e)); }
-	function callback(e, s) { // Error e, file statistics s
+	} catch (e) { task.fail(e); }//(parse)
+	function callback(e, statistics) {
+		if (task.isClosed()) {//(cancel)
+		} else {
 
-		var i = {};
-		i.statistics = s; // Save the complete statistics object from the platform
+			var a = {};//answer object we'll put in the result
+			a.statistics = statistics; // Save the complete statistics object from the platform
 
-		if (e && e.code == "ENOENT") { // Error no entry
-			i.type = "available";
-			next(resultDone(t, i));
+			if (e && e.code == "ENOENT") { // Error no entry
+				a.type = "available";
+				task.done(a);
 
-		} else if (e) { // Some other error
-			next(resultError(t, e));
+			} else if (e) { // Some other error
+				task.fail(e);
 
-		} else if (s.isDirectory()) { // Folder
-			i.type = "folder";
-			i.accessed = s.atime;
-			i.modified = s.mtime;
-			i.created = s.ctime;
-			next(resultDone(t, i));
+			} else if (s.isDirectory()) { // Folder
+				a.type = "folder";
+				a.accessed = s.atime;
+				a.modified = s.mtime;
+				a.created = s.ctime;
+				task.done(a);
 
-		} else if (s.isFile()) { // File
-			i.type = "file";
-			i.size = s.size; // Size
-			i.accessed = s.atime;
-			i.modified = s.mtime;
-			i.created = s.ctime;
-			next(resultDone(t, i));
+			} else if (s.isFile()) { // File
+				a.type = "file";
+				a.size = s.size; // Size
+				a.accessed = s.atime;
+				a.modified = s.mtime;
+				a.created = s.ctime;
+				task.done(a);
 
-		} else { // Something else like a link or something
+			} else { // Something else like a link or something
 
-			i.type = "other";
-			next(resultDone(t, i));
+				a.type = "other";
+				task.done(a);
+			}
 		}
 	}
 }
-//delete
+
 function pathDelete(path, next) {
-	fs.unlink(path.text, function (e) {
-		if (e) next(e);
-		else   next();
-	});
+	try {
+
+		var task = Task(next);
+		platformFile.unlink(absolute(path).text, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+		if (isClosed(m)) return;
+		if (e) task.fail(e);
+		else task.done();
+	}
 }
-//move
+
 function pathMove(source, target, next) {
-	fs.rename(oldPath, newPath, callback)
+	try {
 
+		var task = Task(next);
+		platformFile.rename(absolute(source).text, absolute(target).text, callback);
+		return task;
 
-fs.rename('/tmp/hello', '/tmp/world', function (err) {
-  if (err) throw err;
-  fs.stat('/tmp/world', function (err, stats) {
-    if (err) throw err;
-    console.log('stats: ' + JSON.stringify(stats));
-  });
-});
-
-
-
-
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+		if (isClosed(m)) return;
+		if (e) task.fail(e);
+		else task.done();
+	}
 }
+
 //open
-function pathOpen(p, next) {
-	fs.open(path, flags, mode, callback)
+function pathOpen(path, flags, mode, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.open(absolute(path).text, flags, mode, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+
+
+	}
 }
+
+
+
+
+
+
+
+
 
 //given a File
 //size
@@ -218,58 +240,6 @@ exports.pathLook = pathLook;
 
 
 
-//before tasks, you're going to have to get streams going in here, which is great
-
-
-//   _____         _    
-//  |_   _|_ _ ___| | __
-//    | |/ _` / __| |/ /
-//    | | (_| \__ \   < 
-//    |_|\__,_|___/_|\_\
-//                      
-
-
-
-
-
-
-//sources: if you have all the features, and deal with all the concerns of these libraries, your node disk library will be very complete
-//posix man pages
-//node docs
-//java chan
-//win32 backup.exe
-//win32 lwire.dll
-
-//in the api, but not used in this first pass
-//truncate a file without opening it
-//get and change permissions
-//deal with symbolic links
-//get and modify timestamps
-//fsync flush to disk
-//watch for changes on a file or directory
-
-
-
-
-//write tests to show you can deal with:
-//unicode paths with non english characters
-//really big files, larger than a dword
-//really long paths, longer than max path characters, win32 has the unicode path that starts with a bunch of slashes
-//illegal characters on the filesystem you happen to be saving to, could be an ntfs disk mounted on a mac
-//node cant read or set the windows readonly attribute, does this prevent it from deleting a read only file, is there a solution other than a child process
-
-
-//things that might take a long time, and what to do about it
-//wake up a sleeping usb hard drive, try again if the first 4s didn't work out
-//write one byte several gigabytes out into a new file, read or write every 100mb or so so you can get progress on the way there to tell if its stuck and not autoquit at 4s
-//get a directory listing for a folder that has thousands of files, get the files in groups of several hundred so you can get progress incrementally rather than it taking more than 4s and a lot of memory to bring in the whole list at once
-
-
-
-//plan for illegal filenames
-//replace known shortlist of illegal characters with unicode lookalikes
-//then try it on the disk, if it doesn't work, go character by character, replacing illegal charcters wtih [0f] codes
-//remember the user could have a windows ntfs drive mapped to a /path on their mac, so you have to try what works, rather than proving something will
 
 
 
@@ -282,92 +252,7 @@ exports.pathLook = pathLook;
 
 
 
-//   ____                 _ _   
-//  |  _ \ ___  ___ _   _| | |_ 
-//  | |_) / _ \/ __| | | | | __|
-//  |  _ <  __/\__ \ |_| | | |_ 
-//  |_| \_\___||___/\__,_|_|\__|
-//                              
 
-/*
-Use a Result to communicate how an asynchronous task ended
-
-t  The time when the asynchronous task was started
-e  An Error or Mistake that describes why the task didn't complete successfully, null if success
-r  Information about the successful result of the task, can be null
-*/
-
-/*
-function resultTimeout(t) { return Result(t, Mistake("timeout"), null); }
-function resultError(t, e)  { return Result(t, e, null); }
-function resultDone(t, r) { return Result(t, null, r); }
-*/
-
-function Monitor(next) {//monitor the completion of an asynchronous call
-
-	var t = now();//t start time
-
-
-	var o = mustClose();
-
-	o.close = function() {//we have to remember to close it
-		if (o.alreadyClosed()) return;
-	};
-	o.pulse = function() {//and the program will pulse it for us
-		if (t.expired(Time.timeout)) {
-			close(o);
-			next(Result(t, Mistake("timeout"), null));
-		}
-	}
-
-	o.fail = function (e) {//e error
-		if (isClosed(o)) return;
-		close(o);
-		next(Result(t, e, null));
-	}
-
-	o.done = function (a) {//a answer
-		if (isClosed(o)) return;
-		close(o);
-		next(Result(t, null, a));
-	}
-
-	return o;
-};
-
-
-
-function Result(t, e, a) {//time, error, answer
-	var o = {};
-
-	// Properties you can look at directly
-	o.duration = Duration(t);
-	o.e = e;//error
-	o.a = a;//answer
-
-	// See if this result is about a successful completion or an error
-	o.isError = function () { return o.e ? true : false; }
-	o.isDone = function () { return o.e ? false : true; }
-
-	// Call result.get() to be returned the successful outcome, or thrown the error
-	o.get = function () {
-		if (o.e) throw e;
-		else return o.a;
-	}
-
-	o.type = "Result";
-	return freeze(o);
-}
-
-exports.Monitor = Monitor;
-exports.Result = Result;
-
-
-
-
-
-
-//you need a separate timer to call f yourself if it times out, and then if that happens, to prevent f from running later
 
 
 

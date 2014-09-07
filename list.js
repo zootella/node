@@ -313,7 +313,10 @@ exports.SortedSet = SortedSet;
 
 
 
-
+//switch to using
+//http://www.collectionsjs.com
+//because these four are already there, along with a bunch more you might need
+//just update tests to confirm use, and compare speed
 
 
 

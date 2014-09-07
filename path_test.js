@@ -1456,3 +1456,49 @@ exports.testPathNumber = function(test) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.testAbsolute = function(test) {
+
+	var p = working().add("file.ext");//absolute path to file.ext in the present working directory
+
+	test.ok(getType(absolute(p)) == "string");//absolute always returns a string
+	test.ok(absolute(p) == p.text);//p didn't change as it passed through
+
+	try {
+		absolute("file.ext");//relative path, throws data
+		test.fail();
+	} catch (e) { test.ok(e.name == "data"); }
+
+	try {
+		absolute();//object without any text, throws type
+		test.fail();
+	} catch (e) { test.ok(e.name == "type"); }
+
+	done(test);
+}
+
+
+
+
+
+
+
+
+

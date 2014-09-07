@@ -258,4 +258,22 @@ exports.pathNumber = pathNumber;
 
 
 
+// Make sure p is the text of an absolute path
+// Use to validate parameters, like move(absolute(source), absolute(target))
+// Throws data if the text is a filename or relative path
+function absolute(p) {
+	var t = getType(p);
+	if (t == "Path") return p.text;         // Already a path, let pass through, get the text
+	if (t == "string") return Path(p).text; // Parse the string into a path and get the text
+	toss("type");                           // Only works for Path and string
+}
+
+exports.absolute = absolute;
+
+
+
+
+
+
+
 
