@@ -26,53 +26,6 @@ require("./load").load("disk_test", function() { return this; });
 
 
 
-function pathOpen(path, flags, mode, next) {
-	try {
-
-		var task = Task(next);
-		if (getType(path) == "string") path = Path(path);
-		checkType(path, "Path");
-		platformFile.open(path.text, flags, mode, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }
-	function callback(error, file) {
-		if (task.isClosed()) {
-			mistakeLog();//describe the cancelled task that finished, but don't close a descriptor
-		} else {
-			if (error) {
-				task.fail(error);
-			} else {
-				task.done(file);
-			}
-		}
-	}
-}
-
-function fileClose(descriptor, next) {
-	try {
-
-		var task = Task(next);
-		platformFile.close(descriptor, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }
-	function callback(error) {
-		if (task.isClosed()) {
-		} else if (error) {
-			task.fail(error);
-		} else {
-			task.done();
-		}
-	}
-}
-
-
-
-
-
-
-
 
 
 
@@ -178,36 +131,442 @@ function fileClose(descriptor, next) {
 
 
 
-//    ___  _     _           _   
-//   / _ \| |__ (_) ___  ___| |_ 
-//  | | | | '_ \| |/ _ \/ __| __|
-//  | |_| | |_) | |  __/ (__| |_ 
-//   \___/|_.__// |\___|\___|\__|
-//            |__/               
-
-// Objects
 
 
 
-//   ____       _   _     
-//  |  _ \ __ _| |_| |__  
-//  | |_) / _` | __| '_ \ 
-//  |  __/ (_| | |_| | | |
-//  |_|   \__,_|\__|_| |_|
-//                        
-
-// Functions that take a path
 
 
 
-//   _____ _ _      
-//  |  ___(_) | ___ 
-//  | |_  | | |/ _ \
-//  |  _| | | |  __/
-//  |_|   |_|_|\___|
-//                  
+//use as a guide as you write the posix level 11
 
-// Functions that take a file
+
+
+
+/*
+function pathOpen(path, flags, mode, next) {
+	try {
+
+		var task = Task(next);
+		if (getType(path) == "string") path = Path(path);
+		checkType(path, "Path");
+		platformFile.open(path.text, flags, mode, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(error, file) {
+		if (task.isClosed()) {
+			mistakeLog();//describe the cancelled task that finished, but don't close a descriptor
+		} else {
+			if (error) {
+				task.fail(error);
+			} else {
+				task.done(file);
+			}
+		}
+	}
+}
+
+function fileClose(descriptor, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.close(descriptor, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(error) {
+		if (task.isClosed()) {
+		} else if (error) {
+			task.fail(error);
+		} else {
+			task.done();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+function pathLook(path, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.stat(absolute(path).text, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }//(parse)
+	function callback(e, statistics) {
+		if (task.isClosed()) {//(cancel)
+		} else {
+
+			var a = {};//answer object we'll put in the result
+			a.statistics = statistics; // Save the complete statistics object from the platform
+
+			if (e && e.code == "ENOENT") { // Error no entry
+				a.type = "available";
+				task.done(a);
+
+			} else if (e) { // Some other error
+				task.fail(e);
+
+			} else if (s.isDirectory()) { // Folder
+				a.type = "folder";
+				a.accessed = s.atime;
+				a.modified = s.mtime;
+				a.created = s.ctime;
+				task.done(a);
+
+			} else if (s.isFile()) { // File
+				a.type = "file";
+				a.size = s.size; // Size
+				a.accessed = s.atime;
+				a.modified = s.mtime;
+				a.created = s.ctime;
+				task.done(a);
+
+			} else { // Something else like a link or something
+
+				a.type = "other";
+				task.done(a);
+			}
+		}
+	}
+}
+
+function pathDelete(path, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.unlink(absolute(path).text, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+		if (isClosed(m)) return;
+		if (e) task.fail(e);
+		else task.done();
+	}
+}
+
+function pathMove(source, target, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.rename(absolute(source).text, absolute(target).text, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+		if (isClosed(m)) return;
+		if (e) task.fail(e);
+		else task.done();
+	}
+}
+
+//open
+function pathOpen(path, flags, mode, next) {
+	try {
+
+		var task = Task(next);
+		platformFile.open(absolute(path).text, flags, mode, callback);
+		return task;
+
+	} catch (e) { task.fail(e); }
+	function callback(e) {
+
+
+	}
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+//no, it's fine, the reason the order seems wrong is because the exception is happening in the start
+//have task call next on next tick or whatever so that even if node really does what you thought it was doing, the code will happen later like you expect
+
+//you are going to have to catch exceptions both palces
+function somethingLater() {
+	try {
+
+		//setup
+
+	} catch (e) { task.fail(e); }
+	function callback() {
+		try {
+
+			//callback
+
+		} cach (e) { task.fail(e); }
+	}
+}
+//also, you need to close stuff in a finally{}
+//and, you need to not run the return function at all if the task times out or gets cancelled
+//so, this probably should go one level more and be your own promise system
+
+function somethingLater(done) {
+	var o1, o2, o3;//undefined, or need to close
+	var task = Task(done, [setup, good, bad, cleanup], [o1, o2, o3]);
+	function setup() {
+		platformSomething.commandAsync(task.callback);
+	}
+	function good(answer) {
+	}
+	function bad(error) {
+	}
+	function cleanup() {
+		close(o1, o2, o3);
+	}
+}
+//done is the function that will get called when everything's done
+//task first calls setup, which makes the system call
+//if it works, code in good runs
+//if it fails, code in bad runs
+//after either of those, code in cleanup runs
+//then task calls done with a summary of what happened here
+
+//task deals with exceptions thrown from setup, good, bad, and cleanup
+//task makes sure that either good or bad is called, not both
+//task makes sure that if the task is cancelled, neither good nor bad are called
+//task makes sure that cleanup always gets called
+//closure means they can all share local variables
+
+//and then once you've got this going, you'll probably figure out how to chain them together like q promises can
+
+
+*/
+
+
+
+//the callback gets two arguments (err, resolvedPath)
+//callback(error, answer)
+
+
+
+//possible scenarios
+//demonstrate these in open, like this
+//also make a simulation resource object that demonstrates all 8 cases exactly
+
+//1. throws before go (parse)
+//ask to open the widgit
+//there's a problem before the request to open even goes through, like invalid path
+//no widget to close later on
+
+//2. check progress (check)
+//ask to open the widgit
+//check the progress to see how long it's been taking
+//leads to done, fail, or stuck
+
+//3. never finishes (stuck)
+//ask to open the widgit
+//the platform never finishes, the callback is never called
+//no widget to close later on
+
+//4. simple success (done)
+//ask to open the widgit
+//a little while later, it opens successfully
+//remember to close the widget
+
+//5. simple failure (fail)
+//ask to open the widgit
+//a little while later, it fails with error
+//no widget to close later on
+
+//6. start, cancel, stuck (cancel stuck)
+//ask to open the widgit
+//decide that you don't want to have opened the widgit anymore or it was taking too long
+//platform never gets back to you
+//no widget to close later on
+
+//7. start, cancel, done (cancel done)
+//ask to open the widgit
+//decide that you don't want to have opened the widgit anymore or it was taking too long
+//platform completes the request successfully
+//remember to close the widget
+
+//8. start, cancel, fail (cancel fail)
+//ask to open the widgit
+//decide that you don't want to have opened the widgit anymore or it was taking too long
+//platform encounters error
+//no widget to close later on
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//demos of the posix 11
+
+if (demo("resolve")) { demoResolve(); }
+function demoResolve() {
+
+	resolve("E:\\test\\file.ext", next);
+
+	function next(result) {
+
+		log("made it to next");
+	}
+
+
+}
+
+
+
+
+
+
+
+//yesterday, you learned how to turn a callback function into a promise
+//and you learned how to chain multiple promises together to perform multiple steps, and catch exceptions at the end
+//keep going, learning how to do the following things, which shouldn't be too hard
+//add your own timeout, have the promise finish on timeout, and then close the too late resource if the inner promise finishes
+//wrap raw resources in objects that have mustClose
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

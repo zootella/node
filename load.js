@@ -31,7 +31,7 @@ var worldMap = {
 	text_test:    ["disk", "environment", "data", "state", "measure", "text"],
 
 	//TODO replace this whole section with a single core: [everything in order], and have all the tests load that, it's silly and arbitrary to cherry pick here
-	base: ["tryq", "environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
+	base: ["a", "environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
 
 	// Base
 

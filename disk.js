@@ -57,125 +57,34 @@ exports.File = File;
 
 
 
-function parsePath(s, next) {
-	fs.realpath(path, null, callback);
+
+
+
+
+
+
+
+
+
+
+
+//the node posix level
+
+
+
+function resolve(path, next) {//easy
+
+	platformFile.realpath(path, null, callback);
 
 	function callback(error, resolvedPath) {
 
+		log("error ", error);
+		log("resolvedPath ", resolvedPath);
+		next();
 	}
 }
 
-
-/*
-fs.realpath(path, [cache], callback)#
-Asynchronous realpath(2). The callback gets two arguments (err, resolvedPath). May use process.cwd to resolve relative paths. cache is an object literal of mapped paths that can be used to force a specific path resolution or avoid additional fs.stat calls for known real paths.
-
-Example:
-
-var cache = {'/etc':'/private/etc'};
-fs.realpath('/etc/passwd', cache, function (err, resolvedPath) {
-	if (err) throw err;
-	console.log(resolvedPath);
-});
-*/
-
-
-
-
-
-
-
-
-function pathLook(path, next) {
-	try {
-
-		var task = Task(next);
-		platformFile.stat(absolute(path).text, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }//(parse)
-	function callback(e, statistics) {
-		if (task.isClosed()) {//(cancel)
-		} else {
-
-			var a = {};//answer object we'll put in the result
-			a.statistics = statistics; // Save the complete statistics object from the platform
-
-			if (e && e.code == "ENOENT") { // Error no entry
-				a.type = "available";
-				task.done(a);
-
-			} else if (e) { // Some other error
-				task.fail(e);
-
-			} else if (s.isDirectory()) { // Folder
-				a.type = "folder";
-				a.accessed = s.atime;
-				a.modified = s.mtime;
-				a.created = s.ctime;
-				task.done(a);
-
-			} else if (s.isFile()) { // File
-				a.type = "file";
-				a.size = s.size; // Size
-				a.accessed = s.atime;
-				a.modified = s.mtime;
-				a.created = s.ctime;
-				task.done(a);
-
-			} else { // Something else like a link or something
-
-				a.type = "other";
-				task.done(a);
-			}
-		}
-	}
-}
-
-function pathDelete(path, next) {
-	try {
-
-		var task = Task(next);
-		platformFile.unlink(absolute(path).text, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }
-	function callback(e) {
-		if (isClosed(m)) return;
-		if (e) task.fail(e);
-		else task.done();
-	}
-}
-
-function pathMove(source, target, next) {
-	try {
-
-		var task = Task(next);
-		platformFile.rename(absolute(source).text, absolute(target).text, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }
-	function callback(e) {
-		if (isClosed(m)) return;
-		if (e) task.fail(e);
-		else task.done();
-	}
-}
-
-//open
-function pathOpen(path, flags, mode, next) {
-	try {
-
-		var task = Task(next);
-		platformFile.open(absolute(path).text, flags, mode, callback);
-		return task;
-
-	} catch (e) { task.fail(e); }
-	function callback(e) {
-
-
-	}
-}
+exports.resolve = resolve;
 
 
 
@@ -185,65 +94,114 @@ function pathOpen(path, flags, mode, next) {
 
 
 
-//given a File
-//size
-function fileSize(f, next) {
-	fs.fstat(fd, callback)
-}
-//read
-function fileRead(f, next) {
-	fs.read(fd, buffer, offset, length, position, callback)
-	fs.createReadStream(path, options)
-}
-//write
-function fileWrite(f, next) {
-	fs.write(fd, buffer, offset, length, position, callback)
-	fs.createWriteStream(path, options)
-}
-//add stripe
-function fileWroteStripe(f, stripe) {
+
+
+
+
+
+
+
+
+
+
+//try to open a file, stop caring because of timeout, then node actually gets it open, code in teh callback doesn't bother the program but immediately closes it
+//the worry here is that if a retry opened it, and it's the same file descriptor, then the automatic close will mess up the valid and being used open
+//or if you don't close it, then the risk is you leak an open file
+//go wtih closing it, even if it messes up the open file, which it probably won't, that will just fail and that part of the program will retry the whole thing
+
+
+
+
+
+function look(path, next) {//hard because lots of return information and errors that are actually ok
+	/*
+fs.stat(path, callback)#
+Asynchronous stat(2). The callback gets two arguments (err, stats) where stats is a fs.Stats object. See the fs.Stats section below for more information.	*/
 
 }
-//close
-function fileClose(f, next) {
-	fs.close(fd, callback)
-}
+function list(path, next) {//hard because return information in multiple events, probably
+	/*
+fs.readdir(path, callback)#
+Asynchronous readdir(3). Reads the contents of a directory. The callback gets two arguments (err, files) where files is an array of the names of the files in the directory excluding '.' and '..'.	*/
 
-//given a Path to a folder
-//list
-function folderList(p, next) {
-	fs.readdir(path, callback)
 }
-//make a single folder
-function folderMake(p, next) {
-	fs.mkdir(path, mode, callback)
+function makeFolder(path, next) {//easy
+	/*
+fs.mkdir(path, [mode], callback)#
+Asynchronous mkdir(2). No arguments other than a possible exception are given to the completion callback. mode defaults to 0777.	*/
+
 }
-//delete
-function folderDelete(p, next) {
-	fs.rmdir(path, callback)
+function deleteFile(path, next) {//easy
+	/*
+fs.unlink(path, callback)#
+Asynchronous unlink(2). No arguments other than a possible exception are given to the completion callback.	*/
+
+}
+function deleteFolder(path, next) {//easy
+	/*
+fs.rmdir(path, callback)#
+Asynchronous rmdir(2). No arguments other than a possible exception are given to the completion callback.	*/
+
+}
+function rename(sourcePath, targetPath, next) {//easy
+	/*
+fs.rename(oldPath, newPath, callback)#
+Asynchronous rename(2). No arguments other than a possible exception are given to the completion callback.	*/
+
+}
+function open(path, flags, mode, next) {//hard because combines create, and produces descriptor that needs to be closed
+	/*
+fs.open(path, flags, [mode], callback)#
+Asynchronous file open. See open(2). flags can be:
+
+The callback gets two arguments (err, fd).	*/
+
+}
+function read(file, stripe, bay, next) {//hard because buffers and streams
+	/*
+fs.read(fd, buffer, offset, length, position, callback)#
+Read data from the file specified by fd.
+
+buffer is the buffer that the data will be written to.
+
+offset is the offset in the buffer to start writing at.
+
+length is an integer specifying the number of bytes to read.
+
+position is an integer specifying where to begin reading from in the file. If position is null, data will be read from the current file position.
+
+The callback is given the three arguments, (err, bytesRead, buffer).	*/
+
+}
+function write(file, stripe, data, next) {//hard because buffers and streams
+	/*
+fs.write(fd, buffer, offset, length, position, callback)#
+Write buffer to the file specified by fd.
+
+offset and length determine the part of the buffer to be written.
+
+position refers to the offset from the beginning of the file where this data should be written. If position is null, the data will be written at the current position. See pwrite(2).
+
+The callback will be given three arguments (err, written, buffer) where written specifies how many bytes were written from buffer.
+
+Note that it is unsafe to use fs.write multiple times on the same file without waiting for the callback. For this scenario, fs.createWriteStream is strongly recommended.
+
+On Linux, positional writes don't work when the file is opened in append mode. The kernel ignores the position argument and always appends the data to the end of the file.	*/
+
+}
+function close(file, next) {//easy
+	/*
+fs.close(fd, callback)#
+Asynchronous close(2). No arguments other than a possible exception are given to the completion callback.	*/
+
 }
 
 
 
-exports.pathLook = pathLook;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//do the easy ones first
 
 
 

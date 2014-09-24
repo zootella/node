@@ -130,6 +130,8 @@ exports.testDoubleClosure = function(test) {//omg what does it mean
 //platform encounters error
 //no widget to close later on
 
+
+/*
 function resourceOpen(path, next) {
 	try {
 
@@ -153,7 +155,7 @@ function resourceOpen(path, next) {
 		}
 	}//or never calls (stuck), (cancel stuck)
 }
-
+*/
 
 
 
@@ -363,6 +365,402 @@ exports.testResult = function(test) {
 //see how fileClose doesn't provide a callback
 //have task be able to deal with this
 //on task.fail with no callback, task message logs the error instead of telling another part of the program
+
+
+
+
+
+
+
+
+
+
+
+//and here are some notes about charm
+//charm is easy
+//build it next to log
+//the process keeps a global about how many charm lines there are
+//functions can add them, probably not remove them, and set them
+//log still works, it puts it above the charm lines
+//a blank line makes it look nice
+//actually, just a function charm() that you give an array of strings
+//and you can call it as many times as you want
+//and on pulseScreen, it updates lines that have changed
+//and keeps on console logging right on top
+//and there is a blank line above the charm lines
+//and if you give it a longer array, it makes a new line
+//and if you give it a shorter array, it just keeps things at the top, with blank lines beneath, but it really can't get rid of them
+//this is a cool simple design for log and charm, it's great how you can use them both at once
+
+
+
+
+
+
+//at the top of close, explain
+//this isn't about closing your objects for you automatically
+//this is not like reference counting or garbage collection
+//quite the opposite: it's the full responsibility of your code to keep track of what you don't need anymore and close it when you're done with it
+//what this does is let you know when you've made a mistake with that, and let the process exit with something still open that you forget to close
+
+
+
+
+
+
+
+//don't time out on open because that's dangerous, time out on the others because they can retry without breaking stuff later
+//write the posix 11 using q promises
+//the way to figure out promises is to just concentrate on how they work, returns a promise, function name, etc
+
+
+/*
+//couldn't this:
+function oldWay() {
+	try {
+		//your code
+	} catch (e) { mistakeStop(e); }
+}
+//be instead something like this:
+function newWay() {
+	catchAndStop(function() {
+
+	});
+}
+//and then you also have catchAndLog
+//or names like perfect() and relentless()
+*/
+//instead, figure out how to attach a handler to find out about every uncaught exception in node on a server and node webkit
+//and then send those to mistakeStop, and delete all the catchStop(function(){}) everywhere
+//and have a set of demos that confirm you can throw all the different places there are in the code, and the handler catches every one
+
+//promises look like the way to go
+//now just figure out how to add to them, in your own little functions on top of q promises, the features you want, namely:
+//duration, start and stop time
+//resources that have to get closed
+//timeouts, just try using q's timeouts
+//progress, don't use q's progress, rather have granular events so progress is which one you're on
+//status, figure out how to call text on the promise whenever you want and get text like "7 seconds since response from server"
+//but build this all on top of q. don't do task and result. don't try to code your own system of promises. promisize node functions, or use q's prepromisized functions
+//and for streams, be able to shake it all away easily to learn streams from the node up
+
+
+
+
+
+
+
+
+//ok, now imagine you're calling these, and design a Task and Result that make calling these easy
+//start out with behaviorGood0, it's the simplest
+
+
+//the idea here is you don't know which behavior it's going to be, so design a wrapping that deals with all of them
+
+
+
+
+
+
+
+//level 1: a function that has a callback that behaves in custom ways, like a platfomr function
+//level 2: that wrapped into a q promise, like a q function
+//level 3: your code that uses that in tests to test each behavior
+
+
+
+
+
+
+
+
+//when you have a ui, you will be really interested to see the results of this speed test
+//update a text field on the page
+//when it changes, the core finds out, and updates it again
+//how many ui updates can you do a second compared to how many loops of code, and other speed looops
+//how fast does it look for the user, can you get the numbers to count up faster than the user can see, so fast it's a blur, fast enough it looks cool
+
+
+
+
+
+
+/*
+function read(name) {
+
+	var d = Q.defer();
+	platformFile.readFile("test/" + name, "utf-8", function(error, text) {
+		if (error) {
+			d.reject(error);
+		} else {
+			d.resolve(text);
+		}
+	});
+	return d.promise;
+
+}
+
+
+if (demo("snippet")) { demoSnippet(); }
+function demoSnippet() {
+
+	log("mark start");
+
+
+	var a, b, c;
+
+
+
+	return read("a.txt")
+	.then(function (valuea) {
+		a = valuea;
+		log("step 1:", a);
+
+		return read("b.txt");
+	}).then(function (valueb) {
+		b = valueb;
+		log("step 2: ", a, " ", b);
+
+		return read("c.txt");
+	}).then(function (valuec) {
+
+		c = valuec;
+		log(a, b, c);
+
+		throw "custom";//throwing here works, it will go to fail below
+
+	}).fail(function (error) {
+		try {
+
+			log("mark fail");
+			log(error);
+
+		} catch (e) { mistakeStop(e); }
+	}).fin(function () {
+		try {
+
+			log("mark fin");
+
+		} catch (e) { mistakeStop(e); }
+	});
+
+
+	log("mark bottom");
+
+}
+*/
+
+/*
+return getName().then(function (name) {
+	return getUser(name).then(function (user) {
+	})
+});
+
+return getName().then(function (name) {
+	return getUser(name);
+}).then(function (user) {
+});
+*/
+
+
+
+
+
+//write a demo that opens a series of text files, printing their contents to console.log
+//then, delete one of the text files on teh disk, and watch how the error flows
+//the idea here is use Q instead of task and result, still use node filesystem, still use close
+
+
+
+
+//prove you can code with primises by making the following stuff
+//turn a callback into a promise
+//do a chain of promises, opening one text file after another
+//loop with promises, creating 200 files with text in them
+//have one function perform two asynchronous steps, and a third also perform two, the second of which is calling the first
+
+
+
+
+
+
+
+/*
+//try these parts of q
+//just a few useful functions from each
+//-collections, (done)
+//-basic q, turning callbacks into promises
+//-q io on the filesystem
+
+
+var q = require("q");
+var qfs = require("q-io/fs");
+
+
+
+
+
+function useQ() {
+
+	log(q);
+
+
+}
+
+
+function copyFile() {
+
+	var promise = qfs.copy("E:\\test\\source.txt", "E:\\test\\target.txt");
+}
+
+exports.useQ = useQ;
+exports.copyFile = copyFile;
+*/
+
+
+
+
+
+
+
+/*
+//example of synchronous code
+if (demo("snippet")) { snippet(); }
+function snippet() {
+
+
+var outputPromise = getInputPromise().then(function done(input) {}, function fail(reason) {});
+
+//then() returns a promise, outputPromise
+//a function can only return a value, or throw an exception
+
+//three things can happen
+//if your handler returns a value, outputPromise gets fulfilled
+//if your handler throws an exception, outputPromise gets rejected
+//if your handler returns a promise, outputPromise becomes that promise
+
+var error = getInputPromise().then(function done(input) {});//omit the error handler, and then() returns the error
+var value = getInputPromise().then(null, function (error) {});//omit the fulfillment handler, and then() returns the success value
+
+var value = getInputPromise().fail(function (error) {});//use fail() when you just want to pass the error handler
+
+//the fin function is like the finally clause
+//the function fin takes gets called when the getInputPromise promise returns a value or throws an error
+//this is where you can close files, database connections, stop servers, conclude tests
+var output = getInputPromise().fin(function () {/*close everything*/ /*});
+
+//there are two ways to chain promises: inside handlers, and outside handlers
+//these two examples are the same
+
+/*
+return getName().then(function (name) {//get the name
+	return getUser(name).then(function (user) {//use the name to get the user
+		//now we've got the user
+	})
+});
+
+return getName().then(function (name) {//get the name
+	return getUser(name);//use the name to get the user
+}).then(function (user) {
+	//now we've got the user
+});
+
+
+
+
+function authenticate() {
+	return getName().then(function (name) {//get the name
+		return getUser(name);//use the name to get the user
+	})
+	// chained because we will not need the name in the next event
+	.then(function (user) {
+		return getPass()
+		// nested because we need both user and password next
+		.then(function (pass) {
+			if (user.passwordHash !== hash(pass)) {
+				throw new Error("Can't authenticate");
+			}
+		});
+	});
+}
+
+//bookmark "Combination"
+//https://github.com/kriskowal/q/tree/v1#combination
+
+
+
+
+
+
+
+}
+*/
+
+
+
+
+
+//the tutorial promised you'd learn
+//how to write your own functions that return promises
+
+
+//this is in the section "create a promise from scratch"
+
+
+
+
+
+
+
+
+
+
+
+//larger things to change
+//let close(a, b, c) take null, an object that can't be closed, and an object that can, so you can hand it anything
+//see how many objects are using the old style, and maybe switch them all to o = {}, o.member, return o
+
+
+/*
+the big questions
+
+what is the relationship/overlap/interaction between these things
+
+	error answer callbacks, like in node:
+	http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks
+
+	futures, like with q:
+	https://github.com/kriskowal/q
+
+	streams, like in node:
+	http://maxogden.com/node-streams.html
+
+	async, like in the npm async module:
+	https://www.npmjs.org/package/async
+
+	keywords, like in iced coffeescript:
+	http://maxtaco.github.io/coffee-script/
+
+example mystery interaction, what are q "promise streams"?!: https://github.com/kriskowal/q-io
+npm shows the async module is 5x more popular than q!
+*/
+
+
+
+
+
+
+//charm is part of log
+//the function is stick(), takes an array of strings, or a string with newlines
+//they stick to the bottom of the teletype, wiht log messages continuing to appear and scroll above
+//so then you have stick and log
+
+
+
+//remember, you can't choose an architecture here until later, when you've seen streams, so it's find to bring all 4 forward
+
+
+
 
 
 
