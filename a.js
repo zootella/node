@@ -120,7 +120,6 @@ exports.simulateMethod1 = simulateMethod1;
 
 
 
-
 /*
 method 2: q promise
 callback wrapped into a q promise

@@ -147,6 +147,111 @@ there is no way to see the current progress of the request
 
 
 
+//sequence of method1 node-style calls looks like this
+
+if (demo("method1m1")) { demoMethod1Multiple("step1:df,step2:df,step3:df,step4:df"); }
+if (demo("method1m2")) { demoMethod1Multiple("step1:df,step2:df,step3:ff,step4:df"); }//step 3 fails
+if (demo("method1m3")) { demoMethod1Multiple("step1:df,step2:t,step3:ff,step4:df"); }//step 2 throws
+
+function demoMethod1Multiple(instructions) {
+	log("start");
+	setTimeout(function () { closeCheck(); }, 2*Time.second);//wait around for everything to finish
+
+	var a1, a2, a3, a4;//vars to point to answer objects, or null before we get them
+
+	f1();//call the first function to start the chain
+	function f1() {
+		try {
+			simulateMethod1(instructions, f2);
+		} catch (e) { log("catch '#'".fill(e)); close(a1, a2, a3, a4); }
+	}
+	function f2(error, answer) {
+		try {
+			if (error) {
+				log("step1 fail '#'".fill(error));
+				close(answer, a1, a2, a3, a4);
+			} else {
+				log("step1 done '#'".fill(answer));
+				a1 = answer;
+				simulateMethod1(answer.answer, f3);
+			}
+		} catch (e) { log("catch '#'".fill(e)); close(answer, a1, a2, a3, a4); }
+	}
+	function f3(error, answer) {
+		try {
+			if (error) {
+				log("step2 fail '#'".fill(error));
+				close(answer, a1, a2, a3, a4);
+			} else {
+				log("step2 done '#'".fill(answer));
+				a2 = answer;
+				simulateMethod1(answer.answer, f4);
+			}
+		} catch (e) { log("catch '#'".fill(e)); close(answer, a1, a2, a3, a4); }
+	}
+	function f4(error, answer) {
+		try {
+			if (error) {
+				log("step3 fail '#'".fill(error));
+				close(answer, a1, a2, a3, a4);
+			} else {
+				log("step3 done '#'".fill(answer));
+				a3 = answer;
+				simulateMethod1(answer.answer, f5);
+			}
+		} catch (e) { log("catch '#'".fill(e)); close(answer, a1, a2, a3, a4); }
+	}
+	function f5(error, answer) {
+		try {
+			if (error) {
+				log("step4 fail '#'".fill(error));
+				close(answer, a1, a2, a3, a4);
+			} else {
+				log("step4 done '#'".fill(answer));
+				a4 = answer;
+				close(answer, a1, a2, a3, a4);
+			}
+		} catch (e) { log("catch '#'".fill(e)); close(answer, a1, a2, a3, a4); }
+	}
+
+	log("return");
+}
+
+
+
+
+
+//switch instructions back to behavior
+//pass in paremeters like
+/*
+simulateMethod1("df", callback)
+demoMethod1Multiple("df", "df", "df", "df")
+
+you don't need to pass name "step1" into simulateMethod at all
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -409,6 +514,17 @@ what needs improvement:
 
 
 
+/*
+see how q does cancel, progress, and timeout
+it looks like progress notifications get pushed to the caller, where you want that to work the other way around
+how does cancel work
+how does timeout work
+
+actually, at this point, just add your features to q promises the easiest, dumbest way, and then get back to the 11 entry points to the posix file system
+you can and probably will change the async system underneath later, and the beauty of all these tests, demos, and simulations is they actually let you do that
+or, head over to a totally different part to work on, like charm, or the ui, or spray and stripe pattern or something
+
+*/
 
 
 
