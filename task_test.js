@@ -765,4 +765,88 @@ npm shows the async module is 5x more popular than q!
 
 
 
+/*
+//all of those work
+//ok, that's probably how you should do the first draft of this, then
+//all you have to do is add your own cancel, progress, and custom timeout
+
+https://github.com/kriskowal/q/wiki/API-Reference
+
+>cancel
+can't find how to do this
+you should do it with close
+
+ok, ending the chain is easy when you're in the chain, just throw and exception
+but how does it work when you are outside of/above the chain, when you have the promise object and want to end it
+essentially you need a way to mark it for conclusion, so the next time a step returns, it throws to get out
+
+looking at it again, you pretty much already have it
+task already has a cancel method, which fails the task, which calls sendResult, which fails the promise
+so all you need to do is expose that through the promise, and you're good
+
+>progress
+done with notify, progress pushed upwards
+you should do it in the other direction
+
+>timeout
+done with promise.timeout(ms)
+you've already got it working wiht your own code underneath defer
+
+//next steps
+you've confirmed that the strategy of wrapping your task and result into a callback, and then putting a q promise on top of that, works
+just tack the task on the promise object, and confirm you can add the features of cancel and progress this way
+then, copy and refactor task and result for promises in method4, for instance, you don't need a result object that can contain an error or an answer, because promise code splits this into different handlers, but you still don't want the raw answer alone because you may want to see how long it took or other stats about how it was finished, so maybe you do want result to be the same as it is now
+*/
+
+
+
+//show the 10 behaviors with
+//method1 plain callback, done
+//method2 plain promise, done
+//method3 callback with task and result, done
+//method4 promise with customizations added on top, TODO
+
+//1 time unit afterwards get progress, 2 units cancel, TODO
+//do step1,2,3,4, where 3 fails, TODO
+
+//extra features added by method2 and method4
+//default 4 time unit timeout
+//get progress status text whenver you want
+//ability for the caller to cancel
+//autoclose late returned resource from an unstoppable platform call that returns after timeout or cancel
+
+
+
+
+
+/*
+see how q does cancel, progress, and timeout
+it looks like progress notifications get pushed to the caller, where you want that to work the other way around
+how does cancel work
+how does timeout work
+
+actually, at this point, just add your features to q promises the easiest, dumbest way, and then get back to the 11 entry points to the posix file system
+you can and probably will change the async system underneath later, and the beauty of all these tests, demos, and simulations is they actually let you do that
+or, head over to a totally different part to work on, like charm, or the ui, or spray and stripe pattern or something
+
+*/
+
+
+//have a third example where you have f1() call step 1 and 2, and step 2 calls f2(), which includes steps 3 and 4, and step3 calls f3(), which has 5 and 6
+//see how the different methods work when you call into a tree of steps
+//the goal is to end up with a system that makes coding this as easy and natural as if it were all synchronous code
+
+
+//you could hook these up to run as tests just by
+//having a log function at the top which switches between loging to console and loging to test-readable string, which doesn't have date codes
+//having a function that returns the number of objects currently on the pulse list
+
+
+
+
+
+
+
+
+
 
