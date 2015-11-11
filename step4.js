@@ -11,26 +11,32 @@ require("./load").load("base", function() { return this; });
 /*
 goals
 
-code as easily as if everything were synchronous, using:
--sequential steps
--call subroutines
+code as easily as if everything were synchronous, being able to:
+-do sequential steps
+-call subroutines and have them return to you
 -throw and catch exceptions
+
+easily deal with resources that you must remember to close, like an open file
+
+have a default timeout of 4 seconds for individual disk and network tasks
+be able to set it to forever for a task that asks the user a question
 
 whenever you want:
 -query an ongoing task to get its current status and progress information
 -cancel an ongoing task to have it put things away instead of continuing and finishing
+compose several small tasks into a single larger one, and have progress and cancel work
 
 protect against functions that finish in a callback but misbehave, including:
 -call the callback directly, instead of in a separate event
 -never call the callback, just hang forever
--call the callback with both an error and a resource that needs to get closed
+-call the callback with both an error and a resource that needs to be closed
 
 protect against race conditions related to resources that need to be closed, including:
 -a task times out, or
--code cancels a task
+-you cancel a task
 and then finishes, returning a resource that needs to be closed
 
-use es6 yield and/or es7 await to make the code even cleaner and easier
+make the code even cleaner and easier with es6 yield and es7 await
 */
 
 
