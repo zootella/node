@@ -29,13 +29,12 @@ protect against race conditions related to resources that need to be closed, inc
 -a task times out, or
 -code cancels a task
 and then finishes, returning a resource that needs to be closed
+
+use es6 yield and/or es7 await to make the code even cleaner and easier
 */
 
 
 
-//here's what you do next right now
-//get log() and stick() working with charm, make a sample that just counts up time and takes keystrokes to reset and exit
-//you already have task.cancel(), make task.text() that says how long we've been waiting for each step, have step A take 5 seconds, B 2 seconds, C 4 seconds in a demo
 
 
 
@@ -44,20 +43,46 @@ and then finishes, returning a resource that needs to be closed
 
 
 
-
-
-
-
+//notes and scraps
 
 
 /*
+timeout
+
 to set a timeout on a promise, just do .timeout(time)
 to cancel a promise, just call .reject() on it
 try these with method 2
-
-
-
 */
+
+/*
+closer function
+
+you're going to need a custom closer function
+for instance, ask to open a file, it times out, then it finishes, custom closer function you passed in earlier knows what platform call to call to close what you got
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if (demo("snip"))  { demoSnip(); }
@@ -118,83 +143,6 @@ function demoMethod3(behavior) {
 
 
 
-
-
-/*
-method 5: customized promise
-refactored customizations underneath q promises, with extra objects added
-*/
-
-
-
-
-
-
-//youre going to need a custom closer function
-//for instance, ask to open a file, it times out, then it finishes, custom closer function you passed in earlier knows what platform call to call to close what you got
-
-
-
-
-
-
-
-if (demo("snippet")) { demoSnippet(); }
-function demoSnippet() {
-
-	transformer(platform1, "a");
-	transformer(platform2, "a", "b");
-	transformer(platform3, "a", "b", "c");
-}
-
-
-
-
-
-function transformer() {//arguments like transformer(f, p1, p2, p3), no callback
-
-	var f = arguments[0];
-
-	var a = [];
-	for (var i = 1; i < arguments.length; i++) a.push(arguments[i]);
-	a.push(callback);
-
-	f.apply(this, a);
-
-	function callback(result) {
-		log(result);
-	}
-}
-
-
-
-
-
-function platform1(p1, callback) {
-	callback("1: " + p1);
-}
-
-function platform2(p1, p2, callback) {
-	callback("2: " + p1 + p2);
-}
-
-function platform3(p1, p2, p3, callback) {
-	callback("3: " + p1 + p2 + p3);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-//name your promise library improvements 'step' because it's like step 1, step 2, etc
 
 
 

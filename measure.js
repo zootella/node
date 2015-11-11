@@ -814,7 +814,6 @@ Size.value = 20; // A SHA1 hash value is 20 bytes
 Size.medium =  8*Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
 Size.big    = 64*Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
 
-Size.max = 9007199254740992; // Largest number that JavaScript keeps as an integer, 2^53, 8*Size.pb
 freeze(Size);
 
 // Describe the given number of bytes with text like "7gb 1023mb 0kb 19b" showing scale and exactness
@@ -870,7 +869,7 @@ function saySizeUnits(n, decimal, units) {
 		d *= 1024; // Move to the next larger unit
 		u++;
 	}
-	toss("overflow"); // We ran out of units, not really possible because Size.max is 8191tb
+	toss("overflow"); // We ran out of units
 }
 //TODO split into saySize4, saySizeB, K, M, G...
 //TODO have this go up beyond pb now that it uses int

@@ -808,7 +808,7 @@ exports.testSaySize = function(test) {
 	f((5*Size.mb) + 7, "5mb 0kb 7b");//0kb in the middle
 	f(Size.tb, "1tb 0gb 0mb 0kb 0b");
 	f(Size.tb - 1, "1023gb 1023mb 1023kb 1023b");//one byte less than the unit
-	f(Size.max - 1, "7pb 1023tb 1023gb 1023mb 1023kb 1023b");//largest int as a number of bytes is 8pb
+	f(Number.MAX_SAFE_INTEGER, "7pb 1023tb 1023gb 1023mb 1023kb 1023b");//largest int as a number of bytes is 8pb - 1
 
 	test.done();
 }
@@ -836,7 +836,7 @@ exports.testSaySizeUnits = function(test) {
 	test.ok(saySizeUnits(5 * Size.gb) == "5120mb");
 	test.ok(saySizeUnits(Size.tb) == "1024gb");
 
-	test.ok(saySizeUnits(Size.max - 1) == "8191tb");
+	test.ok(saySizeUnits(Number.MAX_SAFE_INTEGER) == "8191tb");
 
 	test.ok(saySizeUnits(1)                == "1b");
 	test.ok(saySizeUnits(10)               == "10b");
@@ -863,7 +863,7 @@ exports.testSaySizeUnits = function(test) {
 	test.ok(saySizeUnits(n, 0, "tb") == "0tb");
 	test.ok(saySizeUnits(n, 0, "pb") == "0pb");
 
-	n = Size.max - 1;
+	n = Number.MAX_SAFE_INTEGER;
 	test.ok(saySizeUnits(n, 0, "b")  == "9,007,199,254,740,991b");
 	test.ok(saySizeUnits(n, 0, "kb") == "8,796,093,022,208kb");
 	test.ok(saySizeUnits(n, 0, "mb") == "8,589,934,592mb");
@@ -1098,7 +1098,7 @@ exports.testSayTime = function(test) {
 
 	f(2*Time.day + 3*Time.hour + 4*Time.minute + 5*Time.second + 6, "2d 3h 4m 5.006s");
 
-	f(Size.max - 1, "285,420y 11m 1d 13h 29m 0.991s");//largest int as an amount of time is 285 thousand years
+	f(Number.MAX_SAFE_INTEGER, "285,420y 11m 1d 13h 29m 0.991s");//largest int as an amount of time is 285 thousand years
 
 	f(Time.minute - 1, "59.999s");//one millisecond less than the unit
 	f(Time.year - 1, "11m 30d 10h 29m 59.999s");
