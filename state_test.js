@@ -44,7 +44,7 @@ function exampleLoop() {
 		var s = unique().base62();
 	}
 
-	speedLoop(f, "unique");//give our synchronous function to speed loop, which will call it over and over
+	speedLoop8("unique", f);//give our synchronous function to speed loop, which will call it over and over
 }
 
 //example of asynchronous code
@@ -72,7 +72,7 @@ function exampleLoopNext() {
 		}
 	}
 
-	var callWhenDone = speedLoopNext(f, "look");//get the function we have to call when our code is done
+	var callWhenDone = speedLoopNext("look", f);//get the function we have to call when our code is done
 	f();//call our asynchronous function once to get the whole thing started
 }
 
@@ -83,7 +83,7 @@ function exampleEmpty() {
 	function f() {
 	}
 
-	speedLoop(f, "empty");
+	speedLoop8("empty", f);
 }
 
 //empty speedLoopNext to see maximum speed
@@ -94,9 +94,20 @@ function exampleEmptyNext() {
 		callWhenDone();//ordinarily, f would call callWhenDone in a callback, but it's ok to call it directly too
 	}
 
-	var callWhenDone = speedLoopNext(f, "empty");
+	var callWhenDone = speedLoopNext("empty", f);
 	f();
 }
+
+//empty speedLoopForever to see average settle
+if (demo("example-empty-forever")) { exampleEmptyForever(); }
+function exampleEmptyForever() {
+
+	function f() {
+	}
+
+	speedLoopForever("empty", f);
+}
+
 
 
 
@@ -154,18 +165,18 @@ if (demo("timeout-throw")) { demoTimeoutThrow(); }
 function demoTimeoutThrow() {
 	log("setting timeouts for 2 and 4 seconds from now");
 
-	setTimeout(function() {//in 4 seconds, this function will run successfully
+	wait(4000, function() {//in 4 seconds, this function will run successfully
 
 		log("ran after 4 seconds");//never runs, the uncaught exception at 2 seconds ends the node process
 
-	}, 4000);
+	});
 
-	setTimeout(function() {//in 2 seconds, this function will run and throw
+	wait(2000, function() {//in 2 seconds, this function will run and throw
 
 		log("ran after 2 seconds");
 		Data("hello").start(6);//throws chop
 
-	}, 2000);
+	});
 }
 
 //test of basic use
@@ -355,7 +366,7 @@ exports.testMistake4 = function(test) {
 //5. pass to f(e) a platform error, no program mistake at all, nothing thrown or caught
 /*
 { [Error: ENOENT, open 'c:\node\notfound.ext']
-  errno: 34,
+  errno: -4058,
   code: 'ENOENT',
   path: 'c:\\node\\notfound.ext' }
 */
@@ -368,13 +379,13 @@ exports.testMistake5 = function(test) {
 	mistake5(function (e) {
 
 		test.ok(isType(e, "Error"));//look at e
-		test.ok(e.errno == 34);
+		test.ok(e.errno == -4058);
 		test.ok(e.code == "ENOENT");
 		test.ok(e.path.ends("notfound.ext"));
 
 		var s = say(e);//check text form
 		test.ok(s.has("[Error: ENOENT, open '"));
-		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("errno: -4058,"));
 		test.ok(s.has("code: 'ENOENT',"));
 
 		done(test);//mark the text done in the callback to make sure it gets called
@@ -387,7 +398,7 @@ data
 toss_test.js:198
 
 caught { [Error: ENOENT, open 'c:\node\notfound.ext']
-  errno: 34,
+  errno: -4058,
   code: 'ENOENT',
   path: 'c:\\node\\notfound.ext' }
 */
@@ -407,14 +418,14 @@ exports.testMistake6 = function(test) {
 		test.ok(e.name == "data");
 
 		test.ok(isType(e.caught, "Error"));//look at the caught and contained error
-		test.ok(e.caught.errno == 34);
+		test.ok(e.caught.errno == -4058);
 		test.ok(e.caught.code == "ENOENT");
 		test.ok(e.caught.path.ends("notfound.ext"));
 
 		var s = say(e);//check text form
 		test.ok(s.starts("data"));
 		test.ok(s.has("caught { [Error: ENOENT, open '"));
-		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("errno: -4058,"));
 		test.ok(s.has("code: 'ENOENT',"));
 
 		done(test);
@@ -434,7 +445,7 @@ name: notfound.ext
 access: r
 
 caught { [Error: ENOENT, open 'c:\node\notfound.ext']
-  errno: 34,
+  errno: -4058,
   code: 'ENOENT',
   path: 'c:\\node\\notfound.ext' }
 */
@@ -483,7 +494,7 @@ exports.testMistake7 = function(test) {
 		test.ok(e.caught.watch.access == "r");
 
 		test.ok(isType(e.caught.caught, "Error"));//inside again
-		test.ok(e.caught.caught.errno == 34);
+		test.ok(e.caught.caught.errno == -4058);
 		test.ok(e.caught.caught.code == "ENOENT");
 		test.ok(e.caught.caught.path.ends("notfound.ext"));
 
@@ -497,7 +508,7 @@ exports.testMistake7 = function(test) {
 		test.ok(s.has("name: notfound.ext"));
 
 		test.ok(s.has("caught { [Error: ENOENT, open '"));
-		test.ok(s.has("errno: 34,"));
+		test.ok(s.has("errno: -4058,"));
 		test.ok(s.has("code: 'ENOENT',"));
 
 		done(test);
@@ -999,7 +1010,7 @@ function demoSpeedPulse() {
 		closeCheck();
 	}
 
-	var callWhenDone = speedLoopNext(start, "pulse", allDone);
+	var callWhenDone = speedLoopNext("pulse", start, allDone);
 	start();
 }
 

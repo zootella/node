@@ -21,6 +21,16 @@ require("./load").load("state", function() { return this; });
 
 
 
+// After a delay of t milliseconds, run the function f in a later event
+function wait(t, f) {
+	if (!t) setImmediate(f);  // Run f in the next event without any additional delay
+	else    setTimeout(f, t); // In t milliseconds, run f
+}
+
+exports.wait = wait;
+
+
+
 
 
 
@@ -46,34 +56,90 @@ function demo(name) {
 	return false;
 }
 
-// See how fast we can run the given synchronous function over and over again
-function speedLoop(f, name) {
+exports.demo = demo;
 
-	var t = Date.now(); // When we started
-	var n = 0;          // Count how many cycles
+//   ____                      _   _                      
+//  / ___| _ __   ___  ___  __| | | |    ___   ___  _ __  
+//  \___ \| '_ \ / _ \/ _ \/ _` | | |   / _ \ / _ \| '_ \ 
+//   ___) | |_) |  __/  __/ (_| | | |__| (_) | (_) | |_) |
+//  |____/| .__/ \___|\___|\__,_| |_____\___/ \___/| .__/ 
+//        |_|                                      |_|    
 
-	f(); // Measure warm up speed
-	log("first # took #".fill(name, sayTime(Date.now() - t)));
+// See how many times the given synchronous function f runs in a second
+// Logs a line like "0.000s 12,3456,678 name" with how long f took to run the first time, and then how many times it ran in 1 second
+function speedLoop(name, f) {
+	var warm = _speedWarm(f);
+	var revolutions = _speedCycle(f);
+	var s = commas(revolutions);
+	s = s.widenStart(11); // Right align numbers logged separately
+	log("# #  #".fill(sayTime(warm), s, name));
+}
 
-	for (var s = 0; s < 8; s++) {         // Repeat 8 times
-
-		t = Date.now();                     // When we started for this second
-		n = 0;                              // Zero the counter
-
-		while (true) {
-			if (t + 1000 < Date.now()) break; // Second's up, stop
-			f();                              // Run the given code
-			n++;                              // Count one more cycle
-		}
-
-		log(items(n, name), "/second");     // Report how many cycles in that second
+// See how many times the given synchronous function f runs in a second, 8 times
+function speedLoop8(name, f) {
+	log("first # took #".fill(name, sayTime(_speedWarm(f))));
+	for (var s = 0; s < 8; s++) {                  // Repeat 8 times
+		log(items(_speedCycle(f), name), "/second"); // Report how many cycles in that second
 	}
 }
 
-// See how fast we can run the given asynchronous function over and over again
+// See how many times the given synchronous function f runs per second
+function speedLoopForever(name, f) {
+
+	var go = true;
+	var seconds = 0;
+	var cycles = 0;
+
+	var warm = _speedWarm(f);
+	report();
+	run();
+
+	function run() {
+		if (go) {
+			cycles += _speedCycle(f);
+			seconds++;
+			report();
+			wait(0, run);
+		}
+	}
+
+	function report() {
+		var s = sayTime(warm);
+		if (seconds) s += " " + commas(divide(cycles, seconds).whole);
+		s += " " + name;
+		stick(s);
+	}
+
+	keyboard("exit", function() {
+		go = false;
+		closeKeyboard();
+		closeCheck();//have a close check silent, only complains if something left open
+	});
+}
+
+// How many milliseconds it takes to run f
+function _speedWarm(f) {
+	var t = Date.now();
+	f();
+	return Date.now() - t;
+}
+
+// How many times f runs in 1 second
+// This function blocks as it runs for 1 second, appropriate in this case but unusual and not correct behavior for node
+function _speedCycle(f) {
+	var t = Date.now();
+	var n = 0;
+	while (Date.now() < t + 1000) {
+		f();
+		n++;
+	}
+	return n;
+}
+
+// See how many times the given asynchronous function f runs in a second, 8 times
 // Returns a function for your asynchronous code to call when it's done
 // Pass in an allDone function if you want to know when the 8 second test is over
-function speedLoopNext(f, name, allDone) {
+function speedLoopNext(name, f, allDone) {
 
 	var s = 0;          // Number of second long loops we've completed
 	var t = Date.now(); // Time the current loop started
@@ -81,7 +147,7 @@ function speedLoopNext(f, name, allDone) {
 	var first = true;   // Measure warm up speed
 
 	var callWhenDone = function () {
-		setImmediate(function() {
+		wait(0, function() {
 
 			if (first) { // First cycle finished, measure warm up speed
 				first = false;
@@ -118,11 +184,10 @@ function speedLoopNext(f, name, allDone) {
 	return callWhenDone; // Call this function when your asynchronous f() is done
 }
 
-exports.demo = demo;
 exports.speedLoop = speedLoop;
+exports.speedLoop8 = speedLoop8;
+exports.speedLoopForever = speedLoopForever;
 exports.speedLoopNext = speedLoopNext;
-
-
 
 
 
@@ -350,7 +415,20 @@ function dingStop() { // Stop requesting these repeating pulses
 
 
 
+/*
 
+true when we've set immediate to call pulse
+start a pulse if one isn't going to happen or happening
+
+soon() -> pulseSoon(), the longer name is better
+
+screen enough is wrong, and will prevent a button from looking clicked immediately
+it's enough that list[i] pulse can happne in while(again), while pulseScreen happens only once per pulse
+
+some of these thigns change, others make a ttd note below
+hopefully once you've got node streams figured out, you'll realize you don't need pulse at all probably, just pulseScreen
+
+*/
 
 
 
@@ -364,7 +442,6 @@ function dingStop() { // Stop requesting these repeating pulses
 
 var start = false; // true when we've set next tick to call _pulse(), and it hasn't yet
 var again = false; // true when an object has requested another pass up the pulse list
-var screen = Ago(Time.delay); // Make sure we don't update the screen too frequently
 
 // An object in the program has changed or finished
 // Pulse soon so the object that made it can notice and take the next step forward
@@ -373,7 +450,7 @@ function soon() {
 	// Start a pulse if one isn't already happening
 	if (!start) { // No need to start a new pulse if we're doing one now already
 		start = true;
-		setImmediate(_pulse); // Run the _pulse function separately and soon
+		wait(0, _pulse); // Run the _pulse function separately and soon
 	}
 
 	// Have the pulse loop up the list again
@@ -398,18 +475,16 @@ function _pulse() {
 			}
 		}
 	}
-	
+
 	// In a single pass after that, pulse up the list to have objects compose information for the user
-	if (screen.enough()) { // Only update the screen 5 times a second
-		for (var i = list.length - 1; i >= 0; i--) {
-			if (!list[i].isClosed() && hasMethod(list[i], "pulseScreen")) { // Skip closed objects
-				try {
-					list[i].pulseScreen(); // Pulse the object to have it compose text for the user to show current information
-				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
-			}
+	for (var i = list.length - 1; i >= 0; i--) {
+		if (!list[i].isClosed() && hasMethod(list[i], "pulseScreen")) { // Skip closed objects
+			try {
+				list[i].pulseScreen(); // Pulse the object to have it compose text for the user to show current information
+			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 		}
 	}
-	
+
 	clear(); // Remove closed objects from the list all at once at the end
 	monitorEnd(list.length);
 	start = false; // Allow the next call to soon() to start a new pulse

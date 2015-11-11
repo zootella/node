@@ -1,5 +1,4 @@
 
-var platformFile = require("fs");
 var Q = require("q");
 require("./load").load("base", function() { return this; });
 
@@ -9,41 +8,16 @@ require("./load").load("base", function() { return this; });
 
 
 
-/*
-goals
-
-code as easily as if everything were synchronous, using:
--sequential steps
--call subroutines
--throw and catch exceptions
-
-whenever you want:
--query an ongoing task to get its current status and progress information
--cancel an ongoing task to have it put things away instead of continuing and finishing
-
-protect against functions that finish in a callback but misbehave, including:
--call the callback directly, instead of in a separate event
--never call the callback, just hang forever
--call the callback with both an error and a resource that needs to get closed
-
-protect against race conditions related to resources that need to be closed, including:
--a task times out, or
--code cancels a task
-and then finishes, returning a resource that needs to be closed
-*/
-
-
-
-//here's what you do next right now
-//get log() and stick() working with charm, make a sample that just counts up time and takes keystrokes to reset and exit
-//you already have task.cancel(), make task.text() that says how long we've been waiting for each step, have step A take 5 seconds, B 2 seconds, C 4 seconds in a demo
 
 
 
 
-
-
-
+//   ____                 
+//  | __ )  __ _ ___  ___ 
+//  |  _ \ / _` / __|/ _ \
+//  | |_) | (_| \__ \  __/
+//  |____/ \__,_|___/\___|
+//                        
 
 /*
 base materials
@@ -78,7 +52,12 @@ exports.SimulateResource = SimulateResource;
 
 
 
-
+//   __  __      _   _               _   _ 
+//  |  \/  | ___| |_| |__   ___   __| | / |
+//  | |\/| |/ _ \ __| '_ \ / _ \ / _` | | |
+//  | |  | |  __/ |_| | | | (_) | (_| | | |
+//  |_|  |_|\___|\__|_| |_|\___/ \__,_| |_|
+//                                         
 
 /*
 method 1: node callback
@@ -98,25 +77,25 @@ function simulateMethod1(behavior, callback) {
 		callback(null, SimulateResource());
 
 	} else if (behavior == "di") {//done instant: succeeds right away in a new event
-		setImmediate(function() { callback(null, SimulateResource()); })
+		wait(0*SimulateTime.unit, function() { callback(null, SimulateResource()); });
 
 	} else if (behavior == "df") {//done fast: succeeds in 3 time units, before the time limit
-		setTimeout(function() { callback(null, SimulateResource()); }, 3*SimulateTime.unit);
+		wait(3*SimulateTime.unit, function() { callback(null, SimulateResource()); });
 
 	} else if (behavior == "ds") {//done slow: succeeds in 5 time units, after the time limit
-		setTimeout(function() { callback(null, SimulateResource()); }, 5*SimulateTime.unit);
+		wait(5*SimulateTime.unit, function() { callback(null, SimulateResource()); });
 
 	} else if (behavior == "fd") {//fail direct: fails, calling the callback directly, shouldn't happen but you never know
 		callback("simulate", SimulateResource());
 
 	} else if (behavior == "fi") {//fail instant: fails right away in a new event
-		setImmediate(function() { callback("simulate", SimulateResource()); })
+		wait(0*SimulateTime.unit, function() { callback("simulate", SimulateResource()); });
 
 	} else if (behavior == "ff") {//fail fast: fails in 3 time units, before the time limit
-		setTimeout(function() { callback("simulate", SimulateResource()); }, 3*SimulateTime.unit);
+		wait(3*SimulateTime.unit, function() { callback("simulate", SimulateResource()); });
 
 	} else if (behavior == "fs") {//fail slow: fails in 5 time units, after the time limit
-		setTimeout(function() { callback("simulate", SimulateResource()); }, 5*SimulateTime.unit);
+		wait(5*SimulateTime.unit, function() { callback("simulate", SimulateResource()); });
 
 	}
 }
@@ -136,9 +115,12 @@ exports.simulateMethod1 = simulateMethod1;
 
 
 
-
-
-
+//   __  __      _   _               _   ____  
+//  |  \/  | ___| |_| |__   ___   __| | |___ \ 
+//  | |\/| |/ _ \ __| '_ \ / _ \ / _` |   __) |
+//  | |  | |  __/ |_| | | | (_) | (_| |  / __/ 
+//  |_|  |_|\___|\__|_| |_|\___/ \__,_| |_____|
+//                                             
 
 /*
 method 2: q promise
@@ -170,9 +152,12 @@ exports.simulateMethod2 = simulateMethod2;
 
 
 
-
-
-
+//   __  __      _   _               _   _____ 
+//  |  \/  | ___| |_| |__   ___   __| | |___ / 
+//  | |\/| |/ _ \ __| '_ \ / _ \ / _` |   |_ \ 
+//  | |  | |  __/ |_| | | | (_) | (_| |  ___) |
+//  |_|  |_|\___|\__|_| |_|\___/ \__,_| |____/ 
+//                                             
 
 /*
 method 3: customzied callback
@@ -208,6 +193,10 @@ function Task(next) {//monitor the completion of an asynchronous call
 		} catch (e) { o.fail(e); }//threw an exception right in the request, not in the callback
 	}
 
+	/*
+	TODO call is a special javascript thing, so pick a different name for here
+	*/
+
 	//cancel this task if you don't care anymore
 	o.cancel = function() { o.fail(Mistake("cancel")); }//cancel when we don't want it anymore
 
@@ -236,7 +225,7 @@ function Task(next) {//monitor the completion of an asynchronous call
 	}
 	function sendResult(result) {
 		if (next) {
-			setImmediate(function() {
+			wait(0, function() {
 				try {
 					next(result);
 				} catch (e) { mistakeStop(e); }
@@ -304,29 +293,17 @@ exports.Result = Result;
 
 
 
-
-
-
-
-
-
-
-
-
+//   __  __      _   _               _   _  _   
+//  |  \/  | ___| |_| |__   ___   __| | | || |  
+//  | |\/| |/ _ \ __| '_ \ / _ \ / _` | | || |_ 
+//  | |  | |  __/ |_| | | | (_) | (_| | |__   _|
+//  |_|  |_|\___|\__|_| |_|\___/ \__,_|    |_|  
+//                                              
 
 /*
 method 4: customized promise
 callbacks wrapped into q promises, customized to add safety and features
 */
-
-
-
-
-
-
-
-//method2 simply wrapped method1, could method4 simply wrap method3?
-//ok, that's nice, but how can you pass back the task and result objects, like put them both in the promise or something
 
 function simulateMethod4(behavior) {
 	var d = Q.defer();
@@ -341,6 +318,8 @@ function simulateMethod4(behavior) {
 
 exports.simulateMethod4 = simulateMethod4;
 
+//method2 simply wrapped method1, could method4 simply wrap method3?
+//ok, that's nice, but how can you pass back the task and result objects, like put them both in the promise or something
 
 
 
@@ -356,22 +335,12 @@ exports.simulateMethod4 = simulateMethod4;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   __  __      _   _               _   ____  
+//  |  \/  | ___| |_| |__   ___   __| | | ___| 
+//  | |\/| |/ _ \ __| '_ \ / _ \ / _` | |___ \ 
+//  | |  | |  __/ |_| | | | (_) | (_| |  ___) |
+//  |_|  |_|\___|\__|_| |_|\___/ \__,_| |____/ 
+//                                             
 
 /*
 method 5: customized promise
@@ -468,81 +437,6 @@ function Result5(startTime, error, answer) {
 exports.simulateMethod5 = simulateMethod5;
 exports.Task5 = Task5;
 exports.Result5 = Result5;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-//here's an example of argumens and apply
-
-// Add function f to the String type so that s.name(a, b) calls and returns name(s, a, b)
-function augment(f, name) {
-	if (name in String.prototype) toss("program"); // Don't add a method to String over one already there
-
-	String.prototype[name] = function() { // Call this function when you call s.name()
-		var a = [this + ""]; // Coax this into a string, rather than an array of characters
-		for (var i = 0; i < arguments.length; i++) // After this, add all the arguments from name(s)
-			a.push(arguments[i]);
-		return f.apply(this, a); // Call f(s, a) and return the result
-	}
-}
-
-
-
-
-
-
-function platform
-
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

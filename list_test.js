@@ -17,21 +17,21 @@ require("./load").load("list_test", function() { return this; });
 exports.testListSizeGetClear = function(test) {
 
 	var list = List(compareText);
-	test.ok(list.size() == 0);
+	test.ok(list.length() == 0);
 
 	list.add("a");
 	test.ok(list.text() == "a");
-	test.ok(list.size() == 1);
+	test.ok(list.length() == 1);
 	test.ok(list.get(0) == "a");
 
 	list.add("b");
 	test.ok(list.text() == "a,b");
-	test.ok(list.size() == 2);
+	test.ok(list.length() == 2);
 	test.ok(list.get(0) == "a");
 	test.ok(list.get(1) == "b");
 
 	list.clear();
-	test.ok(list.size() == 0);
+	test.ok(list.length() == 0);
 
 	list.add("g");
 	list.add("f");
@@ -109,7 +109,7 @@ exports.testListBounds = function(test) {
 	cantRemove(1);
 	test.ok(list.get(0) == "a");
 	test.ok(list.remove(0) == "a");
-	test.ok(list.size() == 0);
+	test.ok(list.length() == 0);
 
 	list.insert("a", 0);
 	list.insert("b", 1);
@@ -135,10 +135,10 @@ exports.testList = function(test) {
 	l.add("b");
 	l.add("a");
 	test.ok(l.text() == "c,b,a");
-	test.ok(l.size() == 3);
+	test.ok(l.length() == 3);
 	test.ok(l.add("b"));//accepts duplicate and returns true
 	test.ok(l.text() == "c,b,a,b");
-	test.ok(l.size() == 4);
+	test.ok(l.length() == 4);
 
 	test.ok(l.find("a") == 2);//uses _findInUnsorted
 	test.ok(l.find("b") == 3);//finds last instance
@@ -160,10 +160,10 @@ exports.testSet = function(test) {
 	l.add("b");
 	l.add("a");
 	test.ok(l.text() == "c,b,a");
-	test.ok(l.size() == 3);
+	test.ok(l.length() == 3);
 	test.ok(!l.add("b"));//blocks duplicate and returns false
 	test.ok(l.text() == "c,b,a");
-	test.ok(l.size() == 3);
+	test.ok(l.length() == 3);
 
 	test.ok(l.find("a") == 2);//uses _findInUnsorted again
 	test.ok(l.find("b") == 1);
@@ -297,7 +297,7 @@ function demoAdd() {
 		if (t.expired(timeLimit)) n++;//count another slow add
 		if (n > itemLimit) break;//too many slow adds, stop
 	}
-	log("# got too slow sorting a List after every add".fill(items(l.size(), "unique")));
+	log("# got too slow sorting a List after every add".fill(items(l.length(), "unique")));
 
 	//use SortedList instead
 	l = SortedList(compareData);
@@ -308,7 +308,7 @@ function demoAdd() {
 		if (t.expired(timeLimit)) n++;
 		if (n > itemLimit) break;
 	}
-	log("# got too slow using SortedList instead".fill(items(l.size(), "unique")));
+	log("# got too slow using SortedList instead".fill(items(l.length(), "unique")));
 }
 
 

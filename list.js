@@ -21,7 +21,7 @@ function _list(compare) {
 	list.sorted = true; // True when this list is sorted, assuming items don't change
 
 	list.check = function check(i) { if (i < 0 || i >= list.n) toss("bounds"); } // Make sure the given index fits in our array
-	list.size = function size() { return list.n; } // How many items we carry
+	list.length = function length() { return list.n; } // How many items we carry
 	list.get = function get(i) { list.check(i); return list.a[i]; } // Get the item at the given index
 	list.has = function has(o) { return list.find(o) != -1; } // True if o is the same as something we have
 
@@ -227,7 +227,7 @@ function List(compare) {
 	list.find = function find(o) { return _findInUnsorted(list, o); }
 	list.add = function add(o) { return _addToUnsortedList(list, o); }
 	return {
-		size:list.size, get:list.get, has:list.has, find:list.find,
+		length:list.length, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
 		type:"List"
@@ -240,7 +240,7 @@ function Set(compare) {
 	list.find = function find(o) { return _findInUnsorted(list, o); }
 	list.add = function add(o) { return _addToUnsortedSet(list, o); }
 	return {
-		size:list.size, get:list.get, has:list.has, find:list.find,
+		length:list.length, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
 		type:"Set"
@@ -253,7 +253,7 @@ function SortedList(compare) {
 	list.find = function find(o) { return _findInSorted(list, o); }
 	list.add = function add(o) { return _addToSortedList(list, o); }
 	return {
-		size:list.size, get:list.get, has:list.has, find:list.find,
+		length:list.length, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
 		type:"SortedList"
@@ -266,7 +266,7 @@ function SortedSet(compare) {
 	list.find = function find(o) { return _findInSorted(list, o); }
 	list.add = function add(o) { return _addToSortedSet(list, o); }
 	return {
-		size:list.size, get:list.get, has:list.has, find:list.find,
+		length:list.length, get:list.get, has:list.has, find:list.find,
 		add:list.add, remove:list.remove, clear:list.clear,
 		sort:list.sort, isSorted:list.isSorted, text:list.text,
 		type:"SortedSet"

@@ -753,7 +753,8 @@ exports.base32 = base32;
 exports.base62 = base62;
 exports.base64 = base64;
 
-
+//TODO you probably dont' need to bay in these, because you'll only be encoding and decoding small blocks that will fit comfortably in memory
+//also, if you do want to keep to bay functionality, you should probably update it to work with node evented streams
 
 
 
@@ -844,8 +845,7 @@ function ParseToBay(b) {
 exports.ParseFromClip = ParseFromClip;
 exports.ParseToBay = ParseToBay;
 
-
-
+//TODO the real test of this design will be, what do you think it should be when you understand node evented streams?
 
 
 

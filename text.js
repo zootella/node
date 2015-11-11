@@ -41,11 +41,7 @@ require("./load").load("text", function() { return this; });
 //  |_|  |_|  \___|\___/___\___|
 //                              
 
-var freezeImmutableObjects = true; // Guards against changing an immutable object, but slows things down
-function freezeOn() { return freezeImmutableObjects; } // True if we're freezing immutable objects
-function freeze(o) { return freezeOn() ? Object.freeze(o) : o; } // Freeze the given object if freezing is turned on
-
-exports.freezeOn = freezeOn;
+var freeze = Object.freeze; // Shortcut so you can say just freeze(o) instead of Object.freeze(o)
 exports.freeze = freeze;
 
 
@@ -249,7 +245,18 @@ Array.prototype.remove = function(i) {
 	return o;
 }
 
-//maybe write a get() that checks bounds as well, just to use when you're outside a tight loop and not absolutely sure
+// True if the given arrays are the same
+function arraySame(a1, a2) {
+	if (a1.length != a2.length) return false; // Length must be the same
+	for (var i = 0; i < a1.length; i++)
+		if (a1[i] !== a2[i]) return false; // Triple equals on each element must be true
+	return true;
+}
+
+exports.arraySame = arraySame;
+
+//TODO maybe write a get() that checks bounds as well, just to use when you're outside a tight loop and not absolutely sure
+
 
 
 
@@ -815,19 +822,22 @@ augment(offStart, "offStart");
 augment(offEnd, "offEnd");
 augment(off, "off");
 
+// Add tag to the start of s until it's w long, like "   1"
+function widenStart(s, w, tag) {
+	if (!tag || !tag.length) tag = " ";
+	while (s.length < w) s = tag + s;
+	return s;
+}
 
+// Add tag to the end of s until it's w long, like "1000"
+function widenEnd(s, w, tag) {
+	if (!tag || !tag.length) tag = " ";
+	while (s.length < w) s = s + tag;
+	return s;
+}
 
-
-
-
-
-
-
-
-
-
-
-
+augment(widenStart, "widenStart");
+augment(widenEnd, "widenEnd");
 
 
 
@@ -861,16 +871,9 @@ function ripWords(s, trimItems, skipBlankItems) { return rip(s, " ", trimItems, 
 function ripLines(s, trimItems, skipBlankItems) { return rip(s, "\n", trimItems, skipBlankItems); }
 function rip(s, tag, trimItems, skipBlankItems) {
 
-	function sameArrayOfStrings(a1, a2) { // Determine if two arrays of strings are the same
-		if (a1.length != a2.length) return false; // Must have the same length
-		for (var i = 0; i < a1.length; i++)
-			if (a1[i] !== a2[i]) return false; // Each string must be the same
-		return true;
-	}
-
 	var p = _ripPlatform(s, tag, trimItems, skipBlankItems);
 	var c = _ripCustom(s, tag, trimItems, skipBlankItems);
-	if (!sameArrayOfStrings(p, c)) mistakeLog(Mistake("platform", {note:"different", watch:{s:s, tag:tag, p:p, c:c}})); //TODO do the way that's faster instead of this check
+	if (!arraySame(p, c)) mistakeLog(Mistake("platform", {note:"different", watch:{s:s, tag:tag, p:p, c:c}})); //TODO do the way that's faster instead of this check
 	return c; // Return custom
 }
 function _ripPlatform(s, tag, trimItems, skipBlankItems) { // Implemented using s.split();
@@ -1000,24 +1003,23 @@ function lines() {
 	return t;
 }
 
-// Format list of rows like table(["head1", "head2"], ["value1", "value2"]) into a fixed width text table
-function table() {
-
+// Format array of rows like table([["head1", "head2"], ["value1", "value2"]]) into a fixed width text table
+function table(a) {
 	var width = []; // Find the longest cell to calculate the width of each column
-	for (var r = 0; r < arguments.length; r++)
-		for (var c = 0; c < arguments[0].length; c++)
-			if (!width[c] || width[c] < arguments[r][c].length) // Undefined or smaller
-				width[c] = arguments[r][c].length;
+	for (var r = 0; r < a.length; r++)
+		for (var c = 0; c < a[0].length; c++)
+			if (!width[c] || width[c] < say(a[r][c]).length) // Undefined or smaller
+				width[c] = say(a[r][c]).length;
 
 	var t = "";
-	for (var r = 0; r < arguments.length; r++) {      // Within each row
-		for (var c = 0; c < arguments[0].length; c++) { // Loop for each column
-			var cell = say(arguments[r][c]);              // Add blank to convert the argument into a string
-			if (c == arguments[0].length - 1) {           // Last column
-				t += cell + newline;                          // Add the cell text and newline characters
-			} else {                                      // Column before the last column
-				while (cell.length < width[c]) cell += " ";   // Pad the cell
-				t += cell + "  ";                             // Add the cell and the separator for the next column
+	for (var r = 0; r < a.length; r++) {      // Within each row
+		for (var c = 0; c < a[0].length; c++) { // Loop for each column
+			var cell = say(a[r][c]);              // Add blank to convert the argument into a string
+			if (c == a[0].length - 1) {           // Last column
+				t += cell + newline;                // Add the cell text and newline characters
+			} else {                              // Column before the last column
+				cell = cell.widenEnd(width[c]);     // Pad the cell
+				t += cell + "  ";                   // Add the cell and the separator for the next column
 			}
 		}
 	}
@@ -1092,6 +1094,12 @@ function pilcrow(s) {
 augment(encode, "encode");
 augment(decode, "decode");
 augment(pilcrow, "pilcrow");
+
+
+
+
+
+
 
 
 

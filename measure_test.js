@@ -18,17 +18,39 @@ var timeZone = "e"; // The local time zone the tests are running in, set to "e" 
 
 
 
-//   _                
-//  | |    ___   __ _ 
-//  | |   / _ \ / _` |
-//  | |__| (_) | (_| |
-//  |_____\___/ \__, |
-//              |___/ 
 
-//run this example examples with a command like:
-//>node test-state.js example-name
+//   ____  _       _    __                      
+//  |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___  
+//  | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \ 
+//  |  __/| | (_| | |_|  _| (_) | |  | | | | | |
+//  |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
+//                                              
 
-//example of running code that throws an exception
+if (demo("inspect")) { demoInspect(); }
+function demoInspect() {
+
+	log(inspect(this));//just a shorter name for util.inspect()
+}
+
+//on mac, you can change the width of a terminal while it's running
+//process.stdout.columns doesn't change, it's still the width when the process started
+//long lines wrap, and charm.up() and .down() count newly wrapped lines
+//so, changing the width while running can cause stick to not erase far up enough
+if (demo("columns")) { demoColumns(); }
+function demoColumns() {
+	keyboard("c", function() {
+		log("process.stdout.columns: " + process.stdout.columns);
+	});
+	keyboard("exit", function() { closeKeyboard(); });
+}
+
+//   _____    _      _                    
+//  |_   _|__| | ___| |_ _   _ _ __   ___ 
+//    | |/ _ \ |/ _ \ __| | | | '_ \ / _ \
+//    | |  __/ |  __/ |_| |_| | |_) |  __/
+//    |_|\___|_|\___|\__|\__, | .__/ \___|
+//                       |___/|_|         
+
 if (demo("log")) { demoLog(); }
 function demoLog() {
 
@@ -37,10 +59,286 @@ function demoLog() {
 	log("a", 7, "b");//multiple arguments not separated by spaces
 }
 
-if (demo("inspect")) { demoInspect(); }
-function demoInspect() {
+if (demo("stick")) { demoStick(); }
+function demoStick() {
 
-	log(inspect(this));//just a shorter name for util.inspect()
+	stick("stick");//notice that stick() starts charm, but this doesn't prevent the process from ending
+}
+
+if (demo("both")) { demoBoth(); }
+function demoBoth() {
+
+	log("log1");
+	stick("stick1", "stick2");
+	log("log2");
+	stick("stick1a", "stick2");
+	log("log3");
+}
+
+if (demo("cycle")) { demoCycle(); }
+function demoCycle() {
+	stick("press n for [log] small tall long");
+
+	var step = 1;
+	keyboard("n", function() {
+		if (step == 1) {//log
+			log("log");
+			stick("press n for log [small] tall long");
+		} else if (step == 2) {//small
+			stick("press n for log small [tall] long", "small");
+		} else if (step == 3) {//tall
+			stick("press n for log small tall [long]", "tall", "tall", "tall", "tall");
+		} else if (step == 4) {//long
+			stick("press n for [log] small tall long", "long------twenty----thirty----forty-----fifty-----sixty-----seventy---eighty----ninety----hundred---");
+		}
+		step++;
+		if (step > 4) step = 1;
+	});
+	keyboard("exit", function() { closeKeyboard(); });
+}
+
+//   ____                      _ 
+//  / ___| _ __   ___  ___  __| |
+//  \___ \| '_ \ / _ \/ _ \/ _` |
+//   ___) | |_) |  __/  __/ (_| |
+//  |____/| .__/ \___|\___|\__,_|
+//        |_|                    
+
+//see how fast we can update the console using charm
+if (demo("stick-speed")) { demoStickSpeed(); }
+function demoStickSpeed() {
+	var i = 0;
+	function f() {
+		i++;
+		stick("number #".fill(i));
+	}
+	speedLoop8("stick", f);//hundreds spin faster than you can read
+}
+
+//   _  __          _                         _ 
+//  | |/ /___ _   _| |__   ___   __ _ _ __ __| |
+//  | ' // _ \ | | | '_ \ / _ \ / _` | '__/ _` |
+//  | . \  __/ |_| | |_) | (_) | (_| | | | (_| |
+//  |_|\_\___|\__, |_.__/ \___/ \__,_|_|  \__,_|
+//            |___/                             
+
+/*
+press any key to see what the keyboard module tells you
+
+           key.character  key.name
+
+i          i              i
+shift+i    I              i
+control+i  \t             tab        control+i is tab
+8          8                         number keys only have character with no additional information
+shift+8    *
+backspace  \b             backspace  character and name are different
+*/
+if (demo("keyboard-any")) { demoKeyboardAny(); }
+function demoKeyboardAny() {
+	keyboard("any", function(key) {//blank to get all the events
+		log(inspect(key));
+	});
+	keyboard("exit", function() { closeKeyboard(); });//let the process exit
+}
+
+if (demo("keyboard-name")) { demoKeyboardName(); }
+function demoKeyboardName() {
+	keyboard("8",         function(key) { log("eight");          });//matches key.character, standard
+	keyboard("backspace", function(key) { log("word backspace"); });//matches key.name, also works
+	keyboard("i",         function(key) { log("i");              });//matches both, but keyboard only calls function once
+	keyboard("\t",        function(key) { log("slash t");        });//control+i leads to both of these, using either one works
+	keyboard("tab",       function(key) { log("word tab");       });
+
+	keyboard("exit", function() { closeKeyboard(); });
+}
+
+if (demo("keyboard-double")) { demoKeyboardDouble(); }
+function demoKeyboardDouble() {
+	keyboard("n", function(key) {
+		log("first listener");
+	});
+	keyboard("n", function(key) {//you can add multiple listeners for the same key, and keyboard will call them all
+		log("second listener");
+	});
+	keyboard("exit", function() { closeKeyboard(); });
+}
+
+//   _____      _ _   
+//  | ____|_  _(_) |_ 
+//  |  _| \ \/ / | __|
+//  | |___ >  <| | |_ 
+//  |_____/_/\_\_|\__|
+//                    
+
+/*
+confirm that using charm and keypress won't prevent the process from exiting naturally
+
+finishes by itself
+exit1: uses neither
+exit2: uses charm
+exit3: uses keypress
+exit4: uses both
+
+finishes when user presses escape
+exit5: uses keypress
+exit6: uses both
+*/
+
+function ExitResource() {
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+	};
+	return o;
+};
+
+if (demo("exit1")) { demoExit1(); }//exits when done, uses neither
+function demoExit1() {
+	var r = ExitResource();
+	log("log");
+	close(r);
+	closeCheck();
+}
+
+if (demo("exit2")) { demoExit2(); }//exits when done, uses charm
+function demoExit2() {
+	var r = ExitResource();
+	stick("stick");
+	close(r);
+	closeCheck();
+}
+
+if (demo("exit3")) { demoExit3(); }//exits when done, uses keypress
+function demoExit3() {
+	keyboard("k", function() {
+		log("keyboard");
+	});
+
+	var r = ExitResource();
+	log("log");
+	close(r);
+	closeKeyboard();
+	closeCheck();
+}
+
+if (demo("exit4")) { demoExit4(); }//exits when done, uses both
+function demoExit4() {
+	keyboard("k", function() {
+		log("keyboard");
+	});
+
+	var r = ExitResource();
+	stick("stick");
+	close(r);
+	closeKeyboard();
+	closeCheck();
+}
+
+if (demo("exit5")) { demoExit5(); }//user exits, uses keypress
+function demoExit5() {
+	keyboard("k", function() {
+		log("keyboard");
+	});
+	keyboard("exit", function() {
+		log("user exit");
+		close(r, s);
+		closeKeyboard();
+		closeCheck();
+	});
+
+	var r = ExitResource();
+	var s = ExitResource();
+	s.pulseScreen = function() {
+		log(sayDateAndTime(now().time));//scrolling clock
+	}
+}
+
+if (demo("exit6")) { demoExit6(); }//user exits, uses both
+function demoExit6() {
+	keyboard("k", function() {
+		log("keyboard");
+	});
+	keyboard("exit", function() {
+		log("user exit");
+		close(r, s);
+		closeKeyboard();
+		closeCheck();
+	});
+
+	var r = ExitResource();
+	var s = ExitResource();
+	s.pulseScreen = function() {
+		stick(sayDateAndTime(now().time));//clock that stays in place
+	}
+}
+
+//    ____ _                
+//   / ___| | ___  ___  ___ 
+//  | |   | |/ _ \/ __|/ _ \
+//  | |___| | (_) \__ \  __/
+//   \____|_|\___/|___/\___|
+//                          
+
+//escape to close both with and without all the resources you made closed
+if (demo("keyboard-resource")) { demoKeyboardResource(); }
+function demoKeyboardResource() {
+
+	var clock = ExitResource();
+	var resources = [];
+
+	clock.pulseScreen = function() {
+		stick(
+			sayDateAndTime(now().time),//clock that stays in place
+			"",
+			items(resources.length, "open resource"),//current number of open resources
+			"[m]ake or [c]lose a resource");
+	}
+
+	keyboard("m", function() { resources.add(ExitResource()); });
+	keyboard("c", function() { if (resources.length) close(resources.remove(0)); });
+
+	keyboard("exit", function() {
+		close(clock);
+		closeKeyboard();
+		closeCheck();
+	});
+}
+
+//this demo shows that keyboard exit lets the process exit naturally, rather than ending it by force
+//it also shows that a timeout will prevent the process from exiting
+//start, escape: exits naturally right away, same thing if you s and wait for the timeout to happen
+//start, s, escape: close check passes, but the process stays alive until the timeout happens
+if (demo("keyboard-timeout")) { demoKeyboardTimeout(); }
+function demoKeyboardTimeout() {
+
+	var c = ExitResource();
+	var t = null;
+
+	c.pulseScreen = function() {
+		stick(
+			sayDateAndTime(now().time),//clock that stays in place
+			"",
+			t ? "timeout set # ago".fill(sayTime(t.age())) : "no timeout",
+			"[s]et a timeout");
+	}
+
+	keyboard("s", function() {
+		if (!t) {
+			t = now();
+			wait(10*Time.second, function() {
+				soon();//otherwise log adds "timeout happened" a little before stick goes back to "no timeout"
+				log("timeout happened");
+				t = null;
+			});
+		}
+	});
+
+	keyboard("exit", function() {
+		close(c);
+		closeKeyboard();
+		closeCheck();
+	});
 }
 
 
@@ -215,7 +513,11 @@ exports.testDivide = function(test) {
 	try { divide("potato", 1); test.fail(); } catch (e) { test.ok(e.name == "type");    }//not a number
 	try { divide(1.5, 1);      test.fail(); } catch (e) { test.ok(e.name == "type");    }//not an integer
 	try { divide(-2, 1);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//negative
-	try { divide(10, 0);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//divide by zero
+
+	a = divide(10, 0);//divide by zero returns null instead of the answer object
+	test.ok(!a);//which is falsey
+	a = {};//unlike even an empty object
+	test.ok(a);
 
 	test.done();
 }
@@ -251,53 +553,33 @@ exports.testScale = function(test) {
 	test.done();
 }
 
+exports.testCompareNumber = function(test) {
 
+	try {
+		compareNumber(-5, -6);//negative now allowed
+		test.fail();
+	} catch (e) { test.ok(e.name == "bounds"); }
 
+	test.ok(compareNumber(50, 40) > 0);//positive, reverse order
+	test.ok(compareNumber(50, 50) == 0);//zero, same
+	test.ok(compareNumber(50, 60) < 0);//negative, correct order
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.testAverage = function(test) {
-
-	//average 4, 5, and 6
-	var a = Average();
-	test.ok(!a.minimum());
-	a.add(4);
-	a.add(5);
-	test.ok(a.recent() == 5);
-	test.ok(a.maximum() == 5);
-	a.add(6);
-
-	test.ok(a.n() == 3);
-	test.ok(a.total() == 15);
-	test.ok(a.minimum() == 4);
-	test.ok(a.maximum() == 6);
-	test.ok(a.recent() == 6);
-
-	test.ok(a.average() == 5);
-
-	//average 3, 3, and 4
-	a = Average();
-	a.add(3);
-	a.add(3);
-	a.add(4);
-	test.ok(a.average() == 3);
-	test.ok(a.averageFloat() == 3.3333333333333335);
-	test.ok(a.averageThousandths() == 3333);
+	var a = [30, 90, 10, 50, 40, 80, 20, 60, 70];
+	a.sort(compareNumber);
+	test.ok(arraySame(a, [10, 20, 30, 40, 50, 60, 70, 80, 90]));//works for sorting
 
 	test.done();
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -324,12 +606,10 @@ exports.testAverage = function(test) {
 
 exports.testWhenImmutable = function(test) {
 
-	if (freezeOn()) {//only test this if freeze is turned on
-		var w = now();//remember the time right now
-		var time = w.time;//get it
-		w.time = 7;//try to change it
-		test.ok(time == w.time);//confirm that didn't work
-	}
+	var w = now();//remember the time right now
+	var time = w.time;//get it
+	w.time = 7;//try to change it
+	test.ok(time == w.time);//confirm that didn't work
 
 	test.done();
 }
@@ -340,6 +620,33 @@ exports.testWhen = function(test) {
 	var w = When(1030338738133);
 	if      (timeZone == "m") test.ok(w.text() == "2002 Aug 25 Sun 11:12p 18.133s");
 	else if (timeZone == "e") test.ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
+
+	test.done();
+}
+
+exports.testDuration = function(test) {
+
+	try {
+		Duration();//must have start time
+		test.fail();
+	} catch (e) {}
+	Duration(When(1));//you can omit end time to use now
+	Duration(When(1), When(1));//start and finish can be the same
+	Duration(When(1), When(2));//finish can be later
+	try {
+		Duration(When(2), When(1));//start must be before finish
+		test.fail();
+	} catch (e) { test.ok(e.name = "bounds"); }
+
+	var d = Duration(When(Time.year), When(Time.year + 10*Time.second));//test the parts
+	test.ok(d.start.time = Time.year);
+	test.ok(d.finish.time = Time.year + 10*Time.second);
+	test.ok(d.time = 10*Time.second);
+	if (timeZone == "e") test.ok(say(d) == "1971 Jan 1 Fri 1:00a 10.000s after 10.000s");
+
+	var w = When(Time.year);
+	w.duration(When(Time.year + 5*Time.minute));//make one from a when
+	test.ok(w.time = 5*Time.minute);
 
 	test.done();
 }
@@ -444,14 +751,6 @@ exports.testStripeFrozen = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
-exports.testWiden = function(test) {
-
-	test.ok(widen("1", 3) == "001");
-	test.ok(widen("12", 3, " ") == " 12");
-
-	test.done();
-}
-
 exports.testCommas = function(test) {
 
 	test.ok(commas("1")        ==          "1");
@@ -484,71 +783,6 @@ exports.testItems = function(test) {
 
 
 
-//   _____               _   _             
-//  |  ___| __ __ _  ___| |_(_) ___  _ __  
-//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
-//  |  _|| | | (_| | (__| |_| | (_) | | | |
-//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
-//                                         
-
-exports.testSayDivide = function(test) {
-
-	test.ok(sayDivide(1, 2, 3) == "0.500");
-	test.ok(sayDivide(10, 3, 3) == "3.333");
-	test.ok(sayDivide(3000, 2, 3) == "1,500.000");
-
-	test.ok(sayDivide(3227, 555, 0) == "5");
-	test.ok(sayDivide(3227, 555, 1) == "5.8");
-	test.ok(sayDivide(3227, 555, 2) == "5.81");
-	test.ok(sayDivide(3227, 555, 3) == "5.814");
-	test.ok(sayDivide(3227, 555, 4) == "5.8144");
-
-	test.ok(sayDivide(22, 7, 8) == "3.14285714");
-
-	test.ok(sayDivide(1, 0, 3) == "");//instead of throwing, divide by zero returns blank
-
-	test.done();
-}
-
-if (demo("temp")) { demoTemp(); }
-function demoTemp() {
-	log("hi");
-	sayDivide(1, 0, 3);
-}
-
-exports.testSayPercent = function(test) {
-
-	test.ok(sayPercent(1, 2, 3) == "50.000% 1/2");
-	test.ok(sayPercent(10, 30, 3) == "33.333% 10/30");
-
-	test.ok(sayPercent(1, 0, 3) == "");//instead of throwing, divide by zero returns blank
-
-	test.done();
-}
-
-exports.testSayProgress = function(test) {
-
-	test.ok(sayProgress(1, 2) == "50% 1b/2b");
-	test.ok(sayProgress(1122*Size.mb, 18*Size.gb) == "6% 1122mb/18gb");
-	test.ok(sayProgress(987*Size.kb, 5*Size.mb) == "19% 987kb/5120kb");
-	test.ok(sayProgress(555*Size.mb, 7*Size.gb, 0, "kb") == "7% 568,320kb/7,340,032kb");
-
-	test.ok(sayProgress(Size.mb, 2*Size.mb, 1, "kb") == "50.0% 1,024.0kb/2,048.0kb");
-
-	test.ok(sayProgress(Size.mb, 0) == "");//instead of throwing, divide by zero returns blank
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-
-
 
 
 //   ____  _         
@@ -557,6 +791,27 @@ exports.testSayProgress = function(test) {
 //   ___) | |/ /  __/
 //  |____/|_/___\___|
 //                   
+
+exports.testSaySize = function(test) {
+
+	function f(n, s) {
+		test.ok(saySize(n) == s);
+	}
+
+	f(0, "0b");
+	f(1, "1b");
+
+	f(1023, "1023b");
+	f(1024, "1kb 0b");//smaller units are zero
+	f(1025, "1kb 1b");
+
+	f((5*Size.mb) + 7, "5mb 0kb 7b");//0kb in the middle
+	f(Size.tb, "1tb 0gb 0mb 0kb 0b");
+	f(Size.tb - 1, "1023gb 1023mb 1023kb 1023b");//one byte less than the unit
+	f(Size.max - 1, "7pb 1023tb 1023gb 1023mb 1023kb 1023b");//largest int as a number of bytes is 8pb
+
+	test.done();
+}
 
 exports.testSaySizeBytes = function(test) {
 
@@ -570,65 +825,65 @@ exports.testSaySizeBytes = function(test) {
 	test.done();
 }
 
-exports.testSaySize = function(test) {
+exports.testSaySizeUnits = function(test) {
 
-	test.ok(saySize(0) == "0b");
-	test.ok(saySize(5) == "5b");
-	test.ok(saySize(9999) == "9999b");
-	test.ok(saySize(10000) == "9kb");
+	test.ok(saySizeUnits(0) == "0b");
+	test.ok(saySizeUnits(5) == "5b");
+	test.ok(saySizeUnits(9999) == "9999b");
+	test.ok(saySizeUnits(10000) == "9kb");
 
-	test.ok(saySize(256 * Size.kb) == "256kb");
-	test.ok(saySize(5 * Size.gb) == "5120mb");
-	test.ok(saySize(Size.tb) == "1024gb");
+	test.ok(saySizeUnits(256 * Size.kb) == "256kb");
+	test.ok(saySizeUnits(5 * Size.gb) == "5120mb");
+	test.ok(saySizeUnits(Size.tb) == "1024gb");
 
-	test.ok(saySize(Size.max - 1) == "8191tb");
+	test.ok(saySizeUnits(Size.max - 1) == "8191tb");
 
-	test.ok(saySize(1)                == "1b");
-	test.ok(saySize(10)               == "10b");
-	test.ok(saySize(100)              == "100b");
-	test.ok(saySize(1000)             == "1000b");
-	test.ok(saySize(10000)            == "9kb");
-	test.ok(saySize(100000)           == "97kb");
-	test.ok(saySize(1000000)          == "976kb");
-	test.ok(saySize(10000000)         == "9765kb");
-	test.ok(saySize(100000000)        == "95mb");
-	test.ok(saySize(1000000000)       == "953mb");
-	test.ok(saySize(10000000000)      == "9536mb");
-	test.ok(saySize(100000000000)     == "93gb");
-	test.ok(saySize(1000000000000)    == "931gb");
-	test.ok(saySize(10000000000000)   == "9313gb");
-	test.ok(saySize(100000000000000)  == "90tb");
-	test.ok(saySize(1000000000000000) == "909tb");
+	test.ok(saySizeUnits(1)                == "1b");
+	test.ok(saySizeUnits(10)               == "10b");
+	test.ok(saySizeUnits(100)              == "100b");
+	test.ok(saySizeUnits(1000)             == "1000b");
+	test.ok(saySizeUnits(10000)            == "9kb");
+	test.ok(saySizeUnits(100000)           == "97kb");
+	test.ok(saySizeUnits(1000000)          == "976kb");
+	test.ok(saySizeUnits(10000000)         == "9765kb");
+	test.ok(saySizeUnits(100000000)        == "95mb");
+	test.ok(saySizeUnits(1000000000)       == "953mb");
+	test.ok(saySizeUnits(10000000000)      == "9536mb");
+	test.ok(saySizeUnits(100000000000)     == "93gb");
+	test.ok(saySizeUnits(1000000000000)    == "931gb");
+	test.ok(saySizeUnits(10000000000000)   == "9313gb");
+	test.ok(saySizeUnits(100000000000000)  == "90tb");
+	test.ok(saySizeUnits(1000000000000000) == "909tb");
 
 	var n = 5 * Size.gb;
-	test.ok(saySize(n, 0, "b")  == "5,368,709,120b");
-	test.ok(saySize(n, 0, "kb") == "5,242,880kb");
-	test.ok(saySize(n, 0, "mb") == "5,120mb");
-	test.ok(saySize(n, 0, "gb") == "5gb");
-	test.ok(saySize(n, 0, "tb") == "0tb");
-	test.ok(saySize(n, 0, "pb") == "0pb");
+	test.ok(saySizeUnits(n, 0, "b")  == "5,368,709,120b");
+	test.ok(saySizeUnits(n, 0, "kb") == "5,242,880kb");
+	test.ok(saySizeUnits(n, 0, "mb") == "5,120mb");
+	test.ok(saySizeUnits(n, 0, "gb") == "5gb");
+	test.ok(saySizeUnits(n, 0, "tb") == "0tb");
+	test.ok(saySizeUnits(n, 0, "pb") == "0pb");
 
 	n = Size.max - 1;
-	test.ok(saySize(n, 0, "b")  == "9,007,199,254,740,991b");
-	test.ok(saySize(n, 0, "kb") == "8,796,093,022,208kb");
-	test.ok(saySize(n, 0, "mb") == "8,589,934,592mb");
-	test.ok(saySize(n, 0, "gb") == "8,388,607gb");
-	test.ok(saySize(n, 0, "tb") == "8,191tb");
-	test.ok(saySize(n, 0, "pb") == "7pb");
+	test.ok(saySizeUnits(n, 0, "b")  == "9,007,199,254,740,991b");
+	test.ok(saySizeUnits(n, 0, "kb") == "8,796,093,022,208kb");
+	test.ok(saySizeUnits(n, 0, "mb") == "8,589,934,592mb");
+	test.ok(saySizeUnits(n, 0, "gb") == "8,388,607gb");
+	test.ok(saySizeUnits(n, 0, "tb") == "8,191tb");
+	test.ok(saySizeUnits(n, 0, "pb") == "7pb");
 
-	test.ok(saySize(9876543210, 3, "b")  == "9,876,543,210.000b");
-	test.ok(saySize(9876543210, 3, "kb") == "9,645,061.729kb");
-	test.ok(saySize(9876543210, 3, "mb") == "9,419.006mb");
-	test.ok(saySize(9876543210, 3, "gb") == "9.198gb");
-	test.ok(saySize(9876543210, 3, "tb") == "0.008tb");
-	test.ok(saySize(9876543210, 3, "pb") == "0.000pb");
+	test.ok(saySizeUnits(9876543210, 3, "b")  == "9,876,543,210.000b");
+	test.ok(saySizeUnits(9876543210, 3, "kb") == "9,645,061.729kb");
+	test.ok(saySizeUnits(9876543210, 3, "mb") == "9,419.006mb");
+	test.ok(saySizeUnits(9876543210, 3, "gb") == "9.198gb");
+	test.ok(saySizeUnits(9876543210, 3, "tb") == "0.008tb");
+	test.ok(saySizeUnits(9876543210, 3, "pb") == "0.000pb");
 
-	test.ok(saySize(9876543210, 0, "gb") == "9gb");
-	test.ok(saySize(9876543210, 1, "gb") == "9.1gb");
-	test.ok(saySize(9876543210, 2, "gb") == "9.19gb");
-	test.ok(saySize(9876543210, 3, "gb") == "9.198gb");
-	test.ok(saySize(9876543210, 4, "gb") == "9.1982gb");
-	test.ok(saySize(9876543210, 5, "gb") == "9.19824gb");
+	test.ok(saySizeUnits(9876543210, 0, "gb") == "9gb");
+	test.ok(saySizeUnits(9876543210, 1, "gb") == "9.1gb");
+	test.ok(saySizeUnits(9876543210, 2, "gb") == "9.19gb");
+	test.ok(saySizeUnits(9876543210, 3, "gb") == "9.198gb");
+	test.ok(saySizeUnits(9876543210, 4, "gb") == "9.1982gb");
+	test.ok(saySizeUnits(9876543210, 5, "gb") == "9.19824gb");
 
 	test.done();
 }
@@ -640,6 +895,98 @@ exports.testSaySize = function(test) {
 
 
 
+
+
+//   _   _       _ _   
+//  | | | |_ __ (_) |_ 
+//  | | | | '_ \| | __|
+//  | |_| | | | | | |_ 
+//   \___/|_| |_|_|\__|
+//                     
+
+exports.testSayUnitPerUnit = function(test) {
+
+	//average test scores
+	test.ok(sayUnitPerUnit(Fraction(5,   1), "#.### (#/#)", {r:"round"}) ==  "5.000 (5/1)");
+	test.ok(sayUnitPerUnit(Fraction(15,  3), "#.### (#/#)", {r:"round"}) ==  "5.000 (15/3)");
+	test.ok(sayUnitPerUnit(Fraction(100, 3), "#.### (#/#)", {r:"round"}) == "33.333 (100/3)");
+	test.ok(sayUnitPerUnit(Fraction(200, 3), "#.### (#/#)", {r:"round"}) == "66.667 (200/3)");//rounds up or down
+
+	//events per second
+	test.ok(oldUnitPerTime(Fraction(5,  Time.second)) == "5.000/s (5/1.000s)");
+	test.ok(oldUnitPerTime(Fraction(90, Time.minute)) == "1.500/s (90/1m 0.000s)");
+
+	//average packet size
+	test.ok(oldSizePerUnit(Fraction(Size.mb,      1)) == "1mb 0kb 0b (1mb 0kb 0b/1)");
+	test.ok(oldSizePerUnit(Fraction(Size.kb,      7)) == "146b (1kb 0b/7)");
+	test.ok(oldSizePerUnit(Fraction(Size.tb, 123456)) == "8mb 505kb 373b (1tb 0gb 0mb 0kb 0b/123,456)");
+
+	//data transfer speed
+	test.ok(oldSizePerTime(Fraction(Size.mb,    Time.second)) == "1mb 0kb 0b/s (1mb 0kb 0b/1.000s)");
+	test.ok(oldSizePerTime(Fraction(60*Size.kb, Time.minute)) == "1kb 0b/s (60kb 0b/1m 0.000s)");
+	test.ok(oldSizePerTime(Fraction(90*Size.kb, Time.minute)) == "1kb 512b/s (90kb 0b/1m 0.000s)");
+	test.ok(oldSizePerTime(Fraction(Size.tb,    Time.day))    == "12mb 139kb 581b/s (1tb 0gb 0mb 0kb 0b/1d 0h 0m 0.000s)");
+
+	test.done();
+}
+
+//   _____               _   _             
+//  |  ___| __ __ _  ___| |_(_) ___  _ __  
+//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
+//  |  _|| | | (_| | (__| |_| | (_) | | | |
+//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
+//                                         
+
+exports.testSayDivide = function(test) {
+
+	function f(n, d, decimal, s) { test.ok(oldDivide(Fraction(n, d), decimal) == s); }
+
+	f(   1, 2, 3,     "0.500");
+	f(  10, 3, 3,     "3.333");
+	f(3000, 2, 3, "1,500.000");
+
+	f(3227, 555, 0, "5");
+	f(3227, 555, 1, "5.8");
+	f(3227, 555, 2, "5.81");
+	f(3227, 555, 3, "5.814");
+	f(3227, 555, 4, "5.8144");
+
+	f(22, 7,  0, "3");
+	f(22, 7,  1, "3.1");
+	f(22, 7,  2, "3.14");
+	f(22, 7,  3, "3.142");
+	f(22, 7,  4, "3.1428");
+	f(22, 7,  5, "3.14285");
+	f(22, 7,  6, "3.142857");
+	f(22, 7,  7, "3.1428571");
+	f(22, 7,  8, "3.14285714");
+	f(22, 7,  9, "3.142857142");
+	f(22, 7, 10, "3.1428571428");
+	f(22, 7, 11, "3.14285714285");
+
+	f(1, 0, 3, "");//divide by zero returns blank
+
+	test.done();
+}
+
+exports.testSayPercent = function(test) {
+
+	test.ok(oldPercent(Fraction(1, 2), 3) == "50.000% 1/2");
+	test.ok(oldPercent(Fraction(10, 30), 3) == "33.333% 10/30");
+	test.ok(oldPercent(Fraction(1, 0), 3) == "");//divide by zero returns blank
+	test.done();
+}
+
+exports.testSayProgress = function(test) {
+
+	test.ok(oldProgress(Fraction(1, 2)) == "50% 1b/2b");
+	test.ok(oldProgress(Fraction(1122*Size.mb, 18*Size.gb)) == "6% 1122mb/18gb");
+	test.ok(oldProgress(Fraction(987*Size.kb, 5*Size.mb)) == "19% 987kb/5120kb");
+	test.ok(oldProgress(Fraction(555*Size.mb, 7*Size.gb), 0, "kb") == "7% 568,320kb/7,340,032kb");
+	test.ok(oldProgress(Fraction(Size.mb, 2*Size.mb), 1, "kb") == "50.0% 1,024.0kb/2,048.0kb");
+	test.ok(oldProgress(Fraction(Size.mb, 0)) == "");//divide by zero returns blank
+	test.done();
+}
 
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
@@ -650,16 +997,11 @@ exports.testSaySize = function(test) {
 
 exports.testSaySpeed = function(test) {
 
-	test.ok(saySpeedDivide(10*Size.mb, 2*Time.second) == "5120kb/s");//10mb in 2s is 5mb/s
-	test.ok(saySpeedDivide(1, 0) == "");//show the user blank instead of throwing on divide by zero
+	test.ok(oldSpeed(Fraction([10, Size.mb], [2, Time.second])) == "5120kb/s");//10mb in 2s is 5mb/s
+	test.ok(oldSpeed(Fraction(1, 0)) == "");//show the user blank instead of throwing on divide by zero
 
-	test.done();
-}
-
-exports.testSaySpeedBps = function(test) {
-
-	function f(b, s) {
-		test.ok(saySpeed(b) == s);
+	function f(b, s) {//b is bytes per second
+		test.ok(oldSpeed(Fraction(b, Time.second)) == s);
 	}
 
 	f(9, "9b/s");
@@ -677,8 +1019,12 @@ exports.testSaySpeedBps = function(test) {
 
 exports.testSaySpeedKbps = function(test) {
 
-	function f(b, s) {
-		test.ok(saySpeedKbps(b) == s);
+	test.ok(saySpeedKbps(Fraction(Size.mb, Time.hour)) ==    "0.28kb/s");
+	test.ok(saySpeedKbps(Fraction(Size.gb, Time.hour)) ==     "291kb/s");
+	test.ok(saySpeedKbps(Fraction(Size.tb, Time.hour)) == "298,261kb/s");//this one pokes above max int
+
+	function f(b, s) {//b is bytes per second
+		test.ok(saySpeedKbps(Fraction(b, Time.second)) == s);
 	}
 
 	f(0, "0.00kb/s");
@@ -686,7 +1032,7 @@ exports.testSaySpeedKbps = function(test) {
 
 	f(Size.kb, "1.00kb/s");//exactly one kilobyte
 	f(Size.kb - 1, "0.99kb/s");//one byte less
-	f(divide(Size.kb, 2).whole, "0.50kb/s");//half a kilobyte
+	f(Fraction(Size.kb, 2).whole, "0.50kb/s");//half a kilobyte
 	f(Size.mb, "1,024kb/s");//megabyte
 
 	f(9, "0.00kb/s");
@@ -704,8 +1050,8 @@ exports.testSaySpeedKbps = function(test) {
 
 exports.testSaySpeedTimePerMegabyte = function(test) {
 
-	function f(b, s) {
-		test.ok(saySpeedTimePerMegabyte(b) == s);
+	function f(b, s) {//b is bytes per second
+		test.ok(saySpeedTimePerMegabyte(Fraction(b, Time.second)) == s);
 	}
 
 	f(0, "");//say blank instead of forever
@@ -717,8 +1063,6 @@ exports.testSaySpeedTimePerMegabyte = function(test) {
 
 	test.done();
 }
-
-
 
 
 
@@ -1080,28 +1424,6 @@ exports.testChunkOverflow = function(test) {
 
 */
 
-
-
-
-
-
-
-
-
-//measure the speed of two distances travelled
-if (demo("speed")) { demoSpeed(); }
-function demoSpeed() {
-
-	var s = Speed(10*Time.second);
-	s.distance(50*Size.mb);//50mb right now
-	log("went 50mb");
-
-	setTimeout(function() {
-		s.distance(50*Size.mb);//1 second later, another 50mb
-		log("went another 50mb a second later");
-		log(saySpeed(s.speed(Time.second)));//comes out as 86mb/s
-	}, 1000);
-}
 
 
 

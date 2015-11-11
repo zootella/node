@@ -28,7 +28,7 @@ function demoChance() {
 			for (var i = 1; i <= samples; i++)
 				if (chance(n, d))
 					yes++;
-			log(sayPercent(yes, samples));
+			log(oldPercent(yes, samples));
 		}
 	}
 
@@ -85,7 +85,7 @@ if (demo("unique-speed")) { demoUniqueSpeed(); }
 function demoUniqueSpeed() {
 
 	function f() { unique(); }
-	speedLoop(f, "unique");
+	speedLoop8("unique", f);
 }
 
 //see if we can run the computer out of entropy
@@ -93,28 +93,44 @@ function demoUniqueSpeed() {
 if (demo("random-limit")) { demoRandomLimit(); }
 function demoRandomLimit() {
 
-	var t = now();
+	function ScreenResource() {
+		var o = mustClose();
+		o.close = function() {
+			if (o.alreadyClosed()) return;
+		};
+		o.pulseScreen = function() {
+			stick("generated # of random data in #".fill(saySize(d), sayTime(t.age())));
+		}
+		return o;
+	};
+	var screen = ScreenResource();
+
+	var t = now();//when we started
 	var d = 0;//total number of random bytes generated
 	var s = 4*Size.kb;//generate random data 4kb at a time
 
-	while (true) {//loop until something throws an error
-
-		if (t.expired(4*Time.second)) {//print status on a line every 4 seconds
-			t = now();
-			log("generated # of random data".fill(saySize(d)));
+	var go = true;
+	f1();
+	function f1() {
+		if (go) {
+			platformCrypto.randomBytes(s, f2);//generate another 4kb of random data
 		}
-
-		platformCrypto.randomBytes(s);//generate another 4kb of random data
-		d += s;//record that we made that much more
 	}
+	function f2(e, buffer) {
+		if (e) throw e;
+		if (go) {
+			d += s;//record that we made that much more
+			f1();//loop again
+		}
+	}
+
+	keyboard("exit", function() {
+		go = false;//stop generating random data
+		close(screen);
+		closeKeyboard();
+		closeCheck();
+	});
 }
-
-
-
-
-//use charm and pulseScreen to have this show speed and distance in real time
-//this is a great use of charm without having to have streams understood and going yet
-
 
 
 

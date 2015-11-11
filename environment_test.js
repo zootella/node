@@ -18,6 +18,11 @@ function demoPlatform() {
 
 	log("process.platform  ", process.platform);
 	log("platform()        ", platform());
+
+	//todo new stuff
+	log(process.platform);
+	log(process.version);
+	log(inspect(process.versions));
 }
 
 if (demo("working")) { demoWorking(); }

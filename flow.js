@@ -1,6 +1,12 @@
 
 
 
+//name your evented stream improvements 'flow'
+
+
+
+
+
 
 //platforms to try
 //1 just the regular node way
@@ -30,6 +36,11 @@
 
 //maybe don't throw exceptions at all, maybe exceptions dont work well with async
 //just catch them and keep them and read them as values
+
+
+
+
+
 
 
 

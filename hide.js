@@ -35,6 +35,7 @@ function random(min, max) {
 	if (i < min || i > max) toss("platform", {note:"random outside bounds"}); // Astronomically rare, but documented as possible
 	return i;
 }
+//TODO doesn't work making very large numbers, random(0, 4*Size.pb) always produces 0kb 0b or 1b
 
 // 20 bytes of random data should be unique across all space and time
 function unique() { return randomData(Size.value); }

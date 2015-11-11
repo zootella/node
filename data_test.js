@@ -2034,22 +2034,15 @@ exports.testParseOutline = function(test) {
 
 exports.testParseGroup = function(test) {
 
-	function sameArray(a1, a2) {
-		if (a1.length != a2.length) return false;
-		for (var i = 0; i < a1.length; i++)
-			if (a1[i] != a2[i]) return false;
-		return true;
-	}
-
 	var s = lines("a", "b", "c", "", "d", "e", "", "f", "g");
 	test.ok(s == "a\r\nb\r\nc\r\n\r\nd\r\ne\r\n\r\nf\r\ng\r\n");
 	var data = Data(s);
 	var clip = data.clip();
 
-	test.ok(sameArray(_parseGroup(clip), ["a", "b", "c"]));
+	test.ok(arraySame(_parseGroup(clip), ["a", "b", "c"]));
 	test.ok(clip.data().text() == "d\r\ne\r\n\r\nf\r\ng\r\n");
 
-	test.ok(sameArray(_parseGroup(clip), ["d", "e"]));
+	test.ok(arraySame(_parseGroup(clip), ["d", "e"]));
 	test.ok(clip.data().text() == "f\r\ng\r\n");
 
 	try {
