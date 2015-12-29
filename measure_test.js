@@ -8,7 +8,8 @@ require("./load").load("measure_test", function() { return this; });
 
 
 
-var timeZone = "e"; // The local time zone the tests are running in, set to "e" Eastern, or "m" Mountain time
+var timeZone = "u"; // The local time zone the tests are running in, set to "e" Eastern, or "m" Mountain time
+//TODO make dateParts and datePartsLocal and you won't need this anymore
 
 
 

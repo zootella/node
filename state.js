@@ -279,6 +279,18 @@ exports.closeCheck = closeCheck;
 exports.done = done;
 exports.exit = exit;
 
+function everythingShouldBeClosed() {
+	clear(); // Remove closed objects from the list
+	if (list.length) { // We should have closed them all, but didn't
+		log(_sayList());
+		exit(); // Otherwise the pulse timer will keep the process running
+	} else {
+		log("all closed");
+	}
+}
+exports.everythingShouldBeClosed = everythingShouldBeClosed;
+//TODO maybe also make isEverythingClosed() that returns true or false
+
 
 
 

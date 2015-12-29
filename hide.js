@@ -1,10 +1,15 @@
 
-
-
+require("./load").load("hide", function() { return this; });
 
 var platformCrypto = require("crypto");
 
-require("./load").load("hide", function() { return this; });
+
+
+
+
+
+
+
 
 
 
@@ -22,66 +27,78 @@ require("./load").load("hide", function() { return this; });
 
 // True with the chances of n in d
 function chance(n, d) {
-	check(n, 1); // The numerator must be 1+
-	check(d, n); // The denominator must be the numerator or larger
-	return random(1, d) <= n; // May the odds be ever in your favor
+	min1(n);                    // The numerator must be 1+
+	checkMin(d, n);             // The denominator must be the numerator or larger
+	return _randomUnder(d) < n; // May the odds be ever in your favor
 }
 
-// A random integer min through and including max
-function random(min, max) {
-	check(min, 0);   // The minimum must be 0+
-	check(max, min); // The maximum must be the minimum or larger
-	var i = Math.floor(Math.random() * (max - min + 1)) + min; // From the Mozilla Developer Network
-	if (i < min || i > max) toss("platform", {note:"random outside bounds"}); // Astronomically rare, but documented as possible
-	return i;
+// Pick a random value a through b, like 1-6 for a dice to get 1 2 3 4 5 6
+function randomThrough(a, b) {
+	min0(a);        // The minimum must be 0+
+	checkMin(b, a); // The maximum must be the minimum or larger
+	return _randomUnder(b - a + 1) + a;
 }
-//TODO doesn't work making very large numbers, random(0, 4*Size.pb) always produces 0kb 0b or 1b
 
-// 20 bytes of random data should be unique across all space and time
-function unique() { return randomData(Size.value); }
-
-// Make n bytes of random data
-function randomData(n) {
-	check(n, 1); // Can't request 0 random bytes
-	try {
-		return Data(platformCrypto.randomBytes(n)); // Try high quality random
-	} catch (e) {
-		mistakeLog(Mistake("platform", {note:"using pseudo random instead", caught:e, watch:{n:n}}));
+// Pick a random value from amongst v possibilities, like 10 to get 0-9, or 256 to get 0-255, exact powers of 2 are the fastest
+function randomUnder(v) { min1(v); return _randomUnder(v); }
+function _randomUnder(v) {
+	while (true) { // Loop until we roll an r small enough to use
+		var r = _randomPower(v);
+		if (r < v) return r;
 	}
-	return Data(platformCrypto.pseudoRandomBytes(n)); // Fall back to lower quality random
 }
+function _randomPower(v) { // Given a number of values, pick a random from amongst a power of 2 that is v or bigger
+	var h = 0, r = 0, p = 0;
+	while (true) {             // Loop until h is big enough to cover v, return random r which might work
+		h += p;                  // High h gets every p
+		if (randomBit()) r += p; // Random r gets p half the time
+		if (h > v - 2) return r; // Ok if v - 2 is negative, h + 2 could go over max safe int
+		p = !p ? 1 : 2*p;        // Double power what we add each time, p 0 1 2 4 8 16...
+	}
+}
+
+// Get a random bit 0 or 1
+var _randomBuffer = null; // Caching more than Size.value 20 bytes doesn't make it faster
+var _bitIndex  = 0;
+var _byteIndex = 0;
+function randomBit() {
+	if (!_randomBuffer)           { _randomBuffer = _randomBytes(Size.value);                                } // First make
+	if (_bitIndex  == 8)          {                                           _bitIndex = 0; _byteIndex++;   } // Next byte
+	if (_byteIndex == Size.value) { _randomBuffer = _randomBytes(Size.value); _bitIndex = 0; _byteIndex = 0; } // Refresh cache
+	var b = (_randomBuffer.readUInt8(_byteIndex) & (1 << _bitIndex)) >>> _bitIndex; // Read a bit
+	_bitIndex++; // Move to the next bit for next time
+	return b;
+}
+
+function unique()      {          return Data(_randomBytes(Size.value)); } // 20 bytes of random data should be unique across all space and time
+function randomData(n) { min1(n); return Data(_randomBytes(n));          } // Make n bytes of random data
+function _randomBytes(n) { // Generate n bytes of random data
+	try {
+		return platformCrypto.randomBytes(n); // Try high quality random
+	} catch (e) { mistakeLog(Mistake("platform", {note:"using pseudo random instead", caught:e, watch:{n:n}})); }
+	return platformCrypto.pseudoRandomBytes(n); // Fall back to lower quality random
+}
+//TODO make a RandomValve that writes random data into a stream forever, or for as long as the Range you give it
 
 exports.chance = chance;
-exports.random = random;
+exports.randomThrough = randomThrough;
+exports.randomUnder = randomUnder;
+exports.randomBit = randomBit;
 exports.unique = unique;
 exports.randomData = randomData;
 
-/*
-bridge.add(chance, random, unique, randomData);
-bridge.addForTest(_somethingForTests);
-*/
-
-//TODO randomBytes has an async form, maybe you should be using it instead
-
-
-//write hash, use it to have data.hash()
 
 
 
-//see how slow this stuff is
-//something that may take a really long time has to always be a callback
-//something that will work reliably because it's all in memory, but takes 10-100ms, you might want to have synchronous and event options
-//unless calling it a lot warms it up and then it starts going fast, then you can just use the synchronous option
-//so, for instance, see how long it takes to generate 100 guids, and if it's more than 100ms, you should probably have an event option
-
-
-//random number
-//use the underscore library, _.random(a, b)
 
 
 
-//make a RandomValve that writes random data forever, or for as long as the range you give it
-//this is the only asynchronous random you'll need
+
+
+
+
+
+
 
 
 

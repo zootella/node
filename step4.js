@@ -153,6 +153,46 @@ function demoMethod3(behavior) {
 
 
 
+//instead of using log, have it add to a global string, and then log that out
+//this way, be able to run a whole set of them at once, instead of looking at them one at a time
+//or have it add to an array, and then use table to print the array nicely
+//yeah, this is a cool idea
+
+
+
+
+
+//watch youtube videos on promises at the keyboard, and copy over examples as you go
+//read through all the bluebird official documentation, writing examples and tests, and blog entries on that
+//an early one to do is promises with seaquential steps, exceptions, subroutines, if, while, and recursion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//see how slow this stuff is
+//something that may take a really long time has to always be a callback
+//something that will work reliably because it's all in memory, but takes 10-100ms, you might want to have synchronous and event options
+//unless calling it a lot warms it up and then it starts going fast, then you can just use the synchronous option
+//so, for instance, see how long it takes to generate 100 guids, and if it's more than 100ms, you should probably have an event option
+
+
+
+
+
+
 
 
 

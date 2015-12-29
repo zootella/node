@@ -385,28 +385,36 @@ exports.compareCheckedNumerals = compareCheckedNumerals;
 function Int(p) { // Takes a number like 5, a string of numerals like "789", a bignumber.js BigNumber, or another Int
 	if (isType(p, "Int")) return p; // Return the given Int instead of making a new one, the value inside an Int can't change
 	var o = {};
-	o.v = _3type(p); // Parse the given parameter, keeping together v.s numerals, and v.n number and v.b BigNumber once we have them or they are necessary
+	o.v = _3type(p); // Parse the given parameter, keeping together v.s() numerals, and v.n() number and v.b() BigNumber once we have them or they are necessary
+	o.inside = o.v.inside; // Point to function, see which types v has built up with text like "bns" or "--s" for testing
 
-	//                                                                                                             For small values, use number for speed   For potentially large values, use BigNumber instead
-	o.add                  = function(q) { var w = _3type(q);                         if (_bothFitProduct(o.v, w)) return Int(o.v.n() + w.n());             else return Int(o.v.b().plus(                w.bs())); }
-	o.subtract             = function(q) { var w = _3type(q); _checkSubtract(o.v, w); if (_bothFit(o.v, w))        return Int(o.v.n() - w.n());             else return Int(o.v.b().minus(               w.bs())); }
-	o.multiply             = function(q) { var w = _3type(q);                         if (_bothFitProduct(o.v, w)) return Int(o.v.n() * w.n());             else return Int(o.v.b().times(               w.bs())); }
-	o.divide               = function(q) { var w = _3type(q); _checkDivide(o.v, w);   if (_bothFit(o.v, w))        return Int(Math.floor(o.v.n() / w.n())); else return Int(o.v.b().dividedToIntegerBy(  w.bs())); }
-	o.modulo               = function(q) { var w = _3type(q); _checkDivide(o.v, w);   if (_bothFit(o.v, w))        return Int(o.v.n() % w.n());             else return Int(o.v.b().mod(                 w.bs())); }
+	o.multiply             = function(q) { return  _mul(o.v, q); } // p * q   p.multiply(q)              p._("*", q)
+	o.divide               = function(q) { return  _div(o.v, q); } // p / q   p.divide(q)                p._("/", q)
+	o.modulo               = function(q) { return  _mod(o.v, q); } // p % q   p.modulo(q)                p._("%", q)
 
-	o.equals               = function(q) { var w = _3type(q);                         if (_bothFit(o.v, w))        return o.v.n() == w.n();                 else return o.v.b().equals(                  w.bs());  }
-	o.greaterThan          = function(q) { var w = _3type(q);                         if (_bothFit(o.v, w))        return o.v.n() >  w.n();                 else return o.v.b().greaterThan(             w.bs());  }
-	o.greaterThanOrEqualTo = function(q) { var w = _3type(q);                         if (_bothFit(o.v, w))        return o.v.n() >= w.n();                 else return o.v.b().greaterThanOrEqualTo(    w.bs());  }
-	o.lessThan             = function(q) { var w = _3type(q);                         if (_bothFit(o.v, w))        return o.v.n() <  w.n();                 else return o.v.b().lessThan(                w.bs());  }
-	o.lessThanOrEqualTo    = function(q) { var w = _3type(q);                         if (_bothFit(o.v, w))        return o.v.n() <= w.n();                 else return o.v.b().lessThanOrEqualTo(       w.bs());  }
+	o.add                  = function(q) { return  _add(o.v, q); } // p + q   p.add(q)                   p._("+", q)
+	o.subtract             = function(q) { return  _sub(o.v, q); } // p - q   p.subtract(q)              p._("-", q)
+	o.increment            = function()  { return  _add(o.v, 1); } // p++     p.increment()              p._("++")
+	o.decrement            = function()  { return  _sub(o.v, 1); } // p--     p.decrement()              p._("--")
 
+	o.equals               = function(q) { return  _equ(o.v, q); } // p == q  p.equals(q)                p._("==", q)
+	o.nonequal             = function(q) { return !_equ(o.v, q); } // p != q  p.nonequal(q)              p._("!=", q)
+	o.not                  = function()  { return  _equ(o.v, 0); } // !p      p.not()                    p._("!")
+	o.is                   = function()  { return !_equ(o.v, 0); } // p       p.is()                     p._("")       To boolean, commonly used
+
+	o.greaterThan          = function(q) { return  _gth(o.v, q); } // p > q   p.greaterThan(q)           p._(">", q)
+	o.greaterThanOrEqualTo = function(q) { return  _gte(o.v, q); } // p >= q  p.greaterThanOrEqualTo(q)  p._(">=", q)
+	o.lessThan             = function(q) { return  _lth(o.v, q); } // p < q   p.lessThan(q)              p._("<", q)
+	o.lessThanOrEqualTo    = function(q) { return  _lte(o.v, q); } // p <= q  p.lessThanOrEqualTo(q)     p._("<=", q)
+
+	o._ = function(c, q) { return _calculate(o, c, q); } // Who says JavaScript can't do operator overloading?
 	o.text = o.v.s();
-	o.fit = function() { return o.v.fit(); } // True if our value is small enough it will fit in a number as an integer, not a floating point number
-	o.toNumber = function() { return o.v.n(); } // Throws if too big
+	o.hasNumber = function() { return o.v.fit; } // True if our value is small enough to fit in a number as an integer, not a floating point number
+	o.toNumber = o.v.n; // Point to function, throws if too big
 	o.type = "Int";
 	return freeze(o);
 }
-function _3type(p) { // Parse the parameter given to Int or a method on Int, keeping the same value in up to 3 different types
+function _3type(p) { // Parse the parameter given to Int or a method on Int, keeping the same integer value in up to 3 different types
 	var type = getType(p);
 	if (type == "Int") return p.v; // We got an Int, return the value inside instead of making a new one
 
@@ -415,26 +423,60 @@ function _3type(p) { // Parse the parameter given to Int or a method on Int, kee
 	var n = "none"; // Our integer value in a number type variable, or "none" before we have one, or if our value won't fit
 	var s = "none"; // Our integer value as a string of numerals, we always have this type
 
-	if (hasMethod(p, "dividedToIntegerBy")) { b = p;                     s = p.toFixed(0); checkNumerals(s);                      } // Given a BigNumber, make and check numerals
+	if (hasMethod(p, "dividedToIntegerBy")) { b = p;                     s = b.toFixed(0); checkNumerals(s);                      } // Given a BigNumber, make and check numerals
 	else if (type == "number")              { n = p; checkNumberMath(n); s = n+"";         checkNumerals(s); checkNumeralsFit(s); } // Given a number, check it, make numerals, and check them
 	else if (type == "string")              {                            s = p;            checkNumerals(s);                      } // Given numerals, check them
-	else { toss("type"); } // Int(p).method(p) only works accepts p as an Int, BigNumber, number, or string
+	else { toss("type"); } // Int(p).method(p) only accepts p as an Int, BigNumber, number, or string
 
 	var o = {}; // Return, or make, check, keep, and return, our value in a BigNumber, number, or string ♫ There's three ways of saying, the very same thing
-	o.b = function() { if (b !== "none") return b; b = new platformBigNumber(s); checkSame(s, b.toFixed(0)); return b; } // BigNumber, make it from numerals rather than a number to avoid a separate lower size limit
-	o.n = function() { if (n !== "none") return n; n = numeralsToNumber(s);                                  return n; } // number
-	o.s = function() {                   return s;                                                                     } // string of numerals
+	o.b = function() { if (b !== "none") return b; b = new platformBigNumber(s); checkSame(s, b.toFixed(0)); return b; } // Make from numerals rather than number to avoid 15 digit limit
+	o.n = function() { if (n !== "none") return n; n = numeralsToNumber(s);                                  return n; }
+	o.s = function() {                   return s;                                                                     }
 
-	var fit = numeralsFit(s); // See if our value is small enough for number to hold as an integer
-	o.fit = function() { return fit; } // True if you can call o.n() to get our value as a number, because it's small enough to fit
+	o.fit = numeralsFit(s); // Small enough to fit
 	o.bs = function() { return b !== "none" ? b : s; } // Our value in a BigNumber if we have one, numerals otherwise
+	o.inside = function() { return "###".fill(b === "none" ? "-" : "b", n === "none" ? "-" : "n", s === "none" ? "-" : "s"); } // Show which types we've built up
 	return o;
 }
-function _checkSubtract(v, w)  { if (compareCheckedNumerals(v.s(), w.s()) < 0) toss("bounds"); } // Make sure v - w will be 0+, as negative values aren't allowed
+//                                                                    Small values            use number for speed             Potentially large values use BigNumber instead
+function _mul(v, q) { var w = _3type(q);                       return _bothFitProduct(v, w) ? Int(v.n() * w.n())             : Int(v.b().times(             w.bs())); }
+function _div(v, q) { var w = _3type(q); _checkDivide(v, w);   return _bothFit(v, w)        ? Int(Math.floor(v.n() / w.n())) : Int(v.b().dividedToIntegerBy(w.bs())); }
+function _mod(v, q) { var w = _3type(q); _checkDivide(v, w);   return _bothFit(v, w)        ? Int(v.n() % w.n())             : Int(v.b().mod(               w.bs())); }
+function _add(v, q) { var w = _3type(q);                       return _bothFitProduct(v, w) ? Int(v.n() + w.n())             : Int(v.b().plus(              w.bs())); }
+function _sub(v, q) { var w = _3type(q); _checkSubtract(v, w); return _bothFit(v, w)        ? Int(v.n() - w.n())             : Int(v.b().minus(             w.bs())); }
+
+function _equ(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() == w.n()                 : v.b().equals(                w.bs());  }
+function _gth(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() >  w.n()                 : v.b().greaterThan(           w.bs());  }
+function _gte(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() >= w.n()                 : v.b().greaterThanOrEqualTo(  w.bs());  }
+function _lth(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() <  w.n()                 : v.b().lessThan(              w.bs());  }
+function _lte(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() <= w.n()                 : v.b().lessThanOrEqualTo(     w.bs());  }
+
 function _checkDivide(v, w)    { if (w.s() == "0") toss("math"); }                               // Who says you can't divide by zero? OH SHI-
-function _bothFit(v, w)        { return v.fit() && w.fit(); }                                    // True if both values will fit in numbers, so we can use number operators that produce smaller values like minus, divide, and modulo
+function _checkSubtract(v, w)  { if (compareCheckedNumerals(v.s(), w.s()) < 0) toss("bounds"); } // Make sure v - w will be 0+, as negative values aren't allowed
+function _bothFit(v, w)        { return v.fit && w.fit; }                                        // True if both values will fit in numbers, so we can use minus, divide, and modulo
 function _bothFitProduct(v, w) {                                                                 // True if adding or multipling the given two numbers can't produce an answer that's too big
 	return _bothFit(v, w) && v.s().length + w.s().length < (Number.MAX_SAFE_INTEGER+"").length;    // Even if v and w are all 9s, a*b will still be a digit shorter than max safe integer
+}
+function _calculate(o, c, q) {
+	if      (c === "*")  { return o.multiply(q);             }
+	else if (c === "/")  { return o.divide(q);               }
+	else if (c === "%")  { return o.modulo(q);               }
+
+	else if (c === "+")  { return o.add(q);                  }
+	else if (c === "-")  { return o.subtract(q);             }
+	else if (c === "++") { return o.increment();             }
+	else if (c === "--") { return o.decrement();             }
+
+	else if (c === "==") { return o.equals(q);               }
+	else if (c === "!=") { return o.nonequal(q);             }
+	else if (c === "!")  { return o.not();                   }
+	else if (c === "")   { return o.is();                    }
+
+	else if (c === ">")  { return o.greaterThan(q);          }
+	else if (c === ">=") { return o.greaterThanOrEqualTo(q); }
+	else if (c === "<")  { return o.lessThan(q);             }
+	else if (c === "<=") { return o.lessThanOrEqualTo(q);    }
+	else { toss("code"); }
 }
 
 exports.Int = Int;
@@ -582,7 +624,7 @@ exports.compareNumber = compareNumber;
 
 
 
-//TODO change this to When, you've already go time below
+//TODO change this to When, you've already got time below
 
 //   _____ _                
 //  |_   _(_)_ __ ___   ___ 
@@ -1343,7 +1385,7 @@ exports.sayDayAndTime = sayDayAndTime;
 exports.sayDateTemplate = sayDateTemplate;
 exports.dateParts = dateParts;
 
-
+//TODO split into * which is UTC, and *Local which is like they are now, just use Date.UTC() and Date()
 
 
 

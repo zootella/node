@@ -22,26 +22,6 @@ var platformBigNumber = require('bignumber.js');
 
 
 
-//do some math to crash node, saying "Fatal error in ..\..\src\lookup.cc, line 47", "CHECK(!root->IsNull()) failed"
-//found and always reproducable on win7 with node 0.12.0
-if (demo("crash-math")) { demoCrashMath(); }
-function demoCrashMath() {
-	while (true) {
-		log(r(0, Size.pb));//make and show a big random number
-		for (var i = 0; i < 500; i++) r(0, Size.pb);//make a bunch more
-	}
-	function r(min, max) {//generate a random number
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -1300,15 +1280,60 @@ exports.testSayUnitPerUnit = function(test) {
 
 
 
-if (demo("snip")) { demoSnip(); }
-function demoSnip() {
-
-
-	log(widenStart("5", 3, "0"));
 
 
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

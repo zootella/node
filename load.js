@@ -146,6 +146,13 @@ and if its impossible, then the choices are the single line global that you have
 
 
 
+/*
+bridge.add(chance, random, unique, randomData);
+bridge.addForTest(_somethingForTests);
+*/
+
+
+
 
 
 

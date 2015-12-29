@@ -462,7 +462,7 @@ function SampleMeter(made, p) {
 			list.add(v);
 			middle = randomMiddle(list.length());        // Choose in record(), not median(), so the answer doesn't change unless the data does
 		} else {                                       // Full, randomly keep or let pass by so list always holds a representative sample
-			if (chance(list.length(), records)) {        // Our new value is lucky enough to get included in our random sample
+			if (chanceOld(list.length(), records)) {        // Our new value is lucky enough to get included in our random sample
 				list.remove(random(0, list.length() - 1)); // Randomly pick a value we have and discard it
 				list.add(v);                               // Adds in sorted position if p.keepSorted, or on the end if not, which is ok
 			}

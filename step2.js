@@ -34,19 +34,17 @@ if (demo("close-remember")) { demoCloseRemember(); }//close it, and check passes
 function demoCloseRemember() {
 
 	var r = SimulateResource("remember");
-	log(r.answer);
-	r.close();
+	close(r);
 
-	closeCheck();
+	everythingShouldBeClosed();
 }
 
 if (demo("close-forget")) { demoCloseForget(); }//forget to close it, and check notices
 function demoCloseForget() {
 
 	var r = SimulateResource("forget");
-	log(r.answer);
 
-	closeCheck();
+	everythingShouldBeClosed();
 }
 
 
@@ -83,7 +81,7 @@ if (demo("method1fs")) { demoMethod1("fs"); }//fail slow
 
 function demoMethod1(behavior) {
 	log("start");
-	wait(SimulateTime.limit, function () { closeCheck(); });//wait for everything to finish
+	wait(SimulateTime.limit, function() { everythingShouldBeClosed(); });//wait for everything to finish
 
 	try {
 		simulateMethod1(behavior, callback);
@@ -107,16 +105,16 @@ function demoMethod1(behavior) {
 /*
 method 1 results
 
-t:   [start, catch, return,       check closed]  needs improvement, catch should be fail, happen after return
-n:   [start,        return,       check closed]  needs improvement, should notice taking forever
-dd:  [start, done,  return,       check closed]  needs improvement, done should happen after return
-di:  [start,        return, done, check closed]  works
-df:  [start,        return, done, check closed]  works
-ds:  [start,        return, done, check closed]  needs improvement, takes longer than default timeout
-fd:  [start, fail,  return,       check closed]  needs improvement, fail should happen afer return
-fi:  [start,        return, fail, check closed]  works
-ff:  [start,        return, fail, check closed]  works
-fs:  [start,        return, fail, check closed]  needs improvement, takes longer than default timeout
+t:   [start, catch, return,       all closed]  needs improvement, catch should be fail, happen after return
+n:   [start,        return,       all closed]  needs improvement, should notice taking forever
+dd:  [start, done,  return,       all closed]  needs improvement, done should happen after return
+di:  [start,        return, done, all closed]  works
+df:  [start,        return, done, all closed]  works
+ds:  [start,        return, done, all closed]  needs improvement, takes longer than default timeout
+fd:  [start, fail,  return,       all closed]  needs improvement, fail should happen afer return
+fi:  [start,        return, fail, all closed]  works
+ff:  [start,        return, fail, all closed]  works
+fs:  [start,        return, fail, all closed]  needs improvement, takes longer than default timeout
 
 what works:
 the resource always gets closed
@@ -166,7 +164,7 @@ if (demo("method2fs")) { demoMethod2("fs"); }//fail slow
 
 function demoMethod2(behavior) {
 	log("start");
-	wait(SimulateTime.limit, function () { closeCheck(); });//wait for everything to finish
+	wait(SimulateTime.limit, function() { everythingShouldBeClosed(); });//wait for everything to finish
 
 	var promise = simulateMethod2(behavior)
 	.then(function(answer) {
@@ -185,16 +183,16 @@ function demoMethod2(behavior) {
 /*
 method 2 promise results
 
-t:   [start, throw                         ]  needs improvement, uncaught exception
-n:   [start, return,       check closed    ]  needs improvement, never notices taking forever
-dd:  [start, return, done, check closed    ]  works, return before done even with direct call
-di:  [start, return, done, check closed    ]  works
-df:  [start, return, done, check closed    ]  works
-ds:  [start, return, done, check closed    ]  needs improvement, takes too long
-fd:  [start, return, fail, check not closed]  needs improvement, leaves resource open
-fi:  [start, return, fail, check not closed]  needs improvement, leaves resource open
-ff:  [start, return, fail, check not closed]  needs improvement, leaves resource open
-fs:  [start, return, fail, check not closed]  needs improvement, leaves resource open
+t:   [start, throw                   ]  needs improvement, uncaught exception
+n:   [start, return,       all closed]  needs improvement, never notices taking forever
+dd:  [start, return, done, all closed]  works, return before done even with direct call
+di:  [start, return, done, all closed]  works
+df:  [start, return, done, all closed]  works
+ds:  [start, return, done, all closed]  needs improvement, takes too long
+fd:  [start, return, fail, not closed]  needs improvement, leaves resource open
+fi:  [start, return, fail, not closed]  needs improvement, leaves resource open
+ff:  [start, return, fail, not closed]  needs improvement, leaves resource open
+fs:  [start, return, fail, not closed]  needs improvement, leaves resource open
 
 what works:
 even when the function calls the callback directly, return happens before done or fail
@@ -248,7 +246,7 @@ if (demo("method3fs")) { demoMethod3("fs"); }//fail slow
 
 function demoMethod3(behavior) {
 	log("start");
-	wait(SimulateTime.limit, function () { closeCheck(); });//wait for everything to finish
+	wait(SimulateTime.limit, function() { closeCheck(); });//wait for everything to finish
 
 	var task = simulateMethod3(behavior, next);
 	function next(result) {
@@ -263,16 +261,16 @@ function demoMethod3(behavior) {
 /*
 method 3 custom callback results
 
-t:   [start, return, fail, check closed]  works
-n:   [start, return, fail, check closed]  works
-dd:  [start, return, done, check closed]  works
-di:  [start, return, done, check closed]  works
-df:  [start, return, done, check closed]  works
-ds:  [start, return, fail, check closed]  works
-fd:  [start, return, fail, check closed]  works
-fi:  [start, return, fail, check closed]  works
-ff:  [start, return, fail, check closed]  works
-fs:  [start, return, fail, check closed]  works
+t:   [start, return, fail, all closed]  works
+n:   [start, return, fail, all closed]  works
+dd:  [start, return, done, all closed]  works
+di:  [start, return, done, all closed]  works
+df:  [start, return, done, all closed]  works
+ds:  [start, return, fail, all closed]  works
+fd:  [start, return, fail, all closed]  works
+fi:  [start, return, fail, all closed]  works
+ff:  [start, return, fail, all closed]  works
+fs:  [start, return, fail, all closed]  works
 
 what works:
 these all work
@@ -320,7 +318,7 @@ if (demo("method4fs")) { demoMethod4("fs"); }
 
 function demoMethod4(behavior) {
 	log("start");
-	wait(SimulateTime.limit, function () { closeCheck(); });//wait for everything to finish
+	wait(SimulateTime.limit, function() { everythingShouldBeClosed(); });//wait for everything to finish
 
 	var promise = simulateMethod4(behavior)
 	.then(function(answer) {
@@ -342,16 +340,16 @@ function demoMethod4(behavior) {
 /*
 method 4 custom promise results
 
-t:   [start, return, fail, fin, check closed]  
-n:   [start, return, fail, fin, check closed]  
-dd:  [start, return, done, fin, check closed]  
-di:  [start, return, done, fin, check closed]  
-df:  [start, return, done, fin, check closed]  
-ds:  [start, return, fail, fin, check closed]  
-fd:  [start, return, fail, fin, check closed]  
-fi:  [start, return, fail, fin, check closed]  
-ff:  [start, return, fail, fin, check closed]  
-fs:  [start, return, fail, fin, check closed]  
+t:   [start, return, fail, fin, all closed]  
+n:   [start, return, fail, fin, all closed]  
+dd:  [start, return, done, fin, all closed]  
+di:  [start, return, done, fin, all closed]  
+df:  [start, return, done, fin, all closed]  
+ds:  [start, return, fail, fin, all closed]  
+fd:  [start, return, fail, fin, all closed]  
+fi:  [start, return, fail, fin, all closed]  
+ff:  [start, return, fail, fin, all closed]  
+fs:  [start, return, fail, fin, all closed]  
 
 what works:
 

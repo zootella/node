@@ -130,7 +130,7 @@ callback wrapped into a q promise
 //our simulated callback function turned into a q promise
 function simulateMethod2(behavior) {
 	var d = Q.defer();
-	simulateMethod1(behavior, function (error, answer) {
+	simulateMethod1(behavior, function(error, answer) {
 		if (error) d.reject(error);
 		else d.resolve(answer);
 	});

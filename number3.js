@@ -241,3 +241,173 @@ this will discourage customization, and make it clearer what is happening
 
 
 
+/*
+you can't do operator overloading, but here are 4 alternatives
+multiply, full word
+m, short word
+unicode symbols that can be function names, have to copy and paste
+Int(7).o("+", 12).o(">=", 20), strings, crazy idea, maybe do it
+yeah, this is cool/wacky/creative enough you have to do it
+comment is // Who says JavaScript can't do operator overloading?
+
+instead of i.o(), use i._() maybe
+
+Int(7).add(12).greaterThanOrEqualTo(20), shorter sometimes
+
+if operator not found, toss("code"), this means, there is a mistake in the source code
+as opposed to "data", which means error in incoming data, external to the program, from the wire or disk
+as opposed to "platform", which means node or a library did something that it promised not to
+get fewer different kinds of errors
+have each mean something specific
+and have what you throw in text, data, and number consistant wiht this new plan
+*/
+
+
+
+
+/*
+confirm switching to "*" doesn't slow Int down, then switch to it
+comment out adding the 10 methods when you test the text based ones
+*/
+
+
+
+//make it i.hasNumber() and i.toNumber(), hasNumber means the value is small enough to fit in the number type
+
+
+
+//write a test that calls i.inside() to watch type sin use like "--s", watch something grow into big and then fall back down again
+
+
+
+/*
+here's how to do exceptions
+
+toss("data", "bounds");
+toss("data", "overflow");
+toss("data", "type");
+toss("data.overflow");//toss looks for dot and then parses that into subtype
+data.illegal for an illegal character
+code.math
+code.
+
+don't invent them, if you can't think of one, just have the high level classification
+
+or no, put it all in note, just have large type, and then if you need a subtype, put it in note
+*/
+	if (typeof n != "number")        toss("data.type",     {watch:{n:n}, note:"type"});     // Make sure n is a number
+	if (isNaN(n))                    toss("data.overflow",   {watch:{n:n}, note:"nan"});      // Not the weird not a number thing
+	if (!isFinite(n))                toss("data.overflow", {watch:{n:n}, note:"infinity"}); // Not too big for floating point
+	if (n > Number.MAX_SAFE_INTEGER) toss("overflow", {watch:{n:n}, note:"max"});      // Not too big to keep as an integer
+	if (n + 1 === n)                 toss("overflow", {watch:{n:n}, note:"plus"});     // Not too big for addition to work
+	if (Math.floor(n) !== n)         toss("type",     {watch:{n:n}, note:"floor"});    // A whole number
+	if (n < 0)                       toss("bounds",   {watch:{n:n}, note:"negative"}); // Not negative
+
+
+
+
+
+
+
+
+/*
+big ideas for a new design on close
+
+close means
+knows if its open
+has a close method
+only closes once
+close(a) will try to close it
+you can ask the program if everything is closed
+
+all timers get set through wait(0, f)
+if f is closed, f won't get called
+any exception that gets thrown up to f will exit the process
+the program will keep track of how many events happened and how long they took
+
+so like main actually calls wait(0, main)
+the step system with your promises uses the same system to meter how many events and how long, and catch uncaught exceptions
+
+pulse and pulseScreen can probably go away, or get included optionally
+
+singletons that need to get closed, like keyboard, use close, so you can close(keyboard) and if you forget to, closeCheck will complain
+
+stuff you don't need anymore
+pulseSoon, and the system where a bunch of pulses run and then one pulseScreen at the end
+because promises and callbacks will work so that they will call the next thing themselves
+*/
+
+
+
+
+//quickly go through all the saySize and so on and make them all work with no options in parameters
+
+
+
+
+/*
+there is no _fill function
+if you call sayFraction, you have to specify everything
+
+sayFraction(pattern, round, sayFraction, sayNumerator, sayDenominator)
+
+if you call sayUnitPerUnit and those, you get pattern and round by default, and can't specify say
+
+sayUnitPerUnit("#.###%", "round");
+
+this is actually simple enough to use and test, and you can still do everything granular and custom with sayFraction directly
+options objects are cool, but you always have to read the instructions to use them, so they're not that practical
+*/
+
+function sayUnitPerUnit(f, s, r) { return sayFraction(f, s, "whole", commas,  commas,  commas);  }
+function sayUnitPerSize(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
+function sayUnitPerTime(f, s, r) { return sayFraction(f, s, "whole", commas,  commas,  sayTime); }
+function saySizePerUnit(f, s, r) { return sayFraction(f, s, "whole", saySize, saySize, commas);  }
+function saySizePerSize(f, s, r) { return sayFraction(f, s, "whole", commas,  saySize, saySize); }
+function saySizePerTime(f, s, r) { return sayFraction(f, s, "whole", saySize, saySize, sayTime); }
+function sayTimePerUnit(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
+function sayTimePerSize(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
+function sayTimePerTime(f, s, r) { return sayFraction(f, s, "whole", commas,  sayTime, sayTime); }
+
+function sayFraction(f, s, r, sayF, sayN, sayD) {
+	if (!f) return ""; // Show the user blank on divide by 0
+
+	if (!s) s = "#"; // Fill unspecified preferences with defaults
+	if (!r) r = "whole";
+	if (!sayF) sayF = commas;
+	if (!sayN) sayN = commas;
+	if (!sayD) sayD = commas;
+
+	while (s.has("#/#")) f1();
+	function f1() {
+		s = s.swap("#/#", "#/#".fill(sayN(f.numerator), sayD(f.denominator))); // Turn #/# into 1/2
+	}
+
+	while (s.has("#")) f2();
+	function f2() {
+		var c = s.cut("#");
+		var decimal = 0;
+		if (c.after.starts(".#")) { // #.# or #.###
+			while (c.after.get(decimal + 1) == "#") decimal++; // Count the number of decimal places, like # decimal 0, #.### decimal 3
+			c = { before:c.before, after:c.after.beyond(1 + decimal) };
+		}
+		var t;
+		if      (c.after.starts("%"))  { t = sayF(f.scale([        100, _tens(decimal)], 1)[r], decimal); } // #%  or #.###%
+		else if (c.after.starts("/s")) { t = sayF(f.scale([Time.second, _tens(decimal)], 1)[r], decimal); } // #/s or #.###/s
+		else                           { t = sayF(f.scale([             _tens(decimal)], 1)[r], decimal); } // #   or #.###
+		s = say(c.before, t, c.after);
+	}
+	return s;
+}
+
+
+
+
+
+
+
+
+
+
+
+
