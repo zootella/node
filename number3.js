@@ -239,12 +239,36 @@ and then additional details are in the call stack and the extra stuff you put in
 */
 
 //NUMBER
-//refactor all the saySize and sayTime so that there are no options in the parameters, rather, they are separate functions that you call by name
-//this way, you can specify them in a sayFraction that's really custom
-
-//NUMBER
 //write tests with really small numbers, less than 0.0, and big numbers, more than 1000
 //for both percents and not
+
+//NUMBER
+//step 1: refactor the insides of old* to use sayTypePerType with patterns, see that the tests still pass
+//step 2: refactor the code and tests to not use old* anymore
+//step 3: combine the old test cases into the new tests
+
+//NUMBER
+//write a test that calls i.inside() to watch type sin use like "--s", watch something grow into big and then fall back down again
+
+//SAY FRACTION
+//quickly go through all the saySize and so on and make them all work with no options in parameters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //NUMBER
 /*
@@ -275,17 +299,6 @@ sayUnitPerUnit(f)
 sayFraction(f, "# #/#", {r:"whole", sayF:commas, sayN:commas, sayD:commas})
 this will discourage customization, and make it clearer what is happening
 */
-
-//NUMBER
-//step 1: refactor the insides of old* to use sayTypePerType with patterns, see that the tests still pass
-//step 2: refactor the code and tests to not use old* anymore
-//step 3: combine the old test cases into the new tests
-
-//NUMBER
-//write a test that calls i.inside() to watch type sin use like "--s", watch something grow into big and then fall back down again
-
-//SAY FRACTION
-//quickly go through all the saySize and so on and make them all work with no options in parameters
 
 //SAY FRACTION
 /*
@@ -355,10 +368,19 @@ function sayFraction(f, s, r, sayF, sayN, sayD) {
 
 
 
+
+
+
+
+
+
+
+
+
 /*
 // Calculate n1 * n2
 // Make sure the answer doesn't overflow the largest value a number can hold
-function oldmultiply(n1, n2) {
+function multiply(n1, n2) {
 	check(n1, 0);
 	check(n2, 0);
 
@@ -372,7 +394,7 @@ function oldmultiply(n1, n2) {
 // Make sure n and d are positive integers, and d is not 0
 // Calculate numerator / denominator
 // Return the integer division and remainder
-function olddivide(n, d, a) { // Takes optional answer object loaded with additional details
+function divide(n, d, a) { // Takes optional answer object loaded with additional details
 	check(n, 0);
 	check(d, 0); // Who says you can't divide by zero? OH SHI-
 	if (d === 0) return null; // Return null instead of throwing an exception
@@ -394,7 +416,7 @@ function olddivide(n, d, a) { // Takes optional answer object loaded with additi
 }
 
 // Calculate (n * m) / d
-function oldscale(n, m, d, a) { return olddivide(oldmultiply(n, m), d, a); } // Optional answer object to fill with more and return
+function scale(n, m, d, a) { return divide(multiply(n, m), d, a); } // Optional answer object to fill with more and return
 */
 
 

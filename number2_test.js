@@ -1246,16 +1246,16 @@ exports.testSayUnitPerUnit = function(test) {
 
 	//replace oldUnitPerUnit
 	f = Fraction(3, 2);
-	t(oldUnitPerUnit(f),            sayUnitPerUnit(f, "#.### (#/#)", {r:"round"}),                        "1.500 (3/2)");
+	t(oldUnitPerUnit(f),            sayUnitPerUnit(f, "#.### (#/#)", {r:"round"}),                "1.500 (3/2)");
 
 	//replace oldDivide
 	f = Fraction(10, 5);
-	t(oldDivide(f),                 sayUnitPerUnit(f), "2", {r:"round"},                                  "2");
-	t(oldDivide(f, 3),              sayUnitPerUnit(f, "#.###", {r:"round"}),                              "2.000");
+	t(oldDivide(f),                 sayUnitPerUnit(f), "2", {r:"round"},                          "2");
+	t(oldDivide(f, 3),              sayUnitPerUnit(f, "#.###", {r:"round"}),                      "2.000");
 
 	//replace oldPercent
 	f = Fraction(123, 1234);
-	t(oldPercent(f),                sayUnitPerUnit(f, "#% #/#"),                                          "9% 123/1,234");
+	t(oldPercent(f),                sayUnitPerUnit(f, "#% #/#"),                                  "9% 123/1,234");
 
 	//---- unit per size
 
@@ -1263,28 +1263,28 @@ exports.testSayUnitPerUnit = function(test) {
 
 	//replace oldUnitPerTime
 	f = Fraction(123, Time.second);
-	t(oldUnitPerTime(f),            sayUnitPerTime(f, "#.###/s (#/#)", {r:"round"}),                      "123.000/s (123/1.000s)");
+	t(oldUnitPerTime(f),            sayUnitPerTime(f, "#.###/s (#/#)", {r:"round"}),              "123.000/s (123/1.000s)");
 
 	//---- size per unit
 
 	//replace oldSizePerUnit
 	f = Fraction(Size.mb, 5);
-	t(oldSizePerUnit(f),            saySizePerUnit(f, "# (#/#)"),                                         "204kb 819b (1mb 0kb 0b/5)");
+	t(oldSizePerUnit(f),            saySizePerUnit(f, "# (#/#)"),                                 "204kb 819b (1mb 0kb 0b/5)");
 
 	//---- size per size
 
 	//replace oldProgress
 	f = Fraction(Size.mb, 2*Size.mb);
-	t(oldProgress(f),               saySizePerSize(f, "#% #/#", {sayN:saySizeUnits, sayD:saySizeUnits}),  "50% 1024kb/2048kb");
+	t(oldProgress(f),               saySizePerSize(f, "#% #/#", {sayN:saySize4, sayD:saySize4}),  "50% 1024kb/2048kb");
 
 	//---- size per time
 
 	//replace oldSizePerTime
 	f = Fraction(Size.mb, Time.minute);
-	t(oldSizePerTime(f),            saySizePerTime(f, "#/s (#/#)"),                                       "17kb 68b/s (1mb 0kb 0b/1m 0.000s)");
+	t(oldSizePerTime(f),            saySizePerTime(f, "#/s (#/#)"),                               "17kb 68b/s (1mb 0kb 0b/1m 0.000s)");
 
 	//replace oldSpeed
-	t(oldSpeed(f),                  saySizePerTime(f, "#/s", {sayF:saySizeUnits}),                        "17kb/s");
+	t(oldSpeed(f),                  saySizePerTime(f, "#/s", {sayF:saySize4}),                    "17kb/s");
 
 	//---- time per unit
 
@@ -1294,7 +1294,7 @@ exports.testSayUnitPerUnit = function(test) {
 
 	//new
 	f = Fraction(30*Time.minute, Time.hour);
-	t(sayTimePerTime(f, "#% #/#"),                                                                        "50% 30m 0.000s/1h 0m 0.000s");
+	t(sayTimePerTime(f, "#% #/#"),                                                                "50% 30m 0.000s/1h 0m 0.000s");
 
 	done(test);
 }

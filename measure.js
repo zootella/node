@@ -781,29 +781,11 @@ function saySize(n) {
 	return s;
 }
 
-// Describe the given size like "98kb (101,289 bytes)" with the exact number of bytes in parenthesis
-function saySizeBytes(n, decimal, units) {
-	return say(saySizeUnits(n, decimal, units), " (", items(n, "byte"), ")");
-}
-//TODO replace with pattern
-
-// Describe the given number of bytes like "97kb" or "9536gb" using 4 digits or less with the most appropriate unit
-// Optionally specify a number of decimal places and a unit, like 3 and "mb" for text like "9,419.006mb"
-function saySizeUnits(n, decimal, units) {
-	n = Int(n);
-
-	// Given units
-	if (units == "b")  return say(commas(Fraction([_tens(decimal), n], Size.b).ceiling,  decimal), "b");
-	if (units == "kb") return say(commas(Fraction([_tens(decimal), n], Size.kb).ceiling, decimal), "kb"); // Round up so 1 byte is 1kb, not 0kb
-	if (units == "mb") return say(commas(Fraction([_tens(decimal), n], Size.mb).ceiling, decimal), "mb"); // 1 byte is also 1mb
-	if (units == "gb") return say(commas(Fraction([_tens(decimal), n], Size.gb).whole,   decimal), "gb"); // For gigabyte and larger, round down
-	if (units == "tb") return say(commas(Fraction([_tens(decimal), n], Size.tb).whole,   decimal), "tb");
-	if (units == "pb") return say(commas(Fraction([_tens(decimal), n], Size.pb).whole,   decimal), "pb");
-
-	// No units given, compose text like "1234mb" with the appropriate unit and no decimal places
+// Describe the given number of bytes with text like "9876mb" using 4 numerals or less
+function saySize4(n) {
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
-	var unit = ["b", "kb", "mb", "gb", "tb", "pb"];
+	var unit = ["b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb"];
 	while (u < unit.length) { // Loop until we're out of units
 
 		var w = Fraction(n, d).whole; // Find out how many of the current unit we have
@@ -814,13 +796,30 @@ function saySizeUnits(n, decimal, units) {
 	}
 	toss("overflow"); // We ran out of units
 }
-//TODO split into saySize4, saySizeB, K, M, G...
-//TODO have this go up beyond pb now that it uses int
+
+// Describe the given number of bytes with text like "9,419.006mb", picking the unit and optionally specifying decimal places
+function saySizeB(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.b).whole,    decimal), "b");  } 
+function saySizeK(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.kb).ceiling, decimal), "kb"); } // Round up so 1 byte is 1kb, not 0kb
+function saySizeM(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.mb).ceiling, decimal), "mb"); } // 1 byte is also 1mb
+function saySizeG(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.gb).whole,   decimal), "gb"); } // For gigabyte and larger, round down
+function saySizeT(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.tb).whole,   decimal), "tb"); }
+function saySizeP(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.pb).whole,   decimal), "pb"); }
+function saySizeE(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.eb).whole,   decimal), "eb"); }
+function saySizeZ(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.zb).whole,   decimal), "zb"); }
+function saySizeY(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.yb).whole,   decimal), "yb"); }
 
 exports.Size = Size;
 exports.saySize = saySize;
-exports.saySizeBytes = saySizeBytes;
-exports.saySizeUnits = saySizeUnits;
+exports.saySize4 = saySize4;
+exports.saySizeB = saySizeB;
+exports.saySizeK = saySizeK;
+exports.saySizeM = saySizeM;
+exports.saySizeG = saySizeG;
+exports.saySizeT = saySizeT;
+exports.saySizeP = saySizeP;
+exports.saySizeE = saySizeE;
+exports.saySizeZ = saySizeZ;
+exports.saySizeY = saySizeY;
 
 
 
@@ -941,12 +940,12 @@ function oldPercent(f, decimal) {
 
 // Describe n/d like "6% 1122mb/18gb"
 // Specify decimal like 1 and units like "kb" to make it like "50.0% 1,024.0kb/2,048.0kb"
-function oldProgress(f, decimal, units) {
+function oldProgress(f, decimal, units) {//TODO no longer supports decimal and units, replace with a pattern if that's important
 	if (!f) return "";
 	return "#% #/#".fill(
 		commas(f.scale([100, _tens(decimal)], 1).whole, decimal),
-		saySizeUnits(f.numerator, decimal, units),
-		saySizeUnits(f.denominator, decimal, units));
+		saySize4(f.numerator),
+		saySize4(f.denominator));
 }
 
 exports.oldUnitPerUnit = oldUnitPerUnit;
@@ -966,12 +965,10 @@ exports.oldProgress = oldProgress;
 
 // Given f.n bytes and f.d milliseconds from divide(), describe the given number of bytes transferred in f second
 // Optionally specify a number of decimal places and a unit
-function oldSpeed(f, decimal, units) {
+function oldSpeed(f, decimal, units) {//TODO no longer supports decimal and units, replace with a pattern if that's important
 	if (!f) return "";
-	return saySizeUnits(f.scale(Time.second, 1).whole, decimal, units) + "/s";
+	return saySize4(f.scale(Time.second, 1).whole) + "/s";
 }
-//todo move units into 
-//TODO split like saySize4, B, K...
 
 // Describe the given f number of bytes transferred in a second in kilobytes per second like "2.24kb/s"
 function saySpeedKbps(f) {
@@ -1053,9 +1050,10 @@ function sayTime(t) {
 }
 
 // Describe the given number of milliseconds with text like "1m 24s" using one or two time units
-// Coarse option to round down to the nearest 5 seconds so a countdown isn't distracting
 // Good for telling the user how long the program predicts something will take
-function sayTimeRemaining(t, coarse) {
+function sayTimeRemaining(t)       { return _sayTimeRemaining(t, false); }
+function sayTimeRemainingCoarse(t) { return _sayTimeRemaining(t, true);  } // Round down to the nearest 5 seconds so a countdown isn't distracting
+function _sayTimeRemaining(t, coarse) {
 	t = Int(t);
 
 	// Compute the number of whole seconds, minutes, hours, and days in the given number of milliseconds
@@ -1075,7 +1073,6 @@ function sayTimeRemaining(t, coarse) {
 	else if (s.lessThan(259200)) return say(h, "h");                                   // "10h" to "71h"
 	else                         return say(commas(d), "d");                           // "3d" and up
 }
-//TODO split sayTimeRemaining, sayTimeRemainingCoarse
 
 // Describe the given number of milliseconds with text like 5'15"223
 // Sports a global race style that's accurate to milliseconds
@@ -1093,6 +1090,7 @@ function sayTimeRace(t) {
 exports.Time = Time;
 exports.sayTime = sayTime;
 exports.sayTimeRemaining = sayTimeRemaining;
+exports.sayTimeRemainingCoarse = sayTimeRemainingCoarse;
 exports.sayTimeRace = sayTimeRace;
 
 
@@ -1410,13 +1408,13 @@ exports.Range = Range;
 // How many chunks there are in a file of size bytes
 function numberOfChunks(bytes) {
 	min1(bytes);
-	return olddivide(bytes, 16*Size.kb).ceiling; // A chunk is 16kb or smaller
+	return Fraction(bytes, 16*Size.kb).ceiling.toNumber(); // A chunk is 16kb or smaller
 }
 // How many pieces there are in a file of size bytes
 function numberOfPieces(bytes) {
 	min1(bytes);
 	var chunks = numberOfChunks(bytes);
-	return olddivide(chunks, 64).ceiling; // A piece is 64 chunks or fewer, making it 1mb or smaller
+	return Fraction(chunks, 64).ceiling.toNumber(); // A piece is 64 chunks or fewer, making it 1mb or smaller
 }
 
 // Where the given chunk index is in a file of size bytes
@@ -1425,7 +1423,7 @@ function indexChunkToByte(bytes, chunkIndex) {
 	min0(chunkIndex);
 	var chunks = numberOfChunks(bytes);
 	if (chunkIndex > chunks) toss("bounds");
-	return oldscale(bytes, chunkIndex, chunks).whole; // Without using bignum, a 12gb file will overflow
+	return Fraction([bytes, chunkIndex], chunks).whole.toNumber(); // Without using bignum, a 12gb file will overflow
 }
 // What chunk index the given piece index is in a file of size bytes
 function indexPieceToChunk(bytes, pieceIndex) {
@@ -1434,7 +1432,7 @@ function indexPieceToChunk(bytes, pieceIndex) {
 	var chunks = numberOfChunks(bytes);
 	var pieces = numberOfPieces(bytes);
 	if (pieceIndex > pieces) toss("bounds");
-	return oldscale(chunks, pieceIndex, pieces).whole;
+	return Fraction([chunks, pieceIndex], pieces).whole.toNumber();
 }
 // Where the given piece index is in a file of size bytes
 function indexPieceToByte(bytes, pieceIndex) {
