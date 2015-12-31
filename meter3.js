@@ -29,7 +29,7 @@ function demoShortcutMeter() {
 
 	keyboard("any", function(key) {//blank to get all the events
 		var i;
-		try { i = number(key.character); } catch (e) { return; }//the user typed a key other than 0-9
+		try { i = numeralsToNumber(key.character); } catch (e) { return; }//the user typed a key other than 0-9
 		meter.record(i);
 	});
 
@@ -523,7 +523,7 @@ function demoSnippet() {
 		v[i] = 0;
 
 		i++;
-		n = multiply(n, 2);
+		n = Fraction([n, 2], 1).whole.toNumber();
 	}
 	k[i] = 0;
 	v[i] = 0;
@@ -710,9 +710,9 @@ function ScaleMeter(made) {
 
 // Record values in a histogram
 function ColumnMeter(made, columnI, columnW, columnN) { // Index where columns start, width of each column, and number of columns
-	check(columnI, 0); // Columns can start at the beginning, value 0, or to the right of that
-	check(columnW, 1); // Columns have to be at least 1 unit wide
-	check(columnN, 1); // There has to be at least 1 column
+	min0(columnI); // Columns can start at the beginning, value 0, or to the right of that
+	min1(columnW); // Columns have to be at least 1 unit wide
+	min1(columnN); // There has to be at least 1 column
 
 	// Hold
 	var records = 0; // Number of records

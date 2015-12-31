@@ -271,31 +271,12 @@ exports.inspect = inspect;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   __  __       _   _     
+//  |  \/  | __ _| |_| |__  
+//  | |\/| |/ _` | __| '_ \ 
+//  | |  | | (_| | |_| | | |
+//  |_|  |_|\__,_|\__|_| |_|
+//                          
 
 // Make sure n is a whole integer with a minimum value of
 function min0(n)        { checkNumber(n);                 if (n < 0) toss("bounds"); } // 0 or larger
@@ -479,8 +460,6 @@ function _calculate(o, c, q) {
 	else { toss("code"); }
 }
 
-exports.Int = Int;
-
 // A fraction of integer values, like 1/1 or 10/3
 // For the numerator and denominator, pass in numbers, strings of numerals, or arrays of those to multiply together, like Fraction([2, 5], 3) to get 10/3
 function Fraction(n, d) {
@@ -512,95 +491,17 @@ function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into Int(10)
 	return i;
 }
 
+exports.Int = Int;
 exports.Fraction = Fraction;
 exports._multiplyArray = _multiplyArray;
 
-//   __  __       _   _     
-//  |  \/  | __ _| |_| |__  
-//  | |\/| |/ _` | __| '_ \ 
-//  | |  | | (_| | |_| | | |
-//  |_|  |_|\__,_|\__|_| |_|
-//                          
+function divideFast(n, d) { return Math.floor(n / d);               } // Shorter than using Math.floor directly, and easily see where you use it
+function divideSafe(n, d) { return Fraction(n, d).whole.toNumber(); } // Likely fast enough, or just use Fraction directly
 
-// Calculate n1 * n2
-// Make sure the answer doesn't overflow the largest value a number can hold
-function multiply(n1, n2) {
-	check(n1, 0);
-	check(n2, 0);
-
-	var a = n1 * n2;
-
-	check(a, 0);
-	return a;
-}
-
-// Calculate n / d
-// Make sure n and d are positive integers, and d is not 0
-// Calculate numerator / denominator
-// Return the integer division and remainder
-function divide(n, d, a) { // Takes optional answer object loaded with additional details
-	check(n, 0);
-	check(d, 0); // Who says you can't divide by zero? OH SHI-
-	if (d === 0) return null; // Return null instead of throwing an exception
-
-	if (!a) var a = {};
-	a.numerator   = n; // Numerator and denominator
-	a.denominator = d;
-	a.whole       = Math.floor(n / d); // Round down
-	a.ceiling     = Math.ceil(n / d);  // Round up
-	a.round       = Math.round(n / d); // Round to nearest
-	a.remainder   = n % d;             // Remainder
-	a.decimal     = n / d;             // Floating point number
-
-	check(a.whole, 0); // Check our answer before returning it
-	check(a.remainder, 0);
-	if ((d * a.whole) + a.remainder !== n)                     mistakeLog(Mistake("platform", {note:"remainder", watch:{n:n, d:d}}));
-	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) mistakeLog(Mistake("platform", {note:"ceiling",   watch:{n:n, d:d}}));
-	return freeze(a);
-}
-
-// Calculate (n * m) / d
-function scale(n, m, d, a) { return divide(multiply(n, m), d, a); } // Optional answer object to fill with more and return
-
-// Make sure i is a whole number with a minimum value of min or larger
-function check(i, min) {
-
-	function _check(n) {
-		checkType(n, "number");                     // Make sure n is a number
-		if (isNaN(n))             toss("bounds");   // Not the weird not a number thing
-		if (!isFinite(n))         toss("overflow"); // Not too big for floating point
-		if (n > 9007199254740992) toss("overflow"); // Not too big for int
-		if (n + 1 === n)          toss("overflow"); // Not too big for addition to work
-		if (Math.floor(n) !== n)  toss("type");     // A whole number
-	}
-
-	_check(i);
-	_check(min);
-	if (i < min) toss("bounds"); // With the minimum value or larger
-}
-
-exports.multiply = multiply;
-exports.divide = divide;
-exports.scale = scale;
-exports.check = check;
+exports.divideFast = divideFast;
+exports.divideSafe = divideSafe;
 
 
-//things to change with check
-//name it checkNumber, and use it elsewhere in the code
-//have min be optional, if !min min = 0, change check(n, 0) to just check(n)
-
-//maybe rename check to integer, check is a little too generic, and what it does is confirm that you've got an integer
-
-
-// Determine which should appear first in sorted order
-// Zero if same, negative if n1 then n2, positive if n2 first
-function compareNumber(n1, n2) {
-	check(n1, 0);
-	check(n2, 0);
-	return n1 - n2;
-}
-
-exports.compareNumber = compareNumber;
 
 
 
@@ -638,14 +539,14 @@ function now() { return When(Date.now()); } // Save the number of milliseconds b
 
 // The time when something happened
 function When(t) {
-	check(t, 1); // Allow a time in the future from now, but not before 1970, and not 0 which is more likely a mistake than exactly 1970
+	min1(t); // Allow a time in the future from now, but not before 1970, and not 0 which is more likely a mistake than exactly 1970
 
 	var o = {};
-	o.time     = t;                                                // Save the given time
-	o.age      = function()  { return Date.now() - t; }            // The number of milliseconds that have passed since this when
-	o.expired  = function(t) { check(t, 0); return t <= o.age(); } // True if t or more milliseconds have passed since this when
-	o.text     = function()  { return sayDateAndTime(t); }         // Describe like "2002 Jun 22 Sat 11:09a 49.146s"
-	o.duration = function(finish) { return Duration(o, finish); }  // Make a Duration using this When as the start time
+	o.time     = t;                                               // Save the given time
+	o.age      = function()  { return Date.now() - t; }           // The number of milliseconds that have passed since this when
+	o.expired  = function(t) { min0(t); return t <= o.age(); }    // True if t or more milliseconds have passed since this when
+	o.text     = function()  { return sayDateAndTime(t); }        // Describe like "2002 Jun 22 Sat 11:09a 49.146s"
+	o.duration = function(finish) { return Duration(o, finish); } // Make a Duration using this When as the start time
 	o.type = "When";
 	return freeze(o);
 }
@@ -682,7 +583,7 @@ function Duration(start, finish) {
 // Make an Ago to ask it permission to do something you want to only do once every i milliseconds
 function Ago(i) {
 
-	check(i, 0);
+	min0(i);
 	var _interval = i;  // Time interval between events
 
 	var _set = 0;       // The number of milliseconds between January 1970 and when we were last set, 0 if we've never been set
@@ -998,7 +899,7 @@ function _fill(p, r, sayF, sayN, sayD) { // Fill blanks in preferences p with th
 
 function _tens(decimal) { // Given a number of decimal places, return the necessary multiplier, _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
 	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
-	check(decimal, 0);
+	min0(decimal);
 	var m = 1;
 	for (var i = 0; i < decimal; i++) m *= 10;
 	return m;
@@ -1406,8 +1307,8 @@ exports.dateParts = dateParts;
 
 
 function Stripe(i, w) {
-	check(i, 0);
-	check(w, 1);
+	min0(i);
+	min1(w);
 	var o = {};
 
 	o.i = i;     // The distance from the origin to the start of this Stripe, 0 or more
@@ -1425,8 +1326,8 @@ function Stripe(i, w) {
 }
 
 function Range(i, w) {
-	check(i, 0);
-	check(w, -1);
+	min0(i);
+	if (w !== -1) min0(w); //TODO use a string or something instead of a negative number
 	var o = {};
 
 	o.i = i; // The distance from the origin to the start of this Range, 0 or more
@@ -1508,32 +1409,32 @@ exports.Range = Range;
 
 // How many chunks there are in a file of size bytes
 function numberOfChunks(bytes) {
-	check(bytes, 1);
-	return divide(bytes, 16*Size.kb).ceiling; // A chunk is 16kb or smaller
+	min1(bytes);
+	return olddivide(bytes, 16*Size.kb).ceiling; // A chunk is 16kb or smaller
 }
 // How many pieces there are in a file of size bytes
 function numberOfPieces(bytes) {
-	check(bytes, 1);
+	min1(bytes);
 	var chunks = numberOfChunks(bytes);
-	return divide(chunks, 64).ceiling; // A piece is 64 chunks or fewer, making it 1mb or smaller
+	return olddivide(chunks, 64).ceiling; // A piece is 64 chunks or fewer, making it 1mb or smaller
 }
 
 // Where the given chunk index is in a file of size bytes
 function indexChunkToByte(bytes, chunkIndex) {
-	check(bytes, 1);
-	check(chunkIndex, 0);
+	min1(bytes);
+	min0(chunkIndex);
 	var chunks = numberOfChunks(bytes);
 	if (chunkIndex > chunks) toss("bounds");
-	return scale(bytes, chunkIndex, chunks).whole; // Without using bignum, a 12gb file will overflow
+	return oldscale(bytes, chunkIndex, chunks).whole; // Without using bignum, a 12gb file will overflow
 }
 // What chunk index the given piece index is in a file of size bytes
 function indexPieceToChunk(bytes, pieceIndex) {
-	check(bytes, 1);
-	check(pieceIndex, 0);
+	min1(bytes);
+	min0(pieceIndex);
 	var chunks = numberOfChunks(bytes);
 	var pieces = numberOfPieces(bytes);
 	if (pieceIndex > pieces) toss("bounds");
-	return scale(chunks, pieceIndex, pieces).whole;
+	return oldscale(chunks, pieceIndex, pieces).whole;
 }
 // Where the given piece index is in a file of size bytes
 function indexPieceToByte(bytes, pieceIndex) {

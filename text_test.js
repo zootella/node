@@ -519,74 +519,6 @@ exports.testSort = function(test) {
 
 
 
-//   _   _                 _               
-//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
-//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
-//  | |\  | |_| | | | | | | |_) |  __/ |   
-//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
-//                                         
-
-// number, number16, numerals, numerals16
-
-exports.testNumberNumerals = function(test) {
-
-	function cycle(n, s10, s16) {
-		test.ok(numerals(n) === s10);//number to text
-		test.ok(numerals16(n) === s16);
-
-		test.ok(number(s10) === n);//text to number
-		test.ok(number16(s16) === n);
-	}
-
-	//confirm we can turn numbers into text and back again
-	cycle(0, "0", "0");//zero and one
-	cycle(1, "1", "1");
-	cycle(10, "10", "a");//ten, note how base16 output is lower case
-	cycle(789456123, "789456123", "2f0e24fb");
-	cycle(-5, "-5", "-5");//negative
-	cycle(-11, "-11", "-b");
-	cycle(0xff, "255", "ff");//0x number literal, note how output text doesn't include the "0x" prefix
-	cycle(-0x2f0e24fb, "-789456123", "-2f0e24fb");
-
-	test.ok(numerals(123.456) === "123.456");//decimal
-	test.ok(numerals(-123.456) === "-123.456");
-
-	function bad(s) {
-		try { number(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
-		try { number16(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
-	}
-
-	//make sure text that isn't a perfect number can't become one
-	bad("");//blank
-	bad(" ");//space
-	bad("potato");//a word
-	bad("-");//punctuation
-	bad(".");
-	bad("k");
-
-	bad("05");//leading zero
-
-	bad(" 5");//spaces
-	bad("5 ");
-	bad(" 5 ");
-	bad("5 6");
-
-	//allow uppercase base16 as input, even though output is lowercase
-	test.ok(number16("A") == 10);
-
-	test.done();
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1007,39 +939,39 @@ exports.testRip = function(test) {
 			s += "<" + a[i] + ">";
 		return s;
 	}
-	function check(s, v) { test.ok(view(s.rip(",")) == v); }
+	function f(s, v) { test.ok(view(s.rip(",")) == v); }
 
 	//patterns
 
-	check("", "<>");//empty
-	check(",", "<><>");
-	check(",,", "<><><>");
-	check(",,,", "<><><><>");
+	f("", "<>");//empty
+	f(",", "<><>");
+	f(",,", "<><><>");
+	f(",,,", "<><><><>");
 
-	check("a", "<a>");//one
-	check(",a", "<><a>");
-	check("a,", "<a><>");
-	check(",a,", "<><a><>");
+	f("a", "<a>");//one
+	f(",a", "<><a>");
+	f("a,", "<a><>");
+	f(",a,", "<><a><>");
 
-	check("a,b", "<a><b>");//two
-	check(",a,b", "<><a><b>");
-	check("a,b,", "<a><b><>");
-	check(",a,b,", "<><a><b><>");
+	f("a,b", "<a><b>");//two
+	f(",a,b", "<><a><b>");
+	f("a,b,", "<a><b><>");
+	f(",a,b,", "<><a><b><>");
 
-	check("a", "<a>");//double
-	check(",,a", "<><><a>");
-	check("a,,", "<a><><>");
-	check(",,a,,", "<><><a><><>");
+	f("a", "<a>");//double
+	f(",,a", "<><><a>");
+	f("a,,", "<a><><>");
+	f(",,a,,", "<><><a><><>");
 
-	check("a,,b", "<a><><b>");//double two
-	check(",,a,,b", "<><><a><><b>");
-	check("a,,b,,", "<a><><b><><>");
-	check(",,a,,b,,", "<><><a><><b><><>");
+	f("a,,b", "<a><><b>");//double two
+	f(",,a,,b", "<><><a><><b>");
+	f("a,,b,,", "<a><><b><><>");
+	f(",,a,,b,,", "<><><a><><b><><>");
 
-	check(",a,,b", "<><a><><b>");//single and double
-	check(",,a,b", "<><><a><b>");
-	check("a,b,,", "<a><b><><>");
-	check("a,,b,", "<a><><b><>");
+	f(",a,,b", "<><a><><b>");//single and double
+	f(",,a,b", "<><><a><b>");
+	f("a,b,,", "<a><b><><>");
+	f("a,,b,", "<a><><b><>");
 
 	//features
 
@@ -1107,7 +1039,7 @@ exports.testRip = function(test) {
 exports.testSay = function(test) {
 
 	test.ok(say("hi") == "hi");
-	test.ok(say(7) == "7");//calls numerals(7) and easier to remember and type
+	test.ok(say(7) == "7");//easy way to turn a number into numerals
 	test.ok(say("boolean is ", false) == "boolean is false");//works with booleans too
 
 	test.ok(say("a", "b", "cd") == "abcd");

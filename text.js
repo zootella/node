@@ -407,13 +407,12 @@ exports.compareText = compareText;
 
 
 
-
-//   _   _                 _               
-//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
-//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
-//  | |\  | |_| | | | | | | |_) |  __/ |   
-//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
-//                                         
+//   ____                        ____ _               _    
+//  |  _ \ __ _ _ __ ___  ___   / ___| |__   ___  ___| | __
+//  | |_) / _` | '__/ __|/ _ \ | |   | '_ \ / _ \/ __| |/ /
+//  |  __/ (_| | |  \__ \  __/ | |___| | | |  __/ (__|   < 
+//  |_|   \__,_|_|  |___/\___|  \____|_| |_|\___|\___|_|\_\
+//                                                         
 
 // Before returning object o we parsed from text s, make sure o turns back into exactly the same text
 // This is a clever way to turn a forgiving parsing function into a very strict one
@@ -424,37 +423,8 @@ function parseCheckMatch(oToString, s) { // Matches cases, use for things like b
 	if (!match(oToString, s)) toss("data");
 }
 
-// Turn a string like "123" into the number 123
-function number(s) { return _number(s, 10); }
-function number16(s) { return _number(s, 16); } // Base 16, turn "A" into 10
-function _number(s, base) {
-	if (typeof s !== "string") toss("type");
-	var n = parseInt(s, base);
-	if (isNaN(n)) toss("data");
-	parseCheckMatch(_numerals(n, base), s); // Guard against parseInt's dangerously accommodating parsing style by ensuring that the number we made becomes the same text we made it from
-	return n;
-}
-
-// Turn a number like 123 into a string like "123"
-function numerals(n) { return _numerals(n, 10); }
-function numerals16(n) { return _numerals(n, 16); } // Base 16, turn 10 into "A"
-function _numerals(n, base) {
-	if (typeof n !== "number") toss("type");
-	return n.toString(base);
-}
-
 exports.parseCheck = parseCheck;
 exports.parseCheckMatch = parseCheckMatch;
-exports.number = number;
-exports.number16 = number16;
-exports.numerals = numerals;
-exports.numerals16 = numerals16;
-
-
-
-
-
-
 
 
 
@@ -971,7 +941,7 @@ function line() {
 // Turn anything into text the best way possible
 function _say(o) {
 	if      (typeof o == "string")           return o;                          // Strings pass through
-	else if (typeof o == "number")           return numerals(o);                // Convert a number into numerals
+	else if (typeof o == "number")           return o+"";                       // Convert a number into numerals
 	else if (o instanceof Error)             return platformUtility.inspect(o); // Inspect to see the inside
 	else if (o && typeof o.text == "string") return o.text;                     // Use the object's text member
 	else if (hasMethod(o, "text"))           return o.text();                   // Call the object's text() method

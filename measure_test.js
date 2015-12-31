@@ -438,48 +438,48 @@ exports.testNumberBig = function(test) {
 	test.ok(n + 1 === n);
 
 	//example of working with a very large file size
-	var d = divide(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
-	test.ok(d.whole == 8191);// the size limit is 8191 terabytes
-	test.ok(d.remainder == 1099511627775);//and this remainder of bytes
-	test.ok(divide(d.remainder, Size.gb).whole == 1023);//which is 1023 gigabytes
-	test.ok(multiply(8191, Size.tb) + 1099511627775 == 9007199254740992 - 1);//put the number back together again
+	var d = Fraction(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
+	test.ok(d.whole.toNumber() == 8191);// the size limit is 8191 terabytes
+	test.ok(d.remainder.toNumber() == 1099511627775);//and this remainder of bytes
+	test.ok(Fraction(d.remainder, Size.gb).whole.toNumber() == 1023);//which is 1023 gigabytes
+	test.ok(Fraction([8191, Size.tb], 1).whole.toNumber() + 1099511627775 == 9007199254740992 - 1);//put the number back together again
 
 	test.done();
 }
 
 exports.testCheck = function(test) {
 
-	//hit each of the 7 exceptions in check
-	try { check("1", 0); test.fail() } catch (e) { test.ok(e.name == "type"); }//make sure i is a number
-	try { check(0 / 0, 0); test.fail() } catch (e) { test.ok(e.name == "bounds"); }//not the weird not a number thing
-	try { check(1 / 0, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for floating point
-	try { check(9007199254740992 * 2, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for int
-	try { check(9007199254740900 + 92, 0); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for addition to work
-	try { check(1.5, 0); test.fail() } catch (e) { test.ok(e.name == "type"); }//a whole number
-	try { check(0, 1); test.fail() } catch (e) { test.ok(e.name == "bounds"); }//with the minimum value or larger
+	//hit each of the 7 exceptions in checkNumberMath
+	try { min0("1");                   test.fail() } catch (e) { test.ok(e.name == "type");     }//make sure i is a number
+	try { min0(0 / 0);                 test.fail() } catch (e) { test.ok(e.name == "bounds");   }//not the weird not a number thing
+	try { min0(1 / 0);                 test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for floating point
+	try { min0(9007199254740992 * 2);  test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for int
+	try { min0(9007199254740900 + 92); test.fail() } catch (e) { test.ok(e.name == "overflow"); }//not too big for addition to work
+	try { min0(1.5);                   test.fail() } catch (e) { test.ok(e.name == "type");     }//a whole number
+	try { min1(0);                     test.fail() } catch (e) { test.ok(e.name == "bounds");   }//with the minimum value or larger
 
 	test.done();
 }
 
 exports.testMultiply = function(test) {
 
-	test.ok(multiply(3, 4) == 12);
-	test.ok(multiply(3, 0) == 0);
-	test.ok(multiply(1, 1) == 1);
+	test.ok(Fraction([3, 4], 1).whole.toNumber() == 12);
+	test.ok(Fraction([3, 0], 1).whole.toNumber() == 0);
+	test.ok(Fraction([1, 1], 1).whole.toNumber() == 1);
 
 	//a big number
 	var n = 9007199254740992 - 1;//largest possible int, minus 1 so our functions will work with it
 	test.ok(n == 9007199254740991);
 
 	//divide
-	var d = divide(n, 1000);
-	test.ok(d.whole == 9007199254740);//easy enough to see the whole and remainder
-	test.ok(d.remainder == 991);
+	var d = Fraction(n, 1000);
+	test.ok(d.whole.toNumber() == 9007199254740);//easy enough to see the whole and remainder
+	test.ok(d.remainder.toNumber() == 991);
 
 	//multiply
-	test.ok(multiply(9007199254740, 1000) == 9007199254740000);//multiply to near, but under the limit
+	test.ok(Fraction([9007199254740, 1000], 1).whole.toNumber() == 9007199254740000);//multiply to near, but under the limit
 	try {
-		multiply(9007199254740, 1001);//over the limit
+		Fraction([9007199254740, 1001], 1).whole.toNumber();//over the limit
 		test.fail();
 	} catch (e) { test.ok(e.name == "overflow"); }
 
@@ -490,32 +490,32 @@ exports.testDivide = function(test) {
 
 	var a;
 
-	a = divide(10, 3);
-	test.ok(a.whole == 3 && a.remainder == 1);
+	a = Fraction(10, 3);
+	test.ok(a.whole.toNumber() == 3 && a.remainder.toNumber() == 1);
 	test.ok(a.remainder);//has a remainder
 
-	a = divide(12, 3);
-	test.ok(a.whole == 4 && a.remainder == 0);
-	test.ok(!a.remainder);//doesn't have a remainder
+	a = Fraction(12, 3);
+	test.ok(a.whole.toNumber() == 4 && a.remainder.toNumber() == 0);
+	test.ok(!a.remainder.toNumber());//doesn't have a remainder
 
-	a = divide(123456789, 555);
-	test.ok(a.whole == 222444 && a.remainder == 369);
+	a = Fraction(123456789, 555);
+	test.ok(a.whole.toNumber() == 222444 && a.remainder.toNumber() == 369);
 
-	a = divide(789, 1);
-	test.ok(a.whole == 789 && a.remainder == 0);
+	a = Fraction(789, 1);
+	test.ok(a.whole.toNumber() == 789 && a.remainder.toNumber() == 0);
 
-	a = divide(1, 2);
-	test.ok(a.whole == 0 && a.remainder == 1);
+	a = Fraction(1, 2);
+	test.ok(a.whole.toNumber() == 0 && a.remainder.toNumber() == 1);
 
-	a = divide(1, 456);
-	test.ok(a.whole == 0 && a.remainder == 1);
+	a = Fraction(1, 456);
+	test.ok(a.whole.toNumber() == 0 && a.remainder.toNumber() == 1);
 
 	//catch errors
-	try { divide("potato", 1); test.fail(); } catch (e) { test.ok(e.name == "type");    }//not a number
-	try { divide(1.5, 1);      test.fail(); } catch (e) { test.ok(e.name == "type");    }//not an integer
-	try { divide(-2, 1);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//negative
+	try { Fraction("potato", 1); test.fail(); } catch (e) { test.ok(e.name == "data");    }//not a number
+	try { Fraction(1.5, 1);      test.fail(); } catch (e) { test.ok(e.name == "type");    }//not an integer
+	try { Fraction(-2, 1);       test.fail(); } catch (e) { test.ok(e.name == "bounds");  }//negative
 
-	a = divide(10, 0);//divide by zero returns null instead of the answer object
+	a = Fraction(10, 0);//divide by zero returns null instead of the answer object
 	test.ok(!a);//which is falsey
 	a = {};//unlike even an empty object
 	test.ok(a);
@@ -526,7 +526,7 @@ exports.testDivide = function(test) {
 exports.testDivideRound = function(test) {
 
 	function f(n, d, round) {
-		test.ok(divide(n, d).round == round);
+		test.ok(Fraction(n, d).round.toNumber() == round);
 	}
 
 	f(3, 7, 0);//3/7 goes down, 4/7 up
@@ -547,9 +547,9 @@ exports.testDivideRound = function(test) {
 
 exports.testScale = function(test) {
 
-	var d = scale(5, 10, 3);//multiplies first to not lose accuracy
-	test.ok(d.whole == 16);
-	test.ok(d.remainder == 2);
+	var d = Fraction([5, 10], 3);//multiplies first to not lose accuracy
+	test.ok(d.whole.toNumber() == 16);
+	test.ok(d.remainder.toNumber() == 2);
 
 	test.done();
 }

@@ -107,9 +107,9 @@ function _findInSorted(list, o) {
 
 	while (true) {
 
-		var n = z - a;                  // Width of clip
-		var y = z - 1;                  // Distance to last item in clip
-		var m = a + divide(n, 2).whole; // Distance to middle item in clip
+		var n = z - a;                // Width of clip
+		var y = z - 1;                // Distance to last item in clip
+		var m = a + divideFast(n, 2); // Distance to middle item in clip
 
 		if (n == 0) { // Empty
 
@@ -149,9 +149,9 @@ function _addToSortedList(list, o) {
 
 	while (true) {
 
-		var n = z - a;                  // Width of clip
-		var y = z - 1;                  // Distance to last item in clip
-		var m = a + divide(n, 2).whole; // Distance to middle item in clip
+		var n = z - a;                // Width of clip
+		var y = z - 1;                // Distance to last item in clip
+		var m = a + divideFast(n, 2); // Distance to middle item in clip
 
 		if (n == 0) { // Empty
 
@@ -188,9 +188,9 @@ function _addToSortedSet(list, o) {
 
 	while (true) {
 
-		var n = z - a;                  // Width of clip
-		var y = z - 1;                  // Distance to last item in clip
-		var m = a + divide(n, 2).whole; // Distance to middle item in clip
+		var n = z - a;                // Width of clip
+		var y = z - 1;                // Distance to last item in clip
+		var m = a + divideFast(n, 2); // Distance to middle item in clip
 
 		if (n == 0) { // Empty
 

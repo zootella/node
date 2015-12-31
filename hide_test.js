@@ -54,6 +54,9 @@ function demoMathCoarse() {
 #
 
 reproducable on node 0.12.0 and 0.12.7 on windows
+always crashes after printing 25 lines of text, is it always crashing on the 12500th generation? that would be really weird
+node 4.2.4 can run this without crashing, they probably fixed it
+if the problem was in v8 instead of node, could a webpage with that code crashed the browser?
 */
 if (demo("math-crash")) { demoMathCrash(); }
 function demoMathCrash() {
@@ -84,10 +87,10 @@ notice how data speed 257 is half as fast as 256, because it has to roll twice h
 if (demo("random-speed")) { demoRandomSpeed() }
 function demoRandomSpeed() {
 	function empty() { speedLoop(say("empty"),            function() {                     }); }
-	function math(v) { speedLoop(say("math ", commas(v)), function() { randomMath(0, v-1); }); }
-	function data(v) { speedLoop(say("data ", commas(v)), function() { randomUnder(v);     }); }
+	function math(v) { speedLoop(say("math ", saySize(v)), function() { randomMath(0, v-1); }); }
+	function data(v) { speedLoop(say("data ", saySize(v)), function() { randomUnder(v);     }); }
 
-	var a = [2, 256, 257, 10000, 100000, Size.mb, Size.mb+1, Size.pb, Size.pb+1];
+	var a = [2, 255, 256, 257, Size.mb-1, Size.mb, Size.mb+1, Size.pb-1, Size.pb, Size.pb+1];
 	empty();
 	log();
 	for (var i = 0; i < a.length; i++) math(a[i]);

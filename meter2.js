@@ -49,7 +49,7 @@ function demoMeter(meter) {
 			meter.finish();
 		} else {
 			var i;
-			try { i = number(key.character); } catch (e) { return; }//the user typed a key other than 0-9
+			try { i = numeralsToNumber(key.character); } catch (e) { return; }//the user typed a key other than 0-9
 			meter.record(i);
 		}
 	});

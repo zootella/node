@@ -105,7 +105,7 @@ function speedLoopForever(name, f) {
 
 	function report() {
 		var s = sayTime(warm);
-		if (seconds) s += " " + commas(divide(cycles, seconds).whole);
+		if (seconds) s += " " + commas(Fraction(cycles, seconds).whole);
 		s += " " + name;
 		stick(s);
 	}

@@ -227,7 +227,7 @@ function replaceReservedCharacters(s, p) {
 
 // Add a number to a path like "C:\folder\file (2).ext" to avoid a file already there
 function pathNumber(path, n) {
-	check(n, 1); // Must be 1 or more
+	min1(n); // Must be 1 or more
 	if (n == 1) return path; // No number 1, just the path
 	return path.up.add("# (#)#".fill(path.name, n, path._ext)); // Compose the new path
 }

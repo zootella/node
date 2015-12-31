@@ -25,32 +25,29 @@ var platformBigNumber = require('bignumber.js');
 
 
 
-//compare speeds of basic skills using j javascript numbers, t text numerals, and b bignumber.js
+//compare speeds of basic skills using j javascript numbers, t text numerals, b bignumber.js, and c custom code
 if (demo("speed-skill")) { speedSkill() }
 function speedSkill() {
-	speedLoop("empty", speedEmpty);    // ~10 million
-	speedLoop("base",  speedBase);     // ~10 million
+	speedLoop("empty",                  speedEmpty);   // ~10 million
+	speedLoop("base",                   speedBase);    // ~10 million
 	log();
-	speedLoop("check j", speedCheckJ); // ~5 million
-	speedLoop("check t", speedCheckT); // ~5 million
+	speedLoop("check number",           speedCheckJ);  // ~5 million
+	speedLoop("check text",             speedCheckT);  // ~5 million
+	speedLoop("check min0",             speedCheckC);  // ~5 million
 	log();
-	speedLoop("less j", speedLessJ);   // ~10 million
-	speedLoop("less t", speedLessT);   // ~1 million
-	speedLoop("less b", speedLessB);   // ~3 million
+	speedLoop("less number",            speedLessJ);   // ~10 million
+	speedLoop("less text",              speedLessT);   // ~1 million
+	speedLoop("less bignumber.js",      speedLessB);   // ~3 million
+	speedLoop("less Int",               speedLessC);   // ~100 thousand
 	log();
-	speedLoop("scale j", speedScaleJ); // ~5 million
-	speedLoop("scale b", speedScaleB); // ~100 thousand, everything else is plenty fast
+	speedLoop("scale number",           speedScaleJ);  // ~5 million
+	speedLoop("scale bignumber.js",     speedScaleB);  // ~100 thousand, slow
+	speedLoop("scale Int and Fraction", speedScaleC);  // ~10 thousand, slow
+	log();
+	speedLoop("divide number",          speedDivideJ); // ~10 million
+	speedLoop("divide Fraction",        speedDivideC); // ~10 thousand, slow
+
 }
-if (demo("speed-empty"))   { demoSpeed(speedEmpty,  "empty");   }
-if (demo("speed-base"))    { demoSpeed(speedBase,   "base");    }
-if (demo("speed-check-j")) { demoSpeed(speedCheckJ, "check j"); }
-if (demo("speed-check-t")) { demoSpeed(speedCheckT, "check t"); }
-if (demo("speed-less-j"))  { demoSpeed(speedLessJ,  "less j");  }
-if (demo("speed-less-t"))  { demoSpeed(speedLessT,  "less t");  }
-if (demo("speed-less-b"))  { demoSpeed(speedLessB,  "less b");  }
-if (demo("speed-scale-j")) { demoSpeed(speedScaleJ, "scale j"); }
-if (demo("speed-scale-b")) { demoSpeed(speedScaleB, "scale b"); }
-function demoSpeed(f, name) { speedLoop8(name, f); }
 
 function roll() {//make a random integer
 	var min = 1;
@@ -80,6 +77,10 @@ function speedCheckT() {
 		if (a < 48 || a > 57) log("mistake");//make sure it's ascii "0" through "9"
 	}
 }
+function speedCheckC() {
+	var i = roll();
+	min0(i);
+}
 
 //determine if the given number is less than a ceiling
 function speedLessJ() {
@@ -97,6 +98,10 @@ function speedLessB() {
 	var i = roll();
 	var b = new platformBigNumber(i);
 	if (b.greaterThan(94906265)) log("mistake");
+}
+function speedLessC() {
+	var i = roll();
+	if (Int(i).greaterThan(94906265)) log("mistake");
 }
 
 //multiply and divide
@@ -118,6 +123,36 @@ function speedScaleB() {
 	var r = t.mod(d);//remainder
 	if (!w.times(d).plus(r).equals(t)) log("mistake");//check
 }
+function speedScaleC() {
+	var i = roll();
+	var n = roll();
+	var d = roll();
+	var t = Int(i).multiply(n);//top
+	var f = Fraction(t, d);//whole and remainder
+	if (f.whole.multiply(d).add(f.remainder).nonequal(t)) log("mistake");//check
+}
+
+//divide
+function speedDivideJ() {
+	var n = roll();//numerator
+	var d = roll();//denominator
+	var w = divideFast(n, d);//whole
+}
+function speedDivideC() {
+	var n = roll();
+	var d = roll();
+	var w = divideSafe(n, d);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -158,15 +193,14 @@ function demoSpeedCheck() {
 
 
 
+
+
 exports.testNumeralsToNumber = function(test) {
 	//TODO basic sanity, as not sure if you can get to parseInt's weird behavior anymore, it's too well guarded
 
-	function cycle(n, s10, s16) {
-		test.ok(numerals(n) === s10);//number to text
-		test.ok(numerals16(n) === s16);
-
-		test.ok(number(s10) === n);//text to number
-		test.ok(number16(s16) === n);
+	function cycle(n, s10) {
+		test.ok(n+"" === s10);//number to text
+		test.ok(numeralsToNumber(s10) === n);//text to number
 	}
 
 	//confirm we can turn numbers into text and back again
@@ -174,17 +208,13 @@ exports.testNumeralsToNumber = function(test) {
 	cycle(1, "1", "1");
 	cycle(10, "10", "a");//ten, note how base16 output is lower case
 	cycle(789456123, "789456123", "2f0e24fb");
-	cycle(-5, "-5", "-5");//negative
-	cycle(-11, "-11", "-b");
 	cycle(0xff, "255", "ff");//0x number literal, note how output text doesn't include the "0x" prefix
-	cycle(-0x2f0e24fb, "-789456123", "-2f0e24fb");
 
-	test.ok(numerals(123.456) === "123.456");//decimal
-	test.ok(numerals(-123.456) === "-123.456");
+	test.ok(123.456+"" === "123.456");//decimal
+	test.ok(-123.456+"" === "-123.456");
 
 	function bad(s) {
-		try { number(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
-		try { number16(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
+		try { numeralsToNumber(s); test.fail(); } catch (e) { test.ok(e.name == "data"); }
 	}
 
 	//make sure text that isn't a perfect number can't become one
@@ -201,9 +231,6 @@ exports.testNumeralsToNumber = function(test) {
 	bad("5 ");
 	bad(" 5 ");
 	bad("5 6");
-
-	//allow uppercase base16 as input, even though output is lowercase
-	test.ok(number16("A") == 10);
 
 	test.done();
 }

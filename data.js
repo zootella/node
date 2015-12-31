@@ -77,7 +77,7 @@ function Data(p) {
 	if      (Buffer.isBuffer(p))   _buffer = p;                         // Wrap this new Data around the given buffer without copying or slicing it
 	else if (type == "undefined")  _buffer = new Buffer(0);             // Make an empty buffer that holds 0 bytes
 	else if (type == "boolean")    _buffer = new Buffer(p ? "t" : "f"); // Hold the boolean as the text "t" or "f"
-	else if (type == "number")     _buffer = new Buffer(numerals(p));   // Hold the number as numerals like "786" or "-3.1"
+	else if (type == "number")     _buffer = new Buffer(p+"");          // Hold the number as numerals like "786" or "-3.1"
 	else if (type == "string")     _buffer = new Buffer(p, "utf8");     // Convert the text to binary data using UTF8 encoding
 	else if (type == "Data")       return p;                            // Return the same Data instead of creating a new one based on it
 	else if (hasMethod(p, "data")) return p.data();                     // If the given object has a data() method, use it
@@ -103,7 +103,7 @@ function Data(p) {
 	o.text = function() { return _buffer.toString("utf8"); }
 
 	// Get the number in this Data, throw if it doesn't view text numerals like "786"
-	o.toNumber = function() { return number(o.text()); }
+	o.toNumber = function() { return numeralsToNumber(o.text()); }
 
 	// Get the boolean in this Data, throw if it doesn't view the text "t" or "f"
 	o.toBoolean = function() {
@@ -314,8 +314,8 @@ function Bay(a) {
 		} else if (hold + more > buffer.length) {
 
 			// Calculate how big our new buffer should be
-			var c = scale((size() + more), 3, 2).whole; // It will be 2/3rds full
-			if (c < 64) c = 64;                         // At least 64 bytes
+			var c = Fraction([size() +  more, 3], 2).whole.toNumber(); // It will be 2/3rds full
+			if (c < 64) c = 64; // At least 64 bytes
 
 			// Replace our old buffer with a bigger one
 			var target = new Buffer(c);
@@ -584,9 +584,8 @@ function toBase32(d) {
 	for (var i = 0; i < d.size() * 8; i += 5) { // Move the index in bits forward across the memory in steps of 5 bits
 		
 		// Calculate the byte and bit to move to from the bit index
-		var a = divide(i, 8);
-		byteIndex = a.whole;     // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = a.remainder; // The bit index within that byte is the remainder
+		byteIndex = divideFast(i, 8); // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = i % 8;            // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right
@@ -617,9 +616,8 @@ function toBase62(d) {
 	while (i < d.size() * 8) { // When the bit index moves beyond the memory, we're done
 		
 		// Calculate the byte and bit to move to from the bit index
-		var a = divide(i, 8);
-		byteIndex = a.whole;     // Divide by 8 and chop off the remainder to get the byte index
-		bitIndex  = a.remainder; // The bit index within that byte is the remainder
+		byteIndex = divideFast(i, 8); // Divide by 8 and chop off the remainder to get the byte index
+		bitIndex  = i % 8;            // The bit index within that byte is the remainder
 		
 		// Copy the two bytes at byteIndex into pair
 		pair = (d.get(byteIndex) & 0xff) << 8; // Copy the byte at byteindex into pair, shifted left to bring eight 0s on the right

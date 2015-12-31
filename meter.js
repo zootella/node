@@ -167,7 +167,7 @@ function Meter(m, made, unit) { // Takes component meters m, the time when the m
 		if (w.time < recent.time) toss("bounds", {note:"record earlier time", watch:{recent:recent, w:w}}); // Make sure time moves forward
 		recent = w;
 
-		check(v, 0); // Negative values aren't allowed, values of 0 are ok
+		min0(v); // Negative values aren't allowed, values of 0 are ok
 		for (var i in m) m[i].record(v, w);
 	}
 	o.finish = function(w) { // Optional time now
@@ -286,11 +286,11 @@ function CountMeter(made) { // The time when this meter was made and started
 	    finish      When the meter was marked finished
 	    now|finish  When the meter was marked finished, or now if not finished (default)
 
-	If there are no records, or we're still in the same millisecond, averagePerTime() returns null instead of the object from divide()
+	If there are no records, or we're still in the same millisecond, averagePerTime() returns null instead of the fraction
 	*/
 	o.averagePerRecord = function() {
 		if (!records) return null;
-		return divide(total, records);
+		return Fraction(total, records);
 	}
 	o.averagePerTime = function(s, f, n) { // Takes optional time now
 		if (!n) n = now(); else checkType(n, "When");
@@ -308,7 +308,7 @@ function CountMeter(made) { // The time when this meter was made and started
 		else                              {                                                    toss("invalid");   }
 
 		if (d.time < 1) return null;
-		return divide(total, d.time, {duration:d}); // Return the duration we used by putting it in the answer object from divide()
+		return {f:Fraction(total, d.time), duration:d}; // Also return the duration we used
 	}
 	o.text = function() {
 		return table([
@@ -341,8 +341,8 @@ function CountMeter(made) { // The time when this meter was made and started
 // Given a column width of 100, the meter will remember what happened in the last 100-200 milliseconds to calculate the current speed
 // Set a guard like 100 milliseconds to avoid reporting huge or inaccurate speeds at the very start
 function SpeedMeter(made, p) {
-	check(p.width, 1);
-	check(p.guard, 1);
+	min1(p.width);
+	min1(p.guard);
 	var o = {};
 
 	var column   = 0; // The column index, 0 or more, we last added a record to
@@ -354,20 +354,20 @@ function SpeedMeter(made, p) {
 
 	// The time right now is w, and we just traveled a distance of v additional units forward, calculate our speed right now
 	o.record = function(v, w) {
-		check(v, 0);
+		min0(v);
 
-		var a = divide(w.time - made.time, p.width);
-		var i = a.whole;              // The column index, 0 or more, that the current time w places us in now
-		var t = a.remainder;          // How long we've been in the current column
+		var f = Fraction(w.time - made.time, p.width);
+		var i = f.whole.toNumber();     // The column index, 0 or more, that the current time w places us in now
+		var t = f.remainder.toNumber(); // How long we've been in the current column
 
 		if (i != 0) t += p.width;       // After column 0, we also have distances from the previous column in time
 
-		if (column == i) {            // We're still in the same column we last added a distance to, no cycle necessary
-		} else if (column + 1 == i) { // Time has moved us into the next column
-			previous = current;         // Cycle the totals
+		if (column == i) {              // We're still in the same column we last added a distance to, no cycle necessary
+		} else if (column + 1 == i) {   // Time has moved us into the next column
+			previous = current;           // Cycle the totals
 			current = 0;
-		} else {                      // Time has moved us two or more columns forward
-			previous = 0;               // Zero both totals
+		} else {                        // Time has moved us two or more columns forward
+			previous = 0;                 // Zero both totals
 			current = 0;
 		}
 
@@ -375,7 +375,7 @@ function SpeedMeter(made, p) {
 		column = i;   // Record the column number we put it in, and the column we cycled to above
 
 		if (t < p.guard) return null; // Avoid reporting huge or inaccurate speeds at the very start
-		return divide(previous + current, t); // Rate is distance over time
+		return Fraction(previous + current, t); // Rate is distance over time
 	}
 
 	o.text = function() {
@@ -387,7 +387,7 @@ function SpeedMeter(made, p) {
 }
 
 function EdgeMeter(made, p) {
-	check(p.capacity, 1);
+	min1(p.capacity);
 
 	var records = 0;
 	var lowest  = SortedList(compareNumber);
@@ -435,12 +435,12 @@ function EdgeMeter(made, p) {
 
 
 function SampleMeter(made, p) {
-	check(p.capacity, 1);
+	min1(p.capacity);
 
-	function even(n) { return divide(n, 2).remainder == 0; }  // True if n is even, false if n is odd
+	function even(n) { return Fraction(n, 2).remainder.toNumber() == 0; }  // True if n is even, false if n is odd
 	function randomMiddle(n) {
-		if (!even(n)) return divide(n, 2).whole;                // Odd stored, return the index to the middle one
-		else          return divide(n, 2).whole - random(0, 1); // Even stored, randomly pick left or right of the middle
+		if (!even(n)) return Fraction(n, 2).whole.toNumber();                // Odd stored, return the index to the middle one
+		else          return Fraction(n, 2).whole.toNumber() - random(0, 1); // Even stored, randomly pick left or right of the middle
 	}
 
 	var records = 0; // How many records this meter has seen
@@ -462,7 +462,7 @@ function SampleMeter(made, p) {
 			list.add(v);
 			middle = randomMiddle(list.length());        // Choose in record(), not median(), so the answer doesn't change unless the data does
 		} else {                                       // Full, randomly keep or let pass by so list always holds a representative sample
-			if (chanceOld(list.length(), records)) {        // Our new value is lucky enough to get included in our random sample
+			if (chance(list.length(), records)) {        // Our new value is lucky enough to get included in our random sample
 				list.remove(random(0, list.length() - 1)); // Randomly pick a value we have and discard it
 				list.add(v);                               // Adds in sorted position if p.keepSorted, or on the end if not, which is ok
 			}
@@ -470,14 +470,14 @@ function SampleMeter(made, p) {
 	}
 	o.text = function() {
 		var s = "holding #/# from #".fill(commas(list.length()), commas(capacity), items(records, "record"));
-		if (records) s += ", sample represents " + oldPercent(divide(list.length(), records), 3);
+		if (records) s += ", sample represents " + oldPercent(Fraction(list.length(), records), 3);
 		s += line();
 		if (middle != -1) {
 			var m = o.median(); // Getting the median sorts the list if it doesn't keep sorted
 			s += line("middle at # is median value # which is # and #".fill(middle, commas(m), saySize(m), sayTime(m)))
 		} else { s += line(); }
 		s += line();
-		for (var i = 0; i < list.length(); i++) s += say(list.get(i)) + (divide(i + 1, p.wrap).remainder ? " ": line());
+		for (var i = 0; i < list.length(); i++) s += say(list.get(i)) + (Fraction(i + 1, p.wrap).remainder.toNumber() ? " ": line());
 		return s;
 	}
 	return o;
@@ -497,9 +497,9 @@ function SampleMeter(made, p) {
 
 
 function columnSame(p) { // Count the number of value that fall within n columns of width w, starting at index i
-	check(p.i, 0); // Columns can start at the beginning, value 0, or to the right of that
-	check(p.w, 1); // Columns have to be at least 1 unit wide
-	check(p.n, 1); // There has to be at least 1 column
+	min0(p.i); // Columns can start at the beginning, value 0, or to the right of that
+	min1(p.w); // Columns have to be at least 1 unit wide
+	min1(p.n); // There has to be at least 1 column
 
 	var h = {};
 	h.records = 0; // Total number of records also entered into the different columns of f
@@ -521,7 +521,7 @@ function columnSame(p) { // Count the number of value that fall within n columns
 	return h;
 }
 function columnScale(p) { // Count the number of values that are beneath powers of 2, like <1, <2, <4, <8, all the way up to <4pb
-	check(p.rightmostEdge, 1);
+	min1(p.rightmostEdge);
 
 	var h = {};
 	h.records = 0; // Total number of records also entered into the different columns of f
