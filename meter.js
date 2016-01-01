@@ -318,14 +318,14 @@ function CountMeter(made) { // The time when this meter was made and started
 			["",                 ""],
 			["total",            commas(o.total())],
 			["records",          commas(o.records())],
-			["averagePerRecord", oldUnitPerUnit(o.averagePerRecord())],
-			["averagePerTime",   oldUnitPerTime(o.averagePerTime())]]) // Using the defaults, same as lower left below
+			["averagePerRecord", sayUnitPerUnit(o.averagePerRecord(), "#.### (#/#)", "round")],
+			["averagePerTime",   sayUnitPerTime(o.averagePerTime(), "#.###/s (#/#)", "round")]]) // Using the defaults, same as lower left below
 			+ line() + table([
-			["",           "made",                                                 "earliest"],
-			["now",        oldUnitPerTime(o.averagePerTime("made", "now")),        oldUnitPerTime(o.averagePerTime("earliest", "now"))],
-			["recent",     oldUnitPerTime(o.averagePerTime("made", "recent")),     oldUnitPerTime(o.averagePerTime("earliest", "recent"))],
-			["finish",     oldUnitPerTime(o.averagePerTime("made", "finish")),     oldUnitPerTime(o.averagePerTime("earliest", "finish"))],
-			["finish|now", oldUnitPerTime(o.averagePerTime("made", "finish|now")), oldUnitPerTime(o.averagePerTime("earliest", "finish|now"))]])
+			["",           "made",                                                                           "earliest"],
+			["now",        sayUnitPerTime(o.averagePerTime("made", "now"),        "#.###/s (#/#)", "round"), sayUnitPerTime(o.averagePerTime("earliest", "now"),        "#.###/s (#/#)", "round")],
+			["recent",     sayUnitPerTime(o.averagePerTime("made", "recent"),     "#.###/s (#/#)", "round"), sayUnitPerTime(o.averagePerTime("earliest", "recent"),     "#.###/s (#/#)", "round")],
+			["finish",     sayUnitPerTime(o.averagePerTime("made", "finish"),     "#.###/s (#/#)", "round"), sayUnitPerTime(o.averagePerTime("earliest", "finish"),     "#.###/s (#/#)", "round")],
+			["finish|now", sayUnitPerTime(o.averagePerTime("made", "finish|now"), "#.###/s (#/#)", "round"), sayUnitPerTime(o.averagePerTime("earliest", "finish|now"), "#.###/s (#/#)", "round")]])
 			+ line() + table([
 			["",         "has",           "value",           "when"],
 			["lowest",   o.hasLowest(),   o.lowestValue(),   o.lowestWhen()],
@@ -381,7 +381,7 @@ function SpeedMeter(made, p) {
 	o.text = function() {
 		var a = o.speed(now());
 		if (!a) return "width #, speed unknown".fill(sayTime(p.width));
-		else    return "width #, speed #".fill(sayTime(p.width), oldUnitPerTime(a));
+		else    return "width #, speed #".fill(sayTime(p.width), sayUnitPerTime(a, "#.###/s (#/#)", "round"));
 	}
 	return o;
 }
@@ -470,7 +470,7 @@ function SampleMeter(made, p) {
 	}
 	o.text = function() {
 		var s = "holding #/# from #".fill(commas(list.length()), commas(capacity), items(records, "record"));
-		if (records) s += ", sample represents " + oldPercent(Fraction(list.length(), records), 3);
+		if (records) s += ", sample represents " + sayUnitPerUnit(Fraction(list.length(), records), "#.###% #/#");
 		s += line();
 		if (middle != -1) {
 			var m = o.median(); // Getting the median sorts the list if it doesn't keep sorted

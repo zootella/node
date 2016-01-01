@@ -1174,15 +1174,15 @@ exports.testFractionRemainder = function(test) {//test sayFraction with remainde
 
 	function c(d, r) {//compose a variety of the forms individually
 		return("# # # # # # # # #".fill(
-			sayFraction(d, "#/#",       {r:r}),//pass in remainder option
-			sayFraction(d, "#",         {r:r}),
-			sayFraction(d, "#.#",       {r:r}),
-			sayFraction(d, "#.###",     {r:r}),
-			sayFraction(d, "#.######",  {r:r}),
-			sayFraction(d, "#%",        {r:r}),
-			sayFraction(d, "#.#%",      {r:r}),
-			sayFraction(d, "#.###%",    {r:r}),
-			sayFraction(d, "#.######%", {r:r})));
+			sayFraction(d, "#/#",       r),//pass in remainder option
+			sayFraction(d, "#",         r),
+			sayFraction(d, "#.#",       r),
+			sayFraction(d, "#.###",     r),
+			sayFraction(d, "#.######",  r),
+			sayFraction(d, "#%",        r),
+			sayFraction(d, "#.#%",      r),
+			sayFraction(d, "#.###%",    r),
+			sayFraction(d, "#.######%", r)));
 	}
 
 	function l(d, r, s) { log(c(d, r)); }//log the result
@@ -1193,10 +1193,11 @@ exports.testFractionRemainder = function(test) {//test sayFraction with remainde
 	t(Fraction(1, 1), "whole", "1/1 1 1.0 1.000 1.000000 100% 100.0% 100.000% 100.000000%");
 
 	//small and big
-	t(Fraction(1,  100), "whole", "1/100 0 0.0 0.010 0.010000 1% 1.0% 1.000% 1.000000%");
-	t(Fraction(1, 1000), "whole", "1/1,000 0 0.0 0.001 0.001000 0% 0.1% 0.100% 0.100000%");
-	t(Fraction(100,  1), "whole", "100/1 100 100.0 100.000 100.000000 10,000% 10,000.0% 10,000.000% 10,000.000000%");
-	t(Fraction(1000, 1), "whole", "1,000/1 1,000 1,000.0 1,000.000 1,000.000000 100,000% 100,000.0% 100,000.000% 100,000.000000%");
+	t(Fraction(1,    100), "whole", "1/100 0 0.0 0.010 0.010000 1% 1.0% 1.000% 1.000000%");
+	t(Fraction(1,   1000), "whole", "1/1,000 0 0.0 0.001 0.001000 0% 0.1% 0.100% 0.100000%");
+	t(Fraction(1, 100000), "whole", "1/100,000 0 0.0 0.000 0.000010 0% 0.0% 0.001% 0.001000%");
+	t(Fraction(100,    1), "whole", "100/1 100 100.0 100.000 100.000000 10,000% 10,000.0% 10,000.000% 10,000.000000%");
+	t(Fraction(1000,   1), "whole", "1,000/1 1,000 1,000.0 1,000.000 1,000.000000 100,000% 100,000.0% 100,000.000% 100,000.000000%");
 
 	//whole, round, and ceiling
 	t(Fraction(1, 3), "whole",   "1/3 0 0.3 0.333 0.333333 33% 33.3% 33.333% 33.333333%");//less than half, whole matches round
@@ -1231,70 +1232,126 @@ exports.testFractionRemainder = function(test) {//test sayFraction with remainde
 	done(test);
 }
 
-
-
-
-
-
 exports.testSayUnitPerUnit = function(test) {
 
-	var f, s;
-	function l(s1, s2, s3) { log(s1); log(s2); if (s3) log(s3); }
-	function t(s1, s2, s3) { test.ok(s1 == s2); if (s3) test.ok(s2 == s3); }
+	var f;
+	function l(s1, s2) { log(s1); }
+	function t(s1, s2) { test.ok(s1 == s2); }
 
-	//---- unit per unit
+	//unit per unit, like an average test score
 
-	//replace oldUnitPerUnit
+	var assignments = 2;//assignments
+	var points = 85 + 95;//grades
+	var f = Fraction(points, assignments);
+	t(sayUnitPerUnit(f), "90");
+	t(sayUnitPerUnit(f, "#.##"), "90.00");
+	t(sayUnitPerUnit(f, "#.## (#/#)"), "90.00 (180/2)");
+
 	f = Fraction(3, 2);
-	t(oldUnitPerUnit(f),            sayUnitPerUnit(f, "#.### (#/#)", {r:"round"}),                "1.500 (3/2)");
+	t(sayUnitPerUnit(f), "1");
+	t(sayUnitPerUnit(f, "#", "round"), "2");
+	t(sayUnitPerUnit(f, "#.## (#/#)"), "1.50 (3/2)");
 
-	//replace oldDivide
-	f = Fraction(10, 5);
-	t(oldDivide(f),                 sayUnitPerUnit(f), "2", {r:"round"},                          "2");
-	t(oldDivide(f, 3),              sayUnitPerUnit(f, "#.###", {r:"round"}),                      "2.000");
+	t(sayUnitPerUnit(Fraction(10, 5), "#.###"), "2.000");
 
-	//replace oldPercent
-	f = Fraction(123, 1234);
-	t(oldPercent(f),                sayUnitPerUnit(f, "#% #/#"),                                  "9% 123/1,234");
+	f = Fraction(22, 700);
+	t(sayUnitPerUnit(f, "# #/#"),                  "0 22/700");
+	t(sayUnitPerUnit(f, "#.#### #/#"),        "0.0314 22/700");
+	t(sayUnitPerUnit(f, "#% #/#"),                "3% 22/700");
+	t(sayUnitPerUnit(f, "#.####% #/#"),      "3.1428% 22/700");
+	t(sayUnitPerUnit(f, "#% #/#",   "ceiling"),   "4% 22/700");
+	t(sayUnitPerUnit(f, "#.#% #/#", "ceiling"), "3.2% 22/700");
 
-	//---- unit per size
+	//size per size, like progress within a file
 
-	//---- unit per time
+	f = Fraction(2*Size.mb, 3*Size.mb);//2mb downloaded of a 3mb file
+	t(saySizePerSize(f),               "0");
+	t(saySizePerSize(f, "#.##"),       "0.66");
+	t(saySizePerSize(f, "#", "round"), "1");//essentially rounding up to 100%
+	t(saySizePerSize(f, "#% - #/#"),                                   "66% - 2mb 0kb 0b/3mb 0kb 0b");
+	t(sayFraction(f, "#% - #/#", "whole", commas, saySize4, saySize4), "66% - 2048kb/3072kb");//switch to sayFraction to customize with saySize4
 
-	//replace oldUnitPerTime
-	f = Fraction(123, Time.second);
-	t(oldUnitPerTime(f),            sayUnitPerTime(f, "#.###/s (#/#)", {r:"round"}),              "123.000/s (123/1.000s)");
+	f = Fraction(Size.tb-1, Size.tb);//nearly done
+	t(saySizePerSize(f, "#% #/#"), "99% 1023gb 1023mb 1023kb 1023b/1tb 0gb 0mb 0kb 0b");
+	t(saySizePerSize(f, "#.###################%"), "99.9999999999090505298%");
+	t(sayFraction(f, "#/#", "whole", commas, saySize4, saySize4), "1023gb/1024gb");//rounds down
 
-	//---- size per unit
+	//time per time, like how much of a timer has elapsed
 
-	//replace oldSizePerUnit
-	f = Fraction(Size.mb, 5);
-	t(oldSizePerUnit(f),            saySizePerUnit(f, "# (#/#)"),                                 "204kb 819b (1mb 0kb 0b/5)");
-
-	//---- size per size
-
-	//replace oldProgress
-	f = Fraction(Size.mb, 2*Size.mb);
-	t(oldProgress(f),               saySizePerSize(f, "#% #/#", {sayN:saySize4, sayD:saySize4}),  "50% 1024kb/2048kb");
-
-	//---- size per time
-
-	//replace oldSizePerTime
-	f = Fraction(Size.mb, Time.minute);
-	t(oldSizePerTime(f),            saySizePerTime(f, "#/s (#/#)"),                               "17kb 68b/s (1mb 0kb 0b/1m 0.000s)");
-
-	//replace oldSpeed
-	t(oldSpeed(f),                  saySizePerTime(f, "#/s", {sayF:saySize4}),                    "17kb/s");
-
-	//---- time per unit
-
-	//---- time per size
-
-	//---- time per time
-
-	//new
 	f = Fraction(30*Time.minute, Time.hour);
-	t(sayTimePerTime(f, "#% #/#"),                                                                "50% 30m 0.000s/1h 0m 0.000s");
+	t(sayTimePerTime(f, "#% #/#"), "50% 30m 0.000s/1h 0m 0.000s");
+
+	//unit per size, like the number of requests in a file
+
+	var requests = 10000;
+	var fileSize = 800*Size.mb;
+	f = Fraction(requests, fileSize);//10,000 requests within a 800mb file
+	t(sayUnitPerSize(f, "#.######## (#/#)"), "0.00001192 (10,000/800mb 0kb 0b)");//requests per byte, too small to be useful this way
+	t("# (#/#)".fill(//split apart for more granular customization
+		sayFraction(f.scale(Size.mb, 1), "#.### requests/mb"),//multiply to per megabyte
+		items(f.numerator, "request"),
+		saySize(f.denominator)),
+		"12.500 requests/mb (10,000 requests/800mb 0kb 0b)");
+
+	//unit per time, like the rate a server can receive packets
+
+	f = Fraction(1000000, Time.day);//a million udp packets a day
+	t(sayUnitPerTime(f), "0");//round down to 0 packets per millisecond
+	t(sayUnitPerTime(f, "#.### (#/#)"), "0.011 (1,000,000/1d 0h 0m 0.000s)");//1 hundredth packet on average per millisecond
+	t("# packets/minute (# packets/#)".fill(//let's see it per minute
+		sayFraction(f.scale(Time.minute, 1)),
+		commas(f.numerator),
+		sayTime(f.denominator)),
+		"694 packets/minute (1,000,000 packets/1d 0h 0m 0.000s)");
+
+	//size per unit, like the average packet size
+
+	f = Fraction(Size.mb, 5);
+	t(saySizePerUnit(f, "#/piece (#/#)"), "204kb 819b/piece (1mb 0kb 0b/5)");
+
+	//size per time, like data transfer speed
+
+	f = Fraction(Size.mb, Time.minute);//got a megabyte in a minute
+	t(saySizePerTime(f), "17b");//that's 17 bytes per millisecond, as 17byte * 1000milliseconds/second * 60seconds/minute / 1024bytes/kb / 1024kb/mb gets to 1
+	t(sayFraction(f, "#.#####"),         "17.47626");//this many, to be exact
+	t(sayFraction(f, "#.####", "whole"), "17.4762");//round down
+	t(sayFraction(f, "#.####", "round"), "17.4763");//rounds up
+	t(sayFraction(f, "#"),   "17");//17 bytes per millisecond
+	t(sayFraction(f, "#/s"), "17,476/s");//17,476 bytes per second
+	t(saySizePerTime(f, "# (#/#)"),     "17b (1mb 0kb 0b/1m 0.000s)");
+	t(saySizePerTime(f, "#.### (#/#)"), "17b (1mb 0kb 0b/1m 0.000s)");//using #.### here doesn't make sense, and is correctly ignored
+	t(saySizePerTime(f, "#/s (#/#)"),   "17kb 68b/s (1mb 0kb 0b/1m 0.000s)");
+
+	f = Fraction(Size.tb, Time.hour);
+	t(saySizePerTime(f,   "# (#/#)"),                        "298kb 267b (1tb 0gb 0mb 0kb 0b/1h 0m 0.000s)");//per millisecond
+	t(saySizePerTime(f, "#/s (#/#)"),                "291mb 277kb 632b/s (1tb 0gb 0mb 0kb 0b/1h 0m 0.000s)");//per second
+	t(sayFraction(f,    "#/s (#/#)", "whole", saySize4, saySize4, sayTime), "291mb/s (1024gb/1h 0m 0.000s)");
+
+	//time per unit, like how long it took to get a file on average
+
+	var took = 3*Time.hour;
+	var files = 789;
+	f = Fraction(took, files);//suppose it took us 3 hours to get a collection of 789 files
+	t(sayTimePerUnit(f), "13.688s");//on average, we got a file every 14 seconds
+	t(sayTimePerUnit(f, "# (#/#)"), "13.688s (3h 0m 0.000s/789)");
+
+	//time per size, like how long it takes a slow connection to upload a megabyte
+
+	f = Fraction(10*Time.second, 5*Size.mb);//in 10 seconds we send 5 megabytes
+	//we want to show seconds per megabyte
+	//1000 milliseconds = 1 second
+	//Size.mb bytes = 1 megabyte
+	// f(ms/b)(s/1000ms)(Size.mb b/mb)
+	//   --          --
+	//      -                    -     leaves us with s/mb, so multiply by Size.mb and divide by 1000
+	t(sayFraction(f, "#.######"), "0.001907");//f is in milliseconds per byte, it takes less than a thousandth to send each single byte
+	t(sayFraction(f.scale(Size.mb, 1)), "2,000");//convert to milliseconds per megabyte to get 2,000 milliseconds, 2 seconds, to send a megabyte
+	t(sayTimePerSize(f.scale(Size.mb, 1)), "2.000s");//uses sayTime, which takes milliseconds, not seconds
+	t("#/mb (#/#)".fill(
+		sayTimePerSize(f.scale(Size.mb, 1)),
+		sayTime(f.numerator),
+		saySize(f.denominator)),
+		"2.000s/mb (10.000s/5mb 0kb 0b)");//seconds per megabyte
 
 	done(test);
 }
@@ -1306,6 +1363,11 @@ exports.testSayUnitPerUnit = function(test) {
 
 
 
+if (demo("snip")) { demoSnip(); }
+function demoSnip() {
+
+
+}
 
 
 

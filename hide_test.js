@@ -216,7 +216,7 @@ function demoChance() {
 			for (var i = 1; i <= samples; i++)
 				if (chance(n, d))
 					yes++;
-			log(oldPercent(Fraction(yes, samples)));
+				log(sayUnitPerUnit(Fraction(yes, samples), "#% #/#"));
 		}
 	}
 

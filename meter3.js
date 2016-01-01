@@ -51,9 +51,9 @@ function demoShortcutMeter() {
 don't change divide at all except
 add a.n and a.d
 replace divide by zero with returns null, you'll ahve to fix tests for that probably
-then outside, make two functions oldDivide, oldDivideTime, which can use scale
+then outside, make two functions old-Divide, oldDivideTime, which can use scale
 
-or just one, oldDivide(result, nUnit, dUnit)
+or just one, old-Divide(result, nUnit, dUnit)
 the units are optional
 or specify them like "none" "byte" "millisecond"
 composes text like

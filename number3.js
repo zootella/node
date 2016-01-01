@@ -238,311 +238,53 @@ this is a good way to do it
 and then additional details are in the call stack and the extra stuff you put in toss
 */
 
-//NUMBER
-//write tests with really small numbers, less than 0.0, and big numbers, more than 1000
-//for both percents and not
+
+
+
+
+
+
+
+
+
 
 //NUMBER
-//step 1: refactor the insides of old* to use sayTypePerType with patterns, see that the tests still pass
-//step 2: refactor the code and tests to not use old* anymore
+//step 1: refactor the insides of old* to use sayTypePerType with patterns, see that the tests still pass, done
+//step 2: refactor the code and tests to not use old* anymore, done
 //step 3: combine the old test cases into the new tests
+/*
+
+all the code's in measure.js
+and that's where the tests will end up, but now there duplicated and incomplete in
+measure_test.js
+number2_test.js
+
+
+
+measure_unify_test.js  this is where you unify tests before inserting them back into measure
+measure_early_test.js  this is where you move the stuff in measure now that needs to get unifed
+measure_write_test.js  pretty much just number2_test.js renamed
+
+
+
+
+*/
 
 //NUMBER
 //write a test that calls i.inside() to watch type sin use like "--s", watch something grow into big and then fall back down again
 
-//SAY FRACTION
-//quickly go through all the saySize and so on and make them all work with no options in parameters
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //NUMBER
 /*
-unit per unit // Average test score, like "5.000 (15/3)"
-unit per size    number of somethings per byte, like requests, reads, failures per mb
-unit per time // Events per second, like "1.500/s (90/1m 0.000s)"
-
-size per unit // Average packet size, like "146b (1kb 0b/7)"
-size per size    number of pieces in a file, compression performance
-size per time // Data transfer speed, like "1kb 512b/s (90kb 0b/1m 0.000s)"
-
-time per unit    number of milliseconds per bucket, this one could be useful
-time per size    yes, do this one, this is seconds per mb
-time per time    like percent complete on an hourglass
-
-
 put good defaults up there, cool patterns and whole versus round where it makes sense
 maybe do have default patterns ^up there, a default custom pattern for each one that includes the answer and the fraction
+play around with that in tests, not code
+make sense of the examples you wrote in measure.js, average test score and so on
 
 you are pretty sure below it makes no sense to use sayNumerator in the percent one, for a percent to make sense, the numerator and denominator have to be the same unit
 
 if the numeator is a size or a time, #.### doesn't make sense, only # does
 so, make this the default pattern, and dont' specify a pattern when you use those
-
-maybe instead of _fill and more default filling in sayFraction, call sayUnitPerUnit with no options, or call sayFraction with all options specified
-and then just have sayFraction check that you filled out all the defaults
-sayUnitPerUnit(f)
-sayFraction(f, "# #/#", {r:"whole", sayF:commas, sayN:commas, sayD:commas})
-this will discourage customization, and make it clearer what is happening
 */
-
-//SAY FRACTION
-/*
-there is no _fill function
-if you call sayFraction, you have to specify everything
-
-sayFraction(pattern, round, sayFraction, sayNumerator, sayDenominator)
-
-if you call sayUnitPerUnit and those, you get pattern and round by default, and can't specify say
-
-sayUnitPerUnit("#.###%", "round");
-
-this is actually simple enough to use and test, and you can still do everything granular and custom with sayFraction directly
-options objects are cool, but you always have to read the instructions to use them, so they're not that practical
-
-function sayUnitPerUnit(f, s, r) { return sayFraction(f, s, "whole", commas,  commas,  commas);  }
-function sayUnitPerSize(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
-function sayUnitPerTime(f, s, r) { return sayFraction(f, s, "whole", commas,  commas,  sayTime); }
-function saySizePerUnit(f, s, r) { return sayFraction(f, s, "whole", saySize, saySize, commas);  }
-function saySizePerSize(f, s, r) { return sayFraction(f, s, "whole", commas,  saySize, saySize); }
-function saySizePerTime(f, s, r) { return sayFraction(f, s, "whole", saySize, saySize, sayTime); }
-function sayTimePerUnit(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
-function sayTimePerSize(f, s, r) { return sayFraction(f, s, "whole", say,     say,     say);     }
-function sayTimePerTime(f, s, r) { return sayFraction(f, s, "whole", commas,  sayTime, sayTime); }
-
-function sayFraction(f, s, r, sayF, sayN, sayD) {
-	if (!f) return ""; // Show the user blank on divide by 0
-
-	if (!s) s = "#"; // Fill unspecified preferences with defaults
-	if (!r) r = "whole";
-	if (!sayF) sayF = commas;
-	if (!sayN) sayN = commas;
-	if (!sayD) sayD = commas;
-
-	while (s.has("#/#")) f1();
-	function f1() {
-		s = s.swap("#/#", "#/#".fill(sayN(f.numerator), sayD(f.denominator))); // Turn #/# into 1/2
-	}
-
-	while (s.has("#")) f2();
-	function f2() {
-		var c = s.cut("#");
-		var decimal = 0;
-		if (c.after.starts(".#")) { // #.# or #.###
-			while (c.after.get(decimal + 1) == "#") decimal++; // Count the number of decimal places, like # decimal 0, #.### decimal 3
-			c = { before:c.before, after:c.after.beyond(1 + decimal) };
-		}
-		var t;
-		if      (c.after.starts("%"))  { t = sayF(f.scale([        100, _tens(decimal)], 1)[r], decimal); } // #%  or #.###%
-		else if (c.after.starts("/s")) { t = sayF(f.scale([Time.second, _tens(decimal)], 1)[r], decimal); } // #/s or #.###/s
-		else                           { t = sayF(f.scale([             _tens(decimal)], 1)[r], decimal); } // #   or #.###
-		s = say(c.before, t, c.after);
-	}
-	return s;
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-// Calculate n1 * n2
-// Make sure the answer doesn't overflow the largest value a number can hold
-function multiply(n1, n2) {
-	check(n1, 0);
-	check(n2, 0);
-
-	var a = n1 * n2;
-
-	check(a, 0);
-	return a;
-}
-
-// Calculate n / d
-// Make sure n and d are positive integers, and d is not 0
-// Calculate numerator / denominator
-// Return the integer division and remainder
-function divide(n, d, a) { // Takes optional answer object loaded with additional details
-	check(n, 0);
-	check(d, 0); // Who says you can't divide by zero? OH SHI-
-	if (d === 0) return null; // Return null instead of throwing an exception
-
-	if (!a) var a = {};
-	a.numerator   = n; // Numerator and denominator
-	a.denominator = d;
-	a.whole       = Math.floor(n / d); // Round down
-	a.ceiling     = Math.ceil(n / d);  // Round up
-	a.round       = Math.round(n / d); // Round to nearest
-	a.remainder   = n % d;             // Remainder
-	a.decimal     = n / d;             // Floating point number
-
-	check(a.whole, 0); // Check our answer before returning it
-	check(a.remainder, 0);
-	if ((d * a.whole) + a.remainder !== n)                     mistakeLog(Mistake("platform", {note:"remainder", watch:{n:n, d:d}}));
-	if (a.whole + ((a.remainder === 0) ? 0 : 1) !== a.ceiling) mistakeLog(Mistake("platform", {note:"ceiling",   watch:{n:n, d:d}}));
-	return freeze(a);
-}
-
-// Calculate (n * m) / d
-function scale(n, m, d, a) { return divide(multiply(n, m), d, a); } // Optional answer object to fill with more and return
-*/
-
-
-
-
-/*
-// Make sure i is a whole number with a minimum value of min or larger
-function check(i, min) {
-
-	function _check(n) {
-		checkType(n, "number");                     // Make sure n is a number
-		if (isNaN(n))             toss("bounds");   // Not the weird not a number thing
-		if (!isFinite(n))         toss("overflow"); // Not too big for floating point
-		if (n > 9007199254740992) toss("overflow"); // Not too big for int
-		if (n + 1 === n)          toss("overflow"); // Not too big for addition to work
-		if (Math.floor(n) !== n)  toss("type");     // A whole number
-	}
-
-	_check(i);
-	_check(min);
-	if (i < min) toss("bounds"); // With the minimum value or larger
-}
-
-exports.check = check;
-*/
-
-
-
-
-
-
-
-
-
-
-//things to change with check
-//name it checkNumber, and use it elsewhere in the code
-//have min be optional, if !min min = 0, change check(n, 0) to just check(n)
-
-//maybe rename check to integer, check is a little too generic, and what it does is confirm that you've got an integer
-
-/*already above
-// Determine which should appear first in sorted order
-// Zero if same, negative if n1 then n2, positive if n2 first
-function compareNumber(n1, n2) {
-	check(n1, 0);
-	check(n2, 0);
-	return n1 - n2;
-}
-
-exports.compareNumber = compareNumber;
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-//using check(), tests on your mac take right around 700ms
-//switching to min0 slowed them down maybe about 30ms
-
-
-
-
-//with this architecture, you can unify Int and _3type, actually
-
-
-
-
-
-
-
-
-
-
-
-
-
-//no, that didnt' make it faster
-//for the love of everything, stop working on int
-//it's fast enough for display, and you can avoid using it for saving values in meter
-//so it's good enough
-
-
-/*
-
-ok, but what if this were faster
-no int type, math(a, c, b) checkNumerals(a) and b each time
-and then always use BigNumber
-all of the checks, a lot less code, and crazy if that works
-
-and then just use numeralsToNumber
-this assumes that's what's slow is adding stuff to the Int object
-
-ugh, you feel that you are going to code that up seprately now
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

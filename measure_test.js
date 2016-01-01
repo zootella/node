@@ -903,25 +903,25 @@ exports.testSaySizeUnits = function(test) {
 exports.testSayUnitPerUnit = function(test) {
 
 	//average test scores
-	test.ok(sayUnitPerUnit(Fraction(5,   1), "#.### (#/#)", {r:"round"}) ==  "5.000 (5/1)");
-	test.ok(sayUnitPerUnit(Fraction(15,  3), "#.### (#/#)", {r:"round"}) ==  "5.000 (15/3)");
-	test.ok(sayUnitPerUnit(Fraction(100, 3), "#.### (#/#)", {r:"round"}) == "33.333 (100/3)");
-	test.ok(sayUnitPerUnit(Fraction(200, 3), "#.### (#/#)", {r:"round"}) == "66.667 (200/3)");//rounds up or down
+	test.ok(sayUnitPerUnit(Fraction(5,   1), "#.### (#/#)", "round") ==  "5.000 (5/1)");
+	test.ok(sayUnitPerUnit(Fraction(15,  3), "#.### (#/#)", "round") ==  "5.000 (15/3)");
+	test.ok(sayUnitPerUnit(Fraction(100, 3), "#.### (#/#)", "round") == "33.333 (100/3)");
+	test.ok(sayUnitPerUnit(Fraction(200, 3), "#.### (#/#)", "round") == "66.667 (200/3)");//rounds up or down
 
 	//events per second
-	test.ok(oldUnitPerTime(Fraction(5,  Time.second)) == "5.000/s (5/1.000s)");
-	test.ok(oldUnitPerTime(Fraction(90, Time.minute)) == "1.500/s (90/1m 0.000s)");
+	test.ok(sayUnitPerTime(Fraction(5,  Time.second), "#.###/s (#/#)", "round") == "5.000/s (5/1.000s)");
+	test.ok(sayUnitPerTime(Fraction(90, Time.minute), "#.###/s (#/#)", "round") == "1.500/s (90/1m 0.000s)");
 
 	//average packet size
-	test.ok(oldSizePerUnit(Fraction(Size.mb,      1)) == "1mb 0kb 0b (1mb 0kb 0b/1)");
-	test.ok(oldSizePerUnit(Fraction(Size.kb,      7)) == "146b (1kb 0b/7)");
-	test.ok(oldSizePerUnit(Fraction(Size.tb, 123456)) == "8mb 505kb 373b (1tb 0gb 0mb 0kb 0b/123,456)");
+	test.ok(saySizePerUnit(Fraction(Size.mb,      1), "# (#/#)") == "1mb 0kb 0b (1mb 0kb 0b/1)");
+	test.ok(saySizePerUnit(Fraction(Size.kb,      7), "# (#/#)") == "146b (1kb 0b/7)");
+	test.ok(saySizePerUnit(Fraction(Size.tb, 123456), "# (#/#)") == "8mb 505kb 373b (1tb 0gb 0mb 0kb 0b/123,456)");
 
 	//data transfer speed
-	test.ok(oldSizePerTime(Fraction(Size.mb,    Time.second)) == "1mb 0kb 0b/s (1mb 0kb 0b/1.000s)");
-	test.ok(oldSizePerTime(Fraction(60*Size.kb, Time.minute)) == "1kb 0b/s (60kb 0b/1m 0.000s)");
-	test.ok(oldSizePerTime(Fraction(90*Size.kb, Time.minute)) == "1kb 512b/s (90kb 0b/1m 0.000s)");
-	test.ok(oldSizePerTime(Fraction(Size.tb,    Time.day))    == "12mb 139kb 581b/s (1tb 0gb 0mb 0kb 0b/1d 0h 0m 0.000s)");
+	test.ok(saySizePerTime(Fraction(Size.mb,    Time.second), "#/s (#/#)") == "1mb 0kb 0b/s (1mb 0kb 0b/1.000s)");
+	test.ok(saySizePerTime(Fraction(60*Size.kb, Time.minute), "#/s (#/#)") == "1kb 0b/s (60kb 0b/1m 0.000s)");
+	test.ok(saySizePerTime(Fraction(90*Size.kb, Time.minute), "#/s (#/#)") == "1kb 512b/s (90kb 0b/1m 0.000s)");
+	test.ok(saySizePerTime(Fraction(Size.tb,    Time.day),    "#/s (#/#)") == "12mb 139kb 581b/s (1tb 0gb 0mb 0kb 0b/1d 0h 0m 0.000s)");
 
 	test.done();
 }
@@ -935,55 +935,58 @@ exports.testSayUnitPerUnit = function(test) {
 
 exports.testSayDivide = function(test) {
 
-	function f(n, d, decimal, s) { test.ok(oldDivide(Fraction(n, d), decimal) == s); }
+	function f(n, d, p, s) { test.ok(sayUnitPerUnit(Fraction(n, d), p) == s); }
+	function l(n, d, p, s) { log(sayUnitPerUnit(Fraction(n, d), p), " ",  s); }
 
-	f(   1, 2, 3,     "0.500");
-	f(  10, 3, 3,     "3.333");
-	f(3000, 2, 3, "1,500.000");
+	f(   1, 2, "#.###",     "0.500");
+	f(  10, 3, "#.###",     "3.333");
+	f(3000, 2, "#.###", "1,500.000");
 
-	f(3227, 555, 0, "5");
-	f(3227, 555, 1, "5.8");
-	f(3227, 555, 2, "5.81");
-	f(3227, 555, 3, "5.814");
-	f(3227, 555, 4, "5.8144");
+	f(3227, 555, "#",      "5");
+	f(3227, 555, "#.#",    "5.8");
+	f(3227, 555, "#.##",   "5.81");
+	f(3227, 555, "#.###",  "5.814");
+	f(3227, 555, "#.####", "5.8144");
 
-	f(22, 7,  0, "3");
-	f(22, 7,  1, "3.1");
-	f(22, 7,  2, "3.14");
-	f(22, 7,  3, "3.142");
-	f(22, 7,  4, "3.1428");
-	f(22, 7,  5, "3.14285");
-	f(22, 7,  6, "3.142857");
-	f(22, 7,  7, "3.1428571");
-	f(22, 7,  8, "3.14285714");
-	f(22, 7,  9, "3.142857142");
-	f(22, 7, 10, "3.1428571428");
-	f(22, 7, 11, "3.14285714285");
+	f(22, 7, "#",             "3");
+	f(22, 7, "#.#",           "3.1");
+	f(22, 7, "#.##",          "3.14");
+	f(22, 7, "#.###",         "3.142");
+	f(22, 7, "#.####",        "3.1428");
+	f(22, 7, "#.#####",       "3.14285");
+	f(22, 7, "#.######",      "3.142857");
+	f(22, 7, "#.#######",     "3.1428571");
+	f(22, 7, "#.########",    "3.14285714");
+	f(22, 7, "#.#########",   "3.142857142");
+	f(22, 7, "#.##########",  "3.1428571428");
+	f(22, 7, "#.###########", "3.14285714285");
 
-	f(1, 0, 3, "");//divide by zero returns blank
+	f(1, 0, "#.###", "");//divide by zero returns blank
 
 	test.done();
 }
 
 exports.testSayPercent = function(test) {
 
-	test.ok(oldPercent(Fraction(1, 2), 3) == "50.000% 1/2");
-	test.ok(oldPercent(Fraction(10, 30), 3) == "33.333% 10/30");
-	test.ok(oldPercent(Fraction(1, 0), 3) == "");//divide by zero returns blank
+	test.ok(sayUnitPerUnit(Fraction(1, 2),   "#.###% #/#") == "50.000% 1/2");
+	test.ok(sayUnitPerUnit(Fraction(10, 30), "#.###% #/#") == "33.333% 10/30");
+	test.ok(sayUnitPerUnit(Fraction(1, 0),   "#.###% #/#") == "");//divide by zero returns blank
 	test.done();
 }
 
 exports.testSayProgress = function(test) {
 
-	test.ok(oldProgress(Fraction(1, 2)) == "50% 1b/2b");
-	test.ok(oldProgress(Fraction(1122*Size.mb, 18*Size.gb)) == "6% 1122mb/18gb");
-	test.ok(oldProgress(Fraction(987*Size.kb, 5*Size.mb)) == "19% 987kb/5120kb");
-	/*
-	TODO replace with pattern to get these working again
-	test.ok(oldProgress(Fraction(555*Size.mb, 7*Size.gb), 0, "kb") == "7% 568,320kb/7,340,032kb");
-	test.ok(oldProgress(Fraction(Size.mb, 2*Size.mb), 1, "kb") == "50.0% 1,024.0kb/2,048.0kb");
-	*/
-	test.ok(oldProgress(Fraction(Size.mb, 0)) == "");//divide by zero returns blank
+	function t(a, b) { test.ok(a == b); }
+	function l(a, b) { log(); log(a); log(b); }
+
+	t(sayFraction(Fraction(1, 2),                     "#% #/#",   "whole", commas, saySize4, saySize4), "50% 1b/2b");
+	t(sayFraction(Fraction(1122*Size.mb, 18*Size.gb), "#% #/#",   "whole", commas, saySize4, saySize4), "6% 1122mb/18gb");
+	t(sayFraction(Fraction(987*Size.kb, 5*Size.mb),   "#% #/#",   "whole", commas, saySize4, saySize4), "19% 987kb/5120kb");
+	t(sayFraction(Fraction(555*Size.mb, 7*Size.gb),   "#% #/#",   "whole", commas, saySizeK, saySizeK), "7% 568,320kb/7,340,032kb");
+	t(sayFraction(Fraction(Size.mb, 0),               "#% #/#",   "whole", commas, saySize4, saySize4), "");//divide by zero returns blank
+
+	var f = Fraction(Size.mb, 2*Size.mb);//two lines, but easy to customize further
+	t("# #/#".fill(sayFraction(f, "#.#%"), saySizeK(f.numerator, 1), saySizeK(f.denominator, 1)), "50.0% 1,024.0kb/2,048.0kb");
 	test.done();
 }
 
@@ -996,11 +999,11 @@ exports.testSayProgress = function(test) {
 
 exports.testSaySpeed = function(test) {
 
-	test.ok(oldSpeed(Fraction([10, Size.mb], [2, Time.second])) == "5120kb/s");//10mb in 2s is 5mb/s
-	test.ok(oldSpeed(Fraction(1, 0)) == "");//show the user blank instead of throwing on divide by zero
+	test.ok(sayFraction(Fraction([10, Size.mb], [2, Time.second]), "#/s", "whole", saySize4) == "5120kb/s");//10mb in 2s is 5mb/s
+	test.ok(sayFraction(Fraction(1, 0),                            "#/s", "whole", saySize4) == "");//show the user blank instead of throwing on divide by zero
 
 	function f(b, s) {//b is bytes per second
-		test.ok(oldSpeed(Fraction(b, Time.second)) == s);
+		test.ok(sayFraction(Fraction(b, Time.second), "#/s", "whole", saySize4) == s);
 	}
 
 	f(9, "9b/s");

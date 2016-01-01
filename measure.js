@@ -279,7 +279,7 @@ exports.inspect = inspect;
 //                          
 
 // Make sure n is a whole integer with a minimum value of
-function min0(n)        { checkNumber(n);                 if (n < 0) toss("bounds"); } // 0 or larger
+var min0 = checkNumber;                                                                // 0 or larger, same as checkNumber
 function min1(n)        { checkNumber(n);                 if (n < 1) toss("bounds"); } // 1 or larger
 function checkMin(n, m) { checkNumber(n); checkNumber(m); if (n < m) toss("bounds"); } // m or larger
 
@@ -760,8 +760,8 @@ Size.big    = 64*Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buff
 freeze(Size);
 
 // Describe the given number of bytes with text like "7gb 1023mb 0kb 19b" showing scale and exactness
-function saySize(n) {
-	n = Int(n);
+function saySize(n, decimal) {
+	n = _remove(n, decimal);
 
 	function take(unit, name) {
 		var d = Fraction(n, unit);                // See how many unit amounts are in n
@@ -782,7 +782,9 @@ function saySize(n) {
 }
 
 // Describe the given number of bytes with text like "9876mb" using 4 numerals or less
-function saySize4(n) {
+function saySize4(n, decimal) {
+	n = _remove(n, decimal);
+
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
 	var unit = ["b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb"];
@@ -845,29 +847,37 @@ exports.saySizeY = saySizeY;
 //  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
 //                                         
 
-// Compose text that describes a division of f.n per f.d numbers, milliseconds, or bytes
+// Compose text that describes a division of f.numerator per f.denominator numbers, milliseconds, or bytes
 // Customize pattern string s with #, #%, #/s, #.###, #.###%, #.###/s, and #/#
-// Remainder option p.r whole, round, or ceiling, they all round down by default, pass in {r:"round"} to make one round
-// Functions p.sayF, sayN, and sayD to say fraction, numerator, and denominator based on what units they're in
-function sayUnitPerUnit(f, s, p) { return sayFraction(f, s, _fill(p, "whole", commas,  commas,  commas));  }
-function sayUnitPerSize(f, s, p) {}
-function sayUnitPerTime(f, s, p) { return sayFraction(f, s, _fill(p, "whole", commas,  commas,  sayTime)); }
-function saySizePerUnit(f, s, p) { return sayFraction(f, s, _fill(p, "whole", saySize, saySize, commas));  }
-function saySizePerSize(f, s, p) { return sayFraction(f, s, _fill(p, "whole", commas,  saySize, saySize)); }
-function saySizePerTime(f, s, p) { return sayFraction(f, s, _fill(p, "whole", saySize, saySize, sayTime)); }
-function sayTimePerUnit(f, s, p) {}
-function sayTimePerSize(f, s, p) {}
-function sayTimePerTime(f, s, p) { return sayFraction(f, s, _fill(p, "whole", commas,  sayTime, sayTime)); }
+// Remainder option r whole, round, or ceiling, they all round down to whole by default
 
-function sayFraction(f, s, p) {
+function sayUnitPerUnit(f, s, r) { return sayFraction(f, s, r, commas,  commas,  commas);  } // Average test score
+function saySizePerSize(f, s, r) { return sayFraction(f, s, r, commas,  saySize, saySize); } // Pieces in a file, compression performance
+function sayTimePerTime(f, s, r) { return sayFraction(f, s, r, commas,  sayTime, sayTime); } // Timer progress
+
+function sayUnitPerSize(f, s, r) { return sayFraction(f, s, r, commas,  commas,  saySize); } // Requests or reads per mb in a file
+function sayUnitPerTime(f, s, r) { return sayFraction(f, s, r, commas,  commas,  sayTime); } // Events per second
+
+function saySizePerUnit(f, s, r) { return sayFraction(f, s, r, saySize, saySize, commas);  } // Average packet size
+function saySizePerTime(f, s, r) { return sayFraction(f, s, r, saySize, saySize, sayTime); } // Data transfer speed
+
+function sayTimePerUnit(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, commas);  } // How long it took to get a file on average
+function sayTimePerSize(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, saySize); } // Number of seconds it takes to send a mb
+
+// Functions sayF, sayN, and sayD to say fraction, numerator, and denominator based on what units they're in
+// Functions must accept decimal as the second argument like sayF(300, 2) meaning the value got multiplied by 10 twice
+function sayFraction(f, s, r, sayF, sayN, sayD) {
 	if (!f) return ""; // Show the user blank on divide by 0
 
 	if (!s) s = "#"; // Fill unspecified preferences with defaults
-	p = _fill(p, "whole", commas, commas, commas);
+	if (!r) r = "whole";
+	if (!sayF) sayF = commas;
+	if (!sayN) sayN = commas;
+	if (!sayD) sayD = commas;
 
 	while (s.has("#/#")) f1();
 	function f1() {
-		s = s.swap("#/#", "#/#".fill(p.sayN(f.numerator), p.sayD(f.denominator))); // Turn #/# into 1/2
+		s = s.swap("#/#", "#/#".fill(sayN(f.numerator), sayD(f.denominator))); // Turn #/# into 1/2
 	}
 
 	while (s.has("#")) f2();
@@ -879,82 +889,43 @@ function sayFraction(f, s, p) {
 			c = { before:c.before, after:c.after.beyond(1 + decimal) };
 		}
 		var t;
-		if      (c.after.starts("%"))  { t = p.sayF(f.scale([        100, _tens(decimal)], 1)[p.r], decimal); } // #%  or #.###%
-		else if (c.after.starts("/s")) { t = p.sayF(f.scale([Time.second, _tens(decimal)], 1)[p.r], decimal); } // #/s or #.###/s
-		else                           { t = p.sayF(f.scale([             _tens(decimal)], 1)[p.r], decimal); } // #   or #.###
+		if      (c.after.starts("%"))  { t = sayF(f.scale([        100, _tens(decimal)], 1)[r], decimal); } // #%  or #.###%
+		else if (c.after.starts("/s")) { t = sayF(f.scale([Time.second, _tens(decimal)], 1)[r], decimal); } // #/s or #.###/s
+		else                           { t = sayF(f.scale([             _tens(decimal)], 1)[r], decimal); } // #   or #.###
 		s = say(c.before, t, c.after);
 	}
 	return s;
 }
 
-function _fill(p, r, sayF, sayN, sayD) { // Fill blanks in preferences p with the given defaults
-	if (!p)      p      = {};
-	if (!p.r)    p.r    = r;
-	if (!p.sayF) p.sayF = sayF;
-	if (!p.sayN) p.sayN = sayN;
-	if (!p.sayD) p.sayD = sayD;
-	return p;
-}
-
 function _tens(decimal) { // Given a number of decimal places, return the necessary multiplier, _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
 	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
 	min0(decimal);
-	var m = 1;
-	for (var i = 0; i < decimal; i++) m *= 10;
+	var m = Int(1);
+	for (var i = 0; i < decimal; i++) m = m.multiply(10);
 	return m;
+}
+function _remove(i, decimal) { // Code above used scale to multiply i with 10, 100, 1000, or so on, restore the original number
+	i = Int(i);
+	if (decimal) {
+		min0(decimal);
+		while (decimal) {
+			i = i.divide(10);
+			decimal--;
+		}
+	}
+	return i;
 }
 
 exports.sayUnitPerUnit = sayUnitPerUnit;
+exports.saySizePerSize = saySizePerSize;
+exports.sayTimePerTime = sayTimePerTime;
+exports.sayUnitPerSize = sayUnitPerSize;
 exports.sayUnitPerTime = sayUnitPerTime;
 exports.saySizePerUnit = saySizePerUnit;
 exports.saySizePerTime = saySizePerTime;
-exports.saySizePerSize = saySizePerSize;
-exports.sayTimePerTime = sayTimePerTime;
+exports.sayTimePerUnit = sayTimePerUnit;
+exports.sayTimePerSize = sayTimePerSize;
 exports.sayFraction = sayFraction;
-
-// Say n numbers per d numbers, good for average test score, like "5.000 (15/3)"
-function oldUnitPerUnit(f) { return sayUnitPerUnit(f, "#.### (#/#)", {r:"round"}); }
-// Say n numbers per d milliseconds, good for events per second, like "1.500/s (90/1m 0.000s)"
-function oldUnitPerTime(f) { return sayUnitPerTime(f, "#.###/s (#/#)", {r:"round"}); }
-// Say n bytes per d numbers, good for average packet size, like "146b (1kb 0b/7)"
-function oldSizePerUnit(f) { return saySizePerUnit(f, "# (#/#)"); }
-// Say n bytes per d milliseconds, good for data transfer speed, like "1kb 512b/s (90kb 0b/1m 0.000s)"
-function oldSizePerTime(f) { return saySizePerTime(f, "#/s (#/#)"); }
-
-// Describe n/d like "1.234", passing in the answer object from divide(n, d)
-// Specify decimal to include that many decimal places, otherwise round down
-function oldDivide(f, decimal) {
-	if (!f) return ""; // Show the user blank on divide by 0
-	return commas(f.scale(_tens(decimal), 1).whole, decimal);
-}
-
-// Describe n/d like "81.211% 912/1,123"
-// Specify decimal to include that many decimal places in the percentage
-function oldPercent(f, decimal) {
-	if (!f) return "";
-	return "#% #/#".fill(
-		commas(f.scale([100, _tens(decimal)], 1).whole, decimal),
-		commas(f.numerator),
-		commas(f.denominator));
-}
-
-// Describe n/d like "6% 1122mb/18gb"
-// Specify decimal like 1 and units like "kb" to make it like "50.0% 1,024.0kb/2,048.0kb"
-function oldProgress(f, decimal, units) {//TODO no longer supports decimal and units, replace with a pattern if that's important
-	if (!f) return "";
-	return "#% #/#".fill(
-		commas(f.scale([100, _tens(decimal)], 1).whole, decimal),
-		saySize4(f.numerator),
-		saySize4(f.denominator));
-}
-
-exports.oldUnitPerUnit = oldUnitPerUnit;
-exports.oldUnitPerTime = oldUnitPerTime;
-exports.oldSizePerUnit = oldSizePerUnit;
-exports.oldSizePerTime = oldSizePerTime;
-exports.oldDivide = oldDivide;
-exports.oldPercent = oldPercent;
-exports.oldProgress = oldProgress;
 
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
@@ -962,13 +933,6 @@ exports.oldProgress = oldProgress;
 //   ___) | |_) |  __/  __/ (_| |
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
-
-// Given f.n bytes and f.d milliseconds from divide(), describe the given number of bytes transferred in f second
-// Optionally specify a number of decimal places and a unit
-function oldSpeed(f, decimal, units) {//TODO no longer supports decimal and units, replace with a pattern if that's important
-	if (!f) return "";
-	return saySize4(f.scale(Time.second, 1).whole) + "/s";
-}
 
 // Describe the given f number of bytes transferred in a second in kilobytes per second like "2.24kb/s"
 function saySpeedKbps(f) {
@@ -983,7 +947,7 @@ function saySpeedKbps(f) {
 }
 
 // Say how long it takes to transfer a megabyte, like "42s/mb"
-// The given bytes per second must be 1 through Size.mb, returns blank otherwise
+// Given f in bytes per millisecond, bytes per second must be 1 through Size.mb, returns blank otherwise
 // Good for making a slow speed make sense
 function saySpeedTimePerMegabyte(f) {
 	var bytesPerSecond = f.scale(Time.second, 1).whole;
@@ -991,7 +955,6 @@ function saySpeedTimePerMegabyte(f) {
 	return sayTimeRemaining(Fraction([Time.second, Size.mb], bytesPerSecond).whole) + "/mb";
 }
 
-exports.oldSpeed = oldSpeed;
 exports.saySpeedKbps = saySpeedKbps;
 exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
 
@@ -1028,8 +991,8 @@ Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
 freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
-function sayTime(t) {
-	t = Int(t);
+function sayTime(t, decimal) {
+	t = _remove(t, decimal);
 
 	function take(unit, name) {
 		var d = Fraction(t, unit);                // See how many unit amounts are in t
