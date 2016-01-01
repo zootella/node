@@ -1,4 +1,8 @@
 
+require("./load").load("base", function() { return this; });
+
+
+
 
 
 
@@ -261,9 +265,9 @@ number2_test.js
 
 
 
-measure_unify_test.js  this is where you unify tests before inserting them back into measure
-measure_early_test.js  this is where you move the stuff in measure now that needs to get unifed
-measure_write_test.js  pretty much just number2_test.js renamed
+measure_1unify_test.js  this is where you unify tests before inserting them back into measure
+measure_2early_test.js  this is where you move the stuff in measure now that needs to get unifed
+measure_3write_test.js  pretty much just number2_test.js renamed
 
 
 

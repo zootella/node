@@ -31,9 +31,7 @@ var worldMap = {
 	text_test:    ["disk", "environment", "data", "state", "measure", "text"],
 
 	//TODO replace this whole section with a single core: [everything in order], and have all the tests load that, it's silly and arbitrary to cherry pick here
-	base: ["flow", "step", "meter",
-	"number",//all that for fraction!
-	"environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
+	base: ["flow", "step", "meter", "environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
 
 	// Base
 
