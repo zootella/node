@@ -1,6 +1,8 @@
 
 require("./load").load("base", function() { return this; });
 
+var platformBigNumber = require('bignumber.js');
+
 
 
 
@@ -169,6 +171,14 @@ or no, put it all in note, just have large type, and then if you need a subtype,
 	if (n < 0)                       toss("bounds",   {watch:{n:n}, note:"negative"}); // Not negative
 */
 
+//TOSS
+/*
+//maybe throw "number" on number problems, or something uniform at least, "data" and then details
+yeah, only have like 5 kinds of exceptions, saying whose fault it is, like it's the data's fault, it's the peer's fault, it's the wire's fault, it's the disk's fault, it's the platform's fault, it's the programmer's fault
+this is a good way to do it
+and then additional details are in the call stack and the extra stuff you put in toss
+*/
+
 
 
 
@@ -231,16 +241,9 @@ and you don't have to support strings, have these just work on given blocks of t
 
 
 //TEXT
-//you're not checking numbers in text, what happens if you put in "potato" for l?
+//you're not checking numbers in text.js, what happens if you put in "potato" for l?
 //have a test that shows this
 
-//TOSS
-/*
-//maybe throw "number" on number problems, or something uniform at least, "data" and then details
-yeah, only have like 5 kinds of exceptions, saying whose fault it is, like it's the data's fault, it's the peer's fault, it's the wire's fault, it's the disk's fault, it's the platform's fault, it's the programmer's fault
-this is a good way to do it
-and then additional details are in the call stack and the extra stuff you put in toss
-*/
 
 
 
@@ -252,43 +255,70 @@ and then additional details are in the call stack and the extra stuff you put in
 
 
 
-//NUMBER
-//step 1: refactor the insides of old* to use sayTypePerType with patterns, see that the tests still pass, done
-//step 2: refactor the code and tests to not use old* anymore, done
-//step 3: combine the old test cases into the new tests
-/*
-
-all the code's in measure.js
-and that's where the tests will end up, but now there duplicated and incomplete in
-measure_test.js
-number2_test.js
 
 
 
-measure_1unify_test.js  this is where you unify tests before inserting them back into measure
-measure_2early_test.js  this is where you move the stuff in measure now that needs to get unifed
-measure_3write_test.js  pretty much just number2_test.js renamed
+//TIME
+//duration should be an object, but when should just be the number
+//and just check it with max0
+//refactor when into functions that do that stuff
+//and now() just returns the number, it's just an alias for Date.now or whatever
 
 
 
 
-*/
 
-//NUMBER
-//write a test that calls i.inside() to watch type sin use like "--s", watch something grow into big and then fall back down again
 
-//NUMBER
-/*
-put good defaults up there, cool patterns and whole versus round where it makes sense
-maybe do have default patterns ^up there, a default custom pattern for each one that includes the answer and the fraction
-play around with that in tests, not code
-make sense of the examples you wrote in measure.js, average test score and so on
 
-you are pretty sure below it makes no sense to use sayNumerator in the percent one, for a percent to make sense, the numerator and denominator have to be the same unit
+if (demo("snip")) { demoSnip(); }
+function demoSnip() {
 
-if the numeator is a size or a time, #.### doesn't make sense, only # does
-so, make this the default pattern, and dont' specify a pattern when you use those
-*/
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

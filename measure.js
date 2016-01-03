@@ -271,12 +271,12 @@ exports.inspect = inspect;
 
 
 
-//   __  __       _   _     
-//  |  \/  | __ _| |_| |__  
-//  | |\/| |/ _` | __| '_ \ 
-//  | |  | | (_| | |_| | | |
-//  |_|  |_|\__,_|\__|_| |_|
-//                          
+//   _   _                 _               
+//  | \ | |_   _ _ __ ___ | |__   ___ _ __ 
+//  |  \| | | | | '_ ` _ \| '_ \ / _ \ '__|
+//  | |\  | |_| | | | | | | |_) |  __/ |   
+//  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
+//                                         
 
 // Make sure n is a whole integer with a minimum value of
 var min0 = checkNumber;                                                                // 0 or larger, same as checkNumber
@@ -361,6 +361,13 @@ exports.compareNumber = compareNumber;
 exports.compareNumerals = compareNumerals;
 exports.compareCheckedNumber = compareCheckedNumber;
 exports.compareCheckedNumerals = compareCheckedNumerals;
+
+//   ___       _   
+//  |_ _|_ __ | |_ 
+//   | || '_ \| __|
+//   | || | | | |_ 
+//  |___|_| |_|\__|
+//                 
 
 // A 0+ integer of unlimited size
 function Int(p) { // Takes a number like 5, a string of numerals like "789", a bignumber.js BigNumber, or another Int
@@ -460,6 +467,15 @@ function _calculate(o, c, q) {
 	else { toss("code"); }
 }
 
+exports.Int = Int;
+
+//   _____               _   _             
+//  |  ___| __ __ _  ___| |_(_) ___  _ __  
+//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
+//  |  _|| | | (_| | (__| |_| | (_) | | | |
+//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
+//                                         
+
 // A fraction of integer values, like 1/1 or 10/3
 // For the numerator and denominator, pass in numbers, strings of numerals, or arrays of those to multiply together, like Fraction([2, 5], 3) to get 10/3
 function Fraction(n, d) {
@@ -491,7 +507,6 @@ function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into Int(10)
 	return i;
 }
 
-exports.Int = Int;
 exports.Fraction = Fraction;
 exports._multiplyArray = _multiplyArray;
 
@@ -501,7 +516,81 @@ function divideSafe(n, d) { return Fraction(n, d).whole.toNumber(); } // Likely 
 exports.divideFast = divideFast;
 exports.divideSafe = divideSafe;
 
+//   ____                _____               _   _             
+//  / ___|  __ _ _   _  |  ___| __ __ _  ___| |_(_) ___  _ __  
+//  \___ \ / _` | | | | | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
+//   ___) | (_| | |_| | |  _|| | | (_| | (__| |_| | (_) | | | |
+//  |____/ \__,_|\__, | |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
+//               |___/                                         
 
+// Compose text that describes a division of f.numerator per f.denominator numbers, milliseconds, or bytes
+// Customize pattern string s with #, #%, #/s, #.###, #.###%, #.###/s, and #/#
+// Remainder option r whole, round, or ceiling, they all round down to whole by default
+
+function sayUnitPerUnit(f, s, r) { return sayFraction(f, s, r, commas,  commas,  commas);  } // Average test score
+function saySizePerSize(f, s, r) { return sayFraction(f, s, r, commas,  saySize, saySize); } // Pieces in a file, compression performance
+function sayTimePerTime(f, s, r) { return sayFraction(f, s, r, commas,  sayTime, sayTime); } // Timer progress
+
+function sayUnitPerSize(f, s, r) { return sayFraction(f, s, r, commas,  commas,  saySize); } // Requests or reads per mb in a file
+function sayUnitPerTime(f, s, r) { return sayFraction(f, s, r, commas,  commas,  sayTime); } // Events per second
+
+function saySizePerUnit(f, s, r) { return sayFraction(f, s, r, saySize, saySize, commas);  } // Average packet size
+function saySizePerTime(f, s, r) { return sayFraction(f, s, r, saySize, saySize, sayTime); } // Data transfer speed
+
+function sayTimePerUnit(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, commas);  } // How long it took to get a file on average
+function sayTimePerSize(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, saySize); } // Number of seconds it takes to send a mb
+
+// Functions sayF, sayN, and sayD to say fraction, numerator, and denominator based on what units they're in
+// Functions must accept decimal as the second argument like sayF(300, 2) meaning the value got multiplied by 10 twice
+function sayFraction(f, s, r, sayF, sayN, sayD) {
+	if (!f) return ""; // Show the user blank on divide by 0
+
+	if (!s) s = "#"; // Fill unspecified preferences with defaults
+	if (!r) r = "whole";
+	if (!sayF) sayF = commas;
+	if (!sayN) sayN = commas;
+	if (!sayD) sayD = commas;
+
+	while (s.has("#/#")) f1();
+	function f1() {
+		s = s.swap("#/#", "#/#".fill(sayN(f.numerator), sayD(f.denominator))); // Turn #/# into 1/2
+	}
+
+	while (s.has("#")) f2();
+	function f2() {
+		var c = s.cut("#");
+		var decimal = 0;
+		if (c.after.starts(".#")) { // #.# or #.###
+			while (c.after.get(decimal + 1) == "#") decimal++; // Count the number of decimal places, like # decimal 0, #.### decimal 3
+			c = { before:c.before, after:c.after.beyond(1 + decimal) };
+		}
+		var t;
+		if      (c.after.starts("%"))  { t = sayF(f.scale([        100, _tens(decimal)], 1)[r], decimal); } // #%  or #.###%
+		else if (c.after.starts("/s")) { t = sayF(f.scale([Time.second, _tens(decimal)], 1)[r], decimal); } // #/s or #.###/s
+		else                           { t = sayF(f.scale([             _tens(decimal)], 1)[r], decimal); } // #   or #.###
+		s = say(c.before, t, c.after);
+	}
+	return s;
+}
+
+function _tens(decimal) { // Given a number of decimal places, return the necessary multiplier, _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
+	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
+	min0(decimal);
+	var m = "1";
+	for (var i = 0; i < decimal; i++) m += "0";
+	return Int(m);
+}
+
+exports.sayUnitPerUnit = sayUnitPerUnit;
+exports.saySizePerSize = saySizePerSize;
+exports.sayTimePerTime = sayTimePerTime;
+exports.sayUnitPerSize = sayUnitPerSize;
+exports.sayUnitPerTime = sayUnitPerTime;
+exports.saySizePerUnit = saySizePerUnit;
+exports.saySizePerTime = saySizePerTime;
+exports.sayTimePerUnit = sayTimePerUnit;
+exports.sayTimePerSize = sayTimePerSize;
+exports.sayFraction = sayFraction;
 
 
 
@@ -550,6 +639,15 @@ function When(t) {
 	o.type = "When";
 	return freeze(o);
 }
+/*
+TODO
+
+w = now()
+age(w)
+expired(w, t)
+sayDateAndTime(w)
+Duration(w)
+*/
 
 // Return the time that happened first, and is oldest
 function earlier(w1, w2) {
@@ -761,7 +859,7 @@ freeze(Size);
 
 // Describe the given number of bytes with text like "7gb 1023mb 0kb 19b" showing scale and exactness
 function saySize(n, decimal) {
-	n = _remove(n, decimal);
+	n = Int(n).divide(_tens(decimal));
 
 	function take(unit, name) {
 		var d = Fraction(n, unit);                // See how many unit amounts are in n
@@ -783,7 +881,7 @@ function saySize(n, decimal) {
 
 // Describe the given number of bytes with text like "9876mb" using 4 numerals or less
 function saySize4(n, decimal) {
-	n = _remove(n, decimal);
+	n = Int(n).divide(_tens(decimal));
 
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
@@ -840,92 +938,6 @@ exports.saySizeY = saySizeY;
 
 
 
-//   _____               _   _             
-//  |  ___| __ __ _  ___| |_(_) ___  _ __  
-//  | |_ | '__/ _` |/ __| __| |/ _ \| '_ \ 
-//  |  _|| | | (_| | (__| |_| | (_) | | | |
-//  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
-//                                         
-
-// Compose text that describes a division of f.numerator per f.denominator numbers, milliseconds, or bytes
-// Customize pattern string s with #, #%, #/s, #.###, #.###%, #.###/s, and #/#
-// Remainder option r whole, round, or ceiling, they all round down to whole by default
-
-function sayUnitPerUnit(f, s, r) { return sayFraction(f, s, r, commas,  commas,  commas);  } // Average test score
-function saySizePerSize(f, s, r) { return sayFraction(f, s, r, commas,  saySize, saySize); } // Pieces in a file, compression performance
-function sayTimePerTime(f, s, r) { return sayFraction(f, s, r, commas,  sayTime, sayTime); } // Timer progress
-
-function sayUnitPerSize(f, s, r) { return sayFraction(f, s, r, commas,  commas,  saySize); } // Requests or reads per mb in a file
-function sayUnitPerTime(f, s, r) { return sayFraction(f, s, r, commas,  commas,  sayTime); } // Events per second
-
-function saySizePerUnit(f, s, r) { return sayFraction(f, s, r, saySize, saySize, commas);  } // Average packet size
-function saySizePerTime(f, s, r) { return sayFraction(f, s, r, saySize, saySize, sayTime); } // Data transfer speed
-
-function sayTimePerUnit(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, commas);  } // How long it took to get a file on average
-function sayTimePerSize(f, s, r) { return sayFraction(f, s, r, sayTime, sayTime, saySize); } // Number of seconds it takes to send a mb
-
-// Functions sayF, sayN, and sayD to say fraction, numerator, and denominator based on what units they're in
-// Functions must accept decimal as the second argument like sayF(300, 2) meaning the value got multiplied by 10 twice
-function sayFraction(f, s, r, sayF, sayN, sayD) {
-	if (!f) return ""; // Show the user blank on divide by 0
-
-	if (!s) s = "#"; // Fill unspecified preferences with defaults
-	if (!r) r = "whole";
-	if (!sayF) sayF = commas;
-	if (!sayN) sayN = commas;
-	if (!sayD) sayD = commas;
-
-	while (s.has("#/#")) f1();
-	function f1() {
-		s = s.swap("#/#", "#/#".fill(sayN(f.numerator), sayD(f.denominator))); // Turn #/# into 1/2
-	}
-
-	while (s.has("#")) f2();
-	function f2() {
-		var c = s.cut("#");
-		var decimal = 0;
-		if (c.after.starts(".#")) { // #.# or #.###
-			while (c.after.get(decimal + 1) == "#") decimal++; // Count the number of decimal places, like # decimal 0, #.### decimal 3
-			c = { before:c.before, after:c.after.beyond(1 + decimal) };
-		}
-		var t;
-		if      (c.after.starts("%"))  { t = sayF(f.scale([        100, _tens(decimal)], 1)[r], decimal); } // #%  or #.###%
-		else if (c.after.starts("/s")) { t = sayF(f.scale([Time.second, _tens(decimal)], 1)[r], decimal); } // #/s or #.###/s
-		else                           { t = sayF(f.scale([             _tens(decimal)], 1)[r], decimal); } // #   or #.###
-		s = say(c.before, t, c.after);
-	}
-	return s;
-}
-
-function _tens(decimal) { // Given a number of decimal places, return the necessary multiplier, _tens(0) is 1, _tens(1) is 10, 2 is 100, 3 is 1000, and so on
-	if (!decimal) decimal = 0; // By default, no decimal places, and a multiplier of 1
-	min0(decimal);
-	var m = Int(1);
-	for (var i = 0; i < decimal; i++) m = m.multiply(10);
-	return m;
-}
-function _remove(i, decimal) { // Code above used scale to multiply i with 10, 100, 1000, or so on, restore the original number
-	i = Int(i);
-	if (decimal) {
-		min0(decimal);
-		while (decimal) {
-			i = i.divide(10);
-			decimal--;
-		}
-	}
-	return i;
-}
-
-exports.sayUnitPerUnit = sayUnitPerUnit;
-exports.saySizePerSize = saySizePerSize;
-exports.sayTimePerTime = sayTimePerTime;
-exports.sayUnitPerSize = sayUnitPerSize;
-exports.sayUnitPerTime = sayUnitPerTime;
-exports.saySizePerUnit = saySizePerUnit;
-exports.saySizePerTime = saySizePerTime;
-exports.sayTimePerUnit = sayTimePerUnit;
-exports.sayTimePerSize = sayTimePerSize;
-exports.sayFraction = sayFraction;
 
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
@@ -992,7 +1004,7 @@ freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
 function sayTime(t, decimal) {
-	t = _remove(t, decimal);
+	t = Int(t).divide(_tens(decimal));
 
 	function take(unit, name) {
 		var d = Fraction(t, unit);                // See how many unit amounts are in t
