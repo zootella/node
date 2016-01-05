@@ -295,6 +295,32 @@ stuff i hate about my command line
 
 
 
+
+
+
+
+
+
+
+
+//electron-demo
+//run a node library demo from within electron
+//page has a box where you name it, or just do that from the command line
+//all in one process, to make sure your stuff runs in an electron process the same
+
+//electron-unit
+//run all the nodeunit tests in electron
+//really not sure how to do this one
+
+//icarus
+//this is where you make the actual icarus app
+
+
+
+
+
+
+
 if (demo("snip")) { demoSnip(); }
 function demoSnip() {
 
