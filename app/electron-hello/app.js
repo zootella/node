@@ -10,7 +10,7 @@ require('remote').getCurrentWindow().toggleDevTools();
 document.write(paragraph("process.versions: " + util.inspect(process.versions)));
 
 //read from the disk
-var contents = fs.readFileSync("./app/electron-hello/readme.txt", "utf8");
+var contents = fs.readFileSync("./app/electron-hello/file.txt", "utf8");
 document.write(paragraph(contents));
 
 //define a function

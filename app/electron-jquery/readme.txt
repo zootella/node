@@ -1,2 +1,0 @@
-
-Use JQuery with Electron

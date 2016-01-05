@@ -315,6 +315,12 @@ stuff i hate about my command line
 //icarus
 //this is where you make the actual icarus app
 
+/*
+with command line node, you've got a single folder of tens of files, and in any of them, you can have any number of demo() functions that run completely command-line applications
+with electron so far, each one takes up an entire subfolder of multiple files
+improve demo() so that it can run in electron instead of the command line, and it's just as complete and flexible
+*/
+
 
 
 
