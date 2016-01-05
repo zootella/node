@@ -1,0 +1,14 @@
+body {
+}
+
+pre {
+	font: 13px Menlo;
+	background-color: gray;
+}
+
+.output-line {
+	font: 13px Menlo;
+}
+.output-text {
+	background-color: Gainsboro;
+}

@@ -492,7 +492,7 @@ function Fraction(n, d) {
 	else                                 { o.round = o.whole.add(1); o.ceiling = o.round;        } // Remainder half or more, round up
 
 	o.scale = function(v, w) { return Fraction(o.numerator.multiply(_multiplyArray(v)), o.denominator.multiply(_multiplyArray(w))); }
-	o.text = function() { sayUnitPerUnit(o); }
+	o.text = function() { sayFraction(o, "#.### (#/#)"); } // Default pattern
 	o.type = "Fraction";
 	return freeze(o);
 }
@@ -862,10 +862,10 @@ function saySize(n, decimal) {
 	n = Int(n).divide(_tens(decimal));
 
 	function take(unit, name) {
-		var d = Fraction(n, unit);                // See how many unit amounts are in n
-		if (d.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
-			s += say(d.whole, name, " ");           // Add it to the string like "5mb "
-			n = d.remainder;                        // Subtract it from the total
+		var f = Fraction(n, unit);                // See how many unit amounts are in n
+		if (f.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
+			s += say(f.whole, name, " ");           // Add it to the string like "5mb "
+			n = f.remainder;                        // Subtract it from the total
 		}
 	}
 
@@ -1007,10 +1007,10 @@ function sayTime(t, decimal) {
 	t = Int(t).divide(_tens(decimal));
 
 	function take(unit, name) {
-		var d = Fraction(t, unit);                // See how many unit amounts are in t
-		if (d.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
-			s += say(commas(d.whole), name, " ");   // Add it to the string like "5h "
-			t = d.remainder;                        // Subtract it from the total
+		var f = Fraction(t, unit);                // See how many unit amounts are in t
+		if (f.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
+			s += say(commas(f.whole), name, " ");   // Add it to the string like "5h "
+			t = f.remainder;                        // Subtract it from the total
 		}
 	}
 

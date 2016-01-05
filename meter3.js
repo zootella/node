@@ -44,88 +44,6 @@ function demoShortcutMeter() {
 
 
 
-/*
-
-
-
-don't change divide at all except
-add a.n and a.d
-replace divide by zero with returns null, you'll ahve to fix tests for that probably
-then outside, make two functions old-Divide, oldDivideTime, which can use scale
-
-or just one, old-Divide(result, nUnit, dUnit)
-the units are optional
-or specify them like "none" "byte" "millisecond"
-composes text like
-
-1,234.567 (47mb 0kb 0b/2m 22.345s)
-if n is numbers, show decimals
-if n is bytes, show time
-
-and put a big todo to get a bignum involved that will perform valid math if it overflows, and throw only if the answer is too big
-
-
-and do {}.notfound; to get a caught and logged exception that has no context, get a call stack in there, for crying out loud, before process exit
-
-
-and what about all that weird old sayAverage nonsense, that hsould all come in here as well
-
-numerator could be bytes, or numbers
-denominator could be milliseconds, or numbers
-
-
-
-
-how about this
-
-
-
-*/
-
-
-
-
-
-//no, this should be code based, like date
-//call .text on a divide, hand it a pattern, or it uses a default one
-/*
-
-N numerator
-NS numerator as a size
-NT numerator as a time
-
-D denominator
-DS demonimator as a size
-DT demonimator as a time
-
-answers
-
-W	a.whole     = Math.floor(n / d); // Round down
-C	a.ceiling   = Math.ceil(n / d);  // Round up
-R	a.round     = Math.round(n / d); // Round to nearest
-E	a.remainder = n % d;             // Remainder
-	a.decimal   = n / d;             // Floating point number
-
-WS
-CS
-RS
-ES
-
-WT
-CT
-RT
-ET
-
-and after any of those, you can put p
-
-NSppp that's the numerator as a size, with 0.000b at the end
-
-percent is just W% or Wppp%
-
-commas are added by default
-
-
-P
 
 
 
@@ -134,11 +52,6 @@ P
 
 
 
-*/
-
-
-
-//TODO have the thing that scale() and divide() returns have a .text() method that puts it exactly on one line
 
 
 
@@ -377,36 +290,6 @@ half or full spaces, affected by whether the text output is to a browser or a fi
 
 
 
-/*
-why does this crash
-log(sayScaleProgress(divide(123456789, 987654321), 6));// 12% 117mb/941mb
-is this enough to overflow?
-that's not a big file in bytes, you migth want to get that to 6 decimal points
-so implement bignum in scale, i guess
-
-you've got another one that overflows, it's
-test.ok(saySpeedKbps(divide(Size.tb, Time.hour)) == "298,261kb/s");//TODO have scale() use bignum to be able to do this one
-
-saySpeedKbps has got 3 numerators and 3 denominators
-have a single function divide(n, d) that works like this
-n and d can be numbers, or arrays of numbers
-arrays get multiplied together
-
-divide([1, 3], 2)
-divide([1, 3], [2, 4])
-
-use Array.isArray(n)
-
-uses bignum inside, only throws if any of the answer integers are larger than js maximum int
-
-probably this one
-https://www.npmjs.com/package/bignum
-*/
-
-
-
-
-
 //have speed test on each meter
 //start with a blank one that just creates the random numbers
 
@@ -504,7 +387,7 @@ function demoSnippet() {
 
 	while (i) {
 		log(n, " ", saySize(i));
-		i = divide(i, 2).whole;
+		i = Fraction(i, 2).whole;
 		n++;
 	}
 	*/
@@ -874,42 +757,6 @@ also, deduplicate it so that if more than one call in a single tick get the spee
 
 
 
-/*
-probably a quagmire to have more ideas about say divide, but here you go
-the reason it's not working yet is
--you always want to do something custom different
--there are too many functions and you cant remember their names
-
-new idea, what if you used a combination of function and pattern
-sayUnitPerUnit(a, p)
-and then p is a pattern like
-"#"
-"#%"
-"#.###"
-"#.######"//as many of those as you want, this is why you need bignum
-"#.###%"
-"# #/#"
-"# (#/#)"
-it just looks for .###### and fewer, then #/#, then just #, and knows what to do
-and it looks for #% and knows to multiply by an extra 100
-this is a pretty cool design, actually. you might have finally figured it out
-"# thing(s)" looks for s and adds or doesn't
-
-but these would still be outside this refactor
-saySpeedKbps
-saySpeedTimePerMegabyte
-
-also have a {} setting to use ceiling or round, or just "whole", "ceiling" or "round", default is whole
-
-
-once you do this, you can delete the notes in divide.txt
-
-
-
-
-
-
-*/
 
 
 /*
@@ -919,23 +766,6 @@ see about switchign them to the var o = {} return o model
 
 */
 
-
-/*
-write a little test to make sure this works
-divide 8/4 with 8 9 10 11 12
-check .whole, round, and ceiling for each
-
-important for sayUnitPerUnit
-important for divide bignum, when that happens
-*/
-
-
-/*
-probably change a the ansewr object to d the answer from a divide
-this is when you've combined scale with divide, and are using bignum
-
-
-*/
 
 
 
@@ -956,6 +786,50 @@ and have kmgtp work, like '4p' is 4 pedabytes
 yeah, this is cool and pretty easy, code it up once in the demo, print it at the top of stick
 it'll also be interesting to see how short and simple writing an text box is
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

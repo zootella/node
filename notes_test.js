@@ -270,6 +270,31 @@ and you don't have to support strings, have these just work on given blocks of t
 
 
 
+
+
+//ICARUS
+/*
+stuff i like about my command line
+-with just one size of fixed width text, everything is always easy to read and lines up nicely
+-using it is the same on my personal computer, and on a distant server
+-standard in and out lets apps connect to me or other apps
+-with curses, apps can update output without scrolling everything away all the time
+
+stuff i hate about my command line
+-changing the width is hard, and existing lines of text won't wrap correctly
+-copy and paste don't work normally
+-the running process locks the whole thing down
+-there's really only one text box, and you can't make buttons or click with the mouse
+-it can't automatically rerun something when i save an edit
+-in other ways that aren't necessary, it looks and acts differently from my text editor
+*/
+
+
+
+
+
+
+
 if (demo("snip")) { demoSnip(); }
 function demoSnip() {
 

@@ -139,7 +139,7 @@ backspace  \b             backspace  character and name are different
 */
 if (demo("keyboard-any")) { demoKeyboardAny(); }
 function demoKeyboardAny() {
-	keyboard("any", function(key) {//blank to get all the events
+	keyboard("any", function(key) {
 		log(inspect(key));
 	});
 	keyboard("exit", function() { closeKeyboard(); });//let the process exit
@@ -499,10 +499,10 @@ exports.testNumberBig = function(test) {
 	test.ok(n + 1 === n);
 
 	//example of working with a very large file size
-	var d = Fraction(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
-	test.ok(d.whole.toNumber() == 8191);// the size limit is 8191 terabytes
-	test.ok(d.remainder.toNumber() == 1099511627775);//and this remainder of bytes
-	test.ok(Fraction(d.remainder, Size.gb).whole.toNumber() == 1023);//which is 1023 gigabytes
+	var f = Fraction(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
+	test.ok(f.whole.toNumber() == 8191);// the size limit is 8191 terabytes
+	test.ok(f.remainder.toNumber() == 1099511627775);//and this remainder of bytes
+	test.ok(Fraction(f.remainder, Size.gb).whole.toNumber() == 1023);//which is 1023 gigabytes
 	test.ok(Fraction([8191, Size.tb], 1).whole.toNumber() + 1099511627775 == 9007199254740992 - 1);//put the number back together again
 
 	test.done();
@@ -1476,8 +1476,8 @@ exports.testFractionBlankZero = function(test) {
 	try { Fraction(1, 1).scale();  test.fail(); } catch (e) { test.ok(true); }
 	try { Fraction(1, 1).scale(1); test.fail(); } catch (e) { test.ok(true); }
 
-	var z = Fraction(9, 0);//divide by zero doesn't throw, and returns null instead of a Fraction object
-	test.ok(!z);//which is falsey
+	var f = Fraction(9, 0);//divide by zero doesn't throw, and returns null instead of a Fraction object
+	test.ok(!f);//which is falsey
 	var o = {};//unlike even an empty object
 	test.ok(o);
 
