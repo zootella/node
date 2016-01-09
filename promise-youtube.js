@@ -156,3 +156,42 @@ plunkr
 
 */
 
+
+
+
+
+
+
+
+/*
+
+https://nodejs.org/api/child_process.html
+"For scripting purposes you may find the synchronous counterparts more convenient."
+the docs *admit* that the bad synchronous way is easier
+what if it didn't have to be like that
+what if the better, correct way was just as easy
+let's see how we can do whatever it takes to make it so
+
+as a developer, i'm tired of this kind of choice: between easy and correct
+it's only software that makes up the rules of these computers, and we write software
+we can write new rules
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

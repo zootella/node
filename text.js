@@ -951,6 +951,7 @@ function _say(o) {
 
 // Use this line separator when composing text
 var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows
+//TODO make this custom to the platform we're running on, and you can compare incoming strings
 
 // Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
 // Like C's famous sprintf, but simpler and more in the style of a dynamically typed language

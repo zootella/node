@@ -1,6 +1,117 @@
 
 require("./load").load("base", function() { return this; });
 
+
+
+
+
+/*
+var log = console.log;
+log("running child");
+
+
+
+
+
+
+while (true);//run forever
+
+
+/*
+// Unpause the stdin stream:
+process.stdin.resume();
+
+// Listen for incoming data:
+process.stdin.on('data', function(data) {
+	console.log('Received data: ' + data);
+});
+*/
+
+
+/*
+var platformChildProcesses = require("child_process");
+
+var log = console.log;
+log("running parent");
+*/
+
+
+
+
+
+
+/*
+var child = platformChildProcesses.spawn("node", ["child.js"]);
+
+child.stdin.write("hello you");
+
+child.stdout.on("data", function(d) {
+	log("parent got data:");
+	log(d+"");
+})
+
+child.stderr.on("data", function(d) {
+	log("parent got error:");
+	log(d+"");
+});
+
+child.on("exit", function (exitCode) {
+	log("child exited:");
+	log(exitCode+"");
+});
+
+
+setTimeout(function() {
+	log("killing child process");
+	child.kill();
+}, 4000);
+*/
+
+
+
+
+
+
+
+
+
+
+/*
+require("./load").load("base", function() { return this; });
+
+
+
+
+log("running child");
+
+
+
+
+
+
+while (true);//run forever
+*/
+
+/*
+// Unpause the stdin stream:
+process.stdin.resume();
+
+// Listen for incoming data:
+process.stdin.on('data', function(data) {
+	console.log('Received data: ' + data);
+});
+*/
+
+
+
+
+
+
+
+
+/*
+require("./load").load("base", function() { return this; });
+
 var platformChildProcesses = require("child_process");
 
 
@@ -170,7 +281,7 @@ and only then combine them with
 
 
 
-
+/*
 if (demo("ui")) { demoUi(); }
 function demoUi() {
 	var typed = "";
@@ -180,25 +291,7 @@ function demoUi() {
 	});
 	keyboard("exit", function() { closeKeyboard(); });//let the process exit
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 
 
 
