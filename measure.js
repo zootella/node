@@ -362,6 +362,133 @@ exports.compareNumerals = compareNumerals;
 exports.compareCheckedNumber = compareCheckedNumber;
 exports.compareCheckedNumerals = compareCheckedNumerals;
 
+//NEW
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function int() {
+	var a = arguments;//point a at the arguments array
+	var d = 0;//our index in the arguments array
+	function empty() { return d >= a.length; }//true if there are no more arguments
+	function next() { if (empty()) toss("code"); return a[d++]; }//get the next argument and then move the index forward
+	function done() { if (!empty()) toss("code"); }//make sure there are no more arguments
+
+	var i = _int(next());//must have argument, it's i, the first number
+	if (empty()) return i;//ok if that's all there is
+
+	while (true) {
+
+		var o = next();//there must be another argument, it's the operator
+
+		//if it's a single operator, make sure there's nothing else, do it, return the answer
+		if      (o === "++") { done(); return  _add2(i, _int(1)); }
+		else if (o === "--") { done(); return  _sub2(i, _int(1)); }
+		else if (o === "!")  { done(); return  _equ2(i, _int(0)); } // if (!i) becomes if (int(i, "!"))
+		else if (o === "")   { done(); return !_equ2(i, _int(0)); } // if (i)  becomes if (int(i, ""))
+		else {//otherwise it must be a double operator
+
+			var j = _int(next());//must have argument, get the next argument, it's j, the second number
+
+			if      (o === "*")  { i = _mul2(i, j); }//do it, it's ok if there is more after this
+			else if (o === "/")  { i = _div2(i, j); }
+			else if (o === "%")  { i = _mod2(i, j); }
+			else if (o === "+")  { i = _add2(i, j); }
+			else if (o === "-")  { i = _sub2(i, j); }
+			else if (o === "==") { done(); return  _equ2(i, j); }//make sure it's the end
+			else if (o === "!=") { done(); return !_equ2(i, j); }
+			else if (o === ">")  { done(); return  _gth2(i, j); }
+			else if (o === ">=") { done(); return  _gte2(i, j); }
+			else if (o === "<")  { done(); return  _lth2(i, j); }
+			else if (o === "<=") { done(); return  _lte2(i, j); }
+			else { toss("code"); }//invalid operator
+
+			if (empty()) return i;//that's it, return the final answer
+		}//otherwise loop again to get the next operator
+	}
+}
+
+function _int(p) {
+	var type = getType(p);
+	if (type == "int") return p;
+
+	var i = { _b:"none", _n:"none", _s:"none" };
+	if (hasMethod(p, "dividedToIntegerBy")) { i._b = p;                        i._s = i._b.toFixed(0); checkNumerals(i._s);                         }
+	else if (type == "number")              { i._n = p; checkNumberMath(i._n); i._s = i._n+"";         checkNumerals(i._s); checkNumeralsFit(i._s); }
+	else if (type == "string")              {                                  i._s = p;               checkNumerals(i._s);                         }
+	else { toss("type"); }
+	i._fit = numeralsFit(i._s)
+
+	i.text = i._s;
+	i.hasNumber = function() { return i._fit; }
+	i.toNumber = function() { return _getN(i); }
+	i.type = "int";
+	return i;//can't freeze because value wont' change, but we might add a new type
+}
+
+function _b(i) { if (i._b !== "none") return i._b; i._b = new platformBigNumber(i._s); checkSame(i._s, i._b.toFixed(0)); return i._b; }
+function _n(i) { if (i._n !== "none") return i._n; i._n = numeralsToNumber(i._s);                                        return i._n; }
+function _s(i) {                      return i._s;                                                                                    }
+function _bs(i) { return i._b !== "none" ? i._b : i._s; }
+
+function _mul2(i, j) {                        return _bothFitProduct2(i, j) ? _int(_n(i) * _n(j))             : _int(_b(i).times(             _bs(j))); }
+function _div2(i, j) { _checkDivide2(i, j);   return _bothFit2(i, j)        ? _int(Math.floor(_n(i) / _n(j))) : _int(_b(i).dividedToIntegerBy(_bs(j))); }
+function _mod2(i, j) { _checkDivide2(i, j);   return _bothFit2(i, j)        ? _int(_n(i) % _n(j))             : _int(_b(i).mod(               _bs(j))); }
+function _add2(i, j) {                        return _bothFitProduct2(i, j) ? _int(_n(i) + _n(j))             : _int(_b(i).plus(              _bs(j))); }
+function _sub2(i, j) { _checkSubtract2(i, j); return _bothFit2(i, j)        ? _int(_n(i) - _n(j))             : _int(_b(i).minus(             _bs(j))); }
+
+function _equ2(i, j) {                        return _bothFit2(i, j)        ? _n(i) == _n(j)                  : _b(i).equals(                 _bs(j));  }
+function _gth2(i, j) {                        return _bothFit2(i, j)        ? _n(i) >  _n(j)                  : _b(i).greaterThan(            _bs(j));  }
+function _gte2(i, j) {                        return _bothFit2(i, j)        ? _n(i) >= _n(j)                  : _b(i).greaterThanOrEqualTo(   _bs(j));  }
+function _lth2(i, j) {                        return _bothFit2(i, j)        ? _n(i) <  _n(j)                  : _b(i).lessThan(               _bs(j));  }
+function _lte2(i, j) {                        return _bothFit2(i, j)        ? _n(i) <= _n(j)                  : _b(i).lessThanOrEqualTo(      _bs(j));  }
+
+function _checkDivide2(i, j)    { if (i._s == "0") toss("math"); }
+function _checkSubtract2(i, j)  { if (compareCheckedNumerals(i._s, j._s) < 0) toss("bounds"); }
+function _bothFit2(i, j)        { return i._fit && j._fit; }
+function _bothFitProduct2(i, j) { return i._fit && j._fit && i._s.length + j._s.length < (Number.MAX_SAFE_INTEGER+"").length; }
+
+exports.int = int;
+
+
+
+
+//just factor into the test that uses it
+function _inside(i) { return "###".fill(i._b === "none" ? "-" : "b", i._n === "none" ? "-" : "n", i._s === "none" ? "-" : "s"); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//NEW
+
 //   ___       _   
 //  |_ _|_ __ | |_ 
 //   | || '_ \| __|
@@ -512,9 +639,11 @@ exports._multiplyArray = _multiplyArray;
 
 function divideFast(n, d) { return Math.floor(n / d);               } // Shorter than using Math.floor directly, and easily see where you use it
 function divideSafe(n, d) { return Fraction(n, d).whole.toNumber(); } // Likely fast enough, or just use Fraction directly
+function divideInt(n, d)  { return int(n, "/", d); }
 
 exports.divideFast = divideFast;
 exports.divideSafe = divideSafe;
+exports.divideInt = divideInt;
 
 //   ____                _____               _   _             
 //  / ___|  __ _ _   _  |  ___| __ __ _  ___| |_(_) ___  _ __  

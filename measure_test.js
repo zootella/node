@@ -529,14 +529,16 @@ function speedSkill() {
 	speedLoop("less text",              speedLessT);   // ~1 million
 	speedLoop("less bignumber.js",      speedLessB);   // ~3 million
 	speedLoop("less Int",               speedLessC);   // ~100 thousand
+	speedLoop("less int",               speedLessI);   // ~300 thousand
 	log();
 	speedLoop("scale number",           speedScaleJ);  // ~5 million
 	speedLoop("scale bignumber.js",     speedScaleB);  // ~100 thousand, slow
 	speedLoop("scale Int and Fraction", speedScaleC);  // ~10 thousand, slow
+	speedLoop("scale int",              speedScaleI);  // ~20 thousand, slow
 	log();
 	speedLoop("divide number",          speedDivideJ); // ~10 million
 	speedLoop("divide Fraction",        speedDivideC); // ~10 thousand, slow
-
+	speedLoop("divide int",             speedDivideI); // ~200 thousand
 }
 
 function roll() {//make a random integer
@@ -593,6 +595,10 @@ function speedLessC() {
 	var i = roll();
 	if (Int(i).greaterThan(94906265)) log("mistake");
 }
+function speedLessI() {
+	var i = roll();
+	if (int(i, ">", 94906265)) log("mistake");
+}
 
 //multiply and divide
 function speedScaleJ() {
@@ -621,6 +627,15 @@ function speedScaleC() {
 	var f = Fraction(t, d);//whole and remainder
 	if (f.whole.multiply(d).add(f.remainder).nonequal(t)) log("mistake");//check
 }
+function speedScaleI() {
+	var i = roll();
+	var n = roll();
+	var d = roll();
+	var t = int(i, "*", n);//top
+	var w = int(t, "/", d);//whole
+	var r = int(t, "%", d);//remainder
+	if (int(w, "*", d, "+", r, "!=", t)) log("mistake");//check
+}
 
 //divide
 function speedDivideJ() {
@@ -632,6 +647,11 @@ function speedDivideC() {
 	var n = roll();
 	var d = roll();
 	var w = divideSafe(n, d);
+}
+function speedDivideI() {
+	var n = roll();
+	var d = roll();
+	var w = divideInt(n, d);
 }
 
 if (demo("speed-check")) { demoSpeedCheck(); }
