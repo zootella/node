@@ -403,9 +403,6 @@ then waits 4s, and if still open, and mistake logs that
 
 
 
-//here you are in sf
-
-
 
 /*
 
@@ -429,55 +426,6 @@ red, done with error return code, actually use the return code
 
 
 
-
-
-
-
-//little int
-
-/*
-unify 3type and Int into int
-contents are absolute minimum
-everything else is _functions
-
-int(7)
-int(7, "+", 3)
-
-
-
-
-
-
-*/
-
-
-
-
-exports.testIntMath = function(test) {
-
-
-	function v(f) { f(); test.ok(true); }//valid
-	function i(f) { try { f(); test.fail(); } catch (e) { test.ok(true); } }//invalid
-
-
-	i(function() { int(); });//blank is invalid
-	v(function() { int(7); });//single number is valid
-	i(function() { int(7, "="); });//invalid operator
-	i(function() { int(7, "+"); });//valid operator but nothing afterwards
-	v(function() { int(7, "++"); });//valid operator that doesn't need anything else
-	v(function() { int(7, "+", 4); });//valid operator and something else
-	i(function() { int(7, "=", 4); });//invalid operator
-
-
-
-
-
-
-
-
-
-	test.done();
-}
 
 
 

@@ -362,133 +362,6 @@ exports.compareNumerals = compareNumerals;
 exports.compareCheckedNumber = compareCheckedNumber;
 exports.compareCheckedNumerals = compareCheckedNumerals;
 
-//NEW
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function int() {
-	var a = arguments;//point a at the arguments array
-	var d = 0;//our index in the arguments array
-	function empty() { return d >= a.length; }//true if there are no more arguments
-	function next() { if (empty()) toss("code"); return a[d++]; }//get the next argument and then move the index forward
-	function done() { if (!empty()) toss("code"); }//make sure there are no more arguments
-
-	var i = _int(next());//must have argument, it's i, the first number
-	if (empty()) return i;//ok if that's all there is
-
-	while (true) {
-
-		var o = next();//there must be another argument, it's the operator
-
-		//if it's a single operator, make sure there's nothing else, do it, return the answer
-		if      (o === "++") { done(); return  _add2(i, _int(1)); }
-		else if (o === "--") { done(); return  _sub2(i, _int(1)); }
-		else if (o === "!")  { done(); return  _equ2(i, _int(0)); } // if (!i) becomes if (int(i, "!"))
-		else if (o === "")   { done(); return !_equ2(i, _int(0)); } // if (i)  becomes if (int(i, ""))
-		else {//otherwise it must be a double operator
-
-			var j = _int(next());//must have argument, get the next argument, it's j, the second number
-
-			if      (o === "*")  { i = _mul2(i, j); }//do it, it's ok if there is more after this
-			else if (o === "/")  { i = _div2(i, j); }
-			else if (o === "%")  { i = _mod2(i, j); }
-			else if (o === "+")  { i = _add2(i, j); }
-			else if (o === "-")  { i = _sub2(i, j); }
-			else if (o === "==") { done(); return  _equ2(i, j); }//make sure it's the end
-			else if (o === "!=") { done(); return !_equ2(i, j); }
-			else if (o === ">")  { done(); return  _gth2(i, j); }
-			else if (o === ">=") { done(); return  _gte2(i, j); }
-			else if (o === "<")  { done(); return  _lth2(i, j); }
-			else if (o === "<=") { done(); return  _lte2(i, j); }
-			else { toss("code"); }//invalid operator
-
-			if (empty()) return i;//that's it, return the final answer
-		}//otherwise loop again to get the next operator
-	}
-}
-
-function _int(p) {
-	var type = getType(p);
-	if (type == "int") return p;
-
-	var i = { _b:"none", _n:"none", _s:"none" };
-	if (hasMethod(p, "dividedToIntegerBy")) { i._b = p;                        i._s = i._b.toFixed(0); checkNumerals(i._s);                         }
-	else if (type == "number")              { i._n = p; checkNumberMath(i._n); i._s = i._n+"";         checkNumerals(i._s); checkNumeralsFit(i._s); }
-	else if (type == "string")              {                                  i._s = p;               checkNumerals(i._s);                         }
-	else { toss("type"); }
-	i._fit = numeralsFit(i._s)
-
-	i.text = i._s;
-	i.hasNumber = function() { return i._fit; }
-	i.toNumber = function() { return _getN(i); }
-	i.type = "int";
-	return i;//can't freeze because value wont' change, but we might add a new type
-}
-
-function _b(i) { if (i._b !== "none") return i._b; i._b = new platformBigNumber(i._s); checkSame(i._s, i._b.toFixed(0)); return i._b; }
-function _n(i) { if (i._n !== "none") return i._n; i._n = numeralsToNumber(i._s);                                        return i._n; }
-function _s(i) {                      return i._s;                                                                                    }
-function _bs(i) { return i._b !== "none" ? i._b : i._s; }
-
-function _mul2(i, j) {                        return _bothFitProduct2(i, j) ? _int(_n(i) * _n(j))             : _int(_b(i).times(             _bs(j))); }
-function _div2(i, j) { _checkDivide2(i, j);   return _bothFit2(i, j)        ? _int(Math.floor(_n(i) / _n(j))) : _int(_b(i).dividedToIntegerBy(_bs(j))); }
-function _mod2(i, j) { _checkDivide2(i, j);   return _bothFit2(i, j)        ? _int(_n(i) % _n(j))             : _int(_b(i).mod(               _bs(j))); }
-function _add2(i, j) {                        return _bothFitProduct2(i, j) ? _int(_n(i) + _n(j))             : _int(_b(i).plus(              _bs(j))); }
-function _sub2(i, j) { _checkSubtract2(i, j); return _bothFit2(i, j)        ? _int(_n(i) - _n(j))             : _int(_b(i).minus(             _bs(j))); }
-
-function _equ2(i, j) {                        return _bothFit2(i, j)        ? _n(i) == _n(j)                  : _b(i).equals(                 _bs(j));  }
-function _gth2(i, j) {                        return _bothFit2(i, j)        ? _n(i) >  _n(j)                  : _b(i).greaterThan(            _bs(j));  }
-function _gte2(i, j) {                        return _bothFit2(i, j)        ? _n(i) >= _n(j)                  : _b(i).greaterThanOrEqualTo(   _bs(j));  }
-function _lth2(i, j) {                        return _bothFit2(i, j)        ? _n(i) <  _n(j)                  : _b(i).lessThan(               _bs(j));  }
-function _lte2(i, j) {                        return _bothFit2(i, j)        ? _n(i) <= _n(j)                  : _b(i).lessThanOrEqualTo(      _bs(j));  }
-
-function _checkDivide2(i, j)    { if (i._s == "0") toss("math"); }
-function _checkSubtract2(i, j)  { if (compareCheckedNumerals(i._s, j._s) < 0) toss("bounds"); }
-function _bothFit2(i, j)        { return i._fit && j._fit; }
-function _bothFitProduct2(i, j) { return i._fit && j._fit && i._s.length + j._s.length < (Number.MAX_SAFE_INTEGER+"").length; }
-
-exports.int = int;
-
-
-
-
-//just factor into the test that uses it
-function _inside(i) { return "###".fill(i._b === "none" ? "-" : "b", i._n === "none" ? "-" : "n", i._s === "none" ? "-" : "s"); }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//NEW
-
 //   ___       _   
 //  |_ _|_ __ | |_ 
 //   | || '_ \| __|
@@ -497,104 +370,94 @@ function _inside(i) { return "###".fill(i._b === "none" ? "-" : "b", i._n === "n
 //                 
 
 // A 0+ integer of unlimited size
-function Int(p) { // Takes a number like 5, a string of numerals like "789", a bignumber.js BigNumber, or another Int
-	if (isType(p, "Int")) return p; // Return the given Int instead of making a new one, the value inside an Int can't change
-	var o = {};
-	o.v = _3type(p); // Parse the given parameter, keeping together v.s() numerals, and v.n() number and v.b() BigNumber once we have them or they are necessary
-	o.inside = o.v.inside; // Point to function, see which types v has built up with text like "bns" or "--s" for testing
+// You can do math like int(7, "+", 4, "*", 3, "==", 33) is true, who says JavaScript can't do operator overloading?
+function int() {
+	var a = arguments; // Point a at the arguments array so the functions below can reach it
+	var d = 0;         // Start the index d at the first argument
+	function noMore()      { return d >= a.length;                      } // True when we've looked at every argument
+	function getArgument() { if (noMore()) toss("code"); return a[d++]; } // Get the next argument
+	function nothingElse() { if (!noMore()) toss("code");               } // Make sure we used all the arguments
 
-	o.multiply             = function(q) { return  _mul(o.v, q); } // p * q   p.multiply(q)              p._("*", q)
-	o.divide               = function(q) { return  _div(o.v, q); } // p / q   p.divide(q)                p._("/", q)
-	o.modulo               = function(q) { return  _mod(o.v, q); } // p % q   p.modulo(q)                p._("%", q)
+	var i = _int(getArgument()); // Get the first number
+	if (noMore()) return i; // If that's it, that's fine
 
-	o.add                  = function(q) { return  _add(o.v, q); } // p + q   p.add(q)                   p._("+", q)
-	o.subtract             = function(q) { return  _sub(o.v, q); } // p - q   p.subtract(q)              p._("-", q)
-	o.increment            = function()  { return  _add(o.v, 1); } // p++     p.increment()              p._("++")
-	o.decrement            = function()  { return  _sub(o.v, 1); } // p--     p.decrement()              p._("--")
+	while (true) { // Loop to do as much math as we have arguments
+		var o = getArgument(); // Get the operator
 
-	o.equals               = function(q) { return  _equ(o.v, q); } // p == q  p.equals(q)                p._("==", q)
-	o.nonequal             = function(q) { return !_equ(o.v, q); } // p != q  p.nonequal(q)              p._("!=", q)
-	o.not                  = function()  { return  _equ(o.v, 0); } // !p      p.not()                    p._("!")
-	o.is                   = function()  { return !_equ(o.v, 0); } // p       p.is()                     p._("")       To boolean, commonly used
+		if      (o === "++") { i = _add(i, _int(1)); } // Operators that don't need anything else
+		else if (o === "--") { i = _sub(i, _int(1)); }
+		else if (o === "!")  { nothingElse(); return  _equ(i, _int(0)); } // if (!i) becomes if (int(i, "!"))
+		else if (o === "")   { nothingElse(); return !_equ(i, _int(0)); } // if (i)  becomes if (int(i, ""))
+		else { // Otherwise it must be an operator that needs a number afterwards
 
-	o.greaterThan          = function(q) { return  _gth(o.v, q); } // p > q   p.greaterThan(q)           p._(">", q)
-	o.greaterThanOrEqualTo = function(q) { return  _gte(o.v, q); } // p >= q  p.greaterThanOrEqualTo(q)  p._(">=", q)
-	o.lessThan             = function(q) { return  _lth(o.v, q); } // p < q   p.lessThan(q)              p._("<", q)
-	o.lessThanOrEqualTo    = function(q) { return  _lte(o.v, q); } // p <= q  p.lessThanOrEqualTo(q)     p._("<=", q)
+			var j = _int(getArgument()); // Get the second number
 
-	o._ = function(c, q) { return _calculate(o, c, q); } // Who says JavaScript can't do operator overloading?
-	o.text = o.v.s();
-	o.hasNumber = function() { return o.v.fit; } // True if our value is small enough to fit in a number as an integer, not a floating point number
-	o.toNumber = o.v.n; // Point to function, throws if too big
-	o.type = "Int";
-	return freeze(o);
+			if      (o === "*")  { i = _mul(i, j); } // Do the math
+			else if (o === "/")  { i = _div(i, j); }
+			else if (o === "%")  { i = _mod(i, j); }
+			else if (o === "+")  { i = _add(i, j); }
+			else if (o === "-")  { i = _sub(i, j); }
+			else if (o === "==") { nothingElse(); return  _equ(i, j); } // Make sure we used all the arguments
+			else if (o === "!=") { nothingElse(); return !_equ(i, j); }
+			else if (o === ">")  { nothingElse(); return  _gth(i, j); }
+			else if (o === ">=") { nothingElse(); return  _gte(i, j); }
+			else if (o === "<")  { nothingElse(); return  _lth(i, j); }
+			else if (o === "<=") { nothingElse(); return  _lte(i, j); }
+			else { toss("code"); } // Unknown operator
+		}
+		if (noMore()) return i; // If we used all the arguments, return the final answer, otherwise loop to keep going
+	}
 }
-function _3type(p) { // Parse the parameter given to Int or a method on Int, keeping the same integer value in up to 3 different types
+
+function _int(p) { // Takes a number like 5, a string of numerals like "789", a bignumber.js BigNumber, or another Int
 	var type = getType(p);
-	if (type == "Int") return p.v; // We got an Int, return the value inside instead of making a new one
+	if (type == "Int") return p; // Return the given Int instead of making a new one, the value of an Int can't change
+	var o = {};
 
-	// Hold the same integer value 1, 2 or 3 different ways, keeping the type we were given, only converting when necessary, and checking everything we can with the types we have
-	var b = "none"; // Our integer value in a BigNumber object, or "none" before we have one
-	var n = "none"; // Our integer value in a number type variable, or "none" before we have one, or if our value won't fit
-	var s = "none"; // Our integer value as a string of numerals, we always have this type
+	// Hold the same integer value 1, 2 or 3 different ways ♫ There's three ways of saying, the very same thing
+	o._b = "none"; // Our integer value in a BigNumber object, or "none" before we have one
+	o._n = "none"; // Our integer value in a number type variable, or "none" before we have one, or if our value won't fit
+	o._s = "none"; // Our integer value as a string of numerals, we always have this type
 
-	if (hasMethod(p, "dividedToIntegerBy")) { b = p;                     s = b.toFixed(0); checkNumerals(s);                      } // Given a BigNumber, make and check numerals
-	else if (type == "number")              { n = p; checkNumberMath(n); s = n+"";         checkNumerals(s); checkNumeralsFit(s); } // Given a number, check it, make numerals, and check them
-	else if (type == "string")              {                            s = p;            checkNumerals(s);                      } // Given numerals, check them
-	else { toss("type"); } // Int(p).method(p) only accepts p as an Int, BigNumber, number, or string
+	// Keep the type we were given, only convert when necessary, and check everything
+	if (hasMethod(p, "dividedToIntegerBy")) { o._b = p;                        o._s = o._b.toFixed(0); checkNumerals(o._s);                         } // Given a BigNumber, make and check numerals
+	else if (type == "number")              { o._n = p; checkNumberMath(o._n); o._s = o._n+"";         checkNumerals(o._s); checkNumeralsFit(o._s); } // Given a number, check it, make numerals, and check them
+	else if (type == "string")              {                                  o._s = p;               checkNumerals(o._s);                         } // Given numerals, check them
+	else { toss("type"); } // Only accept p as an Int, BigNumber, number, or string
+	o._fit = numeralsFit(o._s); // Small enough to fit
 
-	var o = {}; // Return, or make, check, keep, and return, our value in a BigNumber, number, or string ♫ There's three ways of saying, the very same thing
-	o.b = function() { if (b !== "none") return b; b = new platformBigNumber(s); checkSame(s, b.toFixed(0)); return b; } // Make from numerals rather than number to avoid 15 digit limit
-	o.n = function() { if (n !== "none") return n; n = numeralsToNumber(s);                                  return n; }
-	o.s = function() {                   return s;                                                                     }
-
-	o.fit = numeralsFit(s); // Small enough to fit
-	o.bs = function() { return b !== "none" ? b : s; } // Our value in a BigNumber if we have one, numerals otherwise
-	o.inside = function() { return "###".fill(b === "none" ? "-" : "b", n === "none" ? "-" : "n", s === "none" ? "-" : "s"); } // Show which types we've built up
-	return o;
-}
-//                                                                    Small values            use number for speed             Potentially large values use BigNumber instead
-function _mul(v, q) { var w = _3type(q);                       return _bothFitProduct(v, w) ? Int(v.n() * w.n())             : Int(v.b().times(             w.bs())); }
-function _div(v, q) { var w = _3type(q); _checkDivide(v, w);   return _bothFit(v, w)        ? Int(Math.floor(v.n() / w.n())) : Int(v.b().dividedToIntegerBy(w.bs())); }
-function _mod(v, q) { var w = _3type(q); _checkDivide(v, w);   return _bothFit(v, w)        ? Int(v.n() % w.n())             : Int(v.b().mod(               w.bs())); }
-function _add(v, q) { var w = _3type(q);                       return _bothFitProduct(v, w) ? Int(v.n() + w.n())             : Int(v.b().plus(              w.bs())); }
-function _sub(v, q) { var w = _3type(q); _checkSubtract(v, w); return _bothFit(v, w)        ? Int(v.n() - w.n())             : Int(v.b().minus(             w.bs())); }
-
-function _equ(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() == w.n()                 : v.b().equals(                w.bs());  }
-function _gth(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() >  w.n()                 : v.b().greaterThan(           w.bs());  }
-function _gte(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() >= w.n()                 : v.b().greaterThanOrEqualTo(  w.bs());  }
-function _lth(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() <  w.n()                 : v.b().lessThan(              w.bs());  }
-function _lte(v, q) { var w = _3type(q);                       return _bothFit(v, w)        ? v.n() <= w.n()                 : v.b().lessThanOrEqualTo(     w.bs());  }
-
-function _checkDivide(v, w)    { if (w.s() == "0") toss("math"); }                               // Who says you can't divide by zero? OH SHI-
-function _checkSubtract(v, w)  { if (compareCheckedNumerals(v.s(), w.s()) < 0) toss("bounds"); } // Make sure v - w will be 0+, as negative values aren't allowed
-function _bothFit(v, w)        { return v.fit && w.fit; }                                        // True if both values will fit in numbers, so we can use minus, divide, and modulo
-function _bothFitProduct(v, w) {                                                                 // True if adding or multipling the given two numbers can't produce an answer that's too big
-	return _bothFit(v, w) && v.s().length + w.s().length < (Number.MAX_SAFE_INTEGER+"").length;    // Even if v and w are all 9s, a*b will still be a digit shorter than max safe integer
-}
-function _calculate(o, c, q) {
-	if      (c === "*")  { return o.multiply(q);             }
-	else if (c === "/")  { return o.divide(q);               }
-	else if (c === "%")  { return o.modulo(q);               }
-
-	else if (c === "+")  { return o.add(q);                  }
-	else if (c === "-")  { return o.subtract(q);             }
-	else if (c === "++") { return o.increment();             }
-	else if (c === "--") { return o.decrement();             }
-
-	else if (c === "==") { return o.equals(q);               }
-	else if (c === "!=") { return o.nonequal(q);             }
-	else if (c === "!")  { return o.not();                   }
-	else if (c === "")   { return o.is();                    }
-
-	else if (c === ">")  { return o.greaterThan(q);          }
-	else if (c === ">=") { return o.greaterThanOrEqualTo(q); }
-	else if (c === "<")  { return o.lessThan(q);             }
-	else if (c === "<=") { return o.lessThanOrEqualTo(q);    }
-	else { toss("code"); }
+	o.text = o._s;
+	o.hasNumber = function() { return o._fit; } // True if our value is small enough to fit in a number as an integer, not a floating point number
+	o.toNumber = function() { return _n(o); } // Throws if too big to fit
+	o.type = "Int";
+	return o; // Can't freeze because while the value won't change, we might keep it as an additional type
 }
 
-exports.Int = Int;
+// Return, or make, check, keep, and return, the value in i as a BigNumber, number, or string
+function _b(i) { if (i._b !== "none") return i._b; i._b = new platformBigNumber(i._s); checkSame(i._s, i._b.toFixed(0)); return i._b; } // Make from numerals rather than number to avoid 15 digit limit
+function _n(i) { if (i._n !== "none") return i._n; i._n = numeralsToNumber(i._s);                                        return i._n; }
+function _s(i) {                      return i._s;                                                                                    } // Or access i._s directly, as it's always there
+function _bs(i) { return i._b !== "none" ? i._b : i._s; } // The value in a BigNumber if i has one, numerals otherwise
+
+//                                                 Small values            use number for speed              Potentially large values use BigNumber instead
+function _mul(i, j) {                       return _bothFitProduct(i, j) ? _int(_n(i) * _n(j))             : _int(_b(i).times(             _bs(j))); }
+function _div(i, j) { _checkDivide(i, j);   return _bothFit(i, j)        ? _int(Math.floor(_n(i) / _n(j))) : _int(_b(i).dividedToIntegerBy(_bs(j))); }
+function _mod(i, j) { _checkDivide(i, j);   return _bothFit(i, j)        ? _int(_n(i) % _n(j))             : _int(_b(i).mod(               _bs(j))); }
+function _add(i, j) {                       return _bothFitProduct(i, j) ? _int(_n(i) + _n(j))             : _int(_b(i).plus(              _bs(j))); }
+function _sub(i, j) { _checkSubtract(i, j); return _bothFit(i, j)        ? _int(_n(i) - _n(j))             : _int(_b(i).minus(             _bs(j))); }
+
+function _equ(i, j) {                       return _bothFit(i, j)        ? _n(i) == _n(j)                  : _b(i).equals(                 _bs(j));  }
+function _gth(i, j) {                       return _bothFit(i, j)        ? _n(i) >  _n(j)                  : _b(i).greaterThan(            _bs(j));  }
+function _gte(i, j) {                       return _bothFit(i, j)        ? _n(i) >= _n(j)                  : _b(i).greaterThanOrEqualTo(   _bs(j));  }
+function _lth(i, j) {                       return _bothFit(i, j)        ? _n(i) <  _n(j)                  : _b(i).lessThan(               _bs(j));  }
+function _lte(i, j) {                       return _bothFit(i, j)        ? _n(i) <= _n(j)                  : _b(i).lessThanOrEqualTo(      _bs(j));  }
+
+function _checkDivide(i, j)    { if (j._s == "0") toss("math"); }                                                              // Who says you can't divide by zero? OH SHI-
+function _checkSubtract(i, j)  { if (compareCheckedNumerals(i._s, j._s) < 0) toss("bounds"); }                                 // Make sure i-j will be 0+, as negative values aren't allowed
+function _bothFit(i, j)        { return i._fit && j._fit; }                                                                    // Both values fit in numbers, so "-" "/" and "%" are safe
+function _bothFitProduct(i, j) { return i._fit && j._fit && i._s.length + j._s.length < (Number.MAX_SAFE_INTEGER+"").length; } // Even if i and j are all 9s, i*j will still be a digit shorter than max safe integer, so "+" and "*" are safe
+
+exports.int = int;
 
 //   _____               _   _             
 //  |  ___| __ __ _  ___| |_(_) ___  _ __  
@@ -609,26 +472,26 @@ function Fraction(n, d) {
 	var o = {};
 	o.numerator   = _multiplyArray(n); // My numerator's up, up, up ♫
 	o.denominator = _multiplyArray(d); // My denominator's down, down, down
-	if (o.denominator.equals(0)) return null; // Return null instead of throwing an exception
+	if (int(o.denominator, "==", 0)) return null; // Return null instead of throwing an exception
 
-	o.remainder = o.numerator.modulo(o.denominator);
-	o.whole     = o.numerator.divide(o.denominator);
-	var r2 = o.remainder.multiply(2); // Double the remainder to see if it's less than half the denominator
-	if      (r2.equals(0))               { o.round = o.whole;        o.ceiling = o.whole;        } // Flat, all whole
-	else if (r2.lessThan(o.denominator)) { o.round = o.whole;        o.ceiling = o.whole.add(1); } // Remainder less than half, round down
-	else                                 { o.round = o.whole.add(1); o.ceiling = o.round;        } // Remainder half or more, round up
+	o.remainder = int(o.numerator, "%", o.denominator);
+	o.whole     = int(o.numerator, "/", o.denominator);
+	var r2 = int(o.remainder, "*", 2); // Double the remainder to see if it's less than half the denominator
+	if      (int(r2, "==", 0))            { o.round = o.whole;            o.ceiling = o.whole;            } // Flat, all whole
+	else if (int(r2, "<", o.denominator)) { o.round = o.whole;            o.ceiling = int(o.whole, "++"); } // Remainder less than half, round down
+	else                                  { o.round = int(o.whole, "++"); o.ceiling = o.round;            } // Remainder half or more, round up
 
-	o.scale = function(v, w) { return Fraction(o.numerator.multiply(_multiplyArray(v)), o.denominator.multiply(_multiplyArray(w))); }
+	o.scale = function(v, w) { return Fraction(int(o.numerator, "*", _multiplyArray(v)), int(o.denominator, "*", _multiplyArray(w))); }
 	o.text = function() { sayFraction(o, "#.### (#/#)"); } // Default pattern
 	o.type = "Fraction";
 	return freeze(o);
 }
-function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into Int(10)
+function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into int(10)
 	var i;
 	if (Array.isArray(a)) {
-		for (var j = 0; j < a.length; j++) i = !j ? Int(a[j]) : i.multiply(a[j]);
+		for (var j = 0; j < a.length; j++) i = !j ? int(a[j]) : int(i, "*", a[j]);
 	} else {
-		i = Int(a);
+		i = int(a);
 	}
 	if (!i) toss("type"); // Throw on undefinied and empty array
 	return i;
@@ -637,13 +500,11 @@ function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into Int(10)
 exports.Fraction = Fraction;
 exports._multiplyArray = _multiplyArray;
 
-function divideFast(n, d) { return Math.floor(n / d);               } // Shorter than using Math.floor directly, and easily see where you use it
-function divideSafe(n, d) { return Fraction(n, d).whole.toNumber(); } // Likely fast enough, or just use Fraction directly
-function divideInt(n, d)  { return int(n, "/", d); }
+function divideFast(n, d) { return Math.floor(n / d);         } // Shorter than using Math.floor directly, and easily see where you use it
+function divideSafe(n, d) { return int(n, "/", d).toNumber(); } // Likely fast enough, or just use int directly
 
 exports.divideFast = divideFast;
 exports.divideSafe = divideSafe;
-exports.divideInt = divideInt;
 
 //   ____                _____               _   _             
 //  / ___|  __ _ _   _  |  ___| __ __ _  ___| |_(_) ___  _ __  
@@ -707,7 +568,7 @@ function _tens(decimal) { // Given a number of decimal places, return the necess
 	min0(decimal);
 	var m = "1";
 	for (var i = 0; i < decimal; i++) m += "0";
-	return Int(m);
+	return int(m);
 }
 
 exports.sayUnitPerUnit = sayUnitPerUnit;
@@ -988,13 +849,13 @@ freeze(Size);
 
 // Describe the given number of bytes with text like "7gb 1023mb 0kb 19b" showing scale and exactness
 function saySize(n, decimal) {
-	n = Int(n).divide(_tens(decimal));
+	n = int(n, "/", _tens(decimal));
 
 	function take(unit, name) {
-		var f = Fraction(n, unit);                // See how many unit amounts are in n
-		if (f.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
-			s += say(f.whole, name, " ");           // Add it to the string like "5mb "
-			n = f.remainder;                        // Subtract it from the total
+		var f = Fraction(n, unit);              // See how many unit amounts are in n
+		if (int(f.whole, ">", 0) || s.length) { // If 1 or more, or if we previously took a bigger unit
+			s += say(f.whole, name, " ");         // Add it to the string like "5mb "
+			n = f.remainder;                      // Subtract it from the total
 		}
 	}
 
@@ -1010,15 +871,15 @@ function saySize(n, decimal) {
 
 // Describe the given number of bytes with text like "9876mb" using 4 numerals or less
 function saySize4(n, decimal) {
-	n = Int(n).divide(_tens(decimal));
+	n = int(n, "/", _tens(decimal));
 
 	var d = 1; // Starting unit of 1 byte
 	var u = 0;
 	var unit = ["b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb"];
 	while (u < unit.length) { // Loop until we're out of units
 
-		var w = Fraction(n, d).whole; // Find out how many of the current unit we have
-		if (w.lessThanOrEqualTo(9999)) return say(w, unit[u]); // Four digits or less, use this unit
+		var w = int(n, "/", d); // Find out how many of the current unit we have
+		if (int(w, "<=", 9999)) return say(w, unit[u]); // Four digits or less, use this unit
 
 		d *= 1024; // Move to the next larger unit
 		u++;
@@ -1079,12 +940,12 @@ exports.saySizeY = saySizeY;
 function saySpeedKbps(f) {
 	if (!f) return "";
 	var i = f.scale([100, Time.second], Size.kb).whole; // Compute the number of hundreadth kilobytes per second
-	if      (i.lessThan(    1)) return "0.00kb/s";                                           //           "0.00kb/s"
-	else if (i.lessThan(   10)) return say("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
-	else if (i.lessThan(  100)) return say("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
-	else if (i.lessThan( 1000)) return say(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"
-	else if (i.lessThan(10000)) return say(say(i).start(2), ".", say(i).clip(2, 1), "kb/s"); // 4 digits  "99.9kb/s", omit hundreadths
-	else                        return say(commas(say(i).chop(2)), "kb/s");                  // 5 or more "999kb/s" or "1,234kb/s"
+	if      (int(i, "<",     1)) return "0.00kb/s";                                           //           "0.00kb/s"
+	else if (int(i, "<",    10)) return say("0.0", i, "kb/s");                                // 1 digit   "0.09kb/s"
+	else if (int(i, "<",   100)) return say("0.", i, "kb/s");                                 // 2 digits  "0.99kb/s"
+	else if (int(i, "<",  1000)) return say(say(i).start(1), ".", say(i).clip(1, 2), "kb/s"); // 3 digits  "9.99kb/s"
+	else if (int(i, "<", 10000)) return say(say(i).start(2), ".", say(i).clip(2, 1), "kb/s"); // 4 digits  "99.9kb/s", omit hundreadths
+	else                         return say(commas(say(i).chop(2)), "kb/s");                  // 5 or more "999kb/s" or "1,234kb/s"
 }
 
 // Say how long it takes to transfer a megabyte, like "42s/mb"
@@ -1092,7 +953,7 @@ function saySpeedKbps(f) {
 // Good for making a slow speed make sense
 function saySpeedTimePerMegabyte(f) {
 	var bytesPerSecond = f.scale(Time.second, 1).whole;
-	if (bytesPerSecond.lessThan(1) || bytesPerSecond.greaterThan(Size.mb)) return ""; // 0 would be forever, larger than 1mb would be 0s/mb
+	if (int(bytesPerSecond, "<", 1) || int(bytesPerSecond, ">", Size.mb)) return ""; // 0 would be forever, larger than 1mb would be 0s/mb
 	return sayTimeRemaining(Fraction([Time.second, Size.mb], bytesPerSecond).whole) + "/mb";
 }
 
@@ -1133,13 +994,13 @@ freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
 function sayTime(t, decimal) {
-	t = Int(t).divide(_tens(decimal));
+	t = int(t, "/", _tens(decimal));
 
 	function take(unit, name) {
-		var f = Fraction(t, unit);                // See how many unit amounts are in t
-		if (f.whole.greaterThan(0) || s.length) { // If 1 or more, or if we previously took a bigger unit
-			s += say(commas(f.whole), name, " ");   // Add it to the string like "5h "
-			t = f.remainder;                        // Subtract it from the total
+		var f = Fraction(t, unit);              // See how many unit amounts are in t
+		if (int(f.whole, ">", 0) || s.length) { // If 1 or more, or if we previously took a bigger unit
+			s += say(commas(f.whole), name, " "); // Add it to the string like "5h "
+			t = f.remainder;                      // Subtract it from the total
 		}
 	}
 
@@ -1158,35 +1019,35 @@ function sayTime(t, decimal) {
 function sayTimeRemaining(t)       { return _sayTimeRemaining(t, false); }
 function sayTimeRemainingCoarse(t) { return _sayTimeRemaining(t, true);  } // Round down to the nearest 5 seconds so a countdown isn't distracting
 function _sayTimeRemaining(t, coarse) {
-	t = Int(t);
+	t = int(t);
 
 	// Compute the number of whole seconds, minutes, hours, and days in the given number of milliseconds
-	var s = Fraction(t, Time.second).whole;
-	var m = Fraction(t, Time.minute).whole;
-	var h = Fraction(t, Time.hour).whole;
-	var d = Fraction(t, Time.day).whole;
+	var s = int(t, "/", Time.second);
+	var m = int(t, "/", Time.minute);
+	var h = int(t, "/", Time.hour);
+	var d = int(t, "/", Time.day);
 
 	// If coarse and above 5, round down to the nearest multiple of 5
-	if (coarse && s.greaterThan(5)) s = s.subtract(s.modulo(5));
+	if (coarse && int(s, ">", 5)) s = int(s, "-", int(s, "%", 5));
 	
 	// Compose and return a String that describes that amount of time
-	if      (s.lessThan(    60)) return say(s, "s");                                   // "0s" to "59s"
-	else if (s.lessThan(   600)) return say(m, "m ", s.subtract(m.multiply(60)), "s"); // "1m 0s" to "9m 59s"
-	else if (s.lessThan(  3600)) return say(m, "m");                                   // "10m" to "59m"
-	else if (s.lessThan( 36000)) return say(h, "h ", m.subtract(h.multiply(60)), "m"); // "1h 0m" to "9h 59m"
-	else if (s.lessThan(259200)) return say(h, "h");                                   // "10h" to "71h"
-	else                         return say(commas(d), "d");                           // "3d" and up
+	if      (int(s, "<",     60)) return say(s, "s");                                     // "0s" to "59s"
+	else if (int(s, "<",    600)) return say(m, "m ", int(s, "-", int(m, "*", 60)), "s"); // "1m 0s" to "9m 59s"
+	else if (int(s, "<",   3600)) return say(m, "m");                                     // "10m" to "59m"
+	else if (int(s, "<",  36000)) return say(h, "h ", int(m, "-", int(h, "*", 60)), "m"); // "1h 0m" to "9h 59m"
+	else if (int(s, "<", 259200)) return say(h, "h");                                     // "10h" to "71h"
+	else                          return say(commas(d), "d");                             // "3d" and up
 }
 
 // Describe the given number of milliseconds with text like 5'15"223
 // Sports a global race style that's accurate to milliseconds
 // Godo for telling the user exactly how long something took
 function sayTimeRace(t) {
-	t = Int(t);
+	t = int(t);
 
-	var m = Fraction(t, Time.minute).whole;
-	var s = Fraction(t.subtract(m.multiply(Time.minute)), Time.second).whole;
-	var ms = t.subtract(m.multiply(Time.minute)).subtract(s.multiply(Time.second));
+	var m = int(t, "/", Time.minute);
+	var s = int(int(t, "-", int(m, "*", Time.minute)), "/", Time.second);
+	var ms = int(int(t, "-", int(m, "*", Time.minute)), "-", int(s, "*", Time.second));
 
 	return "#'#\"#".fill(commas(m), say(s).widenStart(2, "0"), say(ms).widenStart(3, "0"));
 }
@@ -1622,20 +1483,6 @@ exports.stripePieceToByte = stripePieceToByte;
 
 
 
-
-
-
-
-
-
-/*
-code node
-add to divide
-a.round
-it it's half or more, it's up, otherwise it's down
-and then use it for saySize gb, tb, pb
-and also use it for 1.234mb, have the 4 rounded, not chopped
-*/
 
 
 
