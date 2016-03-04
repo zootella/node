@@ -157,6 +157,33 @@ bridge.addForTest(_somethingForTests);
 
 
 
+//flow modules
+/*
+exports.module.add("module name", function() {
+	
+//put the existing section in here
+//all the code and comments for everything
+
+return {use:{name, name, name}, test:{name, name, name}}
+}
+
+notice how code here doesn't run the function, just defines it, load runs the function
+and then code in load executes all those in the right order, and tells which depend on which
+and then you don't have any globals at all, coding this may offer clues into your ideas of unifying static singleton and multiple instances, and figuring out the right way to do globals
+also, it no longer matters what file anything's in, it's all just about the module name, so that's easier
+*/
+
+//if you do function+"" you get the source code
+//use this to make the map that shows what depends on what
+//a little trick like this might be all you need
+//this is short of finding jquery for javascript, something that turns your code into a dom you can walk
+
+
+
+
+
+
+
 
 
 
