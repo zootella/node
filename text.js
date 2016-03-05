@@ -887,7 +887,7 @@ augment(ripWords, "ripWords");
 augment(ripLines, "ripLines");
 augment(rip, "rip");
 
-
+//TODO windows does 0d0a, mac just 0a, isn't there a platform that does just 0d? ripLines needs to deal with all 3
 
 
 

@@ -37,3 +37,28 @@ exports.working = working;
 //in addition to process.cwd(), there is also __dirname, which may be the same here, different in node webkit, you need to figure it out
 
 
+
+
+
+
+//TODO move this into state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

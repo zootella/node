@@ -185,7 +185,24 @@ also, it no longer matters what file anything's in, it's all just about the modu
 
 
 
+/*
+in each file, around each group, put a function
 
+unit("name", function() {
+
+//don't indent
+//starts with the big name
+//and all the code
+//what was once global is now local to the newly enclosing function, which is great
+
+});
+
+load.js has the unit() function
+at this point, it doesn't matter what file anything's in
+notice how that doesn't run the funciton in there, unit() does that, and in the prescribed order
+and now maybe more code can try different dependencies and determine what depends on what with a solver, which would be really cool
+you may have notes about this idea elsewhere
+*/
 
 
 

@@ -1,5 +1,10 @@
 
+var platformChildProcess = require("child_process");
+
 require("./load").load("state", function() { return this; });
+
+var thisFile = "state.js"; // The name of this file
+
 
 
 
@@ -636,6 +641,124 @@ function monitorDescribeEfficiency() {
 	var s = line("pulse efficiency:");
 	return s;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO move this higher in the file, or in another file
+
+//   ____                              
+//  |  _ \ _ __ ___   ___ ___  ___ ___ 
+//  | |_) | '__/ _ \ / __/ _ \/ __/ __|
+//  |  __/| | | (_) | (_|  __/\__ \__ \
+//  |_|   |_|  \___/ \___\___||___/___/
+//                                     
+
+// See if we can find a running process with the given ID like 94215, returns "yes", "no", or "maybe" if we couldn't prove it either way
+function isProcessRunning(pid) {
+	checkType(pid, "number"); // Make sure the process ID is a number
+	try {
+		var r = process.kill(pid, 0); // Doesn't kill the process, just sends a signal
+		if (r === true) return "yes"; // Running process found
+	} catch (e) {
+		if (e.errno === "ESRCH") return "no"; // Running process not found
+	}
+	return "maybe"; // That code acted in a way we didn't expect
+}
+
+function listProcesses(name) {//given a name like "node"
+	//TODO
+	/*
+	have fork use this to detect and avoid an infinite loop of making processes that would wreck the computer
+	do this once you've got promises going, as this is asynchronous
+	wrap execFile and exec to detect error and throw an exception that has bufferError, or return success and include bufferOut
+	use promises so that even though it splits on windows or not windows, after that, code comes together
+	some users will just want the number, others will want the list itself
+	beyond that, this works on mac and windows xp
+	*/
+
+	if (platform() == "windows") {
+		platformChildProcess.execFile("tasklist.exe", function(error, bufferOut, bufferError) {
+//		log("error:        " + say(error));
+			_report(_filter(bufferOut));
+//		log("buffer error: " + Data(bufferError).quote());
+		});
+	} else {
+		platformChildProcess.exec("ps | grep node", function(error, bufferOut, bufferError) {
+//		log("error:        " + say(error));
+			_report(_filter(bufferOut));
+//		log("buffer error: " + Data(bufferError).quote());
+		});
+	}
+
+	function _filter(b) {
+		var a = (b+"").ripLines(true, true);
+		var n = [];
+		for (var i = 0; i < a.length; i++) {
+			if (a[i].has(name) && !a[i].has("grep")) n.add(a[i]);
+		}
+		return n;
+	}
+	function _report(n) {
+		var s = line(items(n.length, name));
+		for (var i = 0; i < n.length; i++) s += line(n[i]);
+		log(s);
+	}
+}
+
+/*
+TODO
+wrap with promises
+-exec
+-execFile
+-spawn
+-fork
+and then, make your own fork that checks listProcesses first to protect against an infinite loop of process generation
+*/
+
+exports.isProcessRunning = isProcessRunning;
+exports.listProcesses = listProcesses;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
