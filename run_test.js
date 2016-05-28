@@ -141,7 +141,6 @@ function p32() {
 function c32() {
 	process.send(say("in c, isFork() returns ", isFork()));
 }
-function isFork() { return typeof process.send == "function"; }
 
 //   _____      _ _   
 //  | ____|_  _(_) |_ 

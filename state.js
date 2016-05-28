@@ -661,6 +661,13 @@ function monitorDescribeEfficiency() {
 
 
 
+
+
+
+
+
+
+
 //TODO move this higher in the file, or in another file
 
 //   ____                              
@@ -669,6 +676,9 @@ function monitorDescribeEfficiency() {
 //  |  __/| | | (_) | (_|  __/\__ \__ \
 //  |_|   |_|  \___/ \___\___||___/___/
 //                                     
+
+// True if we are a forked child process
+function isFork() { return typeof process.send == "function"; }
 
 // See if we can find a running process with the given ID like 94215, returns "yes", "no", or "maybe" if we couldn't prove it either way
 function isProcessRunning(pid) {
@@ -682,103 +692,90 @@ function isProcessRunning(pid) {
 	return "maybe"; // That code acted in a way we didn't expect
 }
 
-function listProcesses(name) {//given a name like "node"
-	//TODO
-	/*
-	have fork use this to detect and avoid an infinite loop of making processes that would wreck the computer
-	do this once you've got promises going, as this is asynchronous
-	wrap execFile and exec to detect error and throw an exception that has bufferError, or return success and include bufferOut
-	use promises so that even though it splits on windows or not windows, after that, code comes together
-	some users will just want the number, others will want the list itself
-	beyond that, this works on mac and windows xp
-	*/
+exports.isFork = isFork;
+exports.isProcessRunning = isProcessRunning;
 
-	if (platform() == "windows") {
-		platformChildProcess.execFile("tasklist.exe", function(error, bufferOut, bufferError) {
-//		log("error:        " + say(error));
-			_report(_filter(bufferOut));
-//		log("buffer error: " + Data(bufferError).quote());
-		});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//beta
+
+
+
+
+
+
+function closeCountBeta() {
+	clear();
+	return list.length;
+}
+
+function closeCheckBeta() {
+	if (closeCountBeta()) {
+		log("you forgot to close ", items(list.length, "object"), "!");
+		log(_sayList());
+		exit();
 	} else {
-		platformChildProcess.exec("ps | grep node", function(error, bufferOut, bufferError) {
-//		log("error:        " + say(error));
-			_report(_filter(bufferOut));
-//		log("buffer error: " + Data(bufferError).quote());
-		});
-	}
-
-	function _filter(b) {
-		var a = (b+"").ripLines(true, true);
-		var n = [];
-		for (var i = 0; i < a.length; i++) {
-			if (a[i].has(name) && !a[i].has("grep")) n.add(a[i]);
-		}
-		return n;
-	}
-	function _report(n) {
-		var s = line(items(n.length, name));
-		for (var i = 0; i < n.length; i++) s += line(n[i]);
-		log(s);
+		log("you closed everything!");
 	}
 }
 
-/*
-TODO
-wrap with promises
--exec
--execFile
--spawn
--fork
-and then, make your own fork that checks listProcesses first to protect against an infinite loop of process generation
-*/
+function closeBeta() {
+	//how about for (var o in arguments) instead
+	for (var i = 0; i < arguments.length; i++) {
+		var o = arguments[i];
+		try {
+			if (hasMethod(o, "isClosed") && !o.isClosed()) {
+				o._private_isClosed = true;
+				o._private_closeMethod();//change to optional, not blank
+				soon();
+			}
+		} catch (e) { mistakeLog(e); }
+	}
+}
 
-exports.isProcessRunning = isProcessRunning;
-exports.listProcesses = listProcesses;
+function canCloseBeta(closeMethod) {
+	if (!closeMethod) closeMethod = function() {};
+	var o = {};
+	o._private_closeMethod = closeMethod;
+	o._private_isClosed = false;
+	o.isClosed = function() { return o._private_isClosed; }
+	return o;
+}
+function mustCloseBeta(closeMethod) {
+	var o = canCloseBeta(closeMethod);
+	list.add(o);
+	dingStart();
+	soon();
+	return o;
+}
+function pulseScreenBeta(pulseScreenMethod) {
+	var o = mustCloseBeta();
+	o.pulseScreen = pulseScreenMethod;
+	return o;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+exports.closeCountBeta = closeCountBeta;
+exports.closeCheckBeta = closeCheckBeta;
+exports.closeBeta = closeBeta;
+exports.canCloseBeta = canCloseBeta;
+exports.mustCloseBeta = mustCloseBeta;
+exports.pulseScreenBeta = pulseScreenBeta;
 
 
 

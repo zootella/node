@@ -20,6 +20,13 @@ require("./load").load("base", function() { return this; });
 //CLOSE
 //rename closeCheck something definitive, like exit() or goodnight() or byebye()
 
+//CLOSE
+/*
+refactor keyboard() and closeKeyboard() to be not global, and compatible with close, like this
+var k = keyboard();
+close(k);
+have everything that needs to be closed use close(a, b, c) to be simple and consistant, and be taken along when you update close
+*/
 
 
 
@@ -430,6 +437,12 @@ make demos that get the process id, see if it's still running or not
 //FORK
 //run all these demos on windows, too, xp and 7, to make sure they work there
 
+//FORK
+/*
+your wrap of fork() includes these protections
+-if there are too many node processes, throw
+-if this process is forked, it can't fork another one. only allow non forked processes to fork, throw
+*/
 
 
 
@@ -444,16 +457,504 @@ make demos that get the process id, see if it's still running or not
 
 /*
 >if forked
-keyboard doesn't use keypress, and listens for keyboard messages from above
-log and stick don't use console.log or charm, and sends log and stick messages upwards
-closeCheck does the same stuff, and also sends the 'im done' message updwards, and also calls process exit just in case
-logException communicates upwards also, but you haven't written that at all yet, so just make a todo
+measure.js keyboard doesn't use keypress, and listens for keyboard messages from above
+measure.js log and stick don't use console.log or charm, and sends log and stick messages upwards
+state.js closeCheck does the same stuff, and also sends the 'im done' message updwards
+state.js _logException communicates upwards also, but you haven't written that at all yet, so just make a todo
 
 get started on that before icarus
 instead of a web client on top, it'll be a command line client
 p isn't forked, and uses real keypress, charm, console.log, all that
 c can tell it's forked, and switches to forked mode
 yeah, that'll work
+*/
+
+
+/*
+>with the imdone message (do it this way)
+there is still an "exit" message downwards
+this is like p clicking the x down on c
+c gets it, closes everything, calls closeCheck(), and then sends im done upwards
+p closes the connection, now c should exit naturally
+p waits 4s and then looks, if c is still running, it sigkills it and logs a message that it had to do that
+p waits 4s more and then looks again, if c is still running, it logs a message that its sigkill failed
+
+>without the imdone message
+p sends "exit" down to c, like clicking the x down on it
+c closes everything, calls closeCheck(), which includes process.exit
+p can't close the channel anymore because it doesn't know when to, this is why you need the imdone message
+
+what happens if c suddenly calls process.exit
+there's no communication channel that works anymore
+p will notice
+*/
+
+/*
+fork message protocol
+
+>down
+["key", s]
+["exit"]
+
+>up
+["log", s]
+["stick", a]
+["error", e]
+["exit"]
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//you can do more with charm, like color and inverse video
+
+
+
+
+
+/*
+all this is about making icarus to run tests and demos in that improved terminal
+beyond this, imagine being able to sort of shell into the running local instance of the app
+imagine running demos and viewing and adjusting parts of the app as its running
+at some point you'll want to build that, too
+*/
+
+
+
+
+/*
+big thinking about fork and log and keyboard and the text ui language
+all this uses globals and groups of functions right now because the design assumes that there's exactly one terminal, exactly one app, and one communication channel between them
+and fork makes it so that you can have a second special case, a child process beneath the main process
+but what about multiple apps running in the same process, talking to the terminal and each other
+what about shelling into a single process, and starting and stopping different apps with the same terminal
+
+this is big to think about, but also feels like it done simply and correctly and extensibly would be just a few hundred lines of code
+they really just send messages to each other
+
+you are just reinventing the unix standard streams here
+when you start a process, you define what streams are around it
+likewise, when you call a function using this system, you'd be placing these same sorts of standard streams around it
+
+this might be the end of the issues related to globals and performance, too
+when something logs, where does it go? does it go to console.log, or does it go to forkSendUp(), that's what this is about
+
+for right now it would be ok to just make this work so you can make icarus and then the backup program, though
+
+ok, done like this, you can't call the global log() anymore, because it needs to remember where it's logging to
+you can't call any function that uses a global, because there aren't any globals
+when you call a function, you need to pass in the library of useful environment-specific stuff for it to use
+
+//using globals
+function main() {
+	f2();
+}
+function f2() {
+	f3();	
+}
+function f3() {
+	log("hi");
+}
+
+//using worlds
+function main(world) {
+	f2(world);
+}
+function f2(world) {
+	f3(world);	
+}
+function f3(world) {
+	world.log("hi");
+}
+
+it's not too bad to pass in world when you run the app, and it's ok to have to pick log off it each time
+but passing it through every function call is really annoying
+
+ok, so then all you need to do is make a preprocessor where the first 
+
+or, maybe it's not annoying if it's _
+f2();//before
+f5(a, b, c);
+f2(_);//after
+f5(_,a, b, c)
+and then inside, _.log
+
+and then there really are no globals!
+and you can tell when you are calling a function that is going to need the world or not
+
+and to force the good behavior, you'd make it so that you actually can't define or use a global
+you don't right now know how you'd do that
+
+so maybe you've actually solved it, and this is one of the coolest ideas in snap
+in snap, you'd have different parenthesis or something
+
+you still need to figure out how and when you create new worlds
+and if that makes a mess, creating new worlds all the time
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   _                
+//  | |    ___   __ _ 
+//  | |   / _ \ / _` |
+//  | |__| (_) | (_| |
+//  |_____\___/ \__, |
+//              |___/ 
+
+// Log the given list of anything on the console, prefixed with the day and time
+function log() {
+
+	var s = sayDateTemplate(now().time, "ddHH12:MMaSS.TTT") + "  "; // Log the given arguments on a single line of text after the day and time
+	for (var i = 0; i < arguments.length; i++) s += say(arguments[i]);
+
+	if (isFork()) {
+		forkSendUp("log", s);      // If we're a forked process, don't mess with the console, send the log line up in a message
+	} else if (!platformCharm) { // Before code calls stick(), we're just using console.log
+		console.log(s);            // Pass stamp the same arguments we were given
+	} else {                     // We're using charm, and may have text to stick on the end of the console
+		stickErase();
+		console.log(s);
+		stickDraw();
+	}
+}
+
+//   ____  _   _      _    
+//  / ___|| |_(_) ___| | __
+//  \___ \| __| |/ __| |/ /
+//   ___) | |_| | (__|   < 
+//  |____/ \__|_|\___|_|\_\
+//                         
+
+var lines = []; // Array of lines of text to keep stuck to the end of the terminal
+
+// Stick the given lines of text to the end of the console
+// Each line can be an argument, like stick("line1", "line2"), or a single string with newlines
+function stick() {
+
+	var a = []; // Separate lines of text and put them in a
+	a.add(""); // Start stick text with a blank line to keep it visually separate from log lines above
+	if (!arguments.length) a.add(""); // Make stick() the same as stick("")
+
+	for (var i = 0; i < arguments.length; i++) {
+		var s = say(arguments[i]); // Turn each argument into text
+		a = a.concat(s.swap("\r\n", "\n").swap("\r", "\n").rip("\n")); // Separate multiple lines in a single string
+	}
+
+	if (!isFork()) {
+		l = []; // Wrap long lines and put them in l
+		for (var i = 0; i < a.length; i++) {
+			var s = a[i];
+			var indent = ""; // No indent before the line wraps
+			var wrap = process.stdout.columns - 2; // Make 2 narrower to keep a newline from wrapping onto the next line
+			if (s.length) { // This line has text
+				while (s.length) {
+					var before, after;
+					if (s.length <= wrap) { before = s;             after = "";             }
+					else                  { before = s.start(wrap); after = s.beyond(wrap); }
+					l.add(indent + before);
+					s = after;
+					if (!indent.length) { // Wrapped lines get a hanging indent
+						indent = "  ";
+						wrap -= indent.length;
+					}
+				}
+			} else { // We're on a blank line
+				l.add(s); // Add the blank line to the finished array
+			}
+		}
+		a = l; // Point a at the new array of wrapped lines
+	}
+
+	if (!arraySame(lines, a)) {            // Only update the text if it's actually changed
+		if (isFork()) {
+			forkSendUp("stick", a);
+		} else {
+			if (lines.length != a.length) {    // Different number of lines, redraw the whole thing
+				stickErase();
+				lines = a;
+				stickDraw();
+			} else {                           // Same number of lines, redraw only the lines that have changed
+				charmCursor(false);     // Hide the cursor, otherwise you can see it moving to each line
+				charmDown(-lines.length);
+				for (var i = 0; i < lines.length; i++) {
+					if (lines[i] != a[i]) {        // Line different
+						charmErase("line");
+						console.log(a[i]);           // Write the line and move down to the next one
+						lines[i] = a[i];             // Remember what we have on the screen
+					} else {                       // Line same
+						charmDown(1);       // Move down without blinking the line
+					}
+				}
+				charmCursor(true);      // Show the cursor again
+			}
+		}
+	}
+}
+
+function stickErase() {
+	if (lines.length > 0) {
+		charmDown(-lines.length);
+		charmErase("down");
+	}
+}
+function stickDraw() {
+	for (var i = 0; i < lines.length; i++) console.log(lines[i]); // Stick lines at the end of the console
+}
+
+function charmCursor(b)   { charmLoad(); platformCharm.cursor(b);   }
+function charmDown(y)     { charmLoad(); platformCharm.up(y);       }
+function charmErase(name) { charmLoad(); platformCharm.erase(name); }
+function charmLoad() {
+	if (!platformCharm) { // Load the charm module to start using it, if we haven't already
+		platformCharm = require("charm")(); // Charm wants us to execute the returned function and save that result
+		platformCharm.pipe(process.stdout);
+		// Charm documentation reccommends platformCharm.on("^C", process.exit); but demos are closing naturally without it
+	}
+}
+var platformCharm; // Undefined until we start using charm
+
+//   _  __          _                         _ 
+//  | |/ /___ _   _| |__   ___   __ _ _ __ __| |
+//  | ' // _ \ | | | '_ \ / _ \ / _` | '__/ _` |
+//  | . \  __/ |_| | |_) | (_) | (_| | | | (_| |
+//  |_|\_\___|\__, |_.__/ \___/ \__,_|_|  \__,_|
+//            |___/                             
+
+var keyMap = {}; // keyMap["n"] is the array of functions we'll call when the user presses the n key
+
+// Call f when the user presses the key for a character like "n", "8", "*", "tab", or "escape"
+// "any" to get all the events, "exit" to get escape and control+c
+function keyboard(character, f) {
+	if (isFork()) {
+		if (!forkKeyboardReady) {
+			forkKeyboardReady = true;
+			process.on("message", function(m)) {
+				if (m.length && m[0] == "key") keyPressed(m[1].character, m[1].key);
+			}
+		}
+	} else {
+		if (!platformKeypress) {                    // Load the keypress module to start using it, if we haven't already
+			platformKeypress = require("keypress");
+			platformKeypress(process.stdin);          // Have standard in emit "keypress" events
+			process.stdin.setRawMode(true);           // Change other standard in settings for using the keypress module
+			process.stdin.resume();
+			process.stdin.on("keypress", keyPressed); // Call keyPressed() below on "keypress" events
+		}
+	}
+	if (!keyMap[character]) keyMap[character] = []; // Make an array for the first function
+	keyMap[character].add(f);
+}
+
+// The user pessed a key on the keyboard
+function keyPressed(character, key) {
+	soon(); // Pulse soon on user input
+	if (!key) key = {}; // On some keys, like numbers, keypress only gives us character
+	key.character = character; // Group the two parameters together
+
+	callAll(keyMap["any"], key); // Call the functions that want to know about any key
+	callAll(keyMap[key.character], key); // Just one key
+	if (key.name && key.name != key.character) callAll(keyMap[key.name], key); // The key by a different name
+	if (key.name == "escape" || (key.name == "c" && key.ctrl)) callAll(keyMap["exit"], key); // Call the exit functions on escape and control+c
+
+	function callAll(a, p) { if (a) for (var i = 0; i < a.length; i++) a[i](p); } // Call all the functions in array a, giving each one parameter p
+}
+
+function keyPressedFork(message) {
+	soon(); // Pulse soon on user input
+
+
+	callAll(keyMap["any"], key); // Call the functions that want to know about any key
+	callAll(keyMap[m[1]], key); // Just one key
+	if (key.name && key.name != key.character) callAll(keyMap[key.name], key); // The key by a different name
+	if (key.name == "escape" || (key.name == "c" && key.ctrl)) callAll(keyMap["exit"], key); // Call the exit functions on escape and control+c
+
+	function callAll(a, p) { if (a) for (var i = 0; i < a.length; i++) a[i](p); } // Call all the functions in array a, giving each one parameter p
+}
+
+// Stop listening for keyboard keys
+function closeKeyboard() {
+	keyMap = {};
+	process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
+}
+
+
+
+
+/*
+["key", {character, key}] //what the key message downwards looks like
+//just send the raw keypress message downwards, and then only have one function parse it from wherever it came
+
+if we have a fork, then we send our keystrokes down, until we get rid of the fork
+they don't go multiple places, it's like shelling from the terminal
+
+//new standardized design
+var keyboard = watchKeyboard();
+keyboard.on("h", function() {});
+close(keyboard);
+
+//lone, this is as written
+watchKeyboard() starts up keypress and resumes stdin
+add to and use keyMap
+close(keyboard) pauses stdin
+
+//we're p, and we have c below
+watchKeyboard() startsup keypress and stdin
+avoid keyMap, send messages down to c instead
+close(keyboard) pauses stdin
+
+//p is above, we're c below
+watchKeyboard() doesn't use keypress or stdin, it just listens for process messages
+add to and use keyMap
+close(keyboard) stops listening for process messages
+*/
+
+
+
+
+function watchKeyboard() { return isFork() ? FarKeyboard() : NearKeyboard(); }
+
+
+
+var platformKeypress; // The keypress module, once we load it
+
+function NearKeyboard() {
+	if (platformKeypress) toss("state");      // You can only watch the keyboard once
+
+	platformKeypress = require("keypress");   // Load the keypress module to start using it, if we haven't already
+	platformKeypress(process.stdin);          // Have standard in emit "keypress" events
+	process.stdin.setRawMode(true);           // Change other standard in settings for using the keypress module
+	process.stdin.resume();
+	process.stdin.on("keypress", keyPressed); // Call keyPressed() below on "keypress" events
+
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+
+		keyMap = {};
+		process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
+	};
+
+	o.on = function()
+	return o;
+}
+
+function FarKeyboard() {
+
+
+
+
+
+
+
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+
+		keyMap = {};
+	};
+
+
+	process.on("message", function(m) {
+		if (!o.isClosed()) {
+
+		}
+	});
+
+
+
+
+	return o;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var inspect = platformUtility.inspect; // Rename instead of wrapping
+
+exports.log = log;
+exports.stick = stick;
+exports.keyboard = keyboard;
+exports.closeKeyboard = closeKeyboard;
+exports.inspect = inspect;
+
+
+
+/*
+>current
+
+
+>we're p
+in addition to hitting keyboard handlers, send "key" messages down
+
+>we're c
+if (isFork()) don't use keypress at all, it won't tell us when keys are hit, incoming "key" messages will
+
+
+
+*/
+
+
+
+
+/*
+currently
+
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+
+		//close your custom stuff
+	};
+
+you could do it like this
+
+	var o = mustClose(function() {
+
+		//close your custom stuff
+	};
+
+or can you, does this mean you can get alreadyClosed in there automatically somehow? that would be really cool
+yeah, mustClose takes teh given f, and wraps it in an outer function that does alreadyClosed
+this is awesome
 */
 
 
@@ -486,6 +987,298 @@ yeah, that'll work
 
 
 
+
+
+
+
+
+/*
+["key", {character, key}] //what the key message downwards looks like
+//just send the raw keypress message downwards, and then only have one function parse it from wherever it came
+
+if we have a fork, then we send our keystrokes down, until we get rid of the fork
+they don't go multiple places, it's like shelling from the terminal
+
+//new standardized design
+var keyboard = watchKeyboard();                done
+keyboard.on("h", function() {});               done
+close(keyboard);                               done
+
+//lone, this is as written
+watchKeyboard() starts up keypress and resumes stdin      done
+add to and use keyMap                                     done
+close(keyboard) pauses stdin                              done
+
+//we're p, and we have c below
+watchKeyboard() startsup keypress and stdin               done
+avoid keyMap, send messages down to c instead
+close(keyboard) pauses stdin                              done
+
+//p is above, we're c below
+watchKeyboard() doesn't use keypress or stdin, it just listens for process messages   done
+add to and use keyMap                                                                 done
+close(keyboard) stops listening for process messages                                  done
+
+//todo
+make sure that keyMap = {} is true not false
+make sure that you can process.on message twice and they both get called
+*/
+
+
+
+
+var keyMap; // keyMap["n"] is the array of functions we'll call when the user presses the n key
+var platformKeypress; // The keypress module, once we load it
+
+//open the keyboard to find out when the user presses keys
+function watchKeyboard() {
+	if (keyMap) toss("state");//make sure the keyboard isn't already open
+	keyMap = {};
+
+	var keyboard = isFork() ? _nearKeyboard() : _farKeyboard();
+	keyboard.on = function(character, f) {
+		if (!keyMap[character]) keyMap[character] = []; // Make an array for the first function
+		keyMap[character].add(f);
+	};
+	return keyboard;
+}
+
+//we're p at the top, start up keypress and resume stdin
+function _nearKeyboard() {
+	platformKeypress = require("keypress");
+	platformKeypress(process.stdin);           // Have standard in emit "keypress" events
+	process.stdin.setRawMode(true);            // Change other standard in settings for using the keypress module
+	process.stdin.resume();
+	process.stdin.on("keypress", _keyPressed); // Call _keyPressed() below on "keypress" events
+
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+		keyMap = null;
+		process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
+	};
+	return o;
+}
+
+//we're c at the bottom, tell p above to open the keyboard, and listen for key messages from above
+function _farKeyboard() {
+	process.send("open keyboard");
+	process.on("message", function(m) {
+		if (!o.isClosed()) {
+			if (m[0] && m[0] === "key" && m[1]) _keyPressed(m[1].character, m[1].key);
+		}
+	});
+
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+		process.send("close keyboard");
+		keyMap = null;
+	};
+	return o;
+}
+
+// The user pressed a key on the keyboard
+function _keyPressed(character, key) {
+	soon(); // Pulse soon on user input
+	if (!key) key = {}; // On some keys, like numbers, keypress only gives us character
+	key.character = character; // Group the two parameters together
+
+	callAll(keyMap["any"], key); // Call the functions that want to know about any key
+	callAll(keyMap[key.character], key); // Just one key
+	if (key.name && key.name != key.character) callAll(keyMap[key.name], key); // The key by a different name
+	if (key.name == "escape" || (key.name == "c" && key.ctrl)) callAll(keyMap["exit"], key); // Call the exit functions on escape and control+c
+
+	function callAll(a, p) { if (a) for (var i = 0; i < a.length; i++) a[i](p); } // Call all the functions in array a, giving each one parameter p
+}
+
+
+
+//ok, we're p on top, and we fork a c, and c says up to us that it wants keyboard events
+/*
+p runs
+p forks c
+c opens the keyboard
+-instead of starting up keypress, c sends a message up to p, which starts up keypress
+
+the real keyboard types on p
+-p has keypress open, and sends keypress messages down to c
+
+c closes the keyboard
+-c sends a message up to p, which closes down keypress
+
+so there are some new messages here
+the downward message is 'key'
+the new upward messages are 'keyboard open' and 'keyboard close'
+
+ok, so fork is going to have to keep c and listen for messages up from it
+and then when it gets 'open keyboard' or 'close keyboard', it does it
+
+there's only one keyboard, so maybe it's ok to have a global
+and you can open it multiple times, different parts of the program can start and stop listening
+and then when everybody stops listening, that's when it does a shutdown
+
+yeah, so the first thing you need to code is that, assuming just p alone with no c, but different parts below opening the keyboard and closing it again
+
+*/
+
+
+
+
+/*
+time to come up with a new design which is as generalized and flexible as the problem
+
+there can only be one P at the top
+there can be 0+ Cs at the bottom
+any of those can open the keyboard, submitting a function that will get every keystroke
+and then later close it, at which point that function shouldn't get called anymore
+later they can reoopen it, but they can't open it once it's already open
+
+only p at the top uses keypress
+
+so the messages are
+
+up: ["key open"]
+down: ["key press", {enhanced keypress message}]
+up: ["key close"]
+*/
+
+
+var keyboardWatchers = [];//list of all the parts of this program that want to get all keystrokes
+
+function watchKeyboard(f) {//give this the function that will get called with all keystrokes
+	if (!keyboardWatchers.length) {
+		//open the process' keyboard access, the first part of this program wants it
+	}
+	var o = KeyboardWatcher(f);
+	keyboardWatchers.add(o);
+	return o;
+}//save the keyboard o you get, and close(keyboard) when you're done with it
+
+//o is in the keyboardWatchers array, and what you need to do is remove it
+function removeFromKeyboardWatchers(o) {
+	//find o in the keyboardWatchers array and remove it, you'll need a test to confirm you can do that with === on object reference, write a remove() that takes a comparison function to use, returns how many got removed, and if no comparison function is given, uses ===, or have you already done this?
+	//nowait, what about List, doesn't that already do this? can you even use list with object reference comparison? if not, update it there, rather than making stupid array better
+	if (!keyboardWatchers.length) {
+		//close the process' keyboard access, the last part of this program doesn't want it anymore
+	}
+}
+
+//represents a single part of this process that wants to hear everything that happens on the keyboard
+//and this is the thing you have to close
+function KeyboardWatcher(f) {
+	var o = mustClose();
+	o.close = function() {
+		if (o.alreadyClosed()) return;
+		removeFromKeyboardWatchers(o);
+	};
+	o.f = f;
+	return o;
+}
+
+//down here, have the near access and the far access, this can all be global
+//and you don't need to worry about duplicate opens or forgetting to close, because the code above checks and prevents all that
+
+var platformKeyPress;
+function _nearKeyboardOpen() {
+	platformKeypress = require("keypress");
+	platformKeypress(process.stdin);          // Have standard in emit "keypress" events
+	process.stdin.setRawMode(true);           // Change other standard in settings for using the keypress module
+	process.stdin.resume();
+	process.stdin.on("keypress", keyPressed); // Call keyPressed() below on "keypress" events
+}
+function _nearKeyboardKeyPressed() {
+
+}
+function _nearKeyboardClose() {
+
+}
+function _farKeyboardOpen() {
+
+}
+function _farKeyboardKeyPressed() {
+
+}
+function _farKeyboardClose() {
+
+}
+
+
+
+
+
+
+
+
+//tell if you're P
+if (!isFork())
+
+//send a message down to every C below
+sendToForks(message)
+
+//receive a message from a C below
+listenForMessageFromFork(f)
+
+//tell if you're C
+if (isFork())
+
+//send a message up to P above
+sendToParent(message)
+
+//receive a message from P above
+listenForMessageFromParent(f)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function fork(module, arguments) {
+	var c = platformChildProcess.fork("./"+thisFile, ["demo", "c33"]);
+	c.send("hello");
+	c.on("message", function(m) { log(m); });
+}
+function c33() {
+	process.on("message", function(m) {
+		process.send(say("in c, got message '#'".fill(m)));
+	});
+}
+
+
+function forkSend(name, body) {
+
+}
+
+function forkReceive(f) {
+
+}
+
+
+
+//have two keyboard systems, and then the hookup is 
+
+
+
+//if you subscribe two of those guys, do they both get hit? write a demo to find out
 
 
 

@@ -225,7 +225,7 @@ function keyboard(character, f) {
 	keyMap[character].add(f);
 }
 
-// The user pessed a key on the keyboard
+// The user pressed a key on the keyboard
 function keyPressed(character, key) {
 	soon(); // Pulse soon on user input
 	if (!key) key = {}; // On some keys, like numbers, keypress only gives us character

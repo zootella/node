@@ -1060,3 +1060,137 @@ exports.testUseDoneTestInstead = function(test) {
 
 //TODO rename done(test) to testDone(test)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//beta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.testCloseCountBeta = function(test) {
+
+	test.ok(closeCountBeta() == 0);
+	var r = mustCloseBeta();
+	test.ok(closeCountBeta() == 1);
+	closeBeta(r);
+	test.ok(closeCountBeta() == 0);
+	var r1 = mustCloseBeta();
+	var r2 = mustCloseBeta();
+	test.ok(closeCountBeta() == 2);
+	closeBeta(r1, r2);
+	test.ok(closeCountBeta() == 0);
+
+	done(test);
+}
+
+exports.testCloseBeta = function(test) {
+
+	var r = mustCloseBeta();
+	test.ok(!r.isClosed());//not closed
+	closeBeta(r);
+	test.ok(r.isClosed());//closed
+	closeBeta(r);
+	test.ok(r.isClosed());//still closed
+
+	var closed = 0;
+	r = mustCloseBeta(function() {
+		closed++;
+	});
+	test.ok(closed == 0);
+	closeBeta(r);
+	test.ok(closed == 1);
+	closeBeta(r);
+	test.ok(closed == 1);//only ran once
+
+
+
+
+
+
+
+
+	done(test);
+}
+
+
+
+
+
+
+
+
+
+
+
+if (demo("snip")) { snip(); }//try it: runs pwd in a separate process
+function snip() {
+	log("hi from snip");
+
+
+	closeCheckBeta();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
