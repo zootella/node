@@ -43,81 +43,8 @@
 
 //ZEROITH: INLINE MUST CLOSE, AND SCREEN RESORUCE
 
-//see if you can make minimal changes to the close and pulse system to enable these shortcuts
-//if you can, then switch to these shortcuts
+//you made minimal changes to the close and pulse system to create canClose, mustClose, and pulseScreen
 //later, you'll take another look at if the global close list should be separate from pulse, if you need pulse at all, and so on
-
-//instead of
-{
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-		//close stuff
-	};
-}
-//couldn't it just be
-{
-	var o = mustClose(function() {
-		//close stuff
-	});
-}
-
-//and instead of
-{
-	function ScreenResource() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-			//contains nothing to close
-		};
-		o.pulseScreen = function() {
-			//code that gets pulsed for the screen
-		}
-		return o;
-	};
-	var screen = ScreenResource();
-}
-//couldn't it just be
-{
-	var screen = mustCloseScreen(function() {
-		//code that gets pulsed for the screen
-	});
-}
-
-//new design for all three
-{
-	//1
-	//something you can close, but don't have to
-	//doesn't support pulse
-	//doesn't add it to the list
-	var o = canCloseBeta(function() {
-		//close stuff
-	});
-
-	//2
-	//standard current close with pulse and pulse screen
-	//but the close function is required and defined as a parameter
-	var o = mustCloseBeta(function() {
-		//close stuff
-	});
-	o.pulse = function() {
-		//pulse stuff
-	}
-	o.pulseScreen = function() {
-		//pulse screen stuff
-	}
-
-	//3
-	//shortcut when you just need to update the screen
-	//there's nothing to close, so there's no close function
-	var o = pulseScreenBeta(function() {
-		//pulse screen stuff
-	});
-}
-
-
-
-
 
 
 
@@ -562,13 +489,6 @@ wrap with promises
 -fork
 and then, make your own fork that checks listProcesses first to protect against an infinite loop of process generation
 */
-
-
-
-
-
-
-
 
 
 

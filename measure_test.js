@@ -188,14 +188,9 @@ exit5: uses keypress
 exit6: uses both
 */
 
-function ExitResource() {
-	var o = mustClose();
-	return o;
-};
-
 if (demo("exit1")) { demoExit1(); }//exits when done, uses neither
 function demoExit1() {
-	var r = ExitResource();
+	var r = mustClose();
 	log("log");
 	close(r);
 	closeCheck();
@@ -203,7 +198,7 @@ function demoExit1() {
 
 if (demo("exit2")) { demoExit2(); }//exits when done, uses charm
 function demoExit2() {
-	var r = ExitResource();
+	var r = mustClose();
 	stick("stick");
 	close(r);
 	closeCheck();
@@ -215,7 +210,7 @@ function demoExit3() {
 		log("keyboard");
 	});
 
-	var r = ExitResource();
+	var r = mustClose();
 	log("log");
 	close(r);
 	closeKeyboard();
@@ -228,7 +223,7 @@ function demoExit4() {
 		log("keyboard");
 	});
 
-	var r = ExitResource();
+	var r = mustClose();
 	stick("stick");
 	close(r);
 	closeKeyboard();
@@ -247,8 +242,8 @@ function demoExit5() {
 		closeCheck();
 	});
 
-	var r = ExitResource();
-	var s = ExitResource();
+	var r = mustClose();
+	var s = mustClose();
 	s.pulseScreen = function() {
 		log(sayDateAndTime(now().time));//scrolling clock
 	}
@@ -266,8 +261,8 @@ function demoExit6() {
 		closeCheck();
 	});
 
-	var r = ExitResource();
-	var s = ExitResource();
+	var r = mustClose();
+	var s = mustClose();
 	s.pulseScreen = function() {
 		stick(sayDateAndTime(now().time));//clock that stays in place
 	}
@@ -284,7 +279,7 @@ function demoExit6() {
 if (demo("keyboard-resource")) { demoKeyboardResource(); }
 function demoKeyboardResource() {
 
-	var clock = ExitResource();
+	var clock = mustClose();
 	var resources = [];
 
 	clock.pulseScreen = function() {
@@ -295,7 +290,7 @@ function demoKeyboardResource() {
 			"[m]ake or [c]lose a resource");
 	}
 
-	keyboard("m", function() { resources.add(ExitResource()); });
+	keyboard("m", function() { resources.add(mustClose()); });
 	keyboard("c", function() { if (resources.length) close(resources.remove(0)); });
 
 	keyboard("exit", function() {
@@ -312,7 +307,7 @@ function demoKeyboardResource() {
 if (demo("keyboard-timeout")) { demoKeyboardTimeout(); }
 function demoKeyboardTimeout() {
 
-	var c = ExitResource();
+	var c = mustClose();
 	var t = null;
 
 	c.pulseScreen = function() {

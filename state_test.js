@@ -559,7 +559,6 @@ exports.testMistake8 = function(test) {
 
 
 
-
 //    ____ _                
 //   / ___| | ___  ___  ___ 
 //  | |   | |/ _ \/ __|/ _ \
@@ -567,102 +566,54 @@ exports.testMistake8 = function(test) {
 //   \____|_|\___/|___/\___|
 //                          
 
-exports.testIf = function(test) {
+exports.testCloseCount = function(test) {
 
-	var c;
-	test.ok(!c);//not defined yet, false
-
-	c = undefined;
-	test.ok(!c);//set to undefined, false
-
-	c = null;
-	test.ok(!c);//set to null, false
-
-	c = {};
-	test.ok(c);//set to empty hash, true
+	test.ok(closeCount() == 0);
+	var r = mustClose();
+	test.ok(closeCount() == 1);
+	close(r);
+	test.ok(closeCount() == 0);
+	var r1 = mustClose();
+	var r2 = mustClose();
+	test.ok(closeCount() == 2);
+	close(r1, r2);
+	test.ok(closeCount() == 0);
 
 	done(test);
 }
 
-exports.testMissing = function(test) {
+exports.testCloseOnce = function(test) {
 
-	//trying out some ways to tell between false and undefined
-	var u;//undefined
+	var r = mustClose();
+	test.ok(!r.isClosed());//not closed
+	close(r);
+	test.ok(r.isClosed());//closed
+	close(r);
+	test.ok(r.isClosed());//still closed
 
-	test.ok(u == undefined);//both regular == and super cautious === seem to do it
-	test.ok(!(u == true));
-	test.ok(!(u == false));
-
-	test.ok(u === undefined);
-	test.ok(!(u === true));
-	test.ok(!(u === false));
-
-	//new empty object
-	var o = {};
-	o.yes = true;//make yes or no
-	o.no = false;
-
-	test.ok(o.yes);
-	test.ok(!o.no);
-	test.ok(!o.missing);//doesn't throw, o.missing is undefined which becomes false
-
-	test.ok(o.yes       == true);//true
-	test.ok(!(o.no      == true));//false
-	test.ok(!(o.missing == true));//false
-
-	test.ok(o.yes       != undefined);//true
-	test.ok(o.no        != undefined);//true
-	test.ok(!(o.missing != undefined));//false
+	var closed = 0;
+	r = mustClose(function() {
+		closed++;
+	});
+	test.ok(closed == 0);
+	close(r);
+	test.ok(closed == 1);
+	close(r);
+	test.ok(closed == 1);//only ran once
 
 	done(test);
 }
 
 //example object that needs to get closed
-function Resource(setName) {
+function Resource(name) {
+	if (!name) name = "resource";
 	var o = mustClose();//we have to remember to close it
-
-	var _name = setName;//save the given name
-	o.text = function() {//describe this resource as text
-		if (_name) return _name;
-		else       return "untitled resource";
-	}
-
-	o.pulse = function() {//the program will pulse it for us
-		var s = "pulse";
-		if (_name) s += " " + _name;
-		log(s);
-	}
-
+	o.pulse = function() { log("pulse " + name); }//the program will pulse it for us
+	o.text = name;
 	return o;
 };
 
-/*
-exports.testClose = function(test) {
-
-	var r = Resource();//make a new object that we must close
-	test.ok(isOpen(r));//starts out open
-	test.ok(!isClosed(r));
-	close(r);//close it
-	test.ok(!isOpen(r));//confirm it's closed
-	test.ok(isClosed(r));
-
-	var u;//not set to anything
-	test.ok(!isOpen(u));//neither open nor closed
-	test.ok(!isClosed(u));
-
-	var n = null;//set to null
-	test.ok(!isOpen(n));
-	test.ok(!isClosed(n));
-
-	var o = Data();//set to an object that doesn't need to be closed
-	test.ok(!isOpen(o));
-	test.ok(!isClosed(o));
-
-	done(test);
-}
-*/
-
-exports.testCycle = function(test) {
+exports.testCloseCycle = function(test) {
 
 	var r;
 	test.ok(!r);//not made yet
@@ -676,7 +627,7 @@ exports.testCycle = function(test) {
 	done(test);		
 }
 
-exports.testCloseTwo = function(test) {
+exports.testCloseSeparate = function(test) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
@@ -693,16 +644,32 @@ exports.testCloseTwo = function(test) {
 	done(test);
 }
 
+exports.testCloseSeveral = function(test) {
 
-//test close(a, b) just to make sure that works
-//throw in null and undefined
-//throw in "hi", and see mistake log log it, but keep going
-//close(r1, null, undefined, "hi", r2)
-//r1 and r2 boht get closed
-//null and undefined get ignored
-//hi gets mistake logged, but that's it
-//this might have to be a demo to see th emistake log, that's fine
+	var r1 = Resource();//make two resources
+	var r2 = Resource();
+	var r3 = Resource();
+	close(r3);//this one will be already closed
+	var d = Data();//and lots of other stuff
+	var s = "hello";
+	var n = null;
+	var u = undefined;
+	close(d, s, r1, r2, n, u);//close will try to close them all
 
+	done(test);
+}
+
+//close logs exceptions but keeps going
+if (demo("close-throw")) { demoCloseThrow(); }
+function demoCloseThrow() {
+
+	var r1 = mustClose(function() { log("closing r1, which will work");                      });
+	var r2 = mustClose(function() { log("closing r2, which will throw"); undefined.notFound; });
+	var r3 = mustClose(function() { log("closing r3, which will work");                      });
+	close(r1, r2, r3);
+
+	closeCheck();
+}
 
 
 
@@ -1036,7 +1003,6 @@ exports.testUseDoneTestInstead = function(test) {
 
 
 
-
 //TODO rename done(test) to testDone(test)
 
 
@@ -1047,138 +1013,6 @@ exports.testUseDoneTestInstead = function(test) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//beta
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.testCloseCountBeta = function(test) {
-
-	test.ok(closeCount() == 0);
-	var r = mustClose();
-	test.ok(closeCount() == 1);
-	close(r);
-	test.ok(closeCount() == 0);
-	var r1 = mustClose();
-	var r2 = mustClose();
-	test.ok(closeCount() == 2);
-	close(r1, r2);
-	test.ok(closeCount() == 0);
-
-	done(test);
-}
-
-exports.testCloseBeta = function(test) {
-
-	var r = mustClose();
-	test.ok(!r.isClosed());//not closed
-	close(r);
-	test.ok(r.isClosed());//closed
-	close(r);
-	test.ok(r.isClosed());//still closed
-
-	var closed = 0;
-	r = mustClose(function() {
-		closed++;
-	});
-	test.ok(closed == 0);
-	close(r);
-	test.ok(closed == 1);
-	close(r);
-	test.ok(closed == 1);//only ran once
-
-
-
-
-
-
-
-
-	done(test);
-}
-
-
-
-
-
-
-//call chance forever in place
-if (demo("in-place")) { demoInPlace(1, 2); }
-function demoInPlace(n, d) {
-
-	var screen = pulseScreenBeta(function() {
-		stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
-	});
-
-	var wins = 0;
-	var rolls = 0;
-
-	var go = true;
-	f1();
-	function f1() {
-		if (go) {
-			rolls++;
-			if (chance(n, d)) wins++;
-			wait(0, f1);
-		}
-	}
-
-	keyboard("exit", function() {
-		go = false;//stop generating random data
-		closeBeta(screen);
-		closeKeyboard();
-		closeCheckBeta();
-	});
-}
-
-
-
-
-
-
-if (demo("snip")) { snip(); }//try it: runs pwd in a separate process
-function snip() {
-
-}
 
 
 
