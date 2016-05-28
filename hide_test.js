@@ -321,17 +321,9 @@ function demoRandomUnder(v) {
 if (demo("in-place")) { demoInPlace(1, 2); }
 function demoInPlace(n, d) {
 
-	function ScreenResource() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
-		o.pulseScreen = function() {
-			stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
-		}
-		return o;
-	};
-	var screen = ScreenResource();
+	var screen = pulseScreen(function() {
+		stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
+	});
 
 	var wins = 0;
 	var rolls = 0;
@@ -386,17 +378,9 @@ function demoUniqueSpeed() {
 if (demo("random-limit")) { demoRandomLimit(); }
 function demoRandomLimit() {
 
-	function ScreenResource() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
-		o.pulseScreen = function() {
-			stick("generated # of random data in #".fill(saySize(d), sayTime(t.age())));
-		}
-		return o;
-	};
-	var screen = ScreenResource();
+	var screen = pulseScreen(function() {
+		stick("generated # of random data in #".fill(saySize(d), sayTime(t.age())));
+	});
 
 	var t = now();//when we started
 	var d = 0;//total number of random bytes generated

@@ -13,17 +13,9 @@
 /*
 function demoShortcutMeter() {
 
-	function ScreenResource() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
-		o.pulseScreen = function() {
-			stick("meter.n: #".fill(meter.n()));
-		}
-		return o;
-	};
-	var r = ScreenResource();
+	var r = pulseScreen(function() {
+		stick("meter.n: #".fill(meter.n()));
+	});
 
 	var meter = meterExampleShortcut();
 

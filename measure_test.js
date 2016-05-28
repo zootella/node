@@ -190,9 +190,6 @@ exit6: uses both
 
 function ExitResource() {
 	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-	};
 	return o;
 };
 

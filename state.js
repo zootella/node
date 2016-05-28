@@ -232,15 +232,20 @@ function mistakeStop(e) {
 	exit(); // Terminate the process right here without closing the program properly
 }
 
+// How many objects still need to be closed
+function closeCount() {
+	clear(); // Remove closed objects from the list
+	return list.length;
+}
+
 // Call after you've closed all the objects the program used
 function closeCheck() {
-	clear(); // Remove closed objects from the list
-	log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
-	if (list.length) { // We should have closed them all, but didn't
+	if (closeCount()) { // We should have closed them all, but didn't
 		log(_sayList());
 		exit(); // Otherwise the pulse timer will keep the process running
 	}
 }
+//TODO log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 
 // Call after you've closed all the objects a test used
 function done(test) {
@@ -280,21 +285,10 @@ function _sayList() {
 
 exports.mistakeLog = mistakeLog;
 exports.mistakeStop = mistakeStop;
+exports.closeCount = closeCount;
 exports.closeCheck = closeCheck;
 exports.done = done;
 exports.exit = exit;
-
-function everythingShouldBeClosed() {
-	clear(); // Remove closed objects from the list
-	if (list.length) { // We should have closed them all, but didn't
-		log(_sayList());
-		exit(); // Otherwise the pulse timer will keep the process running
-	} else {
-		log("all closed");
-	}
-}
-exports.everythingShouldBeClosed = everythingShouldBeClosed;
-//TODO maybe also make isEverythingClosed() that returns true or false
 
 
 
@@ -320,46 +314,37 @@ function close() {
 	for (var i = 0; i < arguments.length; i++) { // Use like close(o) or close(o1, o2, o3)
 		var o = arguments[i];
 		try {
-			if (o) o.close(); // Skip null and undefined, but log a mistake if o exists but doesn't have close()
-		} catch (e) { mistakeLog(e); } // Keep going to close the next object
+			if (hasMethod(o, "isClosed") && !o.isClosed()) {
+				o._private_isClosed = true; // Mark this object as closed, and only do this once
+				if (hasMethod(o, "_private_closeMethod")) o._private_closeMethod();
+				soon(); // Have the program pulse soon so the object that made this one can notice it finished
+			}
+		} catch (e) { mistakeLog(e); }
 	}
 }
 
-// Make your object so the program will pulse it, and notice if you forget to later close it
-function mustClose() {
+/*
+Make your object so the program will pulse it, and notice if you forget to later close it
+Pass in and add on your close, pulse, and pulseScreen methods like this:
+
+var o = mustClose(function() {}); // Close your objects inside, put away resources, and never change again
+o.pulse = function() {};          // Notice things inside your object that have changed or finished, and do the next step to move forward
+o.pulseScreen = function() {};    // Compose text and information for the user based on the current state of things
+close(o);                         // Close your object when you're done with it so they're all closed when the program exits
+
+canClose(c)     Provide a close method, close(o) works and is optional, o.pulse() not available
+mustClose(c)    Provide a close method, close(o) is mandatory, you can add o.pulse() and o.pulseScreen()
+pulseScreen(p)  Provide a pulseScreen method, close(o) is mandatory, close method not available
+*/
+function canClose(c) { // Takes your object's close method
 	var o = {}; // The start of your object we will fill and return
-
-	var _isClosed = false; // True once the containing object has been closed, and promises to not change again
-	o.isClosed = function() { return _isClosed; }
-
-	// Mark this object as closed, and only do this once
-	// Start your close() function with the line "if (o.alreadyClosed()) return;"
-	// The first time alreadyClosed() runs, it marks this object as closed and returns false
-	// Try calling it again, and it will just return true
-	o.alreadyClosed = function() {
-		if (_isClosed) return true; // We're already closed, return true to return from your close() function
-		_isClosed = true;           // Mark this object as now permanently closed
-		soon();                     // Have the program pulse soon so the object that made this one can notice it finished
-		return false;               // Return false to run the contents of your close() function this first and only time
-	};
-
-	/*
-	// Functions for you to add to o, o.close() is required, o.pulse() and o.pulseScreen() are optional
-
-	// Close your objects inside, put away resources, and never change again
-	o.close = function() {
-		if (o.alreadyClosed()) return; // You must start your close() function with this line
-
-		// Then close your contents here
-	};
-
-	// Notice things inside your object that have changed or finished, and do the next step to move forward
-	o.pulse = function() {};
-
-	// Compose text and information for the user based on the current state of things
-	o.pulseScreen = function() {};
-	*/
-
+	o._private_closeMethod = c;
+	o._private_isClosed = false;
+	o.isClosed = function() { return o._private_isClosed; } // True once we're closed, and promise to not change again
+	return o;
+}
+function mustClose(c) { // Takes your object's close method
+	var o = canClose(c);
 	// Add the given new object that needs to be closed to the program's list of open objects to keep track of it
 	// It's safe to add to the end of the list even during a pulse because we loop by index number
 	// The objects in the list are in the order they were made, so contained objects are after those that made them
@@ -367,10 +352,17 @@ function mustClose() {
 	dingStart(); // Start the ding if it's not started already
 	soon();      // Have the program pulse this new object soon
 	return o;
-};
+}
+function pulseScreen(p) { // Takes your object's pulseScreen method
+	var o = mustClose();
+	o.pulseScreen = p;
+	return o;
+}
 
 exports.close = close;
+exports.canClose = canClose;
 exports.mustClose = mustClose;
+exports.pulseScreen = pulseScreen;
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -706,74 +698,6 @@ exports.isProcessRunning = isProcessRunning;
 
 
 
-
-
-
-
-
-
-
-//beta
-
-
-
-
-
-
-function closeCountBeta() {
-	clear();
-	return list.length;
-}
-
-function closeCheckBeta() {
-	if (closeCountBeta()) {
-		log("you forgot to close ", items(list.length, "object"), "!");
-		log(_sayList());
-		exit();
-	} else {
-		log("you closed everything!");
-	}
-}
-
-function closeBeta() {
-	for (var i = 0; i < arguments.length; i++) {
-		var o = arguments[i];
-		try {
-			if (hasMethod(o, "isClosed") && !o.isClosed()) {
-				o._private_isClosed = true;
-				if (hasMethod(o, "_private_closeMethod")) o._private_closeMethod();
-				soon();
-			}
-		} catch (e) { mistakeLog(e); }
-	}
-}
-
-function canCloseBeta(closeMethod) {
-	var o = {};
-	o._private_closeMethod = closeMethod;
-	o._private_isClosed = false;
-	o.isClosed = function() { return o._private_isClosed; }
-	return o;
-}
-function mustCloseBeta(closeMethod) {
-	var o = canCloseBeta(closeMethod);
-	list.add(o);
-	dingStart();
-	soon();
-	return o;
-}
-function pulseScreenBeta(pulseScreenMethod) {
-	var o = mustCloseBeta();
-	o.pulseScreen = pulseScreenMethod;
-	return o;
-}
-
-exports.closeCountBeta = closeCountBeta;
-exports.closeCheckBeta = closeCheckBeta;
-exports.closeBeta = closeBeta;
-exports.canCloseBeta = canCloseBeta;
-exports.mustCloseBeta = mustCloseBeta;
-exports.pulseScreenBeta = pulseScreenBeta;
 
 
 

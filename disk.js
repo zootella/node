@@ -30,14 +30,11 @@ require("./load").load("disk", function() { return this; });
 // An open file on the disk with access to its data
 // Wrap a file descriptor d in a File object to notice if you forget to close it
 function File(descriptor) {
-	var o = mustClose();
-
-	o.close = function() { // Close the open disk file
-		if (o.alreadyClosed()) return;
+	var o = mustClose(o.close = function() { // Close the open disk file
 
 		fileClose(o.descriptor); // No callback provided
 		o.descriptor = null;
-	}
+	});
 
 	o.descriptor = function() { return descriptor; } // Access to the platform file descriptor we hold
 

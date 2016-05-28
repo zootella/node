@@ -619,7 +619,7 @@ exports.testMissing = function(test) {
 
 //example object that needs to get closed
 function Resource(setName) {
-	var o = mustClose();
+	var o = mustClose();//we have to remember to close it
 
 	var _name = setName;//save the given name
 	o.text = function() {//describe this resource as text
@@ -627,10 +627,7 @@ function Resource(setName) {
 		else       return "untitled resource";
 	}
 
-	o.close = function() {//we have to remember to close it
-		if (o.alreadyClosed()) return;
-	};
-	o.pulse = function() {//and the program will pulse it for us
+	o.pulse = function() {//the program will pulse it for us
 		var s = "pulse";
 		if (_name) s += " " + _name;
 		log(s);
@@ -735,14 +732,9 @@ function demoPulse() {
 
 	function ExamplePulse() {
 		var o = mustClose();
-
-		o.close = function() {
-			if (state.alreadyClosed()) return;
-		};
 		o.pulse = function() {
 			log("pulse");
 		}
-
 		return o;
 	};
 
@@ -757,14 +749,9 @@ function demoPulseThrow() {
 
 	function ExamplePulseThrow() {
 		var o = mustClose();
-
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
 		o.pulse = function() {
 			Data("hello").start(6);//throws chop
 		}
-
 		return o;
 	};
 
@@ -795,11 +782,9 @@ if (demo("pulse-two")) { demoPulseTwo(); }
 function demoPulseTwo() {
 
 	function Pulse1() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
+		var o = mustClose(function() {
 			log("closed 1");
-		};
+		});
 		o.pulse = function() {
 			log("pulse 1");
 			if (start.expired(2*Time.second)) close(o);//close this pulse1 object
@@ -808,11 +793,9 @@ function demoPulseTwo() {
 	};
 
 	function Pulse2() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
+		var o = mustClose(function() {
 			log("closed 2");
-		};
+		});
 		o.pulse = function() {
 			log("pulse 2");
 			if (start.expired(4*Time.second)) close(o);
@@ -988,10 +971,6 @@ function demoSpeedPulse() {
 
 	function SpeedResource() {//a resource that finishes on the first pulse
 		var o = mustClose();
-
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
 		o.pulse = function() {
 			end();//close this resource on the first pulse
 		}
@@ -1114,37 +1093,37 @@ exports.testUseDoneTestInstead = function(test) {
 
 exports.testCloseCountBeta = function(test) {
 
-	test.ok(closeCountBeta() == 0);
-	var r = mustCloseBeta();
-	test.ok(closeCountBeta() == 1);
-	closeBeta(r);
-	test.ok(closeCountBeta() == 0);
-	var r1 = mustCloseBeta();
-	var r2 = mustCloseBeta();
-	test.ok(closeCountBeta() == 2);
-	closeBeta(r1, r2);
-	test.ok(closeCountBeta() == 0);
+	test.ok(closeCount() == 0);
+	var r = mustClose();
+	test.ok(closeCount() == 1);
+	close(r);
+	test.ok(closeCount() == 0);
+	var r1 = mustClose();
+	var r2 = mustClose();
+	test.ok(closeCount() == 2);
+	close(r1, r2);
+	test.ok(closeCount() == 0);
 
 	done(test);
 }
 
 exports.testCloseBeta = function(test) {
 
-	var r = mustCloseBeta();
+	var r = mustClose();
 	test.ok(!r.isClosed());//not closed
-	closeBeta(r);
+	close(r);
 	test.ok(r.isClosed());//closed
-	closeBeta(r);
+	close(r);
 	test.ok(r.isClosed());//still closed
 
 	var closed = 0;
-	r = mustCloseBeta(function() {
+	r = mustClose(function() {
 		closed++;
 	});
 	test.ok(closed == 0);
-	closeBeta(r);
+	close(r);
 	test.ok(closed == 1);
-	closeBeta(r);
+	close(r);
 	test.ok(closed == 1);//only ran once
 
 

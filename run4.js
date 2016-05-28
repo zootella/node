@@ -3,37 +3,6 @@
 
 
 
-//NEGATIVE ONEITH: THE ARROW OPERATOR
-
-//instead of
-{
-	o.pulseScreen = function() {
-
-	}
-	var o = canClose(function() {
-
-	});
-}
-//couldn't it just be
-{
-	o.pulseScreen = () => {
-
-	}
-	var o = canClose(() => {
-
-	});
-}
-
-//well do you like this? it's not really that much shorter
-//you don't lik this, you're skipping it for now
-
-
-
-
-
-
-
-
 
 
 
@@ -342,11 +311,9 @@ in your code, the way to get it is to just call line()
 //ok, thinking about that now
 
 function Listener(list, f) {
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
+	var o = mustClose(function() {
 		//remove o from list, here's where you need object equality and to test all that
-	}
+	});
 	o._f = f;
 	return o;
 }
@@ -595,17 +562,6 @@ wrap with promises
 -fork
 and then, make your own fork that checks listProcesses first to protect against an infinite loop of process generation
 */
-
-
-
-
-
-
-
-
-
-
-
 
 
 

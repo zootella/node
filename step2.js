@@ -13,6 +13,25 @@ require("./load").load("base", function() { return this; });
 
 
 
+//moved here from state.js
+function everythingShouldBeClosed() {
+	var n = closeCount();
+	if (n) log(items(n, "object"), " not closed");
+	else   log("all closed")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

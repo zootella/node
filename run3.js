@@ -853,13 +853,10 @@ function NearKeyboard() {
 	process.stdin.resume();
 	process.stdin.on("keypress", keyPressed); // Call keyPressed() below on "keypress" events
 
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-
+	var o = mustClose(function() {
 		keyMap = {};
 		process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
-	};
+	});
 
 	o.on = function()
 	return o;
@@ -873,12 +870,9 @@ function FarKeyboard() {
 
 
 
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-
+	var o = mustClose(function() {
 		keyMap = {};
-	};
+	});
 
 
 	process.on("message", function(m) {
@@ -935,27 +929,6 @@ if (isFork()) don't use keypress at all, it won't tell us when keys are hit, inc
 
 
 
-/*
-currently
-
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-
-		//close your custom stuff
-	};
-
-you could do it like this
-
-	var o = mustClose(function() {
-
-		//close your custom stuff
-	};
-
-or can you, does this mean you can get alreadyClosed in there automatically somehow? that would be really cool
-yeah, mustClose takes teh given f, and wraps it in an outer function that does alreadyClosed
-this is awesome
-*/
 
 
 
@@ -1051,12 +1024,10 @@ function _nearKeyboard() {
 	process.stdin.resume();
 	process.stdin.on("keypress", _keyPressed); // Call _keyPressed() below on "keypress" events
 
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
+	var o = mustClose(function() {
 		keyMap = null;
 		process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
-	};
+	});
 	return o;
 }
 
@@ -1069,12 +1040,10 @@ function _farKeyboard() {
 		}
 	});
 
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
+	var o = mustClose(function() {
 		process.send("close keyboard");
 		keyMap = null;
-	};
+	});
 	return o;
 }
 
@@ -1167,11 +1136,9 @@ function removeFromKeyboardWatchers(o) {
 //represents a single part of this process that wants to hear everything that happens on the keyboard
 //and this is the thing you have to close
 function KeyboardWatcher(f) {
-	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
+	var o = mustClose(function() {
 		removeFromKeyboardWatchers(o);
-	};
+	});
 	o.f = f;
 	return o;
 }

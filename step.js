@@ -32,9 +32,6 @@ SimulateTime.multiple = 12*SimulateTime.unit;
 //when the platform gives us something we have to remember to close, we wrap it in an object that must close
 function SimulateResource() {
 	var o = mustClose();
-	o.close = function() {
-		if (o.alreadyClosed()) return;
-	};
 	o.text = "resource";
 	return o;
 };
@@ -178,10 +175,7 @@ function Task(next) {//monitor the completion of an asynchronous call
 	var startTime = now();//t start time
 
 	//remember to close this task, notice if things are taking too long
-	var o = mustClose();
-	o.close = function() {//we have to remember to close it
-		if (o.alreadyClosed()) return;
-	};
+	var o = mustClose();//we have to remember to close it
 	o.pulse = function() {//and the program will pulse it for us
 		if (startTime.expired(SimulateTime.out)) o.fail(Mistake("timeout"));//notice it's been taking too long
 	}
@@ -370,10 +364,7 @@ function Task5(defer, timeout) {//monitor the completion of an asynchronous call
 	var startTime = now();//start time
 
 	//remember to close this task, notice if things are taking too long
-	var o = mustClose();
-	o.close = function() {//we have to remember to close it
-		if (o.alreadyClosed()) return;
-	};
+	var o = mustClose();//we have to remember to close it
 	o.pulse = function() {//and the program will pulse it for us
 		if (startTime.expired(timeout)) o.fail(Mistake("timeout"));//notice it's been taking too long
 	}

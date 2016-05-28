@@ -32,17 +32,9 @@ if (demo("meter-column4")) { demoMeter(meterDemoColumn4()); }
 
 function demoMeter(meter) {
 
-	function ScreenResource() {
-		var o = mustClose();
-		o.close = function() {
-			if (o.alreadyClosed()) return;
-		};
-		o.pulseScreen = function() {
-			stick(meter);
-		}
-		return o;
-	};
-	var r = ScreenResource();
+	var r = pulseScreen(function() {
+		stick(meter);
+	});
 
 	keyboard("any", function(key) {//blank to get all the events
 		if (key.character == "f") {
