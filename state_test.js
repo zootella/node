@@ -1162,6 +1162,35 @@ exports.testCloseBeta = function(test) {
 
 
 
+//call chance forever in place
+if (demo("in-place")) { demoInPlace(1, 2); }
+function demoInPlace(n, d) {
+
+	var screen = pulseScreenBeta(function() {
+		stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
+	});
+
+	var wins = 0;
+	var rolls = 0;
+
+	var go = true;
+	f1();
+	function f1() {
+		if (go) {
+			rolls++;
+			if (chance(n, d)) wins++;
+			wait(0, f1);
+		}
+	}
+
+	keyboard("exit", function() {
+		go = false;//stop generating random data
+		closeBeta(screen);
+		closeKeyboard();
+		closeCheckBeta();
+	});
+}
+
 
 
 
@@ -1169,11 +1198,14 @@ exports.testCloseBeta = function(test) {
 
 if (demo("snip")) { snip(); }//try it: runs pwd in a separate process
 function snip() {
-	log("hi from snip");
 
-
-	closeCheckBeta();
 }
+
+
+
+
+
+
 
 
 

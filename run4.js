@@ -221,6 +221,11 @@ then have functions that are meant to act on arrays of strings, which do things 
 trim each string
 remove starting and ending blanks
 remove all blanks
+
+
+
+now node can tell you the line separator of the platform, so that'll be easy to add
+in your code, the way to get it is to just call line()
 */
 
 

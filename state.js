@@ -736,13 +736,12 @@ function closeCheckBeta() {
 }
 
 function closeBeta() {
-	//how about for (var o in arguments) instead
 	for (var i = 0; i < arguments.length; i++) {
 		var o = arguments[i];
 		try {
 			if (hasMethod(o, "isClosed") && !o.isClosed()) {
 				o._private_isClosed = true;
-				o._private_closeMethod();//change to optional, not blank
+				if (hasMethod(o, "_private_closeMethod")) o._private_closeMethod();
 				soon();
 			}
 		} catch (e) { mistakeLog(e); }
@@ -750,7 +749,6 @@ function closeBeta() {
 }
 
 function canCloseBeta(closeMethod) {
-	if (!closeMethod) closeMethod = function() {};
 	var o = {};
 	o._private_closeMethod = closeMethod;
 	o._private_isClosed = false;
