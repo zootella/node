@@ -233,17 +233,17 @@ exports.checkType = checkType;
 
 // Add o to the end of array a with a.add(o)
 if ("add" in Array.prototype) toss("program");
-Array.prototype.add = Array.prototype.push; // Just link to push
+Object.defineProperty(Array.prototype, "add", { enumerable: false, value: Array.prototype.push }); // Just link to push
 
 // Remove and return the element at index i in an array with a.remove(i)
 // Shift remaining elements forward instead of leaving a hole
 if ("remove" in Array.prototype) toss("program");
-Array.prototype.remove = function(i) {
+Object.defineProperty(Array.prototype, "remove", { enumerable: false, value: function(i) {
 	if (i < 0 || i >= this.length) toss("bounds");
 	var o = this[i];
 	this.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
 	return o;
-}
+}});
 
 // True if the given arrays are the same
 function arraySame(a1, a2) {

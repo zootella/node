@@ -10,6 +10,19 @@
 
 
 
+/*
+learn
+for (i in a)
+and
+for (i in o)
+and replace what you currently have with a.length and all that
+*/
+
+
+
+
+
+
 
 
 
@@ -45,10 +58,6 @@
 
 //you made minimal changes to the close and pulse system to create canClose, mustClose, and pulseScreen
 //later, you'll take another look at if the global close list should be separate from pulse, if you need pulse at all, and so on
-
-
-
-
 
 
 
