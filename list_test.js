@@ -322,6 +322,158 @@ function demoAdd() {
 
 
 
+if (demo("snip")) { demoSnip(); }
+function demoSnip() {
+
+
+	log("hi");
+
+
+
+
+}
+
+
+
+exports.testSnip = function(test) {
+
+	test.ok(true);
+
+	/*
+	ok, so now you jsut want to have a [] of {} or functions
+	and add and remove them based on their object reference
+
+	here's what you are trying to figure out
+	-does List help you do this, or is it useless for this
+	-what happens if you have duplicates of the same {} or function in the same []
+
+	*/
+
+
+	//first, let's try to do it in just javascript
+
+	var o1 = { name:"1" };
+	var o2 = { name:"2" };
+	var o3 = { name:"3" };
+	var o4 = { name:"4" };
+
+	var a = [];
+	test.ok(a.length == 0);
+	a.add(o1);
+	a.add(o2);
+	a.add(o3);
+	test.ok(a.length == 3);
+
+	function find(a, o) {//returns index of o in a, -1 if not found
+		for (var i = 0; i < a.length; i++) {
+			if (a[i] === o) return i;
+		}
+		return -1;
+	}
+
+	test.ok(find(a, o1) == 0);
+	test.ok(find(a, o2) == 1);
+	test.ok(find(a, o3) == 2);
+	test.ok(find(a, o4) == -1);
+
+	//ok, so that works and is pretty simple
+	//now, can you do it with List?
+
+	var l = List(function() {});
+	test.ok(l.length() == 0);
+	l.add(o1);
+	l.add(o2);
+	l.add(o3);
+	test.ok(l.length() == 3);
+
+	/*
+	ok, here's why this is different, and you should do this in Array, not List
+	you can easily test equality with ===, but you can never sort
+
+	a.countByReference(o)
+	a.findByReference(o)
+	a.removeByReference(o)
+
+
+
+	*/
+
+
+
+
+	done(test);
+}
+
+
+
+
+exports.testArrayCountByReference = function(test) {
+
+	var o1 = {};//empty objects with different references
+	var o2 = {};
+	var o3 = {};
+	var o4 = {};
+
+	var a = [];
+	a.add(o1);
+	a.add(o2);
+	a.add(o3);
+	a.add(o2);//again
+
+	test.ok(a.length == 4);
+
+	test.ok(a.countByReference(o1) == 1);
+	test.ok(a.countByReference(o2) == 2);
+	test.ok(a.countByReference(o3) == 1);
+	test.ok(a.countByReference(o4) == 0);
+
+
+
+
+
+
+
+
+
+
+
+
+	done(test);
+}
+
+
+/*
+find, value to index
+add, false already had it, or true we added it
+
+length
+get
+has
+find
+
+add
+remove, index, returns item you removed
+clear
+
+sort, throws
+isSorted
+text
+
+type
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
 
 
 

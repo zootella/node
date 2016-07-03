@@ -321,3 +321,153 @@ exports.SortedSet = SortedSet;
 
 
 
+//new in es6 is Map and Set
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+	var list = _list(compare);
+	list.find = function find(o) { return _findInUnsorted(list, o); }
+	list.add = function add(o) { return _addToUnsortedSet(list, o); }
+	return {
+		length:list.length, get:list.get, has:list.has, find:list.find,
+		add:list.add, remove:list.remove, clear:list.clear,
+		sort:list.sort, isSorted:list.isSorted, text:list.text,
+		type:"Set"
+	};
+
+
+
+
+
+
+function _referenceList() {
+
+	var list = {};
+	list.a = [];         // Our internal array we use to hold objects
+	list.n = 0;          // How many objects are in our array
+
+	list.check = function check(i) { if (i < 0 || i >= list.n) toss("bounds"); } // Make sure the given index fits in our array
+	list.length = function length() { return list.n; } // How many items we carry
+	list.get = function get(i) { list.check(i); return list.a[i]; } // Get the item at the given index
+	list.has = function has(o) { return list.find(o) != -1; } // True if o is the same as something we have
+
+	// Insert new item o at index i, moving everything there and beyond down
+	list.insert = function insert(o, i) {
+		if (i < 0 || i > list.n) toss("bounds"); // Inserting at n is ok
+		list.a.splice(i, 0, o); // Remove 0 items, add o at i
+		list.n++;
+	}
+	// Remove the item at index i from this list and return it
+	list.remove = function remove(i) {
+		list.check(i);
+		var o = list.a[i];
+		list.a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
+		list.n--; // It's ok for p to go out of bounds because we call margin before using it
+		return o;
+	}
+	// Remove all the items we have, leaving this list empty
+	list.clear = function clear() {
+		list.a = [];
+		list.n = 0;
+	}
+
+	// Compare o to the item in list at index a
+	// Return 0 if same, -1 if o is lighter than a, 1 if o is heavier
+	list.compare = function compare(o, a) {
+		var r = list.c(o, list.get(a));
+		if (r == 0) return 0;
+		else if (r < 0) return -1;
+		else if (r > 0) return 1;
+		else toss("type");
+	}
+
+	// Describe this list as a line of text like "a,b,c,d,e"
+	list.text = function text() {
+		var s = "";
+		for (var i = 0; i < list.n; i++) {
+			s += say(list.get(i));
+			if (i + 1 < list.n) s += ",";
+		}
+		return s;
+	}
+
+	return list;
+}
+
+
+// Find the index of an item that matches o in list, -1 if not found
+function _findInUnsorted(list, o) {
+	for (var i = list.n - 1; i >= 0; i--) // Backwards to find fast what was recently added
+		if (list.c(o, list.a[i]) == 0) return i;
+	return -1; // Not found
+}
+
+// Add o to the end of list
+function _addToUnsortedList(list, o) {
+	list.insert(o, list.n);
+	return true; // Report yes, we added it
+}
+
+// If list doesn't already have o, add it to the end
+function _addToUnsortedSet(list, o) {
+	if (list.has(o)) return false; // Already got it
+	list.insert(o, list.n);
+	return true; // Yes, we added it
+}
+
+
+
+function ReferenceList() {
+	var list = _referenceList();
+	list.find = function find(o) { return _findInUnsorted(list, o); }
+	list.add = function add(o) { return _addToUnsortedList(list, o); }
+	return list;
+}
+
+function ReferenceSet() {
+	var list = _referenceList();
+	list.find = function find(o) { return _findInUnsorted(list, o); }
+	list.add = function add(o) { return _addToUnsortedSet(list, o); }
+	return list;
+}
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -10,20 +10,6 @@
 
 
 
-/*
-learn
-for (i in a)
-and
-for (i in o)
-and replace what you currently have with a.length and all that
-*/
-
-
-
-
-
-
-
 
 
 
@@ -108,6 +94,7 @@ and replace what you currently have with a.length and all that
 
 
 //FIRST: NEWLINES, LINES AND ARRAYS OF STRINGS
+//no, do this after you've got icarus working so you can see the wrapping in real time, which would be cool
 
 /*
 ok, to be able to do this refactor well, you need the following text functions
@@ -131,6 +118,11 @@ remove all blanks
 
 now node can tell you the line separator of the platform, so that'll be easy to add
 in your code, the way to get it is to just call line()
+
+
+
+
+search \r and \n to replace those with line()
 */
 
 
@@ -497,6 +489,13 @@ wrap with promises
 -spawn
 -fork
 and then, make your own fork that checks listProcesses first to protect against an infinite loop of process generation
+
+really good idea to just start using node and bluebird without your modifications
+-be able to find examples that match your code
+-don't have to wait for your amazing step thing
+-get good at them before you design your own step
+and then design step and switch to it
+and if step is A+ compatible, it'll be a really easy switch
 */
 
 
