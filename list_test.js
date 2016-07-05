@@ -325,13 +325,9 @@ function demoAdd() {
 if (demo("snip")) { demoSnip(); }
 function demoSnip() {
 
-
 	log("hi");
-
-
-
-
 }
+
 
 
 
@@ -407,6 +403,95 @@ exports.testSnip = function(test) {
 
 
 
+
+/*
+be able to easily do this stuff in the load system with tests
+
+it's easy to export some functions for real, and others for tests, and only the tests can see them
+
+you don't have to name test functions anymore
+they don't have to have unique names, copy and paste exactly the same thing and it'll run twice
+instead, you tag them with the functions they test
+and write a short description of what is getting tested, what the purpose is
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.testCompareValueReference = function(test) {
+	var v, c, d, r;//value, copy, different, and reference
+
+	v = 5;//value
+	c = v;//copy the value
+	test.ok(v === c);
+	test.ok(!(v !== c));
+	test.ok(!(v < c));//both false because copy is the same
+	test.ok(!(v > c));
+	d = 7;//different greater value
+	test.ok(!(v === d));
+	test.ok(v !== d);
+	test.ok(v < d);//both work because d is greater
+	test.ok(!(v > d));
+
+	r = {};//reference
+	c = r;//copy the reference
+	test.ok(r === c);
+	test.ok(!(r !== c));
+	test.ok(!(r < c));//both false because copy is the same
+	test.ok(!(r > c));
+	d = 7;//different later reference
+	test.ok(!(r === d));
+	test.ok(r !== d);
+	test.ok(!(r < d));//both are false because you can equate references, but you can't sort them
+	test.ok(!(r > d));
+
+	done(test);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.testArrayCountByReference = function(test) {
 
 	var o1 = {};//empty objects with different references
@@ -422,10 +507,14 @@ exports.testArrayCountByReference = function(test) {
 
 	test.ok(a.length == 4);
 
+/*
 	test.ok(a.countByReference(o1) == 1);
 	test.ok(a.countByReference(o2) == 2);
 	test.ok(a.countByReference(o3) == 1);
 	test.ok(a.countByReference(o4) == 0);
+
+	do that with ReferenceList instead
+	*/
 
 
 
@@ -443,27 +532,119 @@ exports.testArrayCountByReference = function(test) {
 
 
 /*
-find, value to index
-add, false already had it, or true we added it
-
 length
 get
 has
-find
+find, value to index
 
-add
+add, false already had it, or true we added it
 remove, index, returns item you removed
 clear
 
-sort, throws
+sort
 isSorted
-text
 
+countSame, returns how many match, 0+
+removeSame, returns how many it removed, 0+
+
+text
 type
+*/
+
+
+
+
+//TODO next
+//write tests for countSame and removeSame on List, Set, SortedList, SortedSet, ReferenceList, and ReferenceSet
+
+
+
+
+
+
+
+
+	/*
+	TODO rename
+	list -> l
+	.c -> _c, _a, _n, _sorted
+	function check(i) -> function(i)
+	*/
+
+
+
+
+
+
+
+
+
+/*
+if ("countByReference" in Array.prototype) toss("program");
+Object.defineProperty(Array.prototype, "countByReference", { enumerable: false, value: function(o) {
+	var n = 0;
+	for (var i = 0; i < this.length; i++) {
+		if (this[i] === o) n++;
+	}
+	return n;
+}});
+
+if ("findByReference" in Array.prototype) toss("program");
+Object.defineProperty(Array.prototype, "findByReference", { enumerable: false, value: function(o) {
+	for (var i = 0; i < this.length; i++) {
+		if (this[i] === o) return i;
+	}
+	return -1;
+}});
+
+if ("removeByReference" in Array.prototype) toss("program");
+Object.defineProperty(Array.prototype, "removeByReference", { enumerable: false, value: function(o) {
+	//maybe loop backwards and remove all that match that reference
+	//and return how many you removed, for testing mostly, 0 not found, 1 most common, 2+ also possible
+}});
+*/
+
+
+//in text.js, where you're augmenting string and []
+//obviously refactor that to use augment(p, name, f)
+/*
+
+more you could do here
+a.addAt(index, element) inserts it at element
+a.add and insert take a list of arguments, insert them all right there
+
+a.addAllAt
+a.addAll take arrays, and add all the elements from the array rigth there
+but before you do that, read up on how es6 does fancy array stuff like this already
+
+and get this note out of here
+
+no, make ReferenceList and ReferenceSet instead
+then you can have even more methods like has()
+and put those in list.js
+
 
 
 
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

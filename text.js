@@ -245,59 +245,6 @@ Object.defineProperty(Array.prototype, "remove", { enumerable: false, value: fun
 	return o;
 }});
 
-
-
-if ("countByReference" in Array.prototype) toss("program");
-Object.defineProperty(Array.prototype, "countByReference", { enumerable: false, value: function(o) {
-	var n = 0;
-	for (var i = 0; i < this.length; i++) {
-		if (this[i] === o) n++;
-	}
-	return n;
-}});
-
-if ("findByReference" in Array.prototype) toss("program");
-Object.defineProperty(Array.prototype, "findByReference", { enumerable: false, value: function(o) {
-	for (var i = 0; i < this.length; i++) {
-		if (this[i] === o) return i;
-	}
-	return -1;
-}});
-
-if ("removeByReference" in Array.prototype) toss("program");
-Object.defineProperty(Array.prototype, "removeByReference", { enumerable: false, value: function(o) {
-	//maybe loop backwards and remove all that match that reference
-	//and return how many you removed, for testing mostly, 0 not found, 1 most common, 2+ also possible
-}});
-
-
-//obviously refactor that to use augment(p, name, f)
-/*
-
-more you could do here
-a.addAt(index, element) inserts it at element
-a.add and insert take a list of arguments, insert them all right there
-
-a.addAllAt
-a.addAll take arrays, and add all the elements from the array rigth there
-but before you do that, read up on how es6 does fancy array stuff like this already
-
-and get this note out of here
-
-no, make ReferenceList and ReferenceSet instead
-then you can have even more methods like has()
-and put those in list.js
-
-
-
-
-*/
-
-
-
-
-
-
 // True if the given arrays are the same
 function arraySame(a1, a2) {
 	if (a1.length != a2.length) return false; // Length must be the same

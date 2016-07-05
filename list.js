@@ -12,7 +12,6 @@ require("./load").load("list", function() { return this; });
 //                                                                     
 
 function _list(compare) {
-	checkType(compare, "function");
 
 	var list = {};
 	list.c = compare;   // The given function we'll use to compare objects
@@ -221,56 +220,110 @@ function _addToSortedSet(list, o) {
 	}
 }
 
+// Compare to return 0 if r1 and r2 point to the same thing in memory
+function _compareReferences(r1, r2) {
+	if (r1 === r2) return 0;
+	else return -1; // On two !== references, < and > both return false, so we can't sort them
+}
+
+// Count how many items in list match o, return 0+ how many are the same
+function _countSameInList(list, o) {
+	var count = 0;
+	for (var i = list.n - 1; i >= 0; i--)
+		if (list.c(o, list.a[i]) == 0) count++;
+	return count;
+}
+function _countSameInSet(list, o) {
+	return list.find(o) == -1 ? 0 : 1; // A set should only have 1 match, so use find, which may be faster
+}
+
+// Remove all the items in list that match o, return 0+ how many were the same and got removed
+function _removeSameInList(list, o) {
+	var count = 0;
+	for (var i = list.n - 1; i >= 0; i--) // Loop backwards when removing
+		if (list.c(o, list.a[i]) == 0) { list.remove(i); count++; }
+	return count;
+}
+function _removeSameInSet(list, o) {
+	var i = list.find(o);
+	if (i == -1) {
+		return 0;
+	} else {
+		list.remove(i);
+		return 1;
+	}
+}
+
 // Allows adding duplicates, no automatic sorting
 function List(compare) {
+	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInUnsorted(list, o); }
 	list.add = function add(o) { return _addToUnsortedList(list, o); }
-	return {
-		length:list.length, get:list.get, has:list.has, find:list.find,
-		add:list.add, remove:list.remove, clear:list.clear,
-		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:"List"
-	};
+	list.countSame = function countSame(o) { return _countSameInList(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInList(list, o); }
+	list.type = "List";
+	return list;
 }
 
 // Blocks adding duplicates, no automatic sorting
 function Set(compare) {
+	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInUnsorted(list, o); }
 	list.add = function add(o) { return _addToUnsortedSet(list, o); }
-	return {
-		length:list.length, get:list.get, has:list.has, find:list.find,
-		add:list.add, remove:list.remove, clear:list.clear,
-		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:"Set"
-	};
+	list.countSame = function countSame(o) { return _countSameInSet(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInSet(list, o); }
+	list.type = "Set";
+	return list;
 }
 
 // Allows adding duplicates, keeps sorted
 function SortedList(compare) {
+	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInSorted(list, o); }
 	list.add = function add(o) { return _addToSortedList(list, o); }
-	return {
-		length:list.length, get:list.get, has:list.has, find:list.find,
-		add:list.add, remove:list.remove, clear:list.clear,
-		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:"SortedList"
-	};
+	list.countSame = function countSame(o) { return _countSameInList(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInList(list, o); }
+	list.type = "SortedList";
+	return list;
 }
 
 // Blocks adding duplicates, keeps sorted
 function SortedSet(compare) {
+	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInSorted(list, o); }
 	list.add = function add(o) { return _addToSortedSet(list, o); }
-	return {
-		length:list.length, get:list.get, has:list.has, find:list.find,
-		add:list.add, remove:list.remove, clear:list.clear,
-		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:"SortedSet"
-	};
+	list.countSame = function countSame(o) { return _countSameInSet(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInSet(list, o); }
+	list.type = "SortedSet";
+	return list;
+}
+
+// A list of references, allows duplicates, you cannot sort by reference
+function ReferenceList() {
+	var list = _list(_compareReferences);
+	list.find = function find(o) { return _findInUnsorted(list, o); }
+	list.add = function add(o) { return _addToUnsortedList(list, o); }
+	list.sort = function sort() { toss("type"); } // You can't weigh references, you can only tell if they are equal
+	list.countSame = function countSame(o) { return _countSameInList(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInList(list, o); }
+	list.type = "ReferenceList";
+	return list;
+}
+
+// A set of references, blocks duplicates, you cannot sort by reference
+function ReferenceSet() {
+	var list = _list(_compareReferences);
+	list.find = function find(o) { return _findInUnsorted(list, o); }
+	list.add = function add(o) { return _addToUnsortedSet(list, o); }
+	list.sort = function sort() { toss("type"); }
+	list.countSame = function countSame(o) { return _countSameInSet(list, o); }
+	list.removeSame = function removeSame(o) { return _removeSameInSet(list, o); }
+	list.type = "ReferenceSet";
+	return list;
 }
 
 exports._list = _list; // Exported for testing
@@ -278,11 +331,8 @@ exports.List = List;
 exports.Set = Set;
 exports.SortedList = SortedList;
 exports.SortedSet = SortedSet;
-
-
-
-
-
+exports.ReferenceList = ReferenceList;
+exports.ReferenceSet = ReferenceSet;
 
 //have it count how many compares it does
 
@@ -291,11 +341,6 @@ exports.SortedSet = SortedSet;
 
 //TODO have outline use this instead of array and sort by itself
 //but would still have to sort before output because outline items can change
-
-
-
-
-
 
 //you probably don't have to add anything to the array prototype anymore because you can use list instead
 //can you insert things in a certain position of the list
@@ -306,146 +351,15 @@ exports.SortedSet = SortedSet;
 //make the list that holds a random sample of n items of all the items you've ever given it
 //sort a list into a random order
 
-
 //another thing you are going to want to be able to do in the future is make a map where the keys are your own type
 //for instance, the keys might be IpPort, or the object that identifies a peer
-
-
-
 
 //switch to using
 //http://www.collectionsjs.com
 //because these four are already there, along with a bunch more you might need
 //just update tests to confirm use, and compare speed
 
-
-
-
 //new in es6 is Map and Set
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-	var list = _list(compare);
-	list.find = function find(o) { return _findInUnsorted(list, o); }
-	list.add = function add(o) { return _addToUnsortedSet(list, o); }
-	return {
-		length:list.length, get:list.get, has:list.has, find:list.find,
-		add:list.add, remove:list.remove, clear:list.clear,
-		sort:list.sort, isSorted:list.isSorted, text:list.text,
-		type:"Set"
-	};
-
-
-
-
-
-
-function _referenceList() {
-
-	var list = {};
-	list.a = [];         // Our internal array we use to hold objects
-	list.n = 0;          // How many objects are in our array
-
-	list.check = function check(i) { if (i < 0 || i >= list.n) toss("bounds"); } // Make sure the given index fits in our array
-	list.length = function length() { return list.n; } // How many items we carry
-	list.get = function get(i) { list.check(i); return list.a[i]; } // Get the item at the given index
-	list.has = function has(o) { return list.find(o) != -1; } // True if o is the same as something we have
-
-	// Insert new item o at index i, moving everything there and beyond down
-	list.insert = function insert(o, i) {
-		if (i < 0 || i > list.n) toss("bounds"); // Inserting at n is ok
-		list.a.splice(i, 0, o); // Remove 0 items, add o at i
-		list.n++;
-	}
-	// Remove the item at index i from this list and return it
-	list.remove = function remove(i) {
-		list.check(i);
-		var o = list.a[i];
-		list.a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
-		list.n--; // It's ok for p to go out of bounds because we call margin before using it
-		return o;
-	}
-	// Remove all the items we have, leaving this list empty
-	list.clear = function clear() {
-		list.a = [];
-		list.n = 0;
-	}
-
-	// Compare o to the item in list at index a
-	// Return 0 if same, -1 if o is lighter than a, 1 if o is heavier
-	list.compare = function compare(o, a) {
-		var r = list.c(o, list.get(a));
-		if (r == 0) return 0;
-		else if (r < 0) return -1;
-		else if (r > 0) return 1;
-		else toss("type");
-	}
-
-	// Describe this list as a line of text like "a,b,c,d,e"
-	list.text = function text() {
-		var s = "";
-		for (var i = 0; i < list.n; i++) {
-			s += say(list.get(i));
-			if (i + 1 < list.n) s += ",";
-		}
-		return s;
-	}
-
-	return list;
-}
-
-
-// Find the index of an item that matches o in list, -1 if not found
-function _findInUnsorted(list, o) {
-	for (var i = list.n - 1; i >= 0; i--) // Backwards to find fast what was recently added
-		if (list.c(o, list.a[i]) == 0) return i;
-	return -1; // Not found
-}
-
-// Add o to the end of list
-function _addToUnsortedList(list, o) {
-	list.insert(o, list.n);
-	return true; // Report yes, we added it
-}
-
-// If list doesn't already have o, add it to the end
-function _addToUnsortedSet(list, o) {
-	if (list.has(o)) return false; // Already got it
-	list.insert(o, list.n);
-	return true; // Yes, we added it
-}
-
-
-
-function ReferenceList() {
-	var list = _referenceList();
-	list.find = function find(o) { return _findInUnsorted(list, o); }
-	list.add = function add(o) { return _addToUnsortedList(list, o); }
-	return list;
-}
-
-function ReferenceSet() {
-	var list = _referenceList();
-	list.find = function find(o) { return _findInUnsorted(list, o); }
-	list.add = function add(o) { return _addToUnsortedSet(list, o); }
-	return list;
-}
-
-
-
-
-
-*/
 
 
 
