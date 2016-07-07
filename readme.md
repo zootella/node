@@ -1,6 +1,7 @@
 
-some useful commands:
+###some useful commands:
 
+<pre>
 $ git clone https://zootella.com/zootella/node
 $ git update
 $ git add .
@@ -15,3 +16,4 @@ $ ./node_modules/nodeunit/bin/nodeunit *_test.js
 
 $ ./electron/win/electron.exe app-name/
 $ ./electron/mac/Electron.app/Contents/MacOS/Electron app-name/
+</pre>
