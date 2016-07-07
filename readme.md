@@ -6,11 +6,12 @@ $ git pull
 $ npm install
 </pre>
 
-add a new package, notice new files, upload changes
+add a new package, notice new files, make and upload changes
 <pre>
 $ npm install package-name --save-dev
 $ git add .
 $ git commit -a -n -m "note"
+$ git push
 </pre>
 
 run the tests, run a demo, run in electron
