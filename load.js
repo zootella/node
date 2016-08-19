@@ -209,7 +209,15 @@ you may have notes about this idea elsewhere
 
 
 
-
+/*
+i've got a package.json that has minimum required semantic versions, like "^1.0.0", which is nice
+and a node_modules folder, with the 11 modules i need in there, which is also nice
+what i don't like is, i've actually got 73 node_modules folders nested deep inside there
+as one module requires another, which requires the first, all different versions, and so on
+has anybody written anything to flatten this?
+all the modules in a single folder, a single json that shows what requires what, and a require() loader that finds it in the single list
+the current way node does it, if A requires B and B requires A again, A will be there twice
+*/
 
 
 

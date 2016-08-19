@@ -1,0 +1,62 @@
+
+
+
+run the tests, run a demo, run in electron, run in nodemon
+
+$ ./node_modules/nodeunit/bin/nodeunit *_test.js
+$ nodeunit *_test.js
+$ node file.js demo name
+$ ./electron/win/electron.exe app-name/
+$ ./electron/mac/Electron.app/Contents/MacOS/Electron app-name/
+$ node node_modules/nodemon/bin/nodemon.js file.js demo name
+
+
+
+
+
+
+                node >           demo (works) $ node environment_test.js demo platform
+                node > nodemon > demo (works) $ node node_modules/nodemon/bin/nodemon.js environment_test.js demo platform
+                  win electron > demo (works) $ electron/win/electron.exe environment_test.js demo platform
+                  mac electron > demo (works) $ electron/mac/Electron.app/Contents/MacOS/Electron environment_test.js demo platform
+
+     node >           nodeunit > test (works) $ node node_modules/nodeunit/bin/nodeunit text_test.js
+     node > nodemon > nodeunit > test (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit text_test.js
+       win electron > nodeunit > test (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit text_test.js
+       mac electron > nodeunit > test (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit text_test.js
+
+node >           nodeunit > all tests (works) $ node node_modules/nodeunit/bin/nodeunit *_test.js
+node > nodemon > nodeunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit *_test.js
+  win electron > nodeunit > all tests (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit *_test.js
+  mac electron > nodeunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit *_test.js
+
+       node >           myunit > test (todo)  $ node myunit.js text_test.js
+       node > nodemon > myunit > test (todo)  $ node node_modules/nodemon/bin/nodemon.js myunit.js text_test.js
+         win electron > myunit > test (todo)  $ electron/win/electron.exe myunit.js text_test.js
+         mac electron > myunit > test (todo)  $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js text_test.js
+
+  node >           myunit > all tests (works) $ node myunit.js *_test.js
+  node > nodemon > myunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js myunit.js *_test.js
+    win electron > myunit > all tests (works) $ electron/win/electron.exe myunit.js *_test.js
+    mac electron > myunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js *_test.js
+
+                   win electron > app (works) $ electron/win/electron.exe app/hello
+                   mac electron > app (works) $ electron/mac/Electron.app/Contents/MacOS/Electron app/hello
+
+
+>todo
+make the electron app named hello so the bottom two work
+improve myunit.js to take arguments like text_test.js and *_test.js
+make an electron app named "demo" that runs a demo the same way you can on the command line
+
+
+
+
+
+
+
+
+
+
+
+

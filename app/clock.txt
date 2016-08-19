@@ -1,0 +1,31 @@
+
+
+
+
+clock1 - html page, javascript keeps the time up to date
+clock2 - html page, jquery updates the time
+clock3 - html page, react updates the time
+
+clock1e - electron app, javascript updates the time
+clock2e - electron app, jquery updates teh time
+clock3e - electron app, react updates the time
+
+
+
+html, css and js are separate files in every case
+
+the browser ones have libraries as save as, the node ones use node_modules
+
+
+the electron ones tap into the flow javascript in the root, format the time using your time formatter, for instance
+
+
+here also it would be interesting to set your spin check on updating the page, see if some methods are much faster or slower
+
+
+
+
+
+
+
+

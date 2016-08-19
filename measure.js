@@ -603,7 +603,7 @@ exports.sayFraction = sayFraction;
 
 
 
-
+//TODO change now() to just a number, eliminate When
 //TODO change this to When, you've already got time below
 
 //   _____ _                

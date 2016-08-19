@@ -42,7 +42,15 @@ function demoWorking() {
 
 
 
+/*
+3 ways to do the same thing:
 
+working()
+__dirname
+and the way you build in path
+
+so that's fine, just make a test that shows that they're all the same, and then use path, probably
+*/
 
 
 

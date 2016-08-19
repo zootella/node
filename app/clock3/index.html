@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Clock 3</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+
+		<!-- library code -->
+		<script type="text/javascript" src="react/react-15.3.0.js"></script>
+		<script type="text/javascript" src="react/react-dom-15.3.0.js"></script>
+		<script type="text/javascript" src="react/babel-core-browser-5.8.38.min.js"></script>
+		<script type="text/javascript" src="react/jquery-3.1.0.min.js"></script>
+		<script type="text/javascript" src="react/remarkable-1.6.2.min.js"></script>
+
+	</head>
+	<body>
+		<div id="page"></div>
+
+		<!-- my code -->
+		<script type="text/babel">
+
+//it would be nice to put this in main.js, but that doesn't work with babel
+
+
+
+var PageComponent = React.createClass({
+	render: function() {
+		return (
+			<div className="pageComponent">
+				<h1>Clock 3 - react in the browser</h1>
+				<ClockComponent />
+			</div>
+		);
+	}
+});
+
+var ClockComponent = React.createClass({
+	render: function() {
+		return (<div className="clockComponent">heres where the clock will go</div>);
+	}
+});
+
+ReactDOM.render(<PageComponent/>, document.getElementById("page"));
+
+
+
+//next, how do you update it using react? it is called react after all!!!
+/*
+function update() {
+	document.getElementById("demo").innerHTML = "clock1: " + Date();
+}
+
+window.setInterval(update, 200);
+
+
+
+
+
+*/
+//what if you could put that in main.js, keep the JSX in the HTML file, have more code in main.js
+//at least, try to include main.js beneath here, and see if you can write some more code there, that would be cool
+
+
+
+
+console.log("log shows up in developer tools console");
+
+
+
+
+
+
+		</script>
+	</body>
+</html>

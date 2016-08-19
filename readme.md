@@ -1,24 +1,15 @@
 
-download the code, update the local copy, install packages
+download the code, update the local copy, notice new files, make and upload changes
 <pre>
 $ git clone https://github.com/zootella/node
 $ git pull
-$ npm install
-</pre>
-
-add a new package, notice new files, make and upload changes
-<pre>
-$ npm install package-name --save-dev
 $ git add .
 $ git commit -a -n -m "note"
 $ git push
 </pre>
 
-run the tests, run a demo, run in electron
+add a new package, install packages
 <pre>
-$ ./node_modules/nodeunit/bin/nodeunit *_test.js
-$ nodeunit *_test.js
-$ node file.js demo name
-$ ./electron/win/electron.exe app-name/
-$ ./electron/mac/Electron.app/Contents/MacOS/Electron app-name/
+$ npm install package-name -D
+$ npm install
 </pre>
