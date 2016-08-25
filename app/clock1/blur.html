@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>blur 1</title>
+	</head>
+	<body>
+		<h1>blur 1 - javascript in the browser</h1>
+		<div id="log"></div>
+		<div id="stick"></div>
+		<script type="text/javascript">
+
+function log(s) {
+	s = s+"";//convert to text
+	var p = document.createElement("p");
+	p.textContent = s;
+	document.getElementById("log").appendChild(p);
+	console.log(s);//also put i in developer tools console
+}
+
+function stick(s) {
+	s = s+"";//convert to text
+	document.getElementById("stick").innerHTML = s;
+}
+
+
+
+function main() {
+
+	var n = 0;
+
+	update();
+	function update() {
+		n++;
+		stick(n);
+		if (false)
+			requestAnimationFrame(update);//probably not skipping numbers, and doesn't freeze
+		else
+			setTimeout(update, 0);//maybe looks faster, but freezes a little
+
+		//TODO make two separate html files so you can watch them side by side
+		//also, have the count be the time, or high resolution time even, so timeout doesn't win because it's a bigger number
+	}
+
+
+
+}
+main();
+
+
+
+
+//updates by event: how fast does it look? how much processor does it take?
+
+
+//updates by animation frame, how fast does it look? how much processor does it take?
+
+//first, make one that alternates 2 seconds using event, 2 seconds using animation frame, always counting up, and see if it looks any different
+//then, try to measure how busy the page is, how much time javascript is running versus how much time it's idle--maybe by using the high resolution timer
+
+
+
+/*
+var tries = 4;
+speedLoop();
+
+function speedLoop() {//12 million loops in a second (good), page can't update (bad)
+	var t, n, c;
+	for (c = 0; c < tries; c++) {
+		t = Date.now();
+		n = 0;
+		while (Date.now() < t + 1000) {
+			n++;
+		}
+		log(n + " loops in a second");
+	}
+	speedEvent();
+}
+
+function speedEvent() {//only 240 timeouts in a second (ok), page can update (good)
+	var t, n, c;
+	c = 0;
+	start();
+	function start() {
+		t = Date.now();
+		n = 0;
+		before();
+	}
+	function before() {
+		setTimeout(after, 0);
+	}
+	function after() {
+		if (Date.now() < t + 1000) {
+			n++;
+			before();
+		} else {
+			log(n + " events in a second");
+			c++;
+			if (c < tries) {
+				start();
+			} else {
+				speedFrame();
+			}
+		}
+	}
+}
+
+function speedFrame() {//60 animation frames in a second (ok), page can update (good)
+	var t, n, c;
+	c = 0;
+	start();
+	function start() {
+		t = Date.now();
+		n = 0;
+		before();
+	}
+	function before() {
+		requestAnimationFrame(after);
+	}
+	function after() {
+		if (Date.now() < t + 1000) {
+			n++;
+			before();
+		} else {
+			log(n + " animation frames in a second");
+			c++;
+			if (c < tries) {
+				start();
+			} else {
+				speedUpdate();
+			}
+		}
+	}
+}
+
+function speedUpdate() {//50 thousand updates in a second (good), page can't update (bad)
+	var t, n, c;
+	for (c = 0; c < tries; c++) {
+		t = Date.now();
+		n = 0;
+		while (Date.now() < t + 1000) {
+			stick(n);
+			n++;
+		}
+		log(n + " updates in a second");
+	}
+}
+*/
+
+		</script>
+	</body>
+</html>

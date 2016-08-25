@@ -10,6 +10,12 @@ clock1e - electron app, javascript updates the time
 clock2e - electron app, jquery updates teh time
 clock3e - electron app, react updates the time
 
+html
+jquery
+jquery and handlebars
+ember and handlebars
+react
+
 
 
 html, css and js are separate files in every case

@@ -25,3 +25,12 @@ function createWindow() {
 		win = null; // Discard our reference to the window object
 	});
 }
+
+
+
+
+
+console.log("console log shows up in terminal, not developer tools console");
+
+
+
