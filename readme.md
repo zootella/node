@@ -10,6 +10,6 @@ $ git push
 
 add a new package, install packages
 <pre>
-$ npm install package-name -D
+$ npm install -D package-name
 $ npm install
 </pre>
