@@ -824,7 +824,30 @@ exports.testSwap = function(test) {
 
 exports.testParse = function(test) {
 
-	test.ok("He <b>really</b> wants to go.".parse("<b>", "</b>") == "really");
+	var p = "He <b>really</b> wants to go.".parse("<b>", "</b>");
+	test.ok(p.found     == true);
+	test.ok(p.before    == "He ");
+	test.ok(p.tagBefore == "<b>");
+	test.ok(p.middle    == "really");
+	test.ok(p.tagAfter  == "</b>");
+	test.ok(p.after     == " wants to go.");
+
+	function f(s, t1, t2, found, before, tagBefore, middle, tagAfter, after) {
+		var p = s.parse(t1, t2);
+		test.ok(p.found     == found);
+		test.ok(p.before    == before);
+		test.ok(p.tagBefore == tagBefore);
+		test.ok(p.middle    == middle);
+		test.ok(p.tagAfter  == tagAfter);
+		test.ok(p.after     == after);
+	}
+
+	f("a[b]c", "[", "]", true, "a", "[", "b", "]", "c");//different tags
+	f("a[b[c", "[", "[", true, "a", "[", "b", "[", "c");//same tags
+
+	f("a[b c", "[", "]", false, "a[b c", "", "", "", "");//missing second
+	f("a b]c", "[", "]", false, "a b]c", "", "", "", "");//missing first
+	f("a b c", "[", "]", false, "a b c", "", "", "", "");//missing both
 
 	test.done();
 }
@@ -1284,20 +1307,6 @@ exports.testEncodeDecode = function(test) {
 
 	test.done();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

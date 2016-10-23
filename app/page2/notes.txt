@@ -1,0 +1,28 @@
+
+
+
+
+/*
+make with css
+
+lines that wrap with a hanging indent
+shadow across some words
+a button word that looks normal, hot, pressed, and unavailable
+a text box that's the same height as normal text
+a text box that grows to hold the contents
+helvetica and circular fonts
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+

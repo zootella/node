@@ -3,8 +3,24 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Clock 2e</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+
+		<!-- no library code here, require it in page.js instead -->
+
+		<!-- my code -->
+		<script type="text/javascript" src="page.js"></script>
+
 	</head>
 	<body>
 		<h1>Clock 2e - jquery in electron</h1>
+
+		We are using node <script>document.write(process.versions.node)</script>,
+		Chrome <script>document.write(process.versions.chrome)</script>,
+		and Electron <script>document.write(process.versions.electron)</script>.
+
+		<div id="log"></div>
+		<div id="stick"></div>
+		<button id="snip">run snippet</button>
+
 	</body>
 </html>

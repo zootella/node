@@ -1,0 +1,18 @@
+
+div, p
+{
+	margin: 0;
+	font-family: "Consolas", "Andale Mono", sans-serif;
+	font-size: 10pt;
+}
+
+.line
+{
+	background-color: lightblue;
+	white-space: pre-wrap;
+}
+
+
+
+
+

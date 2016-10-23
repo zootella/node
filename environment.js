@@ -1,4 +1,6 @@
 
+var platformChokidar = require("chokidar");
+
 require("./load").load("environment", function() { return this; });
 
 
@@ -52,6 +54,17 @@ exports.working = working;
 
 
 
+
+
+function Watch(paths, options, events, call) {
+	var o = mustClose(function() {
+		o._watcher.close();
+	});
+	o._watcher = platformChokidar.watch(paths, options).on(events, call);
+	return o;
+}
+
+exports.Watch = Watch;
 
 
 

@@ -121,7 +121,7 @@ function stackParse(stack) {
 		var p = l;        // The path and line number in parenthesis, the whole line if there are no parenthesis
 		var b = "";       // The part before the parenthesis, blank if there are no parenthesis
 		if (l.has("(")) { // There are parenthesis
-			p = l.parse("(", ")");
+			p = l.parse("(", ")").middle;
 			b = l.before("(").trim();
 		}
 
@@ -679,10 +679,27 @@ function _swap(s, t1, t2, match) {
 function parse(s, t1, t2) { return _parse(s, t1, t2, false); }
 function parseMatch(s, t1, t2) { return _parse(s, t1, t2, true); }
 function _parse(s, t1, t2, match) {
-	s = _cut(s, t1, true, match).after;
-	if (has(s, t2, match)) s = _cut(s, t2, true, match).before;
-	else s = "";
-	return s;
+	var c1 = _cut(s,        t1, true, match);
+	var c2 = _cut(c1.after, t2, true, match);
+	if (c1.found && c2.found) {
+		return {
+			found:     true,
+			before:    c1.before,
+			tagBefore: c1.tag,
+			middle:    c2.before,
+			tagAfter:  c2.tag,
+			after:     c2.after
+		};
+	} else {
+		return {
+			found:     false,
+			before:    s,
+			tagBefore: "",
+			middle:    "",
+			tagAfter:  "",
+			after:     ""
+		};
+	}
 }
 
 augment(before, "before");
@@ -888,6 +905,8 @@ augment(ripLines, "ripLines");
 augment(rip, "rip");
 
 //TODO windows does 0d0a, mac just 0a, isn't there a platform that does just 0d? ripLines needs to deal with all 3
+//javascript has .split, and you can't remember .rip, change it to just s.words() and s.lines()
+//use functional methods to trim items and remove edge and middle items instead of optional arguments
 
 
 
@@ -952,6 +971,7 @@ function _say(o) {
 // Use this line separator when composing text
 var newline = "\r\n"; // Use both \r and \n to work on Unix and Windows
 //TODO make this custom to the platform we're running on, and you can compare incoming strings
+//but remember the portable case, where the same installation will run first on mac and then on windows
 
 // Fill in the blanks to compose text, like fill("Color #, Number #.", "red", 7);
 // Like C's famous sprintf, but simpler and more in the style of a dynamically typed language

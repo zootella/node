@@ -1,4 +1,13 @@
 
+
+
+var $ = require("jquery");
+
+
+
+
+
+
 $(document).ready(function() {
 	$("#snip").click(function() { snip(); });
 	main();
@@ -33,4 +42,20 @@ function snip() {
 
 
 }
+
+
+
+console.log("hi from page.js");
+
+
+
+
+
+
+
+
+
+
+
+
 

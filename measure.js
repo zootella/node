@@ -143,6 +143,7 @@ function stick() {
 	for (var i = 0; i < arguments.length; i++) {
 		var s = say(arguments[i]); // Turn each argument into text
 		a = a.concat(s.swap("\r\n", "\n").swap("\r", "\n").rip("\n")); // Separate multiple lines in a single string
+		//TODO why isn't that s.lines()
 	}
 
 	var l = []; // Wrap long lines and put them in l

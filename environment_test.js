@@ -55,3 +55,54 @@ so that's fine, just make a test that shows that they're all the same, and then 
 
 
 
+/*
+jquery doesn't work when window is undefined
+write tests that show this in the three processes:
+-node (undefined)
+-electron main (undefined)
+-electron page (defined)
+and include that in environment, is there a page or not, essentially
+*/
+if (demo("snip")) { demoSnip(); }
+function demoSnip() {
+	log(typeof window);//undefined when run by node
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (demo("watch")) { demoWatch(); }
+function demoWatch() {
+
+	var w = Watch(".", {ignored: ["node_modules", "electron"]}, "all", function(event, path) {
+		log(event, ": ", path);
+	});
+
+	keyboard("exit", function() {
+		close(w);
+		closeKeyboard();
+		closeCheck();
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+

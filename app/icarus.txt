@@ -1,0 +1,257 @@
+
+
+now, transition
+leave the terminal behind for a bit
+you can return to it later
+
+don't worry about multiple processes either
+just focus on and do everything in page.js
+
+run icarus
+you get a square featureless cyan window with just
+$
+type the name of a demo, and it runs, with another $ below
+
+imagine a new kind of demo
+the icarus demo, the div app, dap
+
+each demo has log and stick
+additonally, give them buttons and text fields
+
+(so, how will you make that?)
+
+first, just worry about getting one running
+later, figure out how to keep them from clobbering each other
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ok, so here's how electron works
+
+electron looks at package.json
+package.json says main.js
+main.js opens index.html
+index.html script srcs page.js
+
+so that's fine, and you can probably have a single main.js
+to do demos, you need to get command line arguments in page.js
+log them everywhere to see if you can still get them
+
+
+*/
+
+
+/*
+icarus
+get load in page.js, be able to use Data and your stuff
+
+
+
+
+
+icarus is a tall narrow cyan window with just
+$
+it's all one process
+you can type demos there and then run, becomign divs, and you can close them
+
+code that for awhile and then worry about compatibility back to just node and just the terminal
+remember that you don't really need terminal
+
+also, electron 
+you can type
+
+>soon
+any scrolled area of any js file in the root can define an electron demo
+that demo contains handlebars html the demo squirts in
+but there's jsut one css
+
+
+
+*/
+
+
+
+//since scrolling is wonky, flip the order of everything, add new logs to top, put stick above that
+//yeah, that's the rigth idea here
+
+
+
+//ok, now just get all that going in electron
+/*
+big picture, and it's easy, here's what you want
+css is actually separate, there's one css file for the whole and every project
+html is minimal, there's one tiny html file with nothing in it for the whole and every project
+
+lots of demos can exist in one file
+a demo has a block of html at the start, which is tempaltes up with handlebars, adn then squirts into the page
+this sets up log and stick and everything like that
+
+this is clock2 right now
+get this much working in clock3, with jquery, and then go from there
+
+run from the command line, there can be only one log and stick, because there's only one terminal
+but run from electron, there can be 0+ windows, and 1 command line
+maybe make one window the terminal
+or keep the terminal as the terminal, and additionally deal with the windows
+
+
+
+here's what you want, it's simple:
+a node demo that creates a new electron window
+and then can squirt some html into it
+
+also, it's fine if now you always use the electron binary, not the node binary
+even when you're just on the command line, because remember, electron has the command line also
+
+additionally, npm lets you shortcut longer commands, so you can do stuff that way, too
+
+
+
+
+
+
+
+ok, yeah, every electron window has to be it's own process, and all of them are separate from the main process
+you don't have your multiprocess thing setup, and eventually you'd like to do it with:
+a monitor to make sure you don't have too many processes
+enhanced bluebird to maek async calls easily
+flow monitoring to make sure you don't sent too many messages too fast
+meter to see how many messages you've sent, and so on
+but all that will be much later
+
+so for now, just do it this way
+electron main.js just starts one window
+when you close that window, electron main.js also exits
+main.js is wired to go crazy if anything strange happens
+your demos and apps are all one process and one window
+at the start, they're also terminal-style and terminal compatible
+later one, they can stack divs to have more than one app running at a time
+
+
+
+
+
+eventually, maybe this afternoon, merge icarus into the node root folder
+obviously git commit before that
+and afterwards, make sure that all the pure command line stuff in windows xp still works, too
+then you can run it with
+$ electron/win/electron.exe .
+still have other electron apps in the app folder, but this one is the general one that maybe is simple and general enough that it can become anything
+
+
+*/
+
+
+
+
+/*
+go with the grain on electron and multiprocess
+electron runs main.js, which loads load, and is super minimal and always the same
+get that down to very few lines of code, and don't worry about it
+
+that then leads to page.js, which is in a separate process
+page.js is icarus, with $ that accepts input from the user
+the user can type demos and run them right there, but instead of running in a new process that exits, they run in the current process, you can run more than one at a time
+
+
+*/
+
+
+
+
+
+
+
+
+
+/*
+the user launches a dap
+inject the scaffolding of the dap into the right spot on the page
+the id is a guid or something so you can keep track of it
+it's got log and stick parts
+now you do dap.log() and dap.stick()
+
+
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+/*
+3 ways to run icarus
+-terminal, behind 7 proxies
+-electron, on win7
+-server to localhost:6969, on win xp
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+what the hell happens in electron when you refresh the page?
+does that end and restart the process?
+which code gets rerun?
+can you notice beforehand and stop it?
+figure out how to do node's process lifecycle management along with this weird lifecycle
+you'd like to check that everything's closed, for instance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

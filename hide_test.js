@@ -526,9 +526,58 @@ exports.testMax = function(test) {
 
 
 
+exports.testSnip1 = function(test) {
+
+	test.ok(true);
+	test.ok(true);
+	log("hi from inside a test");
 
 
 
 
+
+
+
+	done(test);
+}
+
+
+exports.testSnip2 = function(test) {
+
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+
+
+
+
+
+
+
+	done(test);
+}
+
+exports.testSnip3 = function(test) {
+
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+	test.ok(true);
+
+
+
+
+
+
+
+	done(test);
+}
 
 

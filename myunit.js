@@ -7,6 +7,8 @@ var testFiles = files.filter((name) => { return name.match(/_test/); });
 
 reporter.run(testFiles);
 
+//reporter.run(["text_test.js"]);
+
 /*
 
 run a demo with node and electron command line

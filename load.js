@@ -31,12 +31,14 @@ var worldMap = {
 	text_test:    ["disk", "environment", "data", "state", "measure", "text"],
 
 	//TODO replace this whole section with a single core: [everything in order], and have all the tests load that, it's silly and arbitrary to cherry pick here
-	base: ["flow", "step", "meter", "environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
+	base: ["page", "flow", "step", "meter", "environment", "disk", "path", "hide", "data", "list", "state", "measure", "text"],
 
 	// Base
 
 	net: [], // Communicate to distant peers with packets and sockets
 	//TODO list more upcoming modules here, look at the old code to plan this out
+
+	page: ["text"],
 
 
 	environment: ["path"],      // Get information about the computer we're running on
@@ -221,5 +223,10 @@ the current way node does it, if A requires B and B requires A again, A will be 
 
 
 
-
+/*
+-right now, it's easiest to always just load "base", and that's ok
+-when you ship a client app, it'll be cool to have it all one file, app.js, so instead of downloading installers or portable, the user can follow easy instructions to assemble the working app, getting binaries from other places, running npm somehow, and then dropping in just one file from the user, this way they can be sure it hasn't been tapered with
+-but the goal of load is beyond that, to seaprate and show exactly what depends on what, many small granular modules, and show which functions within a module
+-additionally, each module should work in browser/node/electron, it should say which of those it's ready for, and automated tests should then hit it from 1, 2, or all 3, this would be really cool. you mark up at the top which environments are supported of those
+*/
 
