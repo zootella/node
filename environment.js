@@ -1,7 +1,6 @@
 
 var platformChokidar = require("chokidar");
 
-require("./load").load("environment", function() { return this; });
 
 
 

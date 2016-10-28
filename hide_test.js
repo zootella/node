@@ -1,7 +1,7 @@
 
 var platformCrypto = require("crypto");
 
-require("./load").load("hide_test", function() { return this; });
+require("./load").library();
 
 
 

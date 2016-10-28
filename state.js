@@ -1,7 +1,6 @@
 
 var platformChildProcess = require("child_process");
 
-require("./load").load("state", function() { return this; });
 
 var thisFile = "state.js"; // The name of this file
 

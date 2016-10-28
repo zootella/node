@@ -1,5 +1,5 @@
 
-require("./load").load("state_test", function() { return this; });
+require("./load").library();
 
 //TODO when done, move this into state_test.js
 

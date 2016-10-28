@@ -2,7 +2,6 @@
 var platformUtility = require("util");
 var platformPath = require("path");
 
-require("./load").load("text", function() { return this; });
 
 
 

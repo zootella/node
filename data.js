@@ -1,5 +1,4 @@
 
-require("./load").load("data", function() { return this; });
 
 
 

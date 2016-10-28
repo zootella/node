@@ -1,6 +1,4 @@
 
-require("./load").load("measure", function() { return this; });
-
 var platformUtility = require("util");
 var platformBigNumber = require('bignumber.js');
 

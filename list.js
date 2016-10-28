@@ -1,5 +1,4 @@
 
-require("./load").load("list", function() { return this; });
 
 
 
@@ -267,14 +266,14 @@ function List(compare) {
 }
 
 // Blocks adding duplicates, no automatic sorting
-function Set(compare) {
+function UniqueList(compare) {
 	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInUnsorted(list, o); }
 	list.add = function add(o) { return _addToUnsortedSet(list, o); }
 	list.countSame = function countSame(o) { return _countSameInSet(list, o); }
 	list.removeSame = function removeSame(o) { return _removeSameInSet(list, o); }
-	list.type = "Set";
+	list.type = "UniqueList";
 	return list;
 }
 
@@ -291,14 +290,14 @@ function SortedList(compare) {
 }
 
 // Blocks adding duplicates, keeps sorted
-function SortedSet(compare) {
+function SortedUniqueList(compare) {
 	checkType(compare, "function");
 	var list = _list(compare);
 	list.find = function find(o) { return _findInSorted(list, o); }
 	list.add = function add(o) { return _addToSortedSet(list, o); }
 	list.countSame = function countSame(o) { return _countSameInSet(list, o); }
 	list.removeSame = function removeSame(o) { return _removeSameInSet(list, o); }
-	list.type = "SortedSet";
+	list.type = "SortedUniqueList";
 	return list;
 }
 
@@ -328,9 +327,9 @@ function ReferenceSet() {
 
 exports._list = _list; // Exported for testing
 exports.List = List;
-exports.Set = Set;
+exports.UniqueList = UniqueList;
 exports.SortedList = SortedList;
-exports.SortedSet = SortedSet;
+exports.SortedUniqueList = SortedUniqueList;
 exports.ReferenceList = ReferenceList;
 exports.ReferenceSet = ReferenceSet;
 
@@ -360,6 +359,10 @@ exports.ReferenceSet = ReferenceSet;
 //just update tests to confirm use, and compare speed
 
 //new in es6 is Map and Set
+//so, you had to rename Set -> UniqueList, and SortedSet -> SortedUniqueList
+//but you still have Set in other names here, get those out
+//and figure out how you use or power the stuff here with the new native Map and Set
+//and change the bubble title at the top to Sorted Unique List
 
 
 

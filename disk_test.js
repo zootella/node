@@ -1,7 +1,7 @@
 
 var platformFile = require("fs");
 
-require("./load").load("disk_test", function() { return this; });
+require("./load").library();
 
 //at long last, you can open a file
 //you can see what it's like to write functions that go from file to string and from string to file

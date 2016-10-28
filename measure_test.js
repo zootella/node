@@ -1,5 +1,5 @@
 
-require("./load").load("measure_test", function() { return this; });
+require("./load").library();
 
 var platformBigNumber = require('bignumber.js');
 

@@ -3,7 +3,6 @@ var platformUtility = require("util");
 var platformFile = require("fs");
 var platformPath = require("path");
 
-require("./load").load("disk", function() { return this; });
 
 
 

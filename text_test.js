@@ -1,7 +1,7 @@
 
 var platformFile = require("fs");
 
-require("./load").load("text_test", function() { return this; });
+require("./load").library();
 
 
 

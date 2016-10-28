@@ -8,48 +8,31 @@ console.log("load start");
 
 
 
-
-
-
-
 //load all these modules in this order
-var libraryFiles = [
+var worldMap = [
 	"a", "b", "c"
 ];
 
 
 
+
+
+
 function library() {
-	for (var i = 0; i < libraryFiles.length; i++) { // Loop for each file
-
-		var name = libraryFiles[i];
-		var module = require("./" + name);
-
-		var exportedNames = Object.keys(module);
-		for (var j = 0; j < exportedNames.length; j++) { // Loop for each export in the file
-
-			var exportedName = exportedNames[j];
-			var exportedValue = module[exportedName];
-
-			if (global[exportedName]) {//already here
-
-				console.log("DUPLICATE!!!");
-				global[exportedName] = exportedValue;//allow overwriting
-
+	for (var i = 0; i < worldMap.length; i++) { // Loop for each file
+		var module = require("./" + worldMap[i]);
+		var a = Object.keys(module);
+		for (var j = 0; j < a.length; j++) { // Loop for each export in the file
+			var k = a[j];
+			if (global[k]) {//already here
+				console.log("Not overwriting " + k + " with duplicate in " + worldMap[i]);
 			} else {//not yet in use
-
-				global[exportedName] = exportedValue;//pin it to the global object
-
+				global[k] = module[k];//pin it to the global object
 			}
-
-
-
 		}
 	}
 }
 exports.library = library;
-
-
 
 
 

@@ -1,6 +1,6 @@
 
 var Q = require("q");
-require("./load").load("base", function() { return this; });
+require("./load").library();
 
 
 

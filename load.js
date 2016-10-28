@@ -1,4 +1,50 @@
 
+// The modules that make up the library
+var worldMap = [
+	"text",        // Search, convert, and adjust text
+	"measure",     // Measure and communicate time, distance, and speed
+	"state",       // Notice something has changed, and remember to close everything
+	"list",        // Organize objects into lists and dictionaries
+	"data",        // Search, encode, and manipulate binary data
+	"hide",        // Encrypt, decrypt, and sign data
+	"path",        // Parse file system paths
+	"disk",        // Look at and change the files and folders on the disk
+	"environment", // Get information about the computer we're running on
+	"meter",       // Record, analyize and show how events happened over time
+	"step",        // Complete processes where it's not sure what will happen later
+	"flow",        // Compose and direct streams of data
+	"page"         // Show the user information with HTML
+];
+
+var loaded = false;
+
+// Load the library modules in order, avoiding duplicates
+function library() {
+	if (loaded) return;
+	loaded = true;
+	for (var i = 0; i < worldMap.length; i++) { // Loop for each file
+		var module = require("./" + worldMap[i]); // Run the file and get the module with its exports
+		var a = Object.keys(module);
+		for (var j = 0; j < a.length; j++) {                                           // Loop for each export in the module
+			var k = a[j];                                                                // The export name
+			if (global[k]) {                                                             // Already in use
+				console.log("Not overwriting " + k + " with duplicate in " + worldMap[i]); // Report and don't overwrite
+			} else {                                                                     // Available
+				global[k] = module[k];                                                     // Make it available everywhere
+			}
+		}
+	}
+}
+exports.library = library;
+
+
+
+
+
+
+
+
+/*
 // Instead of scattering which modules require which all over the place, this world map documents and defines the structure of the entire application in a single place
 var worldMap = {
 
@@ -8,13 +54,11 @@ var worldMap = {
 
 	// Demos
 
-	/*
-	demo_here: [], // Determine our IP addresses on the Internet
-	demo_hash: [], // Hash a file, showing speed and progress
+	// demo_here: [], // Determine our IP addresses on the Internet
+	// demo_hash: [], // Hash a file, showing speed and progress
 	//stopwatch.js should be here, probably, demo of curses, time, update
 	//secure erase disk task, secure erase an entire folder
 	//TODO find the document and code list of larger demos, and list them all here
-	*/
 
 	// Tests and small demos
 
@@ -70,7 +114,7 @@ function use(l, f) {
 
 exports.load = load;
 exports.use = use;
-
+*/
 
 
 

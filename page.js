@@ -1,7 +1,6 @@
 
 var platformHandlebars = require("handlebars");
 
-require("./load").load("page", function() { return this; });
 
 
 

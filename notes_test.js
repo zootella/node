@@ -1,5 +1,5 @@
 
-require("./load").load("base", function() { return this; });
+require("./load").library();
 
 var platformBigNumber = require('bignumber.js');
 

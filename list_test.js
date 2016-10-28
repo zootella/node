@@ -1,5 +1,5 @@
 
-require("./load").load("list_test", function() { return this; });
+require("./load").library();
 
 
 
@@ -153,9 +153,9 @@ exports.testList = function(test) {
 	done(test);
 }
 
-exports.testSet = function(test) {
+exports.testUniqueList = function(test) {
 
-	var l = Set(compareText);
+	var l = UniqueList(compareText);
 	l.add("c");//uses _addToUnsortedSet
 	l.add("b");
 	l.add("a");
@@ -208,9 +208,9 @@ exports.testSortedList = function(test) {
 	done(test);
 }
 
-exports.testSortedSet = function(test) {
+exports.testSortedUniqueList = function(test) {
 
-	var l = SortedSet(compareText);
+	var l = SortedUniqueList(compareText);
 	l.clear(); l.add("a"); l.add("b"); l.add("c"); test.ok(l.text() == "a,b,c");//uses _addToSortedSet
 	l.clear(); l.add("a"); l.add("c"); l.add("b"); test.ok(l.text() == "a,b,c");
 	l.clear(); l.add("b"); l.add("a"); l.add("c"); test.ok(l.text() == "a,b,c");

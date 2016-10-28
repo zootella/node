@@ -1,6 +1,4 @@
 
-require("./load").load("hide", function() { return this; });
-
 var platformCrypto = require("crypto");
 
 

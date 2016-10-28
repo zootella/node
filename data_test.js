@@ -1,5 +1,5 @@
 
-require("./load").load("data_test", function() { return this; });
+require("./load").library();
 
 
 //ok, now let's write some tests!

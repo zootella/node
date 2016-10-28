@@ -2,7 +2,7 @@
 var platformEvent = require("events");
 var platformFile = require("fs");
 
-require("./load").load("state_test", function() { return this; });
+require("./load").library();
 
 
 
