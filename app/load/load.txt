@@ -1,0 +1,62 @@
+
+
+each folder contains a single demo composed of multiple files that don't use code elsewhere
+
+
+>once
+each file only runs once even if you require it lots of times
+
+>reach
+a uses b, b uses c, a can't get to c
+
+>grow
+
+load.js has the map
+two kinds of files: named and on the map, app and just use the entire library
+notice and stop if you try to overwrite something
+
+function in load that has an exports
+
+a can reach c, but for this example we're saying that's ok
+
+
+
+
+
+
+
+notice and stop if you try to overwrite something
+baloons that can be written in any file and in any order
+commands to combine and separate
+modes to import explicitly, or just use global
+
+
+
+>1normal
+
+
+
+
+
+
+
+
+
+3 kinds of things
+-library module
+-demo
+-test
+
+be able to make any of these in any file, everything works, duplicates are noticed right away, and you can run everything from load.js, rather than giving node the file the demo is in
+
+
+do all this on the command line, and then figure out what it looks like when electron is involved
+
+
+
+
+
+
+
+
+

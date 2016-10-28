@@ -230,3 +230,43 @@ the current way node does it, if A requires B and B requires A again, A will be 
 -additionally, each module should work in browser/node/electron, it should say which of those it's ready for, and automated tests should then hit it from 1, 2, or all 3, this would be really cool. you mark up at the top which environments are supported of those
 */
 
+
+
+
+
+
+
+
+/*
+eventually, you want to make a system that lets you create blobs of code, tag them, and then they just swim off
+name something and it'll get automatically imported, and a map always shows what depends on what
+
+for now, though, replace this load with a simple global implementation
+all it does is
+1 put everything on the global object
+2 make sure that you never clobber anything, doing that (just like augment already does)
+3 have a map in load.js that shows the order to load everything in when you load everything
+
+that's it
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
