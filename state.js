@@ -289,7 +289,7 @@ exports.closeCheck = closeCheck;
 exports.done = done;
 exports.exit = exit;
 
-
+//TODO check out process.on('uncaughtException'), and see how it works in node and electron
 
 
 

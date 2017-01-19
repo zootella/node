@@ -1,0 +1,40 @@
+
+
+
+
+
+this broken example is a variant of protection
+
+app.js
+high.js
+low.js
+
+app depends on high
+high depends on low
+app shouldn't be able to get to low, but it can, because we're sticking things on the global object
+
+
+then try adding it to
+global
+module, this should work, right?
+
+
+
+
+
+no, before that, just do this
+
+
+list all the contents of the global object
+
+add something to the global object
+
+confirm that you can access it elsewhere just by loading that file
+but not before loading that file
+
+
+
+
+
+
+

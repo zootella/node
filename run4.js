@@ -232,6 +232,13 @@ search \r and \n to replace those with line()
 
 //THIRD: LIST OF LISTENERS
 
+/*
+avoid massive wheel reinvention here
+it's called node events
+https://nodejs.org/api/events.html#events_events
+seriously
+*/
+
 //really, you need a standard way to add and remove listeners
 //and a standard listener list
 //and the individual connections are all mustClose

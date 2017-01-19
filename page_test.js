@@ -37,10 +37,10 @@ exports.testTemplate = function(test) {
 
 	var t = "<p>{{name}} is a <b>{{color}}</b> {{animal}}.</p>";//template
 	var c = {name:"Morris", color:"red", animal:"fox"};//content
-	test.ok(Template(t, c) == "<p>Morris is a <b>red</b> fox.</p>");//merge
+	test.ok(template(t, c) == "<p>Morris is a <b>red</b> fox.</p>");//merge
 
-	test.ok(Template(t, {name:"Ben", color:"yellow", animal:"bird"})  == "<p>Ben is a <b>yellow</b> bird.</p>");
-	test.ok(Template(t, {name:"Tom", color:"blue",   animal:"whale"}) == "<p>Tom is a <b>blue</b> whale.</p>");
+	test.ok(template(t, {name:"Ben", color:"yellow", animal:"bird"})  == "<p>Ben is a <b>yellow</b> bird.</p>");
+	test.ok(template(t, {name:"Tom", color:"blue",   animal:"whale"}) == "<p>Tom is a <b>blue</b> whale.</p>");
 
 	done(test);
 }
@@ -48,10 +48,10 @@ exports.testTemplate = function(test) {
 exports.testTemplateBlank = function(test) {
 
 	var t = "l{{a}}r";
-	test.ok(Template(t, {a:"A"})        == "lAr");//correct
-	test.ok(Template(t, {})             == "lr");//missing
-	test.ok(Template(t, {a:"A", b:"B"}) == "lAr");//extra
-	test.ok(Template(t, {b:"B"})        == "lr");//missing and extra
+	test.ok(template(t, {a:"A"})        == "lAr");//correct
+	test.ok(template(t, {})             == "lr");//missing
+	test.ok(template(t, {a:"A", b:"B"}) == "lAr");//extra
+	test.ok(template(t, {b:"B"})        == "lr");//missing and extra
 
 	done(test);
 }

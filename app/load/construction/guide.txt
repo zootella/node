@@ -1,0 +1,134 @@
+
+
+
+
+
+
+
+
+
+
+
+first, design it imagining a single file
+
+all the baloons get handed to load
+they have to have unique names
+load decides what things to put on exports and global
+
+
+
+
+
+
+ok, imagining first multiple files
+
+load.js - the loader and entry point for everything
+app.js - code with demos and apps, uses the library
+library.js - usefull modules, can be required the traditional node way, or loaded with the loader
+test.js - test code, needs library, gets hit with nodeunit
+
+names that have to be unique are
+balloons
+apps, fine if each app is a balloon
+
+and then you can run stuff with commands like this
+
+$ node load.js test library1
+$ node load.js test all
+$ node load.js app name1
+$ nodeunit test.*.js ORISIT *.test.js
+
+and the app names have to 
+
+
+
+
+
+and also imagine it just as a stack of baloons in a file
+
+
+
+
+
+
+function load() {
+	
+
+}
+
+function balloon1() {
+
+//an app
+	
+
+}
+
+function balloon2() {
+
+
+	
+	
+}
+
+function balloon3() {
+	
+	
+}
+
+
+
+ok or maybe a single balloon
+contains some functions
+load can either add them to exports
+or add them to global
+what would that look like?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

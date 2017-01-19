@@ -2,7 +2,7 @@
 var $ = require("jquery");
 var platformChildProcess = require("child_process");
 
-require("../../load").load("base", function() { return this; });
+require("../../load").library();
 
 log("page pid #, dirname #".fill(process.pid, __dirname));
 
@@ -21,7 +21,7 @@ window.addEventListener("beforeunload", function(e) {
 
 
 $(document).ready(function() {
-	var h = Template(`
+	var h = template(`
 		<input type="button" value="Refresh" onClick="window.location.reload()"/>
 		<div id="page">
 			<div id="command"></div>
@@ -41,7 +41,7 @@ $(document).ready(function() {
 });
 
 function printLog(s) {
-	var h = Template(`
+	var h = template(`
 		<p><span class="line">{{line}}</span></p>
 	`,{
 		line:s
@@ -69,7 +69,7 @@ function logPage() {
 
 	var lines = s.ripLines();
 	for (var i = 0; i < lines.length; i++) {
-		var h = Template(`
+		var h = template(`
 			<p><span class="line">{{line}}</span></p>
 		`,{
 			line:lines[i]
@@ -93,7 +93,7 @@ function stickPage() {
 		if (a[i] == "") a[i] = " ";//give empty lines height on the page
 	}
 
-	var h = Template(`
+	var h = template(`
 		{{#each line}}
 			<p><span class="line">{{this}}</span></p>
 		{{/each}}
