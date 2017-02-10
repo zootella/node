@@ -51,7 +51,9 @@ rename this file to index.html
 [7] download artwork
 
 optional, works fine without
-icons for mac and windows
+icons for mac and windows, probably .ico and .icns
+have web download locations
+have hashes you can check, these hashes won't change
 
 [8] run
 

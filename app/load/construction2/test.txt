@@ -1,0 +1,89 @@
+
+
+
+
+
+
+
+
+
+
+todo and notes about testing
+
+switch from nodeunit to mocha
+you can use mocha without chai
+
+figure out pop quiz: run some or all of the tests not from a command line test runner in a separate process, but rather from a function call right in the same process
+
+
+
+
+
+when all the files are separate, the test files will export all their tests
+when all the files are combined, pop quiz will run the tests
+unless you figure out how to have a test runner hit the tests but avoid the exported core methods
+or no--all in on efile, you don't have to export the core methods, because they're on global
+so even now, it can be like this
+
+>files separate
+testrunner hits *.test.js, all the tests inside are exported
+
+
+>files combined
+
+
+
+actually, in global mode, the current and only setting, don't export the core modules
+you can write that later when you need it
+now the testrunner can hit everything in every file, combined or separate, that's exported, because only the tests are exported
+core functions aren't exported because they're globalized
+main functions aren't exported because one runs from teh execution path of the whole file itself
+ok this is easier and simpler than you thought
+
+
+
+
+
+definitely write your own format for tests
+have ok(true) and done(), you get these passed in
+
+right now, you're not going to
+switch away from nodeunit
+program pop quiz
+redo all the tests
+
+but do ok and done for new tests, built it so you can run both, and then switch them bit by bit
+
+
+
+
+
+/*
+the name n comes in like "group tag1 tag2"
+you need to turn that into a nice looking function name like "group_tag1_tag2"
+and then number it to uniqueness in the big single lists of "group_tag1_tag2_2", _3 etc
+
+ok, and then the function that comes in wants to get called with f(ok, done)
+but you have test, with test.ok and test.done
+
+how are they going to run in file order anymore?
+how did they do that before, actually?
+not that that hsould amtter, but still
+
+
+ok, what do you actually want to do with tests
+you want to run them all, or just about something you've changed
+when one fails, you want to be able to see it by name, not just line number
+be able to log from one
+throw in one, and have that fail
+
+put an entire existin gtest file in a container, and then one by one update the tests, running them all the while
+
+
+*/
+
+
+
+
+
+
