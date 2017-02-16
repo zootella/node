@@ -1,7 +1,7 @@
 console.log("actual test\\");
-require("./load");//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
-expose.test = function(n, f) { exports[_loadName(n, exports)] = function(t) { f(t.ok, t.done); }; }//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -55,7 +55,7 @@ expose.test("load platform", function(ok, done) {
 			function c(){}//empty function named c
 			var l = {};//list of functions to copy from
 			l[n] = c;//add c to the list under the given name n
-			_loadCopy(l, [global]);//try to load the list into the global
+			loadCopy(l, [global]);//try to load the list into the global
 			ok(false);//make sure that throws
 		} catch (e) { ok(true); }//count that it threw
 	}
@@ -80,7 +80,7 @@ expose.test("load platform", function(ok, done) {
 	done();
 });
 
-expose.test("load _loadCopy", function(ok, done) {
+expose.test("load loadCopy", function(ok, done) {
 
 	function a() {}//empty functions named a, b, c, and d
 	function b() {}
@@ -93,31 +93,31 @@ expose.test("load _loadCopy", function(ok, done) {
 
 	ok(Object.keys(d1).length == 0);//before
 	ok(Object.keys(d2).length == 1);
-	_loadCopy({a, b, c}, [d1, d2]);//copy functions a, b, and c into objects d1 and d2
+	loadCopy({a, b, c}, [d1, d2]);//copy functions a, b, and c into objects d1 and d2
 	ok(Object.keys(d1).length == 3);//after, more stuff in there
 	ok(Object.keys(d2).length == 4);
 
 	try {
-		_loadCopy({e, d}, [d1, d2]);//second function has conflict on the second object
+		loadCopy({e, d}, [d1, d2]);//second function has conflict on the second object
 		ok(false);
 	} catch (e) { ok(true); }
 
 	done();
 });
 
-expose.test("load _loadName", function(ok, done) {
+expose.test("load nameTest", function(ok, done) {
 
-	ok(_loadName("",      {}) == "test[]");//blank becomes test
-	ok(_loadName("name",  {}) == "test[name]");//name gets prefix
-	ok(_loadName("a b c", {}) == "test[a b c]");//spaces become underscores
+	ok(nameTest('',      {}) == 'test ""');
+	ok(nameTest('name',  {}) == 'test "name"');
+	ok(nameTest('a b c', {}) == 'test "a b c"');
 
 	var o = {};
-	o["test[a]"] = "";//preload the object
-	o["test[c]"] = "";
-	o["test[c]2"] = "";
-	ok(_loadName("a", o) == "test[a]2");//find the lowest available number
-	ok(_loadName("b", o) == "test[b]");
-	ok(_loadName("c", o) == "test[c]3");
+	o['test "a"'] = '';//preload the object
+	o['test "c"'] = '';
+	o['test "c" (2)'] = '';
+	ok(nameTest('a', o) == 'test "a" (2)');//find the lowest available number
+	ok(nameTest('b', o) == 'test "b"');
+	ok(nameTest('c', o) == 'test "c" (3)');
 
 	done();
 });

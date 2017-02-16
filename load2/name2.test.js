@@ -1,9 +1,17 @@
 console.log("name2 test\\");
-require("./load");//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
-expose.test = function(n, f) { exports[_loadName(n, exports)] = function(t) { f(t.ok, t.done); }; }//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
-/*
+
+
+
+
+
+
+
+
+
 expose.test("fancy", function(ok, done) {
 	ok(true);
 	done();
@@ -14,7 +22,12 @@ expose.test("fancy", function(ok, done, fail) {
 	ok(true);
 	done();
 });
-*/
+
+expose.test("fancy", function(ok, done, fail) {
+	ok(true);
+	ok(true);
+	done();
+});
 
 
 exports.testNormal1 = function(test) {

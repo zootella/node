@@ -1,12 +1,7 @@
+function load() {
 
-
-
-
-
-
-
-
-
+/*
+welcome message
 
 assembly instructions
 8 easy steps that take about x minutes and x clicks
@@ -20,10 +15,17 @@ open notepad and copy line0 there
 replace letters and numbers in line0 with #s so it looks the same as line1 below
 save, check file size same number of bytes, windows line endings \r\n 0d0a
 sha1sum command on win, mac, linux
+remove the middle line, identity.hash, to check that hash of this file, then put it back so the program can, too
+*/
 
-LINE0 --[da39a3ee5e6b4b0d3255bfef95601890afd80709]-- HASH
-LINE1 --[########################################]-- NULL
+var identity = {};
+identity.name = "zootella";
+identity.line = "----------------------------------------";
+identity.hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"; // Remove this line to check this hash
+identity.line = "----------------------------------------";
+identity.date = 20171001;
 
+/*
 [2] decide if you trust the hash, decide if you trust the code
 
 then, decide if you trust this file
@@ -47,7 +49,39 @@ npm shows popularity, the less popular ones are more vulnerable
 notepad, mac, leafpad
 copy from these parts to those files
 rename this file to index.html
+from the { to the } and from the < to the >
+*/
 
+identity["package.json"] = `
+{
+	"name": "zootella",
+	"main": "zootella.js",
+	"dependencies": {
+		"bignumber.js": "^2.3.0",
+		"bluebird": "^3.4.1",
+		"charm": "^1.0.1",
+		"chokidar": "^1.6.1",
+		"handlebars": "^4.0.5",
+		"jquery": "^3.1.0",
+		"keypress": "^0.2.1",
+	}
+}
+`;
+
+identity["index.html"] = `
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>zootella</title>
+		<script type="text/javascript" src="zootella.js"></script>
+	</head>
+	<body>
+	</body>
+</html>
+`;
+
+/*
 [7] download artwork
 
 optional, works fine without
@@ -61,6 +95,48 @@ steps to run on win, mac, pi
 make shortcuts
 what files it makes while it's running
 how to carry it with you
+*/
+
+
+
+
+
+//rest of load
+
+
+
+
+
+
+
+
+
+}
+load();
+
+contain(function(expose) {
+
+//container contents
+
+
+
+});
+
+contain(function(expose) {
+
+//container contents
+
+
+
+});
+
+contain(function(expose) {
+
+//container contents
+
+
+
+});
 
 
 
@@ -72,6 +148,34 @@ how to carry it with you
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+notes
 
 
 
@@ -98,7 +202,6 @@ the single text file contains
 
 
 
-/*
 
 zootella.txt
 at the start are instructions for validating and assembly
@@ -125,7 +228,6 @@ get node modules
 
 maybe also, download artwork
 
-*/
 
 
 
@@ -144,10 +246,7 @@ ways to get the program
 
 
 
-
-
-
-
+*/
 
 
 

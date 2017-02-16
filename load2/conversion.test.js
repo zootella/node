@@ -1,14 +1,13 @@
 console.log("conversion test\\");
-require("./load");//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
-expose.test = function(n, f) { exports[_loadName(n, exports)] = function(t) { f(t.ok, t.done); }; }//TODO remove with $ node load test
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
 
 
 
-//legacy nodeunit
 
 
 
@@ -64,28 +63,17 @@ expose.test("false", function(ok, done) {
 	done();
 });
 
-
-
-//yeah, this conversion will work
-
-
-
-
-
-
-
-
-
-
-
-
-
 //explicit fail, [GOOD]
 exports.testFail = function(test) {
 	test.ok(true);
 //	test.fail(); // <--uncomment/comment
 	test.done();
 }
+expose.test("fail", function(ok, done) {
+	ok(true);
+//	ok(false); // <--uncomment/comment
+	done();
+});
 
 //throw an exception, [GOOD]
 exports.testThrow = function(test) {
@@ -94,6 +82,12 @@ exports.testThrow = function(test) {
 //	o.isUndefined.cantReadProperty; // <--uncomment/comment
 	test.done();
 }
+expose.test("throw", function(ok, done) {
+	ok(true);
+	var o = {};
+//	o.isUndefined.cantReadProperty; // <--uncomment/comment
+	done();
+});
 
 //should throw an exception, [GOOD]
 exports.testShouldThrow = function(test) {
@@ -107,6 +101,17 @@ exports.testShouldThrow = function(test) {
 	}
 	test.done();
 }
+expose.test("should throw", function(ok, done) {
+	try {
+		var o = {};
+		o.isUndefined.cantReadProperty; // <--uncomment/comment
+		ok(false);
+	} catch (e) {
+		ok(e.name == "TypeError");
+		ok(true);
+	}
+	done();
+});
 exports.testShouldThrowFancy = function(test) {
 	test.throws(function() {
 		var o = {};
@@ -121,6 +126,11 @@ exports.testForgetDone = function(test) {
 	test.done(); // <--uncomment/comment
 }
 exports.testAfterForgetDone = function(test) { test.ok(true); test.done(); }
+expose.test("forget done", function(ok, done) {
+	ok(true);
+	done(); // <--uncomment/comment
+});
+expose.test("after forget done", function(ok, done) { ok(true); done(); });
 
 //finish in the next cycle, [GOOD]
 exports.testNextTickDone = function(test) {
@@ -131,6 +141,14 @@ exports.testNextTickDone = function(test) {
 	});
 	test.ok(true);
 }
+expose.test("next tick done", function(ok, done) {
+	ok(true);
+	setImmediate(function() {
+		ok(true);
+		done();
+	});
+	ok(true);
+});
 
 //forget to finish in the next cycle, [NEEDS IMPROVEMENT] the rest of the tests dont run
 exports.testNextTickForgetDone = function(test) {
@@ -141,6 +159,14 @@ exports.testNextTickForgetDone = function(test) {
 	});
 	test.ok(true);
 }
+expose.test("next tick forget done", function(ok, done) {
+	ok(true);
+	setImmediate(function() {
+		ok(true);
+		done(); // <--uncomment/comment
+	});
+	ok(true);
+});
 
 //ok false in the next cycle of the event loop, [GOOD]
 exports.testNextTickFalse = function(test) {
@@ -151,6 +177,14 @@ exports.testNextTickFalse = function(test) {
 	});
 	test.ok(true);
 }
+expose.test("next tick false", function(ok, done) {
+	ok(true);
+	setImmediate(function() {
+//		ok(false); // <--uncomment/comment
+		done();
+	});
+	ok(true);
+});
 
 //throw in the next cycle of the event loop, [NEEDS IMPROVEMENT] you dont get to see the exception, and no more tests run
 exports.testNextTickThrows = function(test) {
@@ -162,12 +196,25 @@ exports.testNextTickThrows = function(test) {
 	});
 	test.ok(true);
 }
+expose.test("next tick throws", function(ok, done) {
+	ok(true);
+	setImmediate(function() {
+		var o = {};
+//		o.isUndefined.cantReadProperty; // <--uncomment/comment
+		done();
+	});
+	ok(true);
+});
 
 //make it through the last test, [GOOD]
 exports.testThroughLast = function(test) {
 	test.ok(true);
 	test.done();
 }
+expose.test("through last", function(ok, done) {
+	ok(true);
+	done();
+});
 
 
 

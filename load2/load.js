@@ -1,141 +1,195 @@
 console.log("load\\");
+console.log("process.pid " + process.pid + ", __filename " + __filename);
+function load() {
 
+var identity = {};
+identity.name = "zootella";
+identity.line = "----------------------------------------";
+identity.hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709"; // Remove this line to check this hash
+identity.line = "----------------------------------------";
+identity.date = 20171001;
 
-
-
-
-
-// Load all the code files that make up the program, listing the main, core, and test functions
-function _load() {
-
-
-
-
-
-	var required = {};
-
-	//load node
-	required.child_process = require("child_process");
-	required.crypto        = require("crypto");
-	required.events        = require("events");
-	required.fs            = require("fs");
-	required.path          = require("path");
-	required.stream        = require("stream");
-	required.util          = require("util");
-
-	//load libraries
-	required.bignumber_js = require("bignumber.js");
-	required.bluebird     = require("bluebird");
-	required.charm        = require("charm");
-	required.chokidar     = require("chokidar");
-	required.handlebars   = require("handlebars");
-	required.jquery       = require("jquery");
-	required.keypress     = require("keypress");
-	required.q            = require("q");
-
-	//load electron if its here
-	if (typeof process.versions.electron == "string") required.electron = require("electron"); // Throws if we're just on the shell, unlike jQuery
-
-
-
-
-
-
-	// Add the functions in source object l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
-	function _loadCopy(l, a) {
-		var k = Object.keys(l);
-		for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
-			var n = k[i]; // Source name
-			var f = l[n]; // Source function
-			if (n == "" || n == "exports" || n == "module" || n == "require") { throw new Error("reserved: '" + n + "'"); } // Check the name
-			for (var j = 0; j < a.length; j++) { // Loop for each destination object in a, the array of destinations
-				var o = a[j]; // Destination object
-				if (o[n] === undefined) { o[n] = f; } // Name available, add the function there
-				else { throw new Error("duplicate: '" + n + "'"); } // Throw instead of overwriting
-			}
-		}
-	}
-	// Given n like "name a b", compose a unique name for adding to o like "test[name a b]2" TODO remove with $ node load test
-	function _loadName(n, o) {
-		n = "test[" + n + "]";
-		var i = 1;
-		function compose(n, i) { return i == 1 ? n : n + i; } // Stick 2 or 3 on the end if necessary
-		while (o[compose(n, i)] !== undefined) i++; // Loop until we find a unique name
-		return compose(n, i);
-	}
-	// Determine the role of this process, "shell", "electron main", or "electron page"
-	function _loadRole() {
-		if (typeof process.versions.electron == "string" && typeof process.type == "string") {
-			if      (process.type == "browser")  return "electron main";
-			else if (process.type == "renderer") return "electron page";
-			else throw new Error("unknown environment");
-		} else { return "shell"; }
-	}
-	// Given command line arguments like ["node", "load", "main", "name"], execute the named entry point
-	function _loadMain(a) {
-		if (a.length > 2 && a[2] == "main") {
-			if (a.length > 3 && mains[a[3]] !== undefined) {
-				setImmediate(function() { // Run after the rest of the code below in this file does
-					mains[a[3]]();//TODO maybe pass command line arguments as function arguments
-				});
-			} else { throw new Error("unknown main"); }
-		}
-	}
-
-	// Keep references to all the program's main, core, demo, and test functions
-	var mains = {}; // Entry points to run an entire program
-	var cores = {}; // Useful library functions that bring code to a very high level
-	var tests = []; // Automated unit tests of the core library TODO $ node load test
-
-	// Prepare the single expose object that we'll pass into every container
-	var expose = {};
-	expose.main = function(n, f) { var l = {}; l[n] = f; _loadCopy(l, [mains]);         }
-	expose.core = function(l)    {                       _loadCopy(l, [cores, global]); }
-	expose.test = function(n, f) { tests.push({name:n, code:f});                        } //TODO, you haven't centralized tests yet
-	function contain(container) { container(expose); } // Pass the same expose object into each container
-	_loadCopy({required, contain, _loadCopy, _loadName, _loadRole}, [cores, global]); // Load these core functions for use and testing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//TODO omit in single file
-	var d = required.fs.readdirSync("./");
-	for (var i = 0; i < d.length; i++) {//loop through all the files next to this one
-		if (
-			d[i].endsWith(".main.js") ||
-			d[i].endsWith(".page.js") ||
-			d[i].endsWith(".core.js") ||
-			d[i].endsWith(".demo.js") ||
-			d[i].endsWith(".test.js")) {//but not .note.js, that's notes to not run alongside parts you're working on
-			require("./" + d[i]);//load those that have the right endings
-		}
-	}
-
-	// Run a main if the command line named one
-	var role = _loadRole();               // Find out what's running us
-	if (role == "shell") {                // We're being run from the command line shell, there's no electron here at all
-		_loadMain(process.argv);                                                  // Run a main named on the command line like "$ node load main name"
-	} else if (role == "electron main") { // Electron's main process is running us, there's no page
-		_loadCopy({ _fromElectron:{ process_argv: process.argv } }, [global]);    // Share the command line arguments for the renderer process
-	} else if (role == "electron page") { // An electron renderer process is running us, so we do have a page
-		var a = required.electron.remote.getGlobal("_fromElectron").process_argv; // Pickup the command line arguments from the main process
-		_loadMain(a);                                                             // Run a main named on the command line like "$ electron . main name"
+identity["package.json"] = `
+{
+	"name": "zootella",
+	"main": "zootella.js",
+	"dependencies": {
+		"bignumber.js": "^2.3.0",
+		"bluebird": "^3.4.1",
+		"charm": "^1.0.1",
+		"chokidar": "^1.6.1",
+		"handlebars": "^4.0.5",
+		"jquery": "^3.1.0",
+		"keypress": "^0.2.1",
 	}
 }
-_load();
+`;
 
+identity["index.html"] = `
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>zootella</title>
+		<script type="text/javascript" src="zootella.js"></script>
+	</head>
+	<body>
+	</body>
+</html>
+`;
 
+//core modules
+var required = {};
+required.child_process = require("child_process");
+required.crypto        = require("crypto");
+required.events        = require("events");
+required.fs            = require("fs");
+required.path          = require("path");
+required.stream        = require("stream");
+required.util          = require("util");
 
+//third party
+required.bignumber_js = require("bignumber.js");
+required.bluebird     = require("bluebird");
+required.chokidar     = require("chokidar");
+required.handlebars   = require("handlebars");
 
+//electron and jquery
+var $;
+if (typeof process.versions.electron == "string") {
+	required.electron = require("electron");//load electron if its here
+	if (process.type == "renderer") {
+		$ = require("jquery");//load jquery if we have a page
+	}
+}
 
+// Add the functions in l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
+function loadCopy(l, a) {
+	var k = Object.keys(l);
+	for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
+		var n = k[i]; // Source name
+		var f = l[n]; // Source function
+		if (n == "" || n == "exports" || n == "module" || n == "require") { throw new Error("reserved: '" + n + "'"); } // Check the name
+		for (var j = 0; j < a.length; j++) { // Loop for each destination object in a, the array of destinations
+			var o = a[j]; // Destination object
+			if (o[n] === undefined) { o[n] = f; } // Name available, add the function there
+			else { throw new Error("duplicate: '" + n + "'"); } // Throw instead of overwriting
+		}
+	}
+}
+
+// Add method function f to prototype p as a method with name n
+function _enhance1(n, f, p) {
+	if (n in p) throw new Error("duplicate: '" + n + "'"); // Don't overwrite an existing method
+	Object.defineProperty(p, n, { enumerable: false, value: f }); // Link f under the new name n
+}
+
+// Given functions in l like f(s, a2) add methods to prototype p like s.n(a2)
+function _enhance2(l, p) {
+	var k = Object.keys(l);
+	for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
+		var n = k[i]; // Name of function, and for method
+		var f = l[n]; // Source function our new method will call
+		if (n in p) throw new Error("duplicate: '" + n + "'"); // Don't overwrite an existing method
+		function m() { // Define the method function we'll add to p, which will call f
+			var a = []; // Prepare arguments for our call to f
+			var a1 = this; // The first argument is this array or string we're adding a new method to
+			if (p === String.prototype) a1 = a1+""; // Inside a string, this is actually an array of characters
+			a.push(a1);
+			for (var j = 0; j < arguments.length; j++) a.push(arguments[j]); // Add the method's arguments
+			return f.apply(this, a); // Calling s.n(a2) calls f(s, a2) and returns the result
+		}
+		Object.defineProperty(p, n, { enumerable: false, value: m });
+	}
+}
+
+//TODO
+function _test(n, f) {
+
+}
+
+//TODO remove with $ node load test
+function nameTest(n, o) {
+	n = 'test "' + n + '"';
+	var i = 1;
+	function compose(n, i) { return i == 1 ? n : n + " (" + i + ")"; } // Stick 2 or 3 on the end if necessary
+	while (o[compose(n, i)] !== undefined) i++; // Loop until we find a unique name
+	return compose(n, i);
+}
+
+//arguments
+var arguments;
+if (!required.electron) {//shell
+	arguments = process.argv;
+} else {
+	if (!$) {//browser
+		arguments = process.argv;
+		loadCopy({electronArguments:process.argv}, [global]);    
+	} else {//renderer
+		arguments = required.electron.remote.getGlobal("electronArguments");
+	}
+}
+
+// Keep references to all the program's main, core, demo, and test functions
+var mains = {}; // Entry points to run an entire program
+var cores = {}; // Useful library functions that bring code to a very high level
+var tests = []; // Automated unit tests of the core library TODO $ node load test
+
+// Prepare the single expose object that we'll pass into every container
+var expose = {};
+expose.main          = function(n, f)    { loadCopy({[n]:f}, [mains]);     }
+expose.core          = function(l)       { loadCopy(l, [cores, global]);   }
+expose.enhance       = function(n, f, p) { _enhance1(n, f, p);             }
+expose.enhanceString = function(l)       { _enhance2(l, String.prototype); }
+expose.enhanceArray  = function(l)       { _enhance2(l, Array.prototype);  }
+expose.test          = function(n, f)    { _test(n, f);             }
+function contain(container) { container(expose); } // Pass the same expose object into each container
+expose.core({identity, required, $, arguments, contain, loadCopy, nameTest}); // Expose the core functions defined here in load
+
+//load the containers in this file
+containers();
+
+//load the containers in neighboring files
+var d = required.fs.readdirSync("./");
+for (var i = 0; i < d.length; i++) {//loop through all the files next to this one
+	if (d[i].endsWith(".main.js") || d[i].endsWith(".core.js") || d[i].endsWith(".demo.js") || d[i].endsWith(".test.js")) {
+		require("./" + d[i]);
+	}
+}
+
+//setup electron
+if (required.electron) {
+	if (!$) {
+		if (mains["electron-browser"]) mains["electron-browser"]();
+	} else {
+		if (mains["electron-renderer"]) mains["electron-renderer"]();
+	}
+}
+
+//run a main
+if (!required.electron || $) {
+	if (mains["snip"]) {
+		mains["snip"]();
+	} else if (mains["main"]) {
+		mains["main"]();
+	} else if (arguments.length > 2 && arguments[2] == "test") {
+		mains["test"]();
+	} else if (arguments.length > 2 && arguments[2] == "main") {
+		if (arguments.length > 3 && mains[arguments[3]]) {
+			var a = [];
+			for (var i = 4; i < arguments.length; i++) a.push(arguments[i]);
+			mains[arguments[3]].apply(this, a);
+		} else {
+			throw new Error("main not found: '" + arguments[3] + "'");		
+		}
+	}
+}
+
+}
+load();
+function containers() {
+
+//PASTE TARGET
+
+}
 console.log("load/");
