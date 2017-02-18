@@ -1,3 +1,5 @@
+console.log("meter core\\");
+contain(function(expose) {
 
 
 
@@ -128,27 +130,11 @@ function meterDemoColumn4(made) { // Scale with standard rightmost edge
 	return Meter(m, made, "number");
 }
 
-exports.meterDemoHeavy = meterDemoHeavy;
-exports.meterDemoLight = meterDemoLight;
-
-exports.meterDemoUnitPerUnit = meterDemoUnitPerUnit;
-exports.meterDemoUnitPerTime = meterDemoUnitPerTime;
-exports.meterDemoSizePerUnit = meterDemoSizePerUnit;
-exports.meterDemoSizePerTime = meterDemoSizePerTime;
-
-exports.meterDemoShortcut = meterDemoShortcut;
-exports.meterDemoDual     = meterDemoDual;
-exports.meterDemoInterval = meterDemoInterval;
-
-exports.meterDemoCount  = meterDemoCount;
-exports.meterDemoSpeed  = meterDemoSpeed;
-exports.meterDemoEdge   = meterDemoEdge;
-exports.meterDemoSample = meterDemoSample;
-
-exports.meterDemoColumn1 = meterDemoColumn1;
-exports.meterDemoColumn2 = meterDemoColumn2;
-exports.meterDemoColumn3 = meterDemoColumn3;
-exports.meterDemoColumn4 = meterDemoColumn4;
+expose.core({meterDemoHeavy, meterDemoLight});
+expose.core({meterDemoUnitPerUnit, meterDemoUnitPerTime, meterDemoSizePerUnit, meterDemoSizePerTime});
+expose.core({meterDemoShortcut, meterDemoDual, meterDemoInterval});
+expose.core({meterDemoCount, meterDemoSpeed, meterDemoEdge, meterDemoSample});
+expose.core({meterDemoColumn1, meterDemoColumn2, meterDemoColumn3, meterDemoColumn4});
 
 
 
@@ -609,3 +595,5 @@ function ColumnMeter(made, h) { // Given variables to hold columns, make a meter
 
 
 
+});
+console.log("meter core/");

@@ -1,6 +1,6 @@
+console.log("measure core\\");
+contain(function(expose) {
 
-var platformUtility = require("util");
-var platformBigNumber = require('bignumber.js');
 
 
 
@@ -100,7 +100,7 @@ var platformBigNumber = require('bignumber.js');
 
 // Log the given list of anything on the console, prefixed with the day and time
 function log() {
-	if (!platformCharm) { // Before code calls stick(), we're just using console.log
+	if (!charm) { // Before code calls stick(), we're just using console.log
 		stamp.apply(this, arguments); // Pass stamp the same arguments we were given
 	} else {      // We're using charm, and may have text to stick on the end of the console
 		stickErase();
@@ -122,16 +122,16 @@ function log() {
 //  |____/ \__|_|\___|_|\_\
 //                         
 
-var platformCharm; // Undefined until something calls stick(), at which point we start using charm
-var lines = [];    // Array of lines of text to keep stuck to the end of the terminal
+var charm;      // Undefined until something calls stick(), at which point we start using charm
+var lines = []; // Array of lines of text to keep stuck to the end of the terminal
 
 // Stick the given lines of text to the end of the console
 // Each line can be an argument, like stick("line1", "line2"), or a single string with newlines
 function stick() {
-	if (!platformCharm) { // Load the charm module to start using it, if we haven't already
-		platformCharm = require("charm")(); // Charm wants us to execute the returned function and save that result
-		platformCharm.pipe(process.stdout);
-		// Charm documentation reccommends platformCharm.on("^C", process.exit); but demos are closing naturally without it
+	if (!charm) { // Load the charm module to start using it, if we haven't already
+		charm = require("charm")(); // Charm wants us to execute the returned function and save that result
+		charm.pipe(process.stdout);
+		// Charm documentation reccommends charm.on("^C", process.exit); but demos are closing naturally without it
 	}
 
 	var a = []; // Separate lines of text and put them in a
@@ -166,32 +166,32 @@ function stick() {
 		}
 	}
 
-	if (!arraySame(lines, l)) {          // Only update the text on the screen if it's actually changed
-		if (lines.length != l.length) {    // Different number of lines, redraw the whole thing
+	if (!arraySame(lines, l)) {       // Only update the text on the screen if it's actually changed
+		if (lines.length != l.length) { // Different number of lines, redraw the whole thing
 			stickErase();
 			lines = l;
 			stickDraw();
-		} else {                           // Same number of lines, redraw only the lines that have changed
-			platformCharm.cursor(false);     // Hide the cursor, otherwise you can see it moving to each line
-			platformCharm.up(lines.length);
+		} else {                        // Same number of lines, redraw only the lines that have changed
+			charm.cursor(false);          // Hide the cursor, otherwise you can see it moving to each line
+			charm.up(lines.length);
 			for (var i = 0; i < lines.length; i++) {
-				if (lines[i] != l[i]) {        // Line different
-					platformCharm.erase("line");
-					console.log(l[i]);           // Write the line and move down to the next one
-					lines[i] = l[i];             // Remember what we have on the screen
-				} else {                       // Line same
-					platformCharm.down(1);       // Move down without blinking the line
+				if (lines[i] != l[i]) {     // Line different
+					charm.erase("line");
+					console.log(l[i]);        // Write the line and move down to the next one
+					lines[i] = l[i];          // Remember what we have on the screen
+				} else {                    // Line same
+					charm.down(1);            // Move down without blinking the line
 				}
 			}
-			platformCharm.cursor(true);      // Show the cursor again
+			charm.cursor(true);           // Show the cursor again
 		}
 	}
 }
 
 function stickErase() {
 	if (lines.length > 0) {
-		platformCharm.up(lines.length);
-		platformCharm.erase("down");
+		charm.up(lines.length);
+		charm.erase("down");
 	}
 }
 
@@ -206,15 +206,15 @@ function stickDraw() {
 //  |_|\_\___|\__, |_.__/ \___/ \__,_|_|  \__,_|
 //            |___/                             
 
-var platformKeypress; // The keypress module, once we load it
-var keyMap = {};      // keyMap["n"] is the array of functions we'll call when the user presses the n key
+var keypress;    // The keypress module, once we load it
+var keyMap = {}; // keyMap["n"] is the array of functions we'll call when the user presses the n key
 
 // Call f when the user presses the key for a character like "n", "8", "*", "tab", or "escape"
 // "any" to get all the events, "exit" to get escape and control+c
 function keyboard(character, f) {
-	if (!platformKeypress) {                    // Load the keypress module to start using it, if we haven't already
-		platformKeypress = require("keypress");
-		platformKeypress(process.stdin);          // Have standard in emit "keypress" events
+	if (!keypress) {                            // Load the keypress module to start using it, if we haven't already
+		keypress = require("keypress");
+		keypress(process.stdin);                  // Have standard in emit "keypress" events
 		process.stdin.setRawMode(true);           // Change other standard in settings for using the keypress module
 		process.stdin.resume();
 		process.stdin.on("keypress", keyPressed); // Call keyPressed() below on "keypress" events
@@ -244,13 +244,9 @@ function closeKeyboard() {
 	process.stdin.pause(); // Tell standard in to stop sending us keypress events, allowing the process to close
 }
 
-var inspect = platformUtility.inspect; // Rename instead of wrapping
+var inspect = required.util.inspect; // Rename instead of wrapping
 
-exports.log = log;
-exports.stick = stick;
-exports.keyboard = keyboard;
-exports.closeKeyboard = closeKeyboard;
-exports.inspect = inspect;
+expose.core({log, stick, keyboard, closeKeyboard, inspect});
 
 
 
@@ -342,24 +338,11 @@ function compareNumerals(s1, s2) { checkNumerals(s1); checkNumerals(s2); return 
 function compareCheckedNumber(n1, n2)   { return n1 - n2; } // Faster if you are sure the numbers are already valid
 function compareCheckedNumerals(s1, s2) { return (s1.length == s2.length) ? s1.localeCompare(s2) : s1.length - s2.length; }
 
-exports.min0 = min0;
-exports.min1 = min1;
-exports.checkMin = checkMin;
-
-exports.checkNumber = checkNumber;
-exports.checkNumberMath = checkNumberMath;
-exports.checkNumerals = checkNumerals;
-
-exports.checkNumeralsFit = checkNumeralsFit;
-exports.numeralsFit = numeralsFit;
-
-exports.numeralsToNumber = numeralsToNumber;
-exports.checkSame = checkSame;
-
-exports.compareNumber = compareNumber;
-exports.compareNumerals = compareNumerals;
-exports.compareCheckedNumber = compareCheckedNumber;
-exports.compareCheckedNumerals = compareCheckedNumerals;
+expose.core({min0, min1, checkMin});
+expose.core({checkNumber, checkNumberMath, checkNumerals});
+expose.core({checkNumeralsFit, numeralsFit});
+expose.core({numeralsToNumber, checkSame});
+expose.core({compareNumber, compareNumerals, compareCheckedNumber, compareCheckedNumerals});
 
 //   ___       _   
 //  |_ _|_ __ | |_ 
@@ -433,9 +416,9 @@ function _int(p) { // Takes a number like 5, a string of numerals like "789", a 
 }
 
 // Return, or make, check, keep, and return, the value in i as a BigNumber, number, or string
-function _b(i) { if (i._b !== "none") return i._b; i._b = new platformBigNumber(i._s); checkSame(i._s, i._b.toFixed(0)); return i._b; } // Make from numerals rather than number to avoid 15 digit limit
-function _n(i) { if (i._n !== "none") return i._n; i._n = numeralsToNumber(i._s);                                        return i._n; }
-function _s(i) {                      return i._s;                                                                                    } // Or access i._s directly, as it's always there
+function _b(i) { if (i._b !== "none") return i._b; i._b = new required.bignumber_js(i._s); checkSame(i._s, i._b.toFixed(0)); return i._b; } // Make from numerals rather than number to avoid 15 digit limit
+function _n(i) { if (i._n !== "none") return i._n; i._n = numeralsToNumber(i._s);                                            return i._n; }
+function _s(i) {                      return i._s;                                                                                        } // Or access i._s directly, as it's always there
 function _bs(i) { return i._b !== "none" ? i._b : i._s; } // The value in a BigNumber if i has one, numerals otherwise
 
 //                                                 Small values            use number for speed              Potentially large values use BigNumber instead
@@ -456,7 +439,7 @@ function _checkSubtract(i, j)  { if (compareCheckedNumerals(i._s, j._s) < 0) tos
 function _bothFit(i, j)        { return i._fit && j._fit; }                                                                    // Both values fit in numbers, so "-" "/" and "%" are safe
 function _bothFitProduct(i, j) { return i._fit && j._fit && i._s.length + j._s.length < (Number.MAX_SAFE_INTEGER+"").length; } // Even if i and j are all 9s, i*j will still be a digit shorter than max safe integer, so "+" and "*" are safe
 
-exports.int = int;
+expose.core({int});
 
 //   _____               _   _             
 //  |  ___| __ __ _  ___| |_(_) ___  _ __  
@@ -496,14 +479,12 @@ function _multiplyArray(a) { // Turn 10, "10", or [2, "5"] into int(10)
 	return i;
 }
 
-exports.Fraction = Fraction;
-exports._multiplyArray = _multiplyArray;
+expose.core({Fraction, _multiplyArray});
 
 function divideFast(n, d) { return Math.floor(n / d);         } // Shorter than using Math.floor directly, and easily see where you use it
 function divideSafe(n, d) { return int(n, "/", d).toNumber(); } // Likely fast enough, or just use int directly
 
-exports.divideFast = divideFast;
-exports.divideSafe = divideSafe;
+expose.core({divideFast, divideSafe});
 
 //   ____                _____               _   _             
 //  / ___|  __ _ _   _  |  ___| __ __ _  ___| |_(_) ___  _ __  
@@ -570,16 +551,11 @@ function _tens(decimal) { // Given a number of decimal places, return the necess
 	return int(m);
 }
 
-exports.sayUnitPerUnit = sayUnitPerUnit;
-exports.saySizePerSize = saySizePerSize;
-exports.sayTimePerTime = sayTimePerTime;
-exports.sayUnitPerSize = sayUnitPerSize;
-exports.sayUnitPerTime = sayUnitPerTime;
-exports.saySizePerUnit = saySizePerUnit;
-exports.saySizePerTime = saySizePerTime;
-exports.sayTimePerUnit = sayTimePerUnit;
-exports.sayTimePerSize = sayTimePerSize;
-exports.sayFraction = sayFraction;
+expose.core({sayUnitPerUnit, saySizePerSize, sayTimePerTime});
+expose.core({sayUnitPerSize, sayUnitPerTime});
+expose.core({saySizePerUnit, saySizePerTime});
+expose.core({sayTimePerUnit, sayTimePerSize});
+expose.core({sayFraction});
 
 
 
@@ -626,7 +602,7 @@ function When(t) {
 	o.text     = function()  { return sayDateAndTime(t); }        // Describe like "2002 Jun 22 Sat 11:09a 49.146s"
 	o.duration = function(finish) { return Duration(o, finish); } // Make a Duration using this When as the start time
 	o.type = "When";
-	return freeze(o);
+	return Object.freeze(o);
 }
 /*
 TODO
@@ -691,12 +667,7 @@ function Ago(i) {
 	};
 }
 
-exports.now = now;
-exports.When = When;
-exports.earlier = earlier;
-exports.recent = recent;
-exports.Duration = Duration;
-exports.Ago = Ago;
+expose.core({now, When, earlier, recent, Duration, Ago});
 
 
 
@@ -763,7 +734,7 @@ function Culture() {
 }
 var culture = Culture();
 
-exports.optionCulture = culture;//first time trying to export a global var
+expose.core({optionCulture:culture});//first time trying to export a global var
 
 
 
@@ -806,8 +777,7 @@ function items(n, name) {
 	else             return say(commas(n), " ", name, "s"); // "2 names" and up
 }
 
-exports.commas = commas;
-exports.items = items;
+expose.core({commas, items});
 
 
 
@@ -844,7 +814,7 @@ Size.value = 20; // A SHA1 hash value is 20 bytes
 Size.medium =  8*Size.kb; // 8 KB in bytes, the capacity of a normal Bin, our buffer size for TCP sockets
 Size.big    = 64*Size.kb; // 64 KB in bytes, the capacity of a big Bin, our buffer size for UDP packets
 
-freeze(Size);
+Object.freeze(Size);
 
 // Describe the given number of bytes with text like "7gb 1023mb 0kb 19b" showing scale and exactness
 function saySize(n, decimal) {
@@ -897,18 +867,8 @@ function saySizeE(n, decimal) { return say(commas(Fraction([_tens(decimal), n], 
 function saySizeZ(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.zb).whole,   decimal), "zb"); }
 function saySizeY(n, decimal) { return say(commas(Fraction([_tens(decimal), n], Size.yb).whole,   decimal), "yb"); }
 
-exports.Size = Size;
-exports.saySize = saySize;
-exports.saySize4 = saySize4;
-exports.saySizeB = saySizeB;
-exports.saySizeK = saySizeK;
-exports.saySizeM = saySizeM;
-exports.saySizeG = saySizeG;
-exports.saySizeT = saySizeT;
-exports.saySizeP = saySizeP;
-exports.saySizeE = saySizeE;
-exports.saySizeZ = saySizeZ;
-exports.saySizeY = saySizeY;
+expose.core({Size, saySize, saySize4});
+expose.core({saySizeB, saySizeK, saySizeM, saySizeG, saySizeT, saySizeP, saySizeE, saySizeZ, saySizeY});
 
 
 
@@ -956,8 +916,7 @@ function saySpeedTimePerMegabyte(f) {
 	return sayTimeRemaining(Fraction([Time.second, Size.mb], bytesPerSecond).whole) + "/mb";
 }
 
-exports.saySpeedKbps = saySpeedKbps;
-exports.saySpeedTimePerMegabyte = saySpeedTimePerMegabyte;
+expose.core({saySpeedKbps, saySpeedTimePerMegabyte});
 
 
 
@@ -989,7 +948,7 @@ Time.quick = 100;          // 1/10 second, a quick amount of time for the user, 
 Time.delay = 200;          // 1/5 second, pulse 5 times a second
 Time.out   = 4*Time.second // 4 seconds, a longer amount of time for the user
 
-freeze(Time);
+Object.freeze(Time);
 
 // Describe the given number of milliseconds with text like "13h 29m 0.991s"
 function sayTime(t, decimal) {
@@ -1051,11 +1010,7 @@ function sayTimeRace(t) {
 	return "#'#\"#".fill(commas(m), say(s).widenStart(2, "0"), say(ms).widenStart(3, "0"));
 }
 
-exports.Time = Time;
-exports.sayTime = sayTime;
-exports.sayTimeRemaining = sayTimeRemaining;
-exports.sayTimeRemainingCoarse = sayTimeRemainingCoarse;
-exports.sayTimeRace = sayTimeRace;
+expose.core({Time, sayTime, sayTimeRemaining, sayTimeRemainingCoarse, sayTimeRace});
 
 
 
@@ -1242,11 +1197,7 @@ function dateParts(t) {
 	return d;
 }
 
-exports.sayDate = sayDate;
-exports.sayDateAndTime = sayDateAndTime;
-exports.sayDayAndTime = sayDayAndTime;
-exports.sayDateTemplate = sayDateTemplate;
-exports.dateParts = dateParts;
+expose.core({sayDate, sayDateAndTime, sayDayAndTime, sayDateTemplate, dateParts});
 
 //TODO split into * which is UTC, and *Local which is like they are now, just use Date.UTC() and Date()
 
@@ -1308,8 +1259,7 @@ function Range(i, w) {
 function sortStripe(){}
 function sortRange(){}
 
-exports.Stripe = Stripe;
-exports.Range = Range;
+expose.core({Stripe, Range});
 
 //TODO lots more to bring over from chan, tests, and use in stripe pattern
 
@@ -1422,16 +1372,9 @@ function stripePieceToByte(bytes, pieceStripe) {
 	return Stripe(i, z - i);
 }
 
-exports.numberOfChunks = numberOfChunks;
-exports.numberOfPieces = numberOfPieces;
-
-exports.indexChunkToByte = indexChunkToByte;
-exports.indexPieceToChunk = indexPieceToChunk;
-exports.indexPieceToByte = indexPieceToByte;
-
-exports.stripeChunkToByte = stripeChunkToByte;
-exports.stripePieceToChunk = stripePieceToChunk;
-exports.stripePieceToByte = stripePieceToByte;
+expose.core({numberOfChunks, numberOfPieces});
+expose.core({indexChunkToByte, indexPieceToChunk, indexPieceToByte});
+expose.core({stripeChunkToByte, stripePieceToChunk, stripePieceToByte});
 
 
 
@@ -1513,3 +1456,5 @@ exports.stripePieceToByte = stripePieceToByte;
 
 
 
+});
+console.log("measure core/");

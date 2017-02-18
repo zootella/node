@@ -1,7 +1,6 @@
+console.log("disk core\\");
+contain(function(expose) {
 
-var platformUtility = require("util");
-var platformFile = require("fs");
-var platformPath = require("path");
 
 
 
@@ -41,7 +40,7 @@ function File(descriptor) {
 	return o;
 }
 
-exports.File = File;
+expose.core({File});
 
 
 
@@ -70,7 +69,7 @@ exports.File = File;
 
 function resolve(path, next) {//easy
 
-	platformFile.realpath(path, null, callback);
+	required.fs.realpath(path, null, callback);
 
 	function callback(error, resolvedPath) {
 
@@ -80,7 +79,7 @@ function resolve(path, next) {//easy
 	}
 }
 
-exports.resolve = resolve;
+expose.core({resolve});
 
 
 
@@ -258,3 +257,5 @@ Asynchronous close(2). No arguments other than a possible exception are given to
 
 
 
+});
+console.log("disk core/");

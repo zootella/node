@@ -1,5 +1,6 @@
+console.log("environment core\\");
+contain(function(expose) {
 
-var platformChokidar = require("chokidar");
 
 
 
@@ -29,8 +30,7 @@ function working() {
 	} catch (e) { toss("platform", {caught:e}); } // Not a data exception because the platform should have been able to give us text that we can correctly parse into a Path object
 }
 
-exports.platform = platform;
-exports.working = working;
+expose.core({platform, working});
 
 //TODO wrap and demo other environment querying platform functions
 //both from node and node webkit, which has some of it's own, you think
@@ -59,11 +59,11 @@ function Watch(paths, options, events, call) {
 	var o = mustClose(function() {
 		o._watcher.close();
 	});
-	o._watcher = platformChokidar.watch(paths, options).on(events, call);
+	o._watcher = required.chokidar.watch(paths, options).on(events, call);
 	return o;
 }
 
-exports.Watch = Watch;
+expose.core({Watch});
 
 
 
@@ -73,4 +73,5 @@ exports.Watch = Watch;
 
 
 
-
+});
+console.log("environment core/");

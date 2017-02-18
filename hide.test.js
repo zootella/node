@@ -1,8 +1,7 @@
-
-var platformCrypto = require("crypto");
-
-require("./load").library();
-
+console.log("hide test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -41,10 +40,9 @@ it's fast but bad because:
 -they say r can go outside bounds, apparently
 -small parts of large numbers aren't random, 4*Size.pb always produces 0kb 0b or 1b:
 */
-if (demo("math-coarse")) { demoMathCoarse(); }
-function demoMathCoarse() {
+expose.main("math-coarse", function() {
 	for (var i = 0; i < 30; i++) log(saySize(randomMath(0, 4*Size.pb)));
-}
+});
 /*
 -oh, and it crashes node in C++ if you run it a lot:
 
@@ -58,18 +56,16 @@ always crashes after printing 25 lines of text, is it always crashing on the 125
 node 4.2.4 can run this without crashing, they probably fixed it
 if the problem was in v8 instead of node, could a webpage with that code crashed the browser?
 */
-if (demo("math-crash")) { demoMathCrash(); }
-function demoMathCrash() {
+expose.main("math-crash", function() {
 	while (true) {
 		log(randomMath(0, Size.pb));//make and show a big random number
 		for (var i = 0; i < 500; i++) randomMath(0, Size.pb);//make a bunch more
 	}
-}
+});
 /*
 but for small numbers it might be ok, so we need to make sure the new better way is still fast enough:
 */
-if (demo("math-speed")) { demoMathSpeed() }
-function demoMathSpeed() {
+expose.main("math-speed", function() {
 	speedLoop("empty",      function() {                           }); // ~10 million
 	log();
 	speedLoop("coin math",  function() { randomMath(0, 1);         }); // ~10 million
@@ -80,12 +76,11 @@ function demoMathSpeed() {
 	log();
 	speedLoop("range math", function() { randomMath(0, Size.mb-1); }); // ~10 million
 	speedLoop("range data", function() { randomUnder(Size.mb);     }); // ~1 million
-}
+});
 /*
 notice how data speed 257 is half as fast as 256, because it has to roll twice half the time
 */
-if (demo("random-speed")) { demoRandomSpeed() }
-function demoRandomSpeed() {
+expose.main("random-speed", function() {
 	function empty() { speedLoop(say("empty"),            function() {                     }); }
 	function math(v) { speedLoop(say("math ", saySize(v)), function() { randomMath(0, v-1); }); }
 	function data(v) { speedLoop(say("data ", saySize(v)), function() { randomUnder(v);     }); }
@@ -96,7 +91,7 @@ function demoRandomSpeed() {
 	for (var i = 0; i < a.length; i++) math(a[i]);
 	log();
 	for (var i = 0; i < a.length; i++) data(a[i]);
-}
+});
 
 //   ____                 _                   ___           _     _      
 //  |  _ \ __ _ _ __   __| | ___  _ __ ___   |_ _|_ __  ___(_) __| | ___ 
@@ -106,8 +101,7 @@ function demoRandomSpeed() {
 //                                                                       
 
 //show how _randomPower works inside
-if (demo("show-power")) { demoShowPower(); }
-function demoShowPower() {
+expose.main("show-power", function() {
 
 	//lowest possible
 	log(); log("under 1, loops once");
@@ -128,18 +122,18 @@ function demoShowPower() {
 	_randomPower(16, true);
 	log(); log("under 17, builds h to 31 and returns random r")
 	_randomPower(17, true);
-}
+});
 
 //show how _randomUnder works, at power of 2 boundaries
-if (demo("show-under-1"))   { demoShowUnder(1);       }//one try, r all 0
-if (demo("show-under-2"))   { demoShowUnder(2);       }//one try, r 0 or 1
-if (demo("show-under-8"))   { demoShowUnder(8);       }//one try, r 0-7
-if (demo("show-under-256")) { demoShowUnder(256);     }//one try, r 0-255
-if (demo("show-under-pb"))  { demoShowUnder(Size.pb); }//one try
+expose.main("show-under-1",   function() { demoShowUnder(1);       });//one try, r all 0
+expose.main("show-under-2",   function() { demoShowUnder(2);       });//one try, r 0 or 1
+expose.main("show-under-8",   function() { demoShowUnder(8);       });//one try, r 0-7
+expose.main("show-under-256", function() { demoShowUnder(256);     });//one try, r 0-255
+expose.main("show-under-pb",  function() { demoShowUnder(Size.pb); });//one try
 //around boundary
-if (demo("show-under-15")) { demoShowUnder(15); }//under, a few take more than 1 try
-if (demo("show-under-16")) { demoShowUnder(16); }//at, all take one try
-if (demo("show-under-17")) { demoShowUnder(17); }//over, many take more tries
+expose.main("show-under-15",  function() { demoShowUnder(15); });//under, a few take more than 1 try
+expose.main("show-under-16",  function() { demoShowUnder(16); });//at, all take one try
+expose.main("show-under-17",  function() { demoShowUnder(17); });//over, many take more tries
 function demoShowUnder(v) {
 	for (var i = 0; i < 30; i++) {
 		var a = _randomUnder(v);
@@ -147,8 +141,7 @@ function demoShowUnder(v) {
 	}
 }
 //see how many tries _randomUnder takes
-if (demo("show-tries")) { demoShowTries(); }
-function demoShowTries() {
+expose.main("show-tries", function() {
 
 	function around(v) {
 		log();
@@ -175,7 +168,7 @@ function demoShowTries() {
 	around(256);
 	around(Size.gb);
 	around(Size.pb);
-}
+});
 
 //same functions, but with extra logging and reporting added
 function _randomUnder(v) {
@@ -205,8 +198,7 @@ function _randomPower(v, show) {
 //                                                                       
 
 //see how often given chances happen
-if (demo("chance")) { demoChance(); }
-function demoChance() {
+expose.main("chance", function() {
 
 	function roll(samples, n, d) {
 		log();
@@ -226,11 +218,10 @@ function demoChance() {
 	roll(100, 1, 2);
 	roll(10000, 1, 2);
 	roll(10000, 23, 100);//percent
-}
+});
 
 //generate random numbers in given ranges
-if (demo("random-through")) { demoRandomThrough(); }
-function demoRandomThrough() {
+expose.main("random-through", function() {
 
 	function roll(target, min, max) {
 
@@ -254,15 +245,15 @@ function demoRandomThrough() {
 	roll(100, 0, 0);
 	roll(100, 7, 7);
 	roll(5000, 1, 2);
-}
+});
 
 //watch chance stabilize
-if (demo("random-chance-12"))    { demoRandomChance(1, 2); }
-if (demo("random-chance-13"))    { demoRandomChance(1, 3); }
-if (demo("random-chance-23"))    { demoRandomChance(2, 3); }
-if (demo("random-chance-34"))    { demoRandomChance(3, 4); }
-if (demo("random-chance-50100")) { demoRandomChance(50, 100); }
-if (demo("random-chance-71100")) { demoRandomChance(71, 100); }
+expose.main("random-chance-12", function()    { demoRandomChance(1, 2);    });
+expose.main("random-chance-13", function()    { demoRandomChance(1, 3);    });
+expose.main("random-chance-23", function()    { demoRandomChance(2, 3);    });
+expose.main("random-chance-34", function()    { demoRandomChance(3, 4);    });
+expose.main("random-chance-50100", function() { demoRandomChance(50, 100); });
+expose.main("random-chance-71100", function() { demoRandomChance(71, 100); });
 function demoRandomChance(n, d) {
 	log("chance #/#".fill(n, d));
 	var rolls = 0;
@@ -279,8 +270,7 @@ function demoRandomChance(n, d) {
 }
 
 //watch random bit approach 50%
-if (demo("random-bit")) { demoRandomBit(); }
-function demoRandomBit() {
+expose.main("random-bit", function() {
 	var rolls = 0;
 	var report = 1;
 	var heads = 0;
@@ -292,12 +282,12 @@ function demoRandomBit() {
 			report *= 2;
 		}
 	}
-}
+});
 
 //watch random under stabilize
-if (demo("random-under-4"))  { demoRandomUnder(4);  }
-if (demo("random-under-10")) { demoRandomUnder(10); }
-if (demo("random-under-30")) { demoRandomUnder(30); }
+expose.main("random-under-4",  function() { demoRandomUnder(4);  });
+expose.main("random-under-10", function() { demoRandomUnder(10); });
+expose.main("random-under-30", function() { demoRandomUnder(30); });
 function demoRandomUnder(v) {
 	log("under #".fill(v));
 	var rolls = 0;
@@ -318,8 +308,7 @@ function demoRandomUnder(v) {
 }
 
 //call chance forever in place
-if (demo("in-place")) { demoInPlace(1, 2); }
-function demoInPlace(n, d) {
+expose.main("in-place", function(n, d) {
 
 	var screen = pulseScreen(function() {
 		stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
@@ -344,7 +333,7 @@ function demoInPlace(n, d) {
 		closeKeyboard();
 		closeCheck();
 	});
-}
+});
 
 //   ____                 _                   ____        _        
 //  |  _ \ __ _ _ __   __| | ___  _ __ ___   |  _ \  __ _| |_ __ _ 
@@ -354,29 +343,26 @@ function demoInPlace(n, d) {
 //                                                                 
 
 //make some guids
-if (demo("unique")) { demoUnique(); }
-function demoUnique() {
+expose.main("unique", function() {
 
 	log("base16"); for (var i = 1; i <= 12; i++) log(unique().base16());//notice the 300ms pause at the start
 	log("base32"); for (var i = 1; i <= 12; i++) log(unique().base32());
 	log("base62"); for (var i = 1; i <= 12; i++) log(unique().base62());
 	log("base64"); for (var i = 1; i <= 12; i++) log(unique().base64());
-}
+});
 
 //see how fast we can make guids
 //there seems to be a 300ms cost to making the first one
 //but after that, we can make nearly 100k/second
-if (demo("unique-speed")) { demoUniqueSpeed(); }
-function demoUniqueSpeed() {
+expose.main("unique-speed", function() {
 
 	function f() { unique(); }
 	speedLoop8("unique", f);
-}
+});
 
 //see if we can run the computer out of entropy
 //running overnight on windows, this generated over a terabyte of random data without running out or any error
-if (demo("random-limit")) { demoRandomLimit(); }
-function demoRandomLimit() {
+expose.main("random-limit", function() {
 
 	var screen = pulseScreen(function() {
 		stick("generated # of random data in #".fill(saySize(d), sayTime(t.age())));
@@ -390,7 +376,7 @@ function demoRandomLimit() {
 	f1();
 	function f1() {
 		if (go) {
-			platformCrypto.randomBytes(s, f2);//generate another 4kb of random data
+			required.crypto.randomBytes(s, f2);//generate another 4kb of random data
 		}
 	}
 	function f2(e, buffer) {
@@ -407,7 +393,7 @@ function demoRandomLimit() {
 		closeKeyboard();
 		closeCheck();
 	});
-}
+});
 
 //   ____                 _                   _____         _   
 //  |  _ \ __ _ _ __   __| | ___  _ __ ___   |_   _|__  ___| |_ 
@@ -416,13 +402,13 @@ function demoRandomLimit() {
 //  |_| \_\__,_|_| |_|\__,_|\___/|_| |_| |_|   |_|\___||___/\__|
 //                                                              
 
-exports.testRandom = function(test) {
+expose.test("hide random", function(ok, done) {
 
 	function i(f) {//invalid
 		try {
 			f();
-			test.fail();
-		} catch (e) { test.ok(true); }
+			ok(false);
+		} catch (e) { ok(true); }
 	}
 
 	var limit = 100000;
@@ -435,10 +421,10 @@ exports.testRandom = function(test) {
 			if (f()) { hitTrue  = true; }
 			else     { hitFalse = true; }
 			if (hitTrue && hitFalse) {
-				test.ok(true);
+				ok(true);
 				return;
 			} else if (tries > limit) {
-				test.fail();
+				ok(false);
 				return;
 			}
 		}
@@ -449,10 +435,10 @@ exports.testRandom = function(test) {
 			var r = f();
 			tries++;
 			if (r == target) {//hit the target value
-				test.ok(true);
+				ok(true);
 				return;
 			} else if (tries > limit) {//give up after 100k tries
-				test.fail();
+				ok(false);
 				return;
 			}
 		}
@@ -462,17 +448,17 @@ exports.testRandom = function(test) {
 	both(function() { return randomBit(); });
 
 	//chance
-	test.ok(chance(1, 1));
-	test.ok(chance(500, 500));
+	ok(chance(1, 1));
+	ok(chance(500, 500));
 	i(function() { chance(0, 1); });//no chance in 1
 	i(function() { chance(2, 1); });//two chance in 1
 	both(function() { return chance(1, 2); });
 	both(function() { return chance(999, 1000); });
 
 	//randomThrough
-	test.ok(randomThrough(0, 0) == 0);
-	test.ok(randomThrough(1, 1) == 1);
-	test.ok(randomThrough(789, 789) == 789);
+	ok(randomThrough(0, 0) == 0);
+	ok(randomThrough(1, 1) == 1);
+	ok(randomThrough(789, 789) == 789);
 	i(function() { randomThrough(3, 2); });
 
 	hit(1, function() { return randomThrough(1, 2); });
@@ -487,7 +473,7 @@ exports.testRandom = function(test) {
 	hit(Size.pb+100, function() { return randomThrough(Size.pb, Size.pb+100); });
 
 	//randomUnder
-	test.ok(randomUnder(1) == 0);
+	ok(randomUnder(1) == 0);
 	i(function() { randomUnder(0); });
 
 	hit(0, function() { return randomUnder(2); });
@@ -497,14 +483,14 @@ exports.testRandom = function(test) {
 	hit(71, function() { return randomUnder(256); });
 	hit(255, function() { return randomUnder(256); });
 
-	done(test);
-}
+	done();
+});
 
-exports.testMax = function(test) {
+expose.test("hide platform", function(ok, done) {
 
 	function f(v) {
-		test.ok(chance(v, v));
-		test.ok(randomThrough(v, v) == v);
+		ok(chance(v, v));
+		ok(randomThrough(v, v) == v);
 	}
 
 	f(Number.MAX_SAFE_INTEGER);
@@ -512,8 +498,8 @@ exports.testMax = function(test) {
 	f(Number.MAX_SAFE_INTEGER-2);
 	f(Number.MAX_SAFE_INTEGER-50);
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -526,31 +512,11 @@ exports.testMax = function(test) {
 
 
 
-exports.testSnip1 = function(test) {
+expose.test("hide snip 1", function(ok, done) {
 
-	test.ok(true);
-	test.ok(true);
-	log("hi from inside a test");
-
-
-
-
-
-
-
-	done(test);
-}
-
-
-exports.testSnip2 = function(test) {
-
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
+	ok(true);
+	ok(true);
+//	log("hi from inside a test");
 
 
 
@@ -558,26 +524,49 @@ exports.testSnip2 = function(test) {
 
 
 
-	done(test);
-}
-
-exports.testSnip3 = function(test) {
-
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
-	test.ok(true);
+	done();
+});
 
 
+expose.test("hide snip 2", function(ok, done) {
 
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
 
 
 
 
-	done(test);
-}
 
 
+
+	done();
+});
+
+expose.test("hide snip 3", function(ok, done) {
+
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+	ok(true);
+
+
+
+
+
+
+
+	done();
+});
+
+
+
+});
+console.log("hide test/");

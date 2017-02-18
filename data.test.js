@@ -1,6 +1,7 @@
-
-require("./load").library();
-
+console.log("data test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 //ok, now let's write some tests!
 //write these tests like a kids story that shows how easy it is to do powerful stuff with your library
@@ -25,7 +26,7 @@ require("./load").library();
 //  |____/ \__,_|_| |_|  \___|_|   
 //                                 
 
-exports.testBufferShift = function(test) {
+expose.test("Data bufferShift", function(ok, done) {
 
 	var b = new Buffer(8);
 
@@ -40,16 +41,16 @@ exports.testBufferShift = function(test) {
 
 	bufferShift(b, 2, 5);
 
-	test.ok(b[0] == 97 + 1);
-	test.ok(b[1] == 97 + 2);
-	test.ok(b[2] == 97 + 2);
-	test.ok(b[3] == 97 + 2);
-	test.ok(b[4] == 97 + 1);
+	ok(b[0] == 97 + 1);
+	ok(b[1] == 97 + 2);
+	ok(b[2] == 97 + 2);
+	ok(b[3] == 97 + 2);
+	ok(b[4] == 97 + 1);
 
-	test.done();
-}
+	done();
+});
 
-exports.testBufferCopy = function(test) {
+expose.test("Data bufferCopy", function(ok, done) {
 
 	var source = new Buffer(8);
 	var target = new Buffer(8);
@@ -65,14 +66,14 @@ exports.testBufferCopy = function(test) {
 
 	bufferCopy(5, source, 2, target, 0);
 
-	test.ok(target[0] == 97 + 1);
-	test.ok(target[1] == 97 + 2);
-	test.ok(target[2] == 97 + 2);
-	test.ok(target[3] == 97 + 2);
-	test.ok(target[4] == 97 + 1);
+	ok(target[0] == 97 + 1);
+	ok(target[1] == 97 + 2);
+	ok(target[2] == 97 + 2);
+	ok(target[3] == 97 + 2);
+	ok(target[4] == 97 + 1);
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -94,65 +95,65 @@ exports.testBufferCopy = function(test) {
 //  |____/ \__,_|\__\__,_|
 //                        
 
-exports.testType = function(test) {
+expose.test("Data type", function(ok, done) {
 
 	var d = Data();
 	var b = Bay();
 
 	//here's a way to make sure the var you've been given is a Data object
-	test.ok(d.type == "Data");
-	test.ok(b.type == "Bay");
+	ok(d.type == "Data");
+	ok(b.type == "Bay");
 
-	test.done();
-}
+	done();
+});
 
-exports.testDataMake = function(test) {
+expose.test("Data make", function(ok, done) {
 
 	//make an empty data
 	var d;
 	d = Data();
-	test.ok(!d.size());
+	ok(!d.size());
 
 	//boolean
 	d = Data(true);
-	test.ok(d.text() == "t");
+	ok(d.text() == "t");
 	d = Data(false);
-	test.ok(d.text() == "f");
+	ok(d.text() == "f");
 
 	//byte
 	d = toByte(0x01);//javascript can't tell the difference between numbers and bytes, so you have to use toByte(), which returns a Data object
-	test.ok(d.base16() == "01");
+	ok(d.base16() == "01");
 
 	//number
 	d = Data(123);
-	test.ok(d.text() == "123");
+	ok(d.text() == "123");
 	d = Data(-5);
-	test.ok(d.text() == "-5");
+	ok(d.text() == "-5");
 	d = Data(1.20);
-	test.ok(d.text() == "1.2");//note how it chops off the unnecessary trailing zero
+	ok(d.text() == "1.2");//note how it chops off the unnecessary trailing zero
 
 	//string
 	d = Data("ab\r\n");
-	test.ok(d.base16() == "61620d0a");//ascii characters a and b are 0x61 and 0x62
+	ok(d.base16() == "61620d0a");//ascii characters a and b are 0x61 and 0x62
 
 	//buffer
 	var b = new Buffer("00ff01aa", "hex");
 	d = Data(b);
-	test.ok(d.base16() == "00ff01aa");
+	ok(d.base16() == "00ff01aa");
 
-	test.done();
-};
+	done();
+});
 
-exports.testDataFindOrMake = function(test) {
+expose.test("Data find or make", function(ok, done) {
 
 	var bay = Bay("hi");
 	var data = Data(bay);//now you can make a data out of anything that has a data() method
-	test.ok(data.text() == "hi");
+	ok(data.text() == "hi");
 
-	test.done();
-}
+	done();
+});
 
-exports.testDataCopy = function(test) {
+expose.test("Data copy", function(ok, done) {
 
 	var buffer = new Buffer("00aa0000", "hex");//make a buffer that has aa in it
 	var looking = Data(buffer);//make a data that looks at it
@@ -160,275 +161,275 @@ exports.testDataCopy = function(test) {
 
 	buffer.writeUInt8(0xbb, 1);//change the aa to bb
 
-	test.ok(looking.base16() == "00bb0000");//looking sees the change, while
-	test.ok(copied.base16() == "00aa0000");//copied is protected from it
+	ok(looking.base16() == "00bb0000");//looking sees the change, while
+	ok(copied.base16() == "00aa0000");//copied is protected from it
 
-	test.done();
-};
+	done();
+});
 
-exports.testDataOut = function(test) {
+expose.test("Data out", function(ok, done) {
 
 	//buffer
 	var d = base16("0d0a");
 	var b = d.buffer();
-	test.ok(b.readUInt8(0) == 0x0d);
-	test.ok(b.readUInt8(1) == 0x0a);
+	ok(b.readUInt8(0) == 0x0d);
+	ok(b.readUInt8(1) == 0x0a);
 
 	//string
 	d = Data("hello");
 	var s = d.text();
-	test.ok(s == "hello");
+	ok(s == "hello");
 
 	//number
 	d = Data(786);
 	var i = d.toNumber();
-	test.ok(i == 786);
+	ok(i == 786);
 
 	//boolean
 	d = Data(false);
 	var f = d.toBoolean();
-	test.ok(!f);
+	ok(!f);
 
-	test.done();
-};
+	done();
+});
 
-exports.testDataSize = function(test) {
+expose.test("Data size", function(ok, done) {
 
 	//empty
 	var d = Data();
-	test.ok(!d.size());
-	test.ok(!d.hasData());
-	test.ok(d.isEmpty());
+	ok(!d.size());
+	ok(!d.hasData());
+	ok(d.isEmpty());
 
 	//full
 	d = Data("hi");
-	test.ok(d.size() == 2);
-	test.ok(d.hasData());
-	test.ok(!d.isEmpty());
+	ok(d.size() == 2);
+	ok(d.hasData());
+	ok(!d.isEmpty());
 
 	//unicode
 	var s = "\u4e00\u4e8c\u4e09"//chinese one, two, three
 	d = Data(s);
-	test.ok(s.length == 3);//3 unicode characters become
-	test.ok(d.size() == 9);//9 bytes of utf8 data
+	ok(s.length == 3);//3 unicode characters become
+	ok(d.size() == 9);//9 bytes of utf8 data
 
 	//unicde in literals works, too
 	var s2 = "一二三";//chinese one, two, three
 	var d2 = Data(s2);
-	test.ok(d.same(d2));
-	test.ok(d.base16() == "e4b880e4ba8ce4b889");//each triple starts with byte e4
+	ok(d.same(d2));
+	ok(d.base16() == "e4b880e4ba8ce4b889");//each triple starts with byte e4
 
-	test.done();
-};
+	done();
+});
 
-exports.testDataClip = function(test) {
+expose.test("Data clip", function(ok, done) {
 
 	//make 6 test bytes
 	var d = base16("aabbccddeeff");
-	test.ok(d.size() == 6);
+	ok(d.size() == 6);
 	var c;
 
 	//lots of ways to clip out parts of that, data is immutable, so c is different
-	c = d.start(2);    test.ok(c.base16() == "aabb"        );
-	c = d.end(2);      test.ok(c.base16() ==         "eeff");
-	c = d.after(2);    test.ok(c.base16() ==     "ccddeeff");
-	c = d.chop(2);     test.ok(c.base16() == "aabbccdd"    );
-	c = d._clip(2, 3); test.ok(c.base16() ==     "ccddee"  );
+	c = d.start(2);    ok(c.base16() == "aabb"        );
+	c = d.end(2);      ok(c.base16() ==         "eeff");
+	c = d.after(2);    ok(c.base16() ==     "ccddeeff");
+	c = d.chop(2);     ok(c.base16() == "aabbccdd"    );
+	c = d._clip(2, 3); ok(c.base16() ==     "ccddee"  );
 
 	//clip nothing
-	c = d._clip(0, 0); test.ok(c.base16() == "");//clipping 0 from the start is ok
-	c = d._clip(6, 0); test.ok(c.base16() == "");//clipping 0 from the end is ok
-	try { d._clip(6, 1); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//clipping 1 from the end is not
-	try { d._clip(7, 0); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//clipping 0 from beyond the end is not
+	c = d._clip(0, 0); ok(c.base16() == "");//clipping 0 from the start is ok
+	c = d._clip(6, 0); ok(c.base16() == "");//clipping 0 from the end is ok
+	try { d._clip(6, 1); ok(false); } catch (e) { ok(e.name == "chop"); }//clipping 1 from the end is not
+	try { d._clip(7, 0); ok(false); } catch (e) { ok(e.name == "chop"); }//clipping 0 from beyond the end is not
 
 	//first
 	var b = d.first();
-	test.ok(b == 0xaa);
+	ok(b == 0xaa);
 
 	//get
-	test.ok(d.get(0) == 0xaa);
-	test.ok(d.get(1) == 0xbb);
-	test.ok(d.get(5) == 0xff);
+	ok(d.get(0) == 0xaa);
+	ok(d.get(1) == 0xbb);
+	ok(d.get(5) == 0xff);
 
 	//throw chop if out of range
 	try {
 		d.get(6);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }//throws chop
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }//throws chop
 
-	try { d.get(-1); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//before the start
-	try { d.get(6); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//after the end
+	try { d.get(-1); ok(false); } catch (e) { ok(e.name == "chop"); }//before the start
+	try { d.get(6); ok(false); } catch (e) { ok(e.name == "chop"); }//after the end
 
-	try { d._clip(-1, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//sticking out before the start
-	try { d._clip(-2, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//entirely before the start
-	try { d._clip(5, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//sticking out after the end
-	try { d._clip(6, 2); test.fail(); } catch (e) { test.ok(e.name == "chop"); }//entirely after the end
+	try { d._clip(-1, 2); ok(false); } catch (e) { ok(e.name == "chop"); }//sticking out before the start
+	try { d._clip(-2, 2); ok(false); } catch (e) { ok(e.name == "chop"); }//entirely before the start
+	try { d._clip(5, 2); ok(false); } catch (e) { ok(e.name == "chop"); }//sticking out after the end
+	try { d._clip(6, 2); ok(false); } catch (e) { ok(e.name == "chop"); }//entirely after the end
 
-	test.done();
-}
+	done();
+});
 
-exports.testDataFind = function(test) {
+expose.test("Data find", function(ok, done) {
 
 	var d = base16("aabbccddeeff");
 
 	//find single byte
-	test.ok(d.find(base16("aa")) == 0);//first
-	test.ok(d.find(base16("bb")) == 1);//second
-	test.ok(d.find(base16("ff")) == 5);//last
-	test.ok(d.find(base16("00")) == -1);//not found
+	ok(d.find(base16("aa")) == 0);//first
+	ok(d.find(base16("bb")) == 1);//second
+	ok(d.find(base16("ff")) == 5);//last
+	ok(d.find(base16("00")) == -1);//not found
 
 	//more bytes
-	test.ok(d.find(base16("aabb")) == 0);//start
-	test.ok(d.find(base16("bbccdd")) == 1);//inside
-	test.ok(d.find(base16("eeff")) == 4);//end
-	test.ok(d.find(base16("0011")) == -1);//not there at all
-	test.ok(d.find(base16("ff00")) == -1);//off end
+	ok(d.find(base16("aabb")) == 0);//start
+	ok(d.find(base16("bbccdd")) == 1);//inside
+	ok(d.find(base16("eeff")) == 4);//end
+	ok(d.find(base16("0011")) == -1);//not there at all
+	ok(d.find(base16("ff00")) == -1);//off end
 
 	//same
-	test.ok(d.same(base16("aabbccddeeff")));//same
-	test.ok(!d.same(base16("aab0ccddeeff")));//different
-	test.ok(!d.same(base16("aabbccddeeff00")));//too long
-	test.ok(!d.same(base16("aabbccddee")));//too short
+	ok(d.same(base16("aabbccddeeff")));//same
+	ok(!d.same(base16("aab0ccddeeff")));//different
+	ok(!d.same(base16("aabbccddeeff00")));//too long
+	ok(!d.same(base16("aabbccddee")));//too short
 
 	//starts
-	test.ok(d.starts(base16("aabb")));//starts
-	test.ok(!d.starts(base16("aa00")));//not found
-	test.ok(!d.starts(base16("bbcc")));//has, but not at the start
+	ok(d.starts(base16("aabb")));//starts
+	ok(!d.starts(base16("aa00")));//not found
+	ok(!d.starts(base16("bbcc")));//has, but not at the start
 
 	//ends
-	test.ok(d.ends(base16("eeff")));//ends
-	test.ok(!d.ends(base16("aa00")));//not found
-	test.ok(!d.ends(base16("ddee")));//has, but not at the end
+	ok(d.ends(base16("eeff")));//ends
+	ok(!d.ends(base16("aa00")));//not found
+	ok(!d.ends(base16("ddee")));//has, but not at the end
 
 	//has
-	test.ok(d.has(base16("aabb")));//start
-	test.ok(d.has(base16("bbcc")));//middle
-	test.ok(d.has(base16("eeff")));//end
-	test.ok(!d.has(base16("0011")));//different
-	test.ok(!d.has(base16("ff00")));//off end
+	ok(d.has(base16("aabb")));//start
+	ok(d.has(base16("bbcc")));//middle
+	ok(d.has(base16("eeff")));//end
+	ok(!d.has(base16("0011")));//different
+	ok(!d.has(base16("ff00")));//off end
 
 	//find first and last
 	d = base16("aa010203aaaaaaaa010203aa");
-	test.ok(d.find(base16("010203")) == 1);//first instance
-	test.ok(d.last(base16("010203")) == 8);//last instance
+	ok(d.find(base16("010203")) == 1);//first instance
+	ok(d.last(base16("010203")) == 8);//last instance
 
-	test.done();
-}
+	done();
+});
 
-exports.testDataCut = function(test) {
+expose.test("Data cut", function(ok, done) {
 
 	var d = base16("01aabbcc05060708aabbcc12");
 
 	//first
 	var s = d.cut(base16("aabbcc"));
-	test.ok(s.found);
-	test.ok(s.before.same(base16("01")));
-	test.ok(s.tag.same(base16("aabbcc")));
-	test.ok(s.after.same(base16("05060708aabbcc12")));
+	ok(s.found);
+	ok(s.before.same(base16("01")));
+	ok(s.tag.same(base16("aabbcc")));
+	ok(s.after.same(base16("05060708aabbcc12")));
 
 	//last
 	var s = d.cutLast(base16("aabbcc"));
-	test.ok(s.found);
-	test.ok(s.before.same(base16("01aabbcc05060708")));
-	test.ok(s.tag.same(base16("aabbcc")));
-	test.ok(s.after.same(base16("12")));
+	ok(s.found);
+	ok(s.before.same(base16("01aabbcc05060708")));
+	ok(s.tag.same(base16("aabbcc")));
+	ok(s.after.same(base16("12")));
 
 	//not found
 	var s = d.cutLast(base16("0507"));
-	test.ok(!s.found);//not found
-	test.ok(s.before.same(base16("01aabbcc05060708aabbcc12")));//all before
-	test.ok(s.tag.same(base16("")));
-	test.ok(s.after.same(base16("")));
+	ok(!s.found);//not found
+	ok(s.before.same(base16("01aabbcc05060708aabbcc12")));//all before
+	ok(s.tag.same(base16("")));
+	ok(s.after.same(base16("")));
 
-	test.done();
-}
+	done();
+});
 
-exports.testDataSay = function(test) {
+expose.test("Data say", function(ok, done) {
 
 	var d = Data("\r\n");
-	test.ok(d.text() == "\r\n");
-	test.ok(d.base16() == "0d0a");
+	ok(d.text() == "\r\n");
+	ok(d.base16() == "0d0a");
 
-	test.done();
-}
+	done();
+});
 
-exports.testClip = function(test) {
+expose.test("Data clip", function(ok, done) {
 
 	var c = Data("abcde").clip();//wrap a clip around 5 ascii bytes
-	test.ok(c.data().text() == "abcde");//look at them
-	test.ok(c.size() == 5);//check the size
-	test.ok(!c.isEmpty());
-	test.ok(c.hasData());
+	ok(c.data().text() == "abcde");//look at them
+	ok(c.size() == 5);//check the size
+	ok(!c.isEmpty());
+	ok(c.hasData());
 
 	var c2 = c.copy();//make a copy that we can change separately
 
 	c.remove(2);//remove the first 2 bytes
-	test.ok(c.data().text() == "cde");
-	test.ok(c.size() == 3);
+	ok(c.data().text() == "cde");
+	ok(c.size() == 3);
 
 	c.remove(3);//remove all the others
-	test.ok(c.isEmpty());
+	ok(c.isEmpty());
 
-	test.ok(c2.size() == 5);//confirm the copy didn't change
+	ok(c2.size() == 5);//confirm the copy didn't change
 
 	c2.remove(0);//removing nothing is ok
-	test.ok(c2.size() == 5);
+	ok(c2.size() == 5);
 
 	try {
 		c2.remove(6);//try to remove too much
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }//make sure we got chop
-	test.ok(c2.size() == 5);//and that didn't change the clip
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }//make sure we got chop
+	ok(c2.size() == 5);//and that didn't change the clip
 
 	c2.keep(4);//use keep instead of remove
-	test.ok(c2.size() == 4);
-	test.ok(c2.data().text() == "bcde");
+	ok(c2.size() == 4);
+	ok(c2.data().text() == "bcde");
 
 	c2.remove(1);
-	test.ok(c2.size() == 3);
-	test.ok(c2.data().text() == "cde");
+	ok(c2.size() == 3);
+	ok(c2.data().text() == "cde");
 
 	c2.keep(1);
-	test.ok(c2.size() == 1);
-	test.ok(c2.data().text() == "e");
+	ok(c2.size() == 1);
+	ok(c2.data().text() == "e");
 
 	c2.keep(0);
-	test.ok(c2.isEmpty());
-	test.ok(c2.data().text() == "");
+	ok(c2.isEmpty());
+	ok(c2.data().text() == "");
 
-	test.done();
-}
+	done();
+});
 
-exports.testClipRemoveData = function(test) {
+expose.test("Data clip remove", function(ok, done) {
 
 	var c = Data("abcde").clip();//wrap a clip around 5 ascii bytes
 	var d = c.remove(2);//remove the first 2 bytes
-	test.ok(d.text() == "ab");//confirm you got them
-	test.ok(c.data().text() == "cde");//and the clip is what remains
+	ok(d.text() == "ab");//confirm you got them
+	ok(c.data().text() == "cde");//and the clip is what remains
 
-	test.done();
-}
+	done();
+});
 
-exports.testCompareData = function(test) {
+expose.test("Data compare", function(ok, done) {
 
 	//first, let's test some get
 	var d = base16("00ff0a05");
-	test.ok(d.get(0) == 0);
-	test.ok(d.get(1) == 255);
-	test.ok(d.get(2) == 10);
-	test.ok(d.get(3) == 5);
+	ok(d.get(0) == 0);
+	ok(d.get(1) == 255);
+	ok(d.get(2) == 10);
+	ok(d.get(3) == 5);
 
 	function same(s1, s2) {
 		var d1 = base16(s1);
 		var d2 = base16(s2);
-		test.ok(d1.same(d2));//use find also
-		test.ok(compareData(d1, d2) == 0);
+		ok(d1.same(d2));//use find also
+		ok(compareData(d1, d2) == 0);
 	}
 	function order(s1, s2) {
 		var d1 = base16(s1);
 		var d2 = base16(s2);
-		test.ok(compareData(d1, d2) < 0);
-		test.ok(compareData(d2, d1) > 0);//reverse the order
+		ok(compareData(d1, d2) < 0);
+		ok(compareData(d2, d1) > 0);//reverse the order
 	}
 
 	same("", "");//same
@@ -453,8 +454,8 @@ exports.testCompareData = function(test) {
 	order("04", "0505");
 	order("0505", "06");//smaller byte is more important than smaller size
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -473,22 +474,15 @@ exports.testCompareData = function(test) {
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
 
-exports.testDataString = function(test) {
+expose.test("Data string quote", function(ok, done) {
 
-	test.ok(Data("hello").size() == 5);//turn a string into data the normal way, or
-	test.ok("hello".data().size() == 5);//the fancy way with the data method we added to string
+	ok(Data("hello").size() == 5);//turn a string into data the normal way, or
+	ok("hello".data().size() == 5);//the fancy way with the data method we added to string
 
-	test.ok("hello\r\n".data().quote() == '"hello"0d0a');//easier than Data("hello\r\n").quote()
+	ok("hello\r\n".data().quote() == '"hello"0d0a');//easier than Data("hello\r\n").quote()
 
-	test.done();
-}
-
-
-
-
-
-
-
+	done();
+});
 
 
 
@@ -514,26 +508,26 @@ exports.testDataString = function(test) {
 //  |____/ \__,_|\__, |
 //               |___/ 
 
-exports.testBayExample = function(test) {
+expose.test("Bay example", function(ok, done) {
 
 	var b = Bay();//simple common use
 	b.add("a");
 	b.add("b");
 	b.add("c");
-	test.ok(b.data().same(Data("abc")));
+	ok(b.data().same(Data("abc")));
 
 	b = Bay(base16("00aa00ff"));//larger use
 	for (var i = 0; i < 100; i++)
 		b.add(base16("2222222222222222"));
 	b.add(base16("11bb11ee"));
-	test.ok(b.size() == 808);
-	test.ok(b.data().start(6).same(base16("00aa00ff2222")));
-	test.ok(b.data().end(6).same(base16("222211bb11ee")));
+	ok(b.size() == 808);
+	ok(b.data().start(6).same(base16("00aa00ff2222")));
+	ok(b.data().end(6).same(base16("222211bb11ee")));
 
-	test.done();
-}
+	done();
+});
 
-exports.testBayPrepare = function(test) {
+expose.test("Bay prepare", function(ok, done) {
 
 	var dataA = "aaaaaaaaaa";//10 bytes of ascii characters
 	var dataB = "BBBBBBBBBB";
@@ -546,68 +540,68 @@ exports.testBayPrepare = function(test) {
 
 	//inside prepare(), cover the four cases of make, enlarge, shift, and fill
 	var b = Bay();
-	test.ok(!b.size());//starts out empty
-	test.ok(!b.hasData());
+	ok(!b.size());//starts out empty
+	ok(!b.hasData());
 
-	b.add(dataA); test.ok(b.size() == 10);//prepare make, capacity is 10, the buffer fits its first contents perfectly
-	test.ok(b.hasData());
-	b.add(dataB); test.ok(b.size() == 20);//prepare enlarge, now the capacity is 64 bytes, with data in the first 20
-	b.add(dataC); test.ok(b.size() == 30);//prepare fill
-	b.add(dataD); test.ok(b.size() == 40);//prepare fill
+	b.add(dataA); ok(b.size() == 10);//prepare make, capacity is 10, the buffer fits its first contents perfectly
+	ok(b.hasData());
+	b.add(dataB); ok(b.size() == 20);//prepare enlarge, now the capacity is 64 bytes, with data in the first 20
+	b.add(dataC); ok(b.size() == 30);//prepare fill
+	b.add(dataD); ok(b.size() == 40);//prepare fill
 
 	b.keep(17);//remove
-	test.ok(b.size() == 17);
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDD")));
+	ok(b.size() == 17);
+	ok(b.data().same(Data("cccccccDDDDDDDDDD")));
 
 	b.add(dataE);//prepare fill
-	test.ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
+	ok(b.size() == 27);//capacity 64, start 23, hold 27, so there are 14 bytes of space at the end
+	ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeee")));
 	b.add(dataF);//prepare fill
-	test.ok(b.size() == 37);//now there are just 4 bytes of space at the end
+	ok(b.size() == 37);//now there are just 4 bytes of space at the end
 
 	b.add(dataG);//prepare shift
-	test.ok(b.size() == 47);
-	test.ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
+	ok(b.size() == 47);
+	ok(b.data().same(Data("cccccccDDDDDDDDDDeeeeeeeeeeFFFFFFFFFFgggggggggg")));
 
 	b.add(dataH);//prepare fill
-	test.ok(b.size() == 57);
+	ok(b.size() == 57);
 
 	b.add(dataA);//prepare enlarge
-	test.ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
-	test.ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
-	test.ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
+	ok(b.size() == 67);//now the capacity is 67*3/2=100.5, floor down to 100
+	ok(b.data().start(20).same(Data("cccccccDDDDDDDDDDeee")));
+	ok(b.data().end(12).same(Data("HHaaaaaaaaaa")));
 
 	b.keep(15);
-	test.ok(b.size() == 15);
-	test.ok(b.data().same(Data("HHHHHaaaaaaaaaa")));
+	ok(b.size() == 15);
+	ok(b.data().same(Data("HHHHHaaaaaaaaaa")));
 
 	b.clear();
-	test.ok(!b.size());
-	test.ok(!b.hasData());
-	test.ok(b.data().same(Data()));
+	ok(!b.size());
+	ok(!b.hasData());
+	ok(b.data().same(Data()));
 
-	test.done();
-}
+	done();
+});
 
-exports.testBayRemove = function(test) {
+expose.test("Bay remove", function(ok, done) {
 
 	var b = Bay("abcdefgh");
 	b.remove(3);
-	test.ok(b.data().text() == "defgh");
+	ok(b.data().text() == "defgh");
 	b.keep(4);
-	test.ok(b.data().text() == "efgh");
+	ok(b.data().text() == "efgh");
 	b.only(2);
-	test.ok(b.data().text() == "ef");
+	ok(b.data().text() == "ef");
 	b.clear();
-	test.ok(b.data().text() == "");
+	ok(b.data().text() == "");
 
 	try {
 		b.remove(1);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -639,7 +633,7 @@ exports.testBayRemove = function(test) {
 //  |____/|_|_| |_|
 //                 
 
-exports.testBinType = function(test) {
+expose.test("bin type",testBinType = function(ok, done) {
 
 	//different things you can add from
 	var b = mediumBin();
@@ -648,98 +642,98 @@ exports.testBinType = function(test) {
 	b.add(Data().clip());//add from a clip
 	try {
 		b.add(Data());//don't let the user add from a data
-		test.fail();
-	} catch (e) { test.ok(e.name == "type"); }
+		ok(false);
+	} catch (e) { ok(e.name == "type"); }
 
-	test.done();
-}
+	done();
+});
 
-exports.testBinAdd = function(test) {
+expose.test("bin add", function(ok, done) {
 
 	var b = testBin();
-	test.ok(b.capacity() == 8);
+	ok(b.capacity() == 8);
 
 	//add from bin when empty
 	var bin = testBin();
 	bin.add(Data("abc").clip());
-	test.ok(b.size() == 0);
-	test.ok(bin.size() == 3);
+	ok(b.size() == 0);
+	ok(bin.size() == 3);
 	b.add(bin);//because b is empty, the bins will swap buffers instead of copying memory
-	test.ok(b.size() == 3);
-	test.ok(bin.size() == 0);
+	ok(b.size() == 3);
+	ok(bin.size() == 0);
 
 	//add from bin when not empty
 	bin.add(Data("de").clip());
-	test.ok(b.size() == 3);
-	test.ok(bin.size() == 2);
+	ok(b.size() == 3);
+	ok(bin.size() == 2);
 	b.add(bin);//this time, we copy across the memory instead
-	test.ok(b.size() == 5);
-	test.ok(b.data().text() == "abcde");
-	test.ok(bin.size() == 0);
+	ok(b.size() == 5);
+	ok(b.data().text() == "abcde");
+	ok(bin.size() == 0);
 
 	b.keep(2);
-	test.ok(b.size() == 2);
-	test.ok(b.data().text() == "de");
+	ok(b.size() == 2);
+	ok(b.data().text() == "de");
 
 	//add from bay
 	var bay = Bay("fgh");
 	b.add(bay);
-	test.ok(b.data().text() == "defgh");
-	test.ok(bay.isEmpty());//add() removed what the bin took from bay
+	ok(b.data().text() == "defgh");
+	ok(bay.isEmpty());//add() removed what the bin took from bay
 
 	//add from clip
 	var data = Data("ijk");
 	var clip = data.clip();//wrap a Clip object around data
-	test.ok(clip.size() == 3);
-	test.ok(b.hasSpace());
+	ok(clip.size() == 3);
+	ok(b.hasSpace());
 	b.add(clip);
-	test.ok(clip.isEmpty());
-	test.ok(b.data().text() == "defghijk");//8 bytes, no more space
-	test.ok(b.isFull());
+	ok(clip.isEmpty());
+	ok(b.data().text() == "defghijk");//8 bytes, no more space
+	ok(b.isFull());
 
-	test.done();
-}
+	done();
+});
 
-exports.testBinOverflow = function(test) {
+expose.test("bin overflow", function(ok, done) {
 
 	var b = testBin();
 	b.add(Data("aaaaa").clip());
-	test.ok(b.space() == 3);
+	ok(b.space() == 3);
 
 	//setup a bin
 	var bin = testBin();
 	bin.add(Data("bbbbbbbb").clip());
 	//add from it
 	b.add(bin);
-	test.ok(b.data().text() == "aaaaabbb");
-	test.ok(bin.data().text() == "bbbbb");
+	ok(b.data().text() == "aaaaabbb");
+	ok(bin.data().text() == "bbbbb");
 	//remove some
 	b.remove(4);
-	test.ok(b.data().text() == "abbb");
-	test.ok(b.size() == 4);
+	ok(b.data().text() == "abbb");
+	ok(b.size() == 4);
 
 	//setup a bay
 	var bay = Bay("cccccc");
 	//add from it
 	b.add(bay);
-	test.ok(b.data().text() == "abbbcccc");
-	test.ok(bay.data().text() == "cc");
+	ok(b.data().text() == "abbbcccc");
+	ok(bay.data().text() == "cc");
 	//remove some
 	b.remove(3);
-	test.ok(b.space() == 3);
+	ok(b.space() == 3);
 
 	//setup a clip
 	var clip = Data("ddddd").clip();
-	test.ok(clip.size() == 5);
+	ok(clip.size() == 5);
 	//add from it
 	b.add(clip);
-	test.ok(b.data().text() == "bccccddd")
-	test.ok(clip.size() == 2);
+	ok(b.data().text() == "bccccddd")
+	ok(clip.size() == 2);
 
-	test.done();
-}
+	done();
+});
 
-exports.testBinRecycle = function(test) {
+expose.test("bin recycle", function(ok, done) {
 
 	//use the recycle bin
 	var b1 = mediumBin();//allocated
@@ -753,11 +747,11 @@ exports.testBinRecycle = function(test) {
 	b.recycle();
 	try {
 		b.add(Data("a").clip());
-		test.fail();
+		ok(false);
 	} catch (e) {}
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -796,50 +790,50 @@ exports.testBinRecycle = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
-exports.testEncodeByte = function(test) {
+expose.test("Data encode toByte", function(ok, done) {
 
 	var d;
 
 	d = toByte(0x00);//smallest value
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "00");
+	ok(d.size() == 1);
+	ok(d.base16() == "00");
 	d = toByte(0);
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "00");
+	ok(d.size() == 1);
+	ok(d.base16() == "00");
 
 	d = toByte(0x05);//an example value
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "05");
+	ok(d.size() == 1);
+	ok(d.base16() == "05");
 	d = toByte(5);
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "05");
+	ok(d.size() == 1);
+	ok(d.base16() == "05");
 
 	d = toByte(0xff);//largest value
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "ff");
+	ok(d.size() == 1);
+	ok(d.base16() == "ff");
 	d = toByte(255);
-	test.ok(d.size() == 1);
-	test.ok(d.base16() == "ff");
+	ok(d.size() == 1);
+	ok(d.base16() == "ff");
 
-	try { d = toByte(-1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//too small
-	try { d = toByte(256); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//too big
+	try { d = toByte(-1); ok(false); } catch (e) { ok(e.name == "bounds"); }//too small
+	try { d = toByte(256); ok(false); } catch (e) { ok(e.name == "bounds"); }//too big
 
-	test.done();
-}
+	done();
+});
 
-exports.testEncodeBase = function(test) {
+expose.test("Data encode base", function(ok, done) {
 
 	function set(h) {
 
 		var d = base16(h.s16);//make sure the text encoded all 4 ways becomes the same data
-		test.ok(d.same(base32(h.s32)));
-		test.ok(d.same(base62(h.s62)));
-		test.ok(d.same(base64(h.s64)));
+		ok(d.same(base32(h.s32)));
+		ok(d.same(base62(h.s62)));
+		ok(d.same(base64(h.s64)));
 
-		test.ok(h.s16 == d.base16());//and make sure that data converts back into the same text
-		test.ok(h.s32 == d.base32());
-		test.ok(h.s62 == d.base62());
-		test.ok(h.s64 == d.base64());
+		ok(h.s16 == d.base16());//and make sure that data converts back into the same text
+		ok(h.s32 == d.base32());
+		ok(h.s62 == d.base62());
+		ok(h.s64 == d.base64());
 	}
 
 	//blank is ok
@@ -1022,21 +1016,21 @@ exports.testEncodeBase = function(test) {
 		s64: "Zm9vYmFy"
 	});
 
-	test.done();
-}
+	done();
+});
 
-exports.testEncodeInvalid = function(test) {
+expose.test("Data encode invalid", function(ok, done) {
 
 	//uppercase
-	test.ok(base16("0D0a").base16() == "0d0a");//base16 uppercase is ok
-	test.ok(base32("ad7QB7y").base32() == "ad7qb7y");//base32 uppercase is ok, while base 62 and 64 are case sensitive
+	ok(base16("0D0a").base16() == "0d0a");//base16 uppercase is ok
+	ok(base32("ad7QB7y").base32() == "ad7qb7y");//base32 uppercase is ok, while base 62 and 64 are case sensitive
 
 	//extra characters
 	bad16(" 06a4ce40189d297aed4657d0e524dd46c3831647 ");//spaces aren't allowed
 	bad32(" a2sm4qaytuuxv3kgk7iokjg5i3bygfsh ");
 	bad62(" 1Gjeg1ytanHJhBvgVijthIe35As ");
 
-	function bad16(s) { try { base16(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
+	function bad16(s) { try { base16(s); ok(false); } catch (e) { ok(e.name == "data"); } }
 
 	bad16("0");//odd
 	bad16("000");
@@ -1059,25 +1053,24 @@ exports.testEncodeInvalid = function(test) {
 	bad16(" 00ff ");
 	bad16("  00  ff  ");
 
-	function bad32(s) { try { base32(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
+	function bad32(s) { try { base32(s); ok(false); } catch (e) { ok(e.name == "data"); } }
 
 	bad32("1");//1 and 8 are illegal characters
 	bad32("88");
 
-	function bad62(s) { try { base62(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }
+	function bad62(s) { try { base62(s); ok(false); } catch (e) { ok(e.name == "data"); } }
 
 	bad62("--");//base62 doesn't use any puncutation at all
 
-	function bad64(s) { try { base64(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//you cant find anything to make node's base64 throw, but the round trip check works wonders
+	function bad64(s) { try { base64(s); ok(false); } catch (e) { ok(e.name == "data"); } }//you cant find anything to make node's base64 throw, but the round trip check works wonders
 
 	bad64("AP8A/w");//require the trailing equals
 	bad64("AP ! 8A/w==");//insert bad characters
 
-	test.done();
-};
+	done();
+});
 
-if (demo("random")) { demoRandom(); }
-function demoRandom() {
+expose.main("random", function() {
 
 	//confirm turning random binary data into text doesn't throw an exception
 	for (var i = 0; i < 10000; i++) {
@@ -1095,7 +1088,7 @@ function demoRandom() {
 		log(d1.base16());
 		log(d2.base16());
 	}
-}
+});
 
 
 
@@ -1127,7 +1120,7 @@ function demoRandom() {
 //  |_|   \__,_|_|  |___/\___|
 //                            
 
-exports.testParseToBay = function(test) {
+expose.test("Data ParseToBay", function(ok, done) {
 
 	//you can give it a bay
 	var b1 = Bay("Existing");
@@ -1135,82 +1128,82 @@ exports.testParseToBay = function(test) {
 	var p1 = ParseToBay(b1);
 	p1.add("Additional");
 	p1.add("Data");
-	test.ok(p1.parsed().text() == "AdditionalData");//get just what we added
-	test.ok(p1.bay().data().text() == "ExistingContentsAdditionalData");//or everything in there
+	ok(p1.parsed().text() == "AdditionalData");//get just what we added
+	ok(p1.bay().data().text() == "ExistingContentsAdditionalData");//or everything in there
 	//or it will make one for you
 	var p2 = ParseToBay();
 	p2.add("Additional");
 	p2.add("Data");
-	test.ok(p2.bay().data().text() == "AdditionalData");
+	ok(p2.bay().data().text() == "AdditionalData");
 
 	//imagine we parse something bad, and want to go back
 	var b3 = Bay();
 	b3.add("ExistingContents");
 	var p3 = ParseToBay(b3);
 	p3.add("InvalidFragment");//in parsing, we add some invalid data
-	test.ok(b3.data().text() == "ExistingContentsInvalidFragment");//it's all in the bay
+	ok(b3.data().text() == "ExistingContentsInvalidFragment");//it's all in the bay
 	p3.reset();//and then realize the mistake, and want to go back
-	test.ok(b3.data().text() == "ExistingContents");
+	ok(b3.data().text() == "ExistingContents");
 	//later, we parse correct data
 	var p4 = ParseToBay(b3);
 	p4.add("Valid");
 	p4.add("Data");
-	test.ok(b3.data().text() == "ExistingContentsValidData");
+	ok(b3.data().text() == "ExistingContentsValidData");
 
-	test.done();
-}
+	done();
+});
 
-exports.testParseFromClip = function(test) {
+expose.test("Data ParseFromClip", function(ok, done) {
 
 	var d = Data("abcdefgh");
 
 	//parse something good
 	var clip = d.clip();
 	var p = ParseFromClip(clip);
-	test.ok(p.remove(3).text() == "abc");
-	test.ok(p.remove(2).text() == "de");
-	test.ok(p.parsed().text() == "abcde");//get a data of everything we removed
+	ok(p.remove(3).text() == "abc");
+	ok(p.remove(2).text() == "de");
+	ok(p.parsed().text() == "abcde");//get a data of everything we removed
 	p.valid();//apply the changes p made to clip
-	test.ok(clip.data().text() == "fgh");
+	ok(clip.data().text() == "fgh");
 
 	//parse something bad
 	clip = d.clip();//clip around the whole thing again
 	p = ParseFromClip(clip);
 	p.remove(1);
 	p.remove(2);//then we realize it's no good, so we don't call valid()
-	test.ok(clip.data().text() == "abcdefgh");//clip is unchanged
+	ok(clip.data().text() == "abcdefgh");//clip is unchanged
 	//parse something good again
 	p = ParseFromClip(clip);
 	p.remove(6);
 	p.valid();
-	test.ok(clip.data().text() == "gh");
+	ok(clip.data().text() == "gh");
 
-	test.done();
-}
+	done();
+});
 
-exports.testParseBase16 = function(test) {
+expose.test("Data base16", function(ok, done) {
 
 	//suppose you're parsing base 16 text into a bay
 	var bay = Bay();
 	base16("0001", bay);
 	base16("02030405", bay);
-	test.ok(bay.data().base16() == "000102030405");
+	ok(bay.data().base16() == "000102030405");
 
 	//so far so good, but then, you try to parse the next part, and it's invalid because it's a fragment
 	try {
 		base16("0607080", bay);//missing the 9
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	//it's ok, bay didn't change
-	test.ok(bay.data().base16() == "000102030405");
+	ok(bay.data().base16() == "000102030405");
 
 	//then the rest arrives, and you can parse it successfully again
 	base16("060708090a0b0c0d0e0f", bay);
-	test.ok(bay.data().base16() == "000102030405060708090a0b0c0d0e0f");
+	ok(bay.data().base16() == "000102030405060708090a0b0c0d0e0f");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1246,19 +1239,19 @@ exports.testParseBase16 = function(test) {
 
 // Outline, compareOutline, outline, outlineFromText, _parseOutline, _parseGroup, _parseLine, outlineFromData
 
-exports.testOutlineName = function(test) {
+expose.test("Outline name", function(ok, done) {
 
 	function valid(name) {
 		var o2 = Outline();
 		o2.name(name);//put it in
-		test.ok(o2.name() == name);//get it out again
+		ok(o2.name() == name);//get it out again
 	}
 
 	function invalid(exception, name) {
 		try {
 			Outline().name(name);
-			test.fail();
-		} catch (e) { test.ok(e.name == exception); }//get thrown the exception we expect
+			ok(false);
+		} catch (e) { ok(e.name == exception); }//get thrown the exception we expect
 	}
 
 	valid("abc");//outline names can only be lowercase letters and numbers
@@ -1274,77 +1267,77 @@ exports.testOutlineName = function(test) {
 	invalid("type", []);//they must be strings
 	invalid("type", Data());
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineNameValue = function(test) {
+expose.test("Outline name value", function(ok, done) {
 
 	//set and get name
 	var o = Outline();
 	o.name("key");//set the name
-	test.ok(o.name() == "key");//get the name
+	ok(o.name() == "key");//get the name
 	try {
 		o.name(" ");//invalid name
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
-	test.ok(o.name() == "key");//name unchanged
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
+	ok(o.name() == "key");//name unchanged
 
 	//set and get value
 	checkType(o.value(), "Data");//default value is blank data
 	o.value(base16("0d0a"));//set value
-	test.ok(o.value().same(Data("\r\n")));//get value
+	ok(o.value().same(Data("\r\n")));//get value
 	try {
 		o.value(7);
-		test.fail();
-	} catch (e) { test.ok(e.name == "type"); }//values must be data
-	test.ok(o.value().same(Data("\r\n")));//value unchanged
+		ok(false);
+	} catch (e) { ok(e.name == "type"); }//values must be data
+	ok(o.value().same(Data("\r\n")));//value unchanged
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineValue = function(test) {
+expose.test("Outline value", function(ok, done) {
 
 	//the value() method can do 3 things
 	var o = Outline("name1", Data("initial value"));
-	test.ok(o.value().text() == "initial value");//first, just get a value
+	ok(o.value().text() == "initial value");//first, just get a value
 
 	//second, set a different value
 	o.value(Data("modified value"));
-	test.ok(o.value().text() == "modified value");
+	ok(o.value().text() == "modified value");
 
 	//third, give value() a string to get the value of the contained outline with the given name
 	o.add(Outline("contained", Data("contained value")));
-	test.ok(o.n("contained").value().text() == "contained value");//long form
-	test.ok(o.value("contained").text() == "contained value");//shortcut form
+	ok(o.n("contained").value().text() == "contained value");//long form
+	ok(o.value("contained").text() == "contained value");//shortcut form
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineContents = function(test) {
+expose.test("Data outline contents", function(ok, done) {
 
 	var o = Outline();
-	test.ok(o.length() == 0);
+	ok(o.length() == 0);
 	o.add(Outline("a"));
-	test.ok(o.length() == 1);
+	ok(o.length() == 1);
 	o.clear();
-	test.ok(o.length() == 0);
+	ok(o.length() == 0);
 
 	o.add(Outline("a"));
 	o.add(Outline("b"));
 	o.add(Outline("c"));
-	test.ok(o.length() == 3);
+	ok(o.length() == 3);
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineAddHasRemoveList = function(test) {
+expose.test("Outline add has remove list", function(ok, done) {
 
 	var o = Outline();
-	test.ok(!o.has("name1"));//not there yet
+	ok(!o.has("name1"));//not there yet
 	o.add(Outline("name1"));//add
-	test.ok(o.has("name1"));//now it's there
+	ok(o.has("name1"));//now it's there
 	o.remove("name1");//remove
-	test.ok(!o.has("name1"));//not there anymore
+	ok(!o.has("name1"));//not there anymore
 
 	o.add(Outline("name1", base16("0101")));//load up
 	o.add(Outline("",      base16("0001")));
@@ -1357,21 +1350,21 @@ exports.testOutlineAddHasRemoveList = function(test) {
 	o.add(Outline("name1", base16("0102")));
 	o.add(Outline("",      base16("0005")));
 
-	test.ok(o.length() == 10);//10 items total
-	test.ok(o.list().length == 5);//default list has 5 items
-	test.ok(o.list("name1").length == 2);//named lists
-	test.ok(o.list("name2").length == 3);
+	ok(o.length() == 10);//10 items total
+	ok(o.list().length == 5);//default list has 5 items
+	ok(o.list("name1").length == 2);//named lists
+	ok(o.list("name2").length == 3);
 
 	o.remove("name2");
-	test.ok(o.length() == 7);
-	test.ok(o.list().length == 5);
-	test.ok(o.list("name1").length == 2);
-	test.ok(o.list("name2").length == 0);
+	ok(o.length() == 7);
+	ok(o.list().length == 5);
+	ok(o.list("name1").length == 2);
+	ok(o.list("name2").length == 0);
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineAdd = function(test) {
+expose.test("Outline add", function(ok, done) {
 
 	//add some stuff
 	var o = Outline();
@@ -1383,8 +1376,8 @@ exports.testOutlineAdd = function(test) {
 	function cant(a) {
 		try {
 			o.add(a);
-			test.fail();
-		} catch (e) { test.ok(e.name == "type"); }
+			ok(false);
+		} catch (e) { ok(e.name == "type"); }
 	}
 	cant(7);
 	cant([1, 2, 3]);
@@ -1395,51 +1388,51 @@ exports.testOutlineAdd = function(test) {
 	o.n("b").value(base16("02"));
 
 	//get those values
-	test.ok(o.n("a").value().same(base16("01")));
-	test.ok(o.n("b").value().same(base16("02")));
-	test.ok(o.n("").value().same(base16("03")));//blank is ok
+	ok(o.n("a").value().same(base16("01")));
+	ok(o.n("b").value().same(base16("02")));
+	ok(o.n("").value().same(base16("03")));//blank is ok
 	try {
 		o.n();//undefined is not
-		test.fail();
-	} catch (e) { test.ok(e.name == "invalid"); }
+		ok(false);
+	} catch (e) { ok(e.name == "invalid"); }
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineNavigate = function(test) {
+expose.test("Outline navigate", function(ok, done) {
 
 	var o = Outline();
 	try {
 		o.n("name1");//try navigating down to something that doesn't exist
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	o.add("name1");//add it
 	o.n("name1").value(base16("01"));//set its value
-	test.ok(o.n("name1").value().same(base16("01")));//get its value
+	ok(o.n("name1").value().same(base16("01")));//get its value
 
 	var o1 = o.n("name1");//navigate down to it
-	test.ok(o1.value().same(base16("01")));//get its value from the navigated outline
+	ok(o1.value().same(base16("01")));//get its value from the navigated outline
 
 	var o2 = o.m("name2");//make and navigate at the same time
 	o2.value(base16("02"));//set the value on the navigated outline
-	test.ok(o.n("name2").value().same(base16("02")));//get from the root
+	ok(o.n("name2").value().same(base16("02")));//get from the root
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineCompare = function(test) {
+expose.test("Outline compare", function(ok, done) {
 
 	function sort(order, o1, o2) {
 		if (order == "==") {
-			test.ok(compareOutline(o1, o2) == 0);
-			test.ok(compareOutline(o2, o1) == 0);
+			ok(compareOutline(o1, o2) == 0);
+			ok(compareOutline(o2, o1) == 0);
 		} else if (order == "AZ") {
-			test.ok(compareOutline(o1, o2) < 0);
-			test.ok(compareOutline(o2, o1) > 0);
+			ok(compareOutline(o1, o2) < 0);
+			ok(compareOutline(o2, o1) > 0);
 		} else if (order == "ZA") {
-			test.ok(compareOutline(o1, o2) > 0);
-			test.ok(compareOutline(o2, o1) < 0);
+			ok(compareOutline(o1, o2) > 0);
+			ok(compareOutline(o2, o1) < 0);
 		} else {
 			toss("invalid");
 		}
@@ -1467,13 +1460,13 @@ exports.testOutlineCompare = function(test) {
 	sort("ZA", outline('a:', '  c5:'),          outline('a:', '  c4:', '  c5:'));//lower outline in longer list wins
 	sort("ZA", outline('a:', '  c5:01'),        outline('a:', '  c5:00', '  c5:'));//same thing but value different
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineSort = function(test) {
+expose.test("Outline sort", function(ok, done) {
 
 	function same(o1, o2) {
-		test.ok(o1.data().same(o2.data()));//outlines get sorted before turning into data
+		ok(o1.data().same(o2.data()));//outlines get sorted before turning into data
 	}
 
 	//names
@@ -1615,21 +1608,21 @@ exports.testOutlineSort = function(test) {
 		'      :',
 		'    :'));
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineConvert = function(test) {
+expose.test("Outline convert", function(ok, done) {
 
 	function say(o) {
 		log(o.data().base16());
 		log(o.text());
 	}
 	function all(o, d, s) {
-		test.ok(o.data().same(base16(d)));//outline to data
-		test.ok(outlineFromData(base16(d).clip()).data().same(o.data()));//data to outline
+		ok(o.data().same(base16(d)));//outline to data
+		ok(outlineFromData(base16(d).clip()).data().same(o.data()));//data to outline
 
-		test.ok(o.text() == s);//outline to text
-		test.ok(outlineFromText(Data(s).clip()).data().same(o.data()));//text to outline
+		ok(o.text() == s);//outline to text
+		ok(outlineFromText(Data(s).clip()).data().same(o.data()));//text to outline
 	}
 
 	var o;
@@ -1670,10 +1663,10 @@ exports.testOutlineConvert = function(test) {
 		'      f:"v"',
 		''));
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineGroup = function(test) {
+expose.test("Outline group", function(ok, done) {
 
 	function all(s) {
 
@@ -1682,9 +1675,9 @@ exports.testOutlineGroup = function(test) {
 		var d = o.data();//outline > data
 		var c = d.clip();
 		var o2 = outlineFromData(c);//data > outline
-		test.ok(!c.hasData());//make sure there is no data left over
-		test.ok(s == o2.text());//outline > text
-		test.ok(d.same(o2.data()));//outline > data
+		ok(!c.hasData());//make sure there is no data left over
+		ok(s == o2.text());//outline > text
+		ok(d.same(o2.data()));//outline > data
 	}
 
 	all(lines(
@@ -1791,10 +1784,10 @@ exports.testOutlineGroup = function(test) {
 		'  z:',
 		''));
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineParseData = function(test) {
+expose.test("Outline parse data", function(ok, done) {
 	function parse(left, result, d) {
 		if (isType(d, "string")) d = base16(d);//d can be base 16 text or data
 		var clip = d.clip();
@@ -1807,12 +1800,12 @@ exports.testOutlineParseData = function(test) {
 		} else {
 			try {
 				outlineFromData(clip);
-				test.fail();
-			} catch (e) { test.ok(e.name == result); }
+				ok(false);
+			} catch (e) { ok(e.name == result); }
 		}
 
 		//predict how many bytes are left
-		test.ok(clip.size() == left);
+		ok(clip.size() == left);
 	}
 
 	//small
@@ -1823,21 +1816,21 @@ exports.testOutlineParseData = function(test) {
 	parse(1, "valid", "00000000");//valid with next fragment left in clip
 
 	//medium
-	test.ok(spanMake(130).base16() == "8102");
+	ok(spanMake(130).base16() == "8102");
 	var bay = Bay();
 	var o = Outline("", Data("----------------------------------------------------------------------------------------------------------------------------------"));
 	bay.add(o.data());//add first outline
 	o = Outline("a");
 	bay.add(o.data());//add second little outline after that, two in a row on the wire
 	var d = bay.data();
-	test.ok(d.base16() == "0081022d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0001610000");
-	test.ok(d.size() == 138);
+	ok(d.base16() == "0081022d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0001610000");
+	ok(d.size() == 138);
 	
 	parse(2, "chop", d.start(2));//incomplete span
 	parse(10, "chop", d.start(10));//incomplete payload
 
 	//valid example
-	test.ok(Outline("a").data().base16() == "01610000");//first span is 1 in 1 byte, first name is 61 "a"
+	ok(Outline("a").data().base16() == "01610000");//first span is 1 in 1 byte, first name is 61 "a"
 
 	//invalid span
 	parse(5, "data", "8001610000");//first span is 1 in 2 bytes, which is wrong
@@ -1845,10 +1838,10 @@ exports.testOutlineParseData = function(test) {
 	//invalid payload
 	parse(4, "data", "012d0000");//first name is 2d "-", which isn't allowed
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineParseText = function(test) {
+expose.test("Outline parse text", function(ok, done) {
 	function parse(left, result, d) {
 		if (isType(d, "string")) d = Data(d);//d can be a string or data
 		var clip = d.clip();
@@ -1861,12 +1854,12 @@ exports.testOutlineParseText = function(test) {
 		} else {
 			try {
 				outlineFromText(clip);
-				test.fail();
-			} catch (e) { test.ok(e.name == result); }
+				ok(false);
+			} catch (e) { ok(e.name == result); }
 		}
 
 		//predict how many bytes are left
-		test.ok(clip.size() == left);
+		ok(clip.size() == left);
 	}
 
 	//valid example
@@ -1874,7 +1867,7 @@ exports.testOutlineParseText = function(test) {
 	bay.add(Data(Outline("name1").text()));
 	bay.add(Data(Outline("name22").text()));
 	var d = bay.data();
-	test.ok(d.quote() == '"name1:"0d0a0d0a"name22:"0d0a0d0a');//two text outlines, propertly separated with double newlines
+	ok(d.quote() == '"name1:"0d0a0d0a"name22:"0d0a0d0a');//two text outlines, propertly separated with double newlines
 
 	parse(2, "chop", d.start(2));//halfway through first name
 	parse(7, "chop", d.start(7));//first 0d
@@ -1884,10 +1877,10 @@ exports.testOutlineParseText = function(test) {
 	//invalid name
 	parse(19, "data", unquote('"n-7:"0d0a0d0a"name22:"0d0a0d0a'));
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineTextInvalid = function(test) {
+expose.test("Outline text invalid", function(ok, done) {
 
 	function parse(result, s) {
 		var clip = Data(s).clip();
@@ -1900,8 +1893,8 @@ exports.testOutlineTextInvalid = function(test) {
 		} else {
 			try {
 				outlineFromText(clip);
-				test.fail();
-			} catch (e) { test.ok(e.name == result); }
+				ok(false);
+			} catch (e) { ok(e.name == result); }
 		}
 	}
 
@@ -1948,10 +1941,10 @@ exports.testOutlineTextInvalid = function(test) {
 		'  b: 00',//space before value
 		''));
 
-	test.done();
-}
+	done();
+});
 
-exports.testOutlineFromLines = function(test) {
+expose.test("Outline from lines", function(ok, done) {
 
 	//use outline() and quote() to quickly mock up a readable outline
 	var o = outline(
@@ -1959,14 +1952,14 @@ exports.testOutlineFromLines = function(test) {
 		'  b:');
 
 	//you can read it using the object form
-	test.ok(o.value().same(base16("0d0a")));
-	test.ok(o.n("b").value().same(Data()));
+	ok(o.value().same(base16("0d0a")));
+	ok(o.n("b").value().same(Data()));
 
 	//blank is not ok
 	try {
 		outline('');
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	//a single line is
 	outline('a:');
@@ -1976,16 +1969,16 @@ exports.testOutlineFromLines = function(test) {
 		outline(
 			'a:',
 			'b:');
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	//the extra line is not ok
 	try {
 		outline(
 			'a:',
 			'');
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	//two outlines are not ok
 	try {
@@ -1994,19 +1987,19 @@ exports.testOutlineFromLines = function(test) {
 			'',
 			'b:',
 			'');
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
-	test.done();
-}
+	done();
+});
 
-exports.testParseOutline = function(test) {
+expose.test("Outline _parseOutline", function(ok, done) {
 
 	function parse(indent, name, value, s) {
 		var o = _parseOutline(s);
-		test.ok(indent == o.indent);
-		test.ok(name == o.name());
-		test.ok(value == o.value().text());
+		ok(indent == o.indent);
+		ok(name == o.name());
+		ok(value == o.value().text());
 	}
 
 	parse(0, "name", "value", 'name:"value"');
@@ -2019,8 +2012,8 @@ exports.testParseOutline = function(test) {
 	function invalid(s) {
 		try {
 			_parseOutline(s);
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 
 	invalid('');//blank not ok
@@ -2029,91 +2022,91 @@ exports.testParseOutline = function(test) {
 
 	parse(0, "", "", ':');//just : is valid
 
-	test.done();
-}
+	done();
+});
 
-exports.testParseGroup = function(test) {
+expose.test("Outline _parseGroup",testParseGroup = function(ok, done) {
 
 	var s = lines("a", "b", "c", "", "d", "e", "", "f", "g");
-	test.ok(s == "a\r\nb\r\nc\r\n\r\nd\r\ne\r\n\r\nf\r\ng\r\n");
+	ok(s == "a\r\nb\r\nc\r\n\r\nd\r\ne\r\n\r\nf\r\ng\r\n");
 	var data = Data(s);
 	var clip = data.clip();
 
-	test.ok(arraySame(_parseGroup(clip), ["a", "b", "c"]));
-	test.ok(clip.data().text() == "d\r\ne\r\n\r\nf\r\ng\r\n");
+	ok(arraySame(_parseGroup(clip), ["a", "b", "c"]));
+	ok(clip.data().text() == "d\r\ne\r\n\r\nf\r\ng\r\n");
 
-	test.ok(arraySame(_parseGroup(clip), ["d", "e"]));
-	test.ok(clip.data().text() == "f\r\ng\r\n");
+	ok(arraySame(_parseGroup(clip), ["d", "e"]));
+	ok(clip.data().text() == "f\r\ng\r\n");
 
 	try {
 		_parseGroup(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
-	test.ok(clip.data().text() == "f\r\ng\r\n");//unchanged
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
+	ok(clip.data().text() == "f\r\ng\r\n");//unchanged
 
-	test.done();
-}
+	done();
+});
 
-exports.testParseLine = function(test) {
+expose.test("Outline _parseLine", function(ok, done) {
 
 	//two complete lines
 	var data = Data("one\r\ntwo\r\n");
 	var clip = data.clip();
-	test.ok(_parseLine(clip) == "one");
-	test.ok(clip.data().text() == "two\r\n");
-	test.ok(_parseLine(clip) == "two");
-	test.ok(clip.data().text() == "");
+	ok(_parseLine(clip) == "one");
+	ok(clip.data().text() == "two\r\n");
+	ok(_parseLine(clip) == "two");
+	ok(clip.data().text() == "");
 	try {
 		_parseLine(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
 
 	//doesn't trim lines
 	data = Data(" one \r\n two \r\n");
 	clip = data.clip();
-	test.ok(_parseLine(clip) == " one ");
-	test.ok(clip.data().text() == " two \r\n");
-	test.ok(_parseLine(clip) == " two ");
-	test.ok(clip.data().text() == "");
+	ok(_parseLine(clip) == " one ");
+	ok(clip.data().text() == " two \r\n");
+	ok(_parseLine(clip) == " two ");
+	ok(clip.data().text() == "");
 	try {
 		_parseLine(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
 
 	//mac and unix style line endings
 	data = Data("one\ntwo\n");
 	clip = data.clip();
-	test.ok(_parseLine(clip) == "one");
-	test.ok(clip.data().text() == "two\n");
-	test.ok(_parseLine(clip) == "two");
-	test.ok(clip.data().text() == "");
+	ok(_parseLine(clip) == "one");
+	ok(clip.data().text() == "two\n");
+	ok(_parseLine(clip) == "two");
+	ok(clip.data().text() == "");
 	try {
 		_parseLine(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
 
 	//just a fragment
 	data = Data("fragment");
 	clip = data.clip();
 	try {
 		_parseLine(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
-	test.ok(clip.data().text() == "fragment");//all still there
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
+	ok(clip.data().text() == "fragment");//all still there
 
 	//line followed by fragment
 	data = Data("first\r\nfragment");
 	clip = data.clip();
-	test.ok(_parseLine(clip) == "first");
-	test.ok(clip.data().text() == "fragment");
+	ok(_parseLine(clip) == "first");
+	ok(clip.data().text() == "fragment");
 	try {
 		_parseLine(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }
-	test.ok(clip.data().text() == "fragment");//fragment still there
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }
+	ok(clip.data().text() == "fragment");//fragment still there
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2192,12 +2185,12 @@ exports.testParseLine = function(test) {
 //  |____/| .__/ \__,_|_| |_|
 //        |_|                
 
-exports.testSpan = function(test) {
+expose.test("Outline span", function(ok, done) {
 
 	function both(n, s) {
-		test.ok(spanMake(n).base16() == s);//make
-		test.ok(spanParse(base16(s).clip()) == n);//parse
-		test.ok(spanSize(n) == spanMake(n).size());//size
+		ok(spanMake(n).base16() == s);//make
+		ok(spanParse(base16(s).clip()) == n);//parse
+		ok(spanSize(n) == spanMake(n).size());//size
 	}
 
 	//small numbers
@@ -2233,10 +2226,10 @@ exports.testSpan = function(test) {
 	//another big number
 	both(268000001, "ffe5b601");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSpanParse = function(test) {
+expose.test("Outline span parse", function(ok, done) {
 
 	//make up some data
 	var bay = Bay();
@@ -2247,30 +2240,30 @@ exports.testSpanParse = function(test) {
 	bay.add(spanMake(0));
 	bay.add(spanMake(268000000));
 	bay.add("hello");//             5 7   0 1 0 2       h e l l o
-	test.ok(bay.data().base16() == "34bd51000100ffe5b60068656c6c6f");
+	ok(bay.data().base16() == "34bd51000100ffe5b60068656c6c6f");
 
 	//parse it back out
 	var clip = bay.data().clip();
-	test.ok(spanParse(clip) == 52);
-	test.ok(spanParse(clip) == 7889);
-	test.ok(spanParse(clip) == 0);
-	test.ok(spanParse(clip) == 1);
-	test.ok(spanParse(clip) == 0);
-	test.ok(spanParse(clip) == 268000000);
-	test.ok(clip.data().text() == "hello");//and all that's left is the text at the end
+	ok(spanParse(clip) == 52);
+	ok(spanParse(clip) == 7889);
+	ok(spanParse(clip) == 0);
+	ok(spanParse(clip) == 1);
+	ok(spanParse(clip) == 0);
+	ok(spanParse(clip) == 268000000);
+	ok(clip.data().text() == "hello");//and all that's left is the text at the end
 
-	test.done();
-}
+	done();
+});
 
-exports.testSpanParseInvalid = function(test) {
+expose.test("Outline span parse invalid", function(ok, done) {
 
 	function invalid(s, expect, remain) {
 		var c = base16(s).clip();//clip around the data of s
 		try {
 			spanParse(c);//try parsing it
-			test.fail();//make sure we get an exception
-		} catch (e) { test.ok(e.name == expect); }//of the kind we expect
-		test.ok(c.data().base16() == remain);//and check what's still in the clip
+			ok(false);//make sure we get an exception
+		} catch (e) { ok(e.name == expect); }//of the kind we expect
+		ok(c.data().base16() == remain);//and check what's still in the clip
 	}
 
 	//would be valid, but fails on round trip test
@@ -2279,34 +2272,34 @@ exports.testSpanParseInvalid = function(test) {
 	//would be valid, but too long
 	invalid("8180808000", "data", "8180808000");//valid, but 5 bytes instead of 4
 
-	test.done();
-}
+	done();
+});
 
-exports.testSpanParseChop = function(test) {
+expose.test("Outline span parse chop", function(ok, done) {
 
 	//make up some data
 	var bay = Bay();
 	bay.add(spanMake(258000001));
 	bay.add("hello");//             2       h e l l o
-	test.ok(bay.data().base16() == "fb83890168656c6c6f");
+	ok(bay.data().base16() == "fb83890168656c6c6f");
 
 	//imagine we're receiving the data, and only the first 3 bytes arrive
 	var clip = bay.data().start(3).clip();
-	test.ok(clip.data().base16() == "fb8389");
+	ok(clip.data().base16() == "fb8389");
 	try {
 		spanParse(clip);
-		test.fail();
-	} catch (e) { test.ok(e.name == "chop"); }//we get a chop exception
-	test.ok(clip.data().base16() == "fb8389");//and the clip is unchanged
+		ok(false);
+	} catch (e) { ok(e.name == "chop"); }//we get a chop exception
+	ok(clip.data().base16() == "fb8389");//and the clip is unchanged
 
 	//after that, all the data arrives
 	clip = bay.data().clip();
-	test.ok(clip.data().base16() == "fb83890168656c6c6f");
-	test.ok(spanParse(clip) == 258000001);//the parse doesn't throw
-	test.ok(clip.data().text() == "hello");//and removes the 4 byte span from the start of clip
+	ok(clip.data().base16() == "fb83890168656c6c6f");
+	ok(spanParse(clip) == 258000001);//the parse doesn't throw
+	ok(clip.data().text() == "hello");//and removes the 4 byte span from the start of clip
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2338,27 +2331,27 @@ exports.testSpanParseChop = function(test) {
 
 // quote, unquote, quoteCount, quoteMore, quoteIs
 
-exports.testQuoteUnquote = function(test) {
+expose.test("Data quote unquote", function(ok, done) {
 
 	//make sure it works both ways
 	function both(plain, quoted) {
 		var p = Data(plain);//encode the given plain text as data using utf8
-		test.ok(quote(p) == quoted);
-		test.ok(unquote(quoted).same(p));
+		ok(quote(p) == quoted);
+		ok(unquote(quoted).same(p));
 	}
 
 	//unquote quoted into plain, comments or non default quoting means this has to be a one way test
 	function un(plain, quoted) {
 		var p = Data(plain);
-		test.ok(unquote(quoted).same(p));
+		ok(unquote(quoted).same(p));
 	}
 
 	//make sure that if you try to unquote s, you get thrown data
 	function invalid(s) {
 		try {
 			unquote(s);
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 
 	both('',   '');//blank
@@ -2415,15 +2408,15 @@ exports.testQuoteUnquote = function(test) {
 
 	un('car #1\r\n', '"car #1"0d0a #comment');//pound is ok in a quote
 
-	test.done();
-}
+	done();
+});
 
-exports.testQuoteCount = function(test) {
+expose.test("Data quote count", function(ok, done) {
 
 	//confirm s starts with the given number of text bytes or data bytes
 	function both(s, textBytes, dataBytes) {
-		test.ok(quoteCount(Data(s), true) == textBytes);
-		test.ok(quoteCount(Data(s), false) == dataBytes);
+		ok(quoteCount(Data(s), true) == textBytes);
+		ok(quoteCount(Data(s), false) == dataBytes);
 	}
 
 	both("a",       1, 0);//only text
@@ -2432,13 +2425,13 @@ exports.testQuoteCount = function(test) {
 	both("\r\nabc", 0, 2);//data first
 	both("\r\n",    0, 2);//only data
 
-	test.done();
-}
+	done();
+});
 
-exports.testQuoteMoreText = function(test) {
+expose.test("Data quoteMore text", function(ok, done) {
 
 	function run(s, answer) {
-		test.ok(quoteMore(Data(s)) == answer);//turn s into data and scan all its bytes
+		ok(quoteMore(Data(s)) == answer);//turn s into data and scan all its bytes
 	}
 
 	run("a", true);//one byte of text has more text
@@ -2452,14 +2445,14 @@ exports.testQuoteMoreText = function(test) {
 
 	run("の", false);//international, treated as data
 
-	test.done();
-}
+	done();
+});
 
-exports.testQuoteIsText = function(test) {
+expose.test("Data quoteIs text", function(ok, done) {
 
 	//turn s into data in utf8, then get the first byte, and see if that byte is ascii space through tilde except quote
-	function confirmText(s) { test.ok(quoteIs(Data(s).first())) }
-	function confirmNotText(s) { test.ok(!quoteIs(Data(s).first())) }
+	function confirmText(s) { ok(quoteIs(Data(s).first())) }
+	function confirmNotText(s) { ok(!quoteIs(Data(s).first())) }
 
 	confirmText(" ");
 	confirmText("a");
@@ -2474,10 +2467,10 @@ exports.testQuoteIsText = function(test) {
 
 	confirmNotText('"');//the quote charcter is special, treat it as data
 
-	test.done();
-}
+	done();
+});
 
-exports.testQuoteInternational = function(test) {
+expose.test("Data quote international", function(ok, done) {
 
 	//quoted is valid quoted text
 	//unquoted16 is the data it should turn into, written as base16
@@ -2486,8 +2479,8 @@ exports.testQuoteInternational = function(test) {
 		var d = unquote(quoted);
 		var s = quote(d);
 
-		test.ok(d.base16() == unquoted16);
-		test.ok(s == quotedAgain);
+		ok(d.base16() == unquoted16);
+		ok(s == quotedAgain);
 	}
 
 	process('"AAA"0d0a', '4141410d0a', '"AAA"0d0a');//symmetric normal
@@ -2504,16 +2497,14 @@ exports.testQuoteInternational = function(test) {
 		'"Quoted text is brought in as UTF 8, but exported as base16: "e4b8ade69687" espa"c3b1"ol portugu"c3aa"s "d180d183d181d181d0bad0b8d0b9" "e697a5e69cace8aa9e" as you can see here"0d0a');
 
 	//here are some of those parts so you can see how they all appear
-	test.ok(Data('中文').base16() == 'e4b8ade69687');
-	test.ok(Data('ñ').base16() == 'c3b1');
-	test.ok(Data('ê').base16() == 'c3aa');
-	test.ok(Data('русский').base16() == 'd180d183d181d181d0bad0b8d0b9');
-	test.ok(Data('日本語').base16() == 'e697a5e69cace8aa9e');
+	ok(Data('中文').base16() == 'e4b8ade69687');
+	ok(Data('ñ').base16() == 'c3b1');
+	ok(Data('ê').base16() == 'c3aa');
+	ok(Data('русский').base16() == 'd180d183d181d181d0bad0b8d0b9');
+	ok(Data('日本語').base16() == 'e697a5e69cace8aa9e');
 
-	test.done();
-}
-
-
+	done();
+});
 
 
 
@@ -2534,3 +2525,6 @@ exports.testQuoteInternational = function(test) {
 
 
 
+
+});
+console.log("data test/");

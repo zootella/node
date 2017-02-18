@@ -91,7 +91,7 @@ for instance, ask to open a file, it times out, then it finishes, custom closer 
 
 
 
-if (demo("snip"))  { demoSnip(); }
+if (demo("snip-step4"))  { demoSnip(); }
 function demoSnip() {
 	log("start");
 	wait(6*Time.second, function () { closeCheck(); });//wait for everything to finish

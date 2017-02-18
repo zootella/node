@@ -1,5 +1,6 @@
+console.log("state core\\");
+contain(function(expose) {
 
-var platformChildProcess = require("child_process");
 
 
 var thisFile = "state.js"; // The name of this file
@@ -31,7 +32,7 @@ function wait(t, f) {
 	else    setTimeout(f, t); // In t milliseconds, run f
 }
 
-exports.wait = wait;
+expose.core({wait});
 
 
 
@@ -60,7 +61,7 @@ function demo(name) {
 	return false;
 }
 
-exports.demo = demo;
+expose.core({demo});
 
 //   ____                      _   _                      
 //  / ___| _ __   ___  ___  __| | | |    ___   ___  _ __  
@@ -188,12 +189,7 @@ function speedLoopNext(name, f, allDone) {
 	return callWhenDone; // Call this function when your asynchronous f() is done
 }
 
-exports.speedLoop = speedLoop;
-exports.speedLoop8 = speedLoop8;
-exports.speedLoopForever = speedLoopForever;
-exports.speedLoopNext = speedLoopNext;
-
-
+expose.core({speedLoop, speedLoop8, speedLoopForever, speedLoopNext});
 
 
 
@@ -247,7 +243,7 @@ function closeCheck() {
 //TODO log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 
 // Call after you've closed all the objects a test used
-function done(test) {
+function customDone(test) {
 	clear(); // Remove closed objects from the list
 	if (list.length) { // We should have closed them all, but didn't
 		log(_sayList());
@@ -257,6 +253,7 @@ function done(test) {
 		test.done(); // Tell nodeunit the test finished successfully
 	}
 }
+//TODO you renamed done to customDone, pick a better name
 
 // Force the node process to exit immediately instead of closing by itself
 // This function does not return
@@ -282,12 +279,7 @@ function _sayList() {
 	return s;
 }
 
-exports.mistakeLog = mistakeLog;
-exports.mistakeStop = mistakeStop;
-exports.closeCount = closeCount;
-exports.closeCheck = closeCheck;
-exports.done = done;
-exports.exit = exit;
+expose.core({mistakeLog, mistakeStop, closeCount, closeCheck, customDone, exit});
 
 //TODO check out process.on('uncaughtException'), and see how it works in node and electron
 
@@ -358,10 +350,7 @@ function pulseScreen(p) { // Takes your object's pulseScreen method
 	return o;
 }
 
-exports.close = close;
-exports.canClose = canClose;
-exports.mustClose = mustClose;
-exports.pulseScreen = pulseScreen;
+expose.core({close, canClose, mustClose, pulseScreen});
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -498,7 +487,7 @@ function _pulse() {
 	start = false; // Allow the next call to soon() to start a new pulse
 }
 
-exports.soon = soon;
+expose.core({soon});
 
 
 
@@ -541,6 +530,7 @@ var pulsesPerSecond = Maximum(); // The the highest speed we measured
 */
 
 var p = now(); // The time when we last entered or left the pulse function
+//TODO code out here runs while load is going, don't call core functions like this out here
 /*
 var timeInside = 0; // How long the program has spent inside the pulse function, in milliseconds
 var timeOutside = 0; // How long the program has spent outside the pulse function, in milliseconds
@@ -683,8 +673,7 @@ function isProcessRunning(pid) {
 	return "maybe"; // That code acted in a way we didn't expect
 }
 
-exports.isFork = isFork;
-exports.isProcessRunning = isProcessRunning;
+expose.core({isFork, isProcessRunning});
 
 
 
@@ -706,3 +695,5 @@ exports.isProcessRunning = isProcessRunning;
 
 
 
+});
+console.log("state core/");

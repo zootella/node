@@ -1,7 +1,7 @@
-
-require("./load").library();
-
-
+console.log("environment test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -13,8 +13,7 @@ require("./load").library();
 //  |_____|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
 //                                                               
 
-if (demo("platform")) { demoPlatform(); }
-function demoPlatform() {
+expose.main("platform", function() {
 
 	log("process.platform  ", process.platform);
 	log("platform()        ", platform());
@@ -23,14 +22,13 @@ function demoPlatform() {
 	log(process.platform);
 	log(process.version);
 	log(inspect(process.versions));
-}
+});
 
-if (demo("working")) { demoWorking(); }
-function demoWorking() {
+expose.main("working", function() {
 
 	log("process.cwd()  ", process.cwd());
 	log("working()      ", working());//working() returns a Path that log calls text() on
-}
+});
 
 //TODO try these on every platform, including:
 //command lines: desktop windows git, windows dos, desktop mac, desktop ubuntu, linode debian or whatever
@@ -63,10 +61,9 @@ write tests that show this in the three processes:
 -electron page (defined)
 and include that in environment, is there a page or not, essentially
 */
-if (demo("snip")) { demoSnip(); }
-function demoSnip() {
+expose.main("snip-environment", function() {
 	log(typeof window);//undefined when run by node
-}
+});
 
 
 
@@ -81,8 +78,7 @@ function demoSnip() {
 
 
 
-if (demo("watch")) { demoWatch(); }
-function demoWatch() {
+expose.main("watch", function() {
 
 	var w = Watch(".", {ignored: ["node_modules", "electron"]}, "all", function(event, path) {
 		log(event, ": ", path);
@@ -93,7 +89,7 @@ function demoWatch() {
 		closeKeyboard();
 		closeCheck();
 	});
-}
+});
 
 
 
@@ -105,4 +101,5 @@ function demoWatch() {
 
 
 
-
+});
+console.log("environment test/");

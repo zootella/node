@@ -1,8 +1,7 @@
-
-require("./load").library();
-
-var platformBigNumber = require('bignumber.js');
-
+console.log("measure test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -29,23 +28,21 @@ var timeZone = "u"; // The local time zone the tests are running in, set to "e" 
 //  |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
 //                                              
 
-if (demo("inspect")) { demoInspect(); }
-function demoInspect() {
+expose.main("inspect", function() {
 
 	log(inspect(this));//just a shorter name for util.inspect()
-}
+});
 
 //on mac, you can change the width of a terminal while it's running
 //process.stdout.columns doesn't change, it's still the width when the process started
 //long lines wrap, and charm.up() and .down() count newly wrapped lines
 //so, changing the width while running can cause stick to not erase far up enough
-if (demo("columns")) { demoColumns(); }
-function demoColumns() {
+expose.main("columns", function() {
 	keyboard("c", function() {
 		log("process.stdout.columns: " + process.stdout.columns);
 	});
 	keyboard("exit", function() { closeKeyboard(); });
-}
+});
 
 //   _____    _      _                    
 //  |_   _|__| | ___| |_ _   _ _ __   ___ 
@@ -54,32 +51,28 @@ function demoColumns() {
 //    |_|\___|_|\___|\__|\__, | .__/ \___|
 //                       |___/|_|         
 
-if (demo("log")) { demoLog(); }
-function demoLog() {
+expose.main("log", function() {
 
 	log("hi");
 	log();//blank line
 	log("a", 7, "b");//multiple arguments not separated by spaces
-}
+});
 
-if (demo("stick")) { demoStick(); }
-function demoStick() {
+expose.main("stick", function() {
 
 	stick("stick");//notice that stick() starts charm, but this doesn't prevent the process from ending
-}
+});
 
-if (demo("both")) { demoBoth(); }
-function demoBoth() {
+expose.main("both", function() {
 
 	log("log1");
 	stick("stick1", "stick2");
 	log("log2");
 	stick("stick1a", "stick2");
 	log("log3");
-}
+});
 
-if (demo("cycle")) { demoCycle(); }
-function demoCycle() {
+expose.main("cycle", function() {
 	stick("press n for [log] small tall long");
 
 	var step = 1;
@@ -98,7 +91,7 @@ function demoCycle() {
 		if (step > 4) step = 1;
 	});
 	keyboard("exit", function() { closeKeyboard(); });
-}
+});
 
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
@@ -108,15 +101,14 @@ function demoCycle() {
 //        |_|                    
 
 //see how fast we can update the console using charm
-if (demo("stick-speed")) { demoStickSpeed(); }
-function demoStickSpeed() {
+expose.main("stick-speed", function() {
 	var i = 0;
 	function f() {
 		i++;
 		stick("number #".fill(i));
 	}
 	speedLoop8("stick", f);//hundreds spin faster than you can read
-}
+});
 
 //   _  __          _                         _ 
 //  | |/ /___ _   _| |__   ___   __ _ _ __ __| |
@@ -137,16 +129,14 @@ control+i  \t             tab        control+i is tab
 shift+8    *
 backspace  \b             backspace  character and name are different
 */
-if (demo("keyboard-any")) { demoKeyboardAny(); }
-function demoKeyboardAny() {
+expose.main("keyboard-any", function() {
 	keyboard("any", function(key) {
 		log(inspect(key));
 	});
 	keyboard("exit", function() { closeKeyboard(); });//let the process exit
-}
+});
 
-if (demo("keyboard-name")) { demoKeyboardName(); }
-function demoKeyboardName() {
+expose.main("keyboard-name", function() {
 	keyboard("8",         function(key) { log("eight");          });//matches key.character, standard
 	keyboard("backspace", function(key) { log("word backspace"); });//matches key.name, also works
 	keyboard("i",         function(key) { log("i");              });//matches both, but keyboard only calls function once
@@ -154,10 +144,9 @@ function demoKeyboardName() {
 	keyboard("tab",       function(key) { log("word tab");       });
 
 	keyboard("exit", function() { closeKeyboard(); });
-}
+});
 
-if (demo("keyboard-double")) { demoKeyboardDouble(); }
-function demoKeyboardDouble() {
+expose.main("keyboard-double", function() {
 	keyboard("n", function(key) {
 		log("first listener");
 	});
@@ -165,7 +154,7 @@ function demoKeyboardDouble() {
 		log("second listener");
 	});
 	keyboard("exit", function() { closeKeyboard(); });
-}
+});
 
 //   _____      _ _   
 //  | ____|_  _(_) |_ 
@@ -188,24 +177,21 @@ exit5: uses keypress
 exit6: uses both
 */
 
-if (demo("exit1")) { demoExit1(); }//exits when done, uses neither
-function demoExit1() {
+expose.main("exit1", function() {//exits when done, uses neither
 	var r = mustClose();
 	log("log");
 	close(r);
 	closeCheck();
-}
+});
 
-if (demo("exit2")) { demoExit2(); }//exits when done, uses charm
-function demoExit2() {
+expose.main("exit2", function() {//exits when done, uses charm
 	var r = mustClose();
 	stick("stick");
 	close(r);
 	closeCheck();
-}
+});
 
-if (demo("exit3")) { demoExit3(); }//exits when done, uses keypress
-function demoExit3() {
+expose.main("exit3", function() {//exits when done, uses keypress
 	keyboard("k", function() {
 		log("keyboard");
 	});
@@ -215,10 +201,9 @@ function demoExit3() {
 	close(r);
 	closeKeyboard();
 	closeCheck();
-}
+});
 
-if (demo("exit4")) { demoExit4(); }//exits when done, uses both
-function demoExit4() {
+expose.main("exit4", function() {//exits when done, uses both
 	keyboard("k", function() {
 		log("keyboard");
 	});
@@ -228,10 +213,9 @@ function demoExit4() {
 	close(r);
 	closeKeyboard();
 	closeCheck();
-}
+});
 
-if (demo("exit5")) { demoExit5(); }//user exits, uses keypress
-function demoExit5() {
+expose.main("exit5", function() {//user exits, uses keypress
 	keyboard("k", function() {
 		log("keyboard");
 	});
@@ -247,10 +231,9 @@ function demoExit5() {
 	s.pulseScreen = function() {
 		log(sayDateAndTime(now().time));//scrolling clock
 	}
-}
+});
 
-if (demo("exit6")) { demoExit6(); }//user exits, uses both
-function demoExit6() {
+expose.main("exit6", function() {//user exits, uses both
 	keyboard("k", function() {
 		log("keyboard");
 	});
@@ -266,7 +249,7 @@ function demoExit6() {
 	s.pulseScreen = function() {
 		stick(sayDateAndTime(now().time));//clock that stays in place
 	}
-}
+});
 
 //    ____ _                
 //   / ___| | ___  ___  ___ 
@@ -276,8 +259,7 @@ function demoExit6() {
 //                          
 
 //escape to close both with and without all the resources you made closed
-if (demo("keyboard-resource")) { demoKeyboardResource(); }
-function demoKeyboardResource() {
+expose.main("keyboard-resource", function() {
 
 	var clock = mustClose();
 	var resources = [];
@@ -298,14 +280,13 @@ function demoKeyboardResource() {
 		closeKeyboard();
 		closeCheck();
 	});
-}
+});
 
 //this demo shows that keyboard exit lets the process exit naturally, rather than ending it by force
 //it also shows that a timeout will prevent the process from exiting
 //start, escape: exits naturally right away, same thing if you s and wait for the timeout to happen
 //start, s, escape: close check passes, but the process stays alive until the timeout happens
-if (demo("keyboard-timeout")) { demoKeyboardTimeout(); }
-function demoKeyboardTimeout() {
+expose.main("keyboard-timeout", function() {
 
 	var c = mustClose();
 	var t = null;
@@ -334,7 +315,7 @@ function demoKeyboardTimeout() {
 		closeKeyboard();
 		closeCheck();
 	});
-}
+});
 
 
 
@@ -359,26 +340,26 @@ function demoKeyboardTimeout() {
 //                                              
 
 //make sure that javascript numbers act the way we expect on this platform
-exports.testPlatform = function(test) {
+expose.test("int platform", function(ok, done) {
 
 	//make sure the largest number this platform treats as an integer is what we expect
 	//numeralsFit, int, and Fraction are written to work with any MAX_SAFE_INTEGER, but if a platform changes that, it would be nice to know
 
-	test.ok(Number.MAX_SAFE_INTEGER    == 9007199254740991);
-	test.ok(Number.MAX_SAFE_INTEGER+"" == "9007199254740991");//as numerals
-	test.ok(Number.MAX_SAFE_INTEGER    == (8*Size.pb) - 1);//as size
+	ok(Number.MAX_SAFE_INTEGER    == 9007199254740991);
+	ok(Number.MAX_SAFE_INTEGER+"" == "9007199254740991");//as numerals
+	ok(Number.MAX_SAFE_INTEGER    == (8*Size.pb) - 1);//as size
 
-	test.ok((Number.MAX_SAFE_INTEGER+0)+"" == "9007199254740991");//correct
-	test.ok((Number.MAX_SAFE_INTEGER+1)+"" == "9007199254740992");//correct
-	test.ok((Number.MAX_SAFE_INTEGER+2)+"" == "9007199254740992");//got stuck on that last one
+	ok((Number.MAX_SAFE_INTEGER+0)+"" == "9007199254740991");//correct
+	ok((Number.MAX_SAFE_INTEGER+1)+"" == "9007199254740992");//correct
+	ok((Number.MAX_SAFE_INTEGER+2)+"" == "9007199254740992");//got stuck on that last one
 
-	test.ok(((7*Size.pb) - 1)+"" == "7881299347898367");//math around 7pb works
-	test.ok(((7*Size.pb)    )+"" == "7881299347898368");
-	test.ok(((7*Size.pb) + 1)+"" == "7881299347898369");
+	ok(((7*Size.pb) - 1)+"" == "7881299347898367");//math around 7pb works
+	ok(((7*Size.pb)    )+"" == "7881299347898368");
+	ok(((7*Size.pb) + 1)+"" == "7881299347898369");
 
-	test.ok(((8*Size.pb) - 1)+"" == "9007199254740991");
-	test.ok(((8*Size.pb)    )+"" == "9007199254740992");
-	test.ok(((8*Size.pb) + 1)+"" == "9007199254740992");//math around 8pb doesn't
+	ok(((8*Size.pb) - 1)+"" == "9007199254740991");
+	ok(((8*Size.pb)    )+"" == "9007199254740992");
+	ok(((8*Size.pb) + 1)+"" == "9007199254740992");//math around 8pb doesn't
 
 	//the weird javascript numbers
 
@@ -389,26 +370,26 @@ exports.testPlatform = function(test) {
 	var w5 = Infinity;//symbolic values
 	var w6 = NaN;
 
-	test.ok(typeof w1 == "number");//they are still numbers
-	test.ok(typeof w2 == "number");
-	test.ok(typeof w3 == "number");
-	test.ok(typeof w4 == "number");
-	test.ok(typeof w5 == "number");
-	test.ok(typeof w6 == "number");
+	ok(typeof w1 == "number");//they are still numbers
+	ok(typeof w2 == "number");
+	ok(typeof w3 == "number");
+	ok(typeof w4 == "number");
+	ok(typeof w5 == "number");
+	ok(typeof w6 == "number");
 
-	test.ok(w1+"" == "Infinity");//converting to string makes non numerals
-	test.ok(w2+"" == "-Infinity");
-	test.ok(w3+"" == "NaN");
-	test.ok(w4+"" == "NaN");
-	test.ok(w5+"" == "Infinity");
-	test.ok(w6+"" == "NaN");
+	ok(w1+"" == "Infinity");//converting to string makes non numerals
+	ok(w2+"" == "-Infinity");
+	ok(w3+"" == "NaN");
+	ok(w4+"" == "NaN");
+	ok(w5+"" == "Infinity");
+	ok(w6+"" == "NaN");
 
-	test.ok(!isFinite(w1));//detector functions
-	test.ok(!isFinite(w2));
-	test.ok(isNaN(w3));
-	test.ok(isNaN(w4));
-	test.ok(!isFinite(w5));
-	test.ok(isNaN(w6));
+	ok(!isFinite(w1));//detector functions
+	ok(!isFinite(w2));
+	ok(isNaN(w3));
+	ok(isNaN(w4));
+	ok(!isFinite(w5));
+	ok(isNaN(w6));
 
 	//forms
 
@@ -418,87 +399,87 @@ exports.testPlatform = function(test) {
 	var i3 = 1.23e+5;//exponential
 	var i4 = 5.0;//decimal with integer value
 
-	test.ok(i1 === 63);//same as these integers
-	test.ok(i2 === 255);
-	test.ok(i3 === 123000);
-	test.ok(i4 === 5);
+	ok(i1 === 63);//same as these integers
+	ok(i2 === 255);
+	ok(i3 === 123000);
+	ok(i4 === 5);
 
-	test.ok(i1+"" === "63");//plus blank makes integers
-	test.ok(i2+"" === "255");
-	test.ok(i3+"" === "123000");
-	test.ok(i4+"" === "5");
+	ok(i1+"" === "63");//plus blank makes integers
+	ok(i2+"" === "255");
+	ok(i3+"" === "123000");
+	ok(i4+"" === "5");
 
 	//decimals
 	var d1 = 5.67e-3;
 	var d2 = 456.789;
 
-	test.ok(d1 === 0.00567);//same as these decimals
-	test.ok(d2 === 456.789);
+	ok(d1 === 0.00567);//same as these decimals
+	ok(d2 === 456.789);
 
-	test.ok(d1+"" === "0.00567");//we can notice the periods
-	test.ok(d2+"" === "456.789");
+	ok(d1+"" === "0.00567");//we can notice the periods
+	ok(d2+"" === "456.789");
 
-	test.done();
-}
+	done();
+});
 
-exports.testNumberNanInfinity = function(test) {
+expose.test("int platform number NaN Infinity", function(ok, done) {
 
 	var n;
 
 	n = 1 / 1;//number
-	test.ok(typeof n == "number");
-	test.ok(!isNaN(n));
-	test.ok(isFinite(n));
-	test.ok(n + "" == "1");
+	ok(typeof n == "number");
+	ok(!isNaN(n));
+	ok(isFinite(n));
+	ok(n + "" == "1");
 
 	n = 0 / 0;//nan
-	test.ok(typeof n == "number");
-	test.ok(isNaN(n));
-	test.ok(!isFinite(n));
-	test.ok(n + "" == "NaN");
+	ok(typeof n == "number");
+	ok(isNaN(n));
+	ok(!isFinite(n));
+	ok(n + "" == "NaN");
 
 	n = 1 / 0;//infinity
-	test.ok(typeof n == "number");
-	test.ok(!isNaN(n));
-	test.ok(!isFinite(n));
-	test.ok(n + "" == "Infinity");
+	ok(typeof n == "number");
+	ok(!isNaN(n));
+	ok(!isFinite(n));
+	ok(n + "" == "Infinity");
 
-	test.done();
-}
+	done();
+});
 
-exports.testNumberBig = function(test) {
+expose.test("int platform Number MAX_VALUE", function(ok, done) {
 
 	var n;
 
 	n = Number.MAX_VALUE;
-	test.ok(n + "" == "1.7976931348623157e+308");//largest value that a number can hold, not an integer
+	ok(n + "" == "1.7976931348623157e+308");//largest value that a number can hold, not an integer
 
 	n = n * 2;
-	test.ok(typeof n == "number");
-	test.ok(!isNaN(n));
-	test.ok(!isFinite(n));
-	test.ok(n + "" == "Infinity");
+	ok(typeof n == "number");
+	ok(!isNaN(n));
+	ok(!isFinite(n));
+	ok(n + "" == "Infinity");
 
 	n = 9007199254740992;//largest number that javascript can handle as an integer, 2^53
-	test.ok( n - 1      ==  9007199254740991);//subtracting works
-	test.ok( n + 0      ==  9007199254740992);
-	test.ok( n + 1      ==  9007199254740992);//adding doesn't, no change, doesn't throw
-	test.ok( n * 1      ==  9007199254740992);
-	test.ok( n * 2      == 18014398509481984);//multiplying does work, somehow
-	test.ok((n * 2) + 1 == 18014398509481984);//but then adding doesn't change it
+	ok( n - 1      ==  9007199254740991);//subtracting works
+	ok( n + 0      ==  9007199254740992);
+	ok( n + 1      ==  9007199254740992);//adding doesn't, no change, doesn't throw
+	ok( n * 1      ==  9007199254740992);
+	ok( n * 2      == 18014398509481984);//multiplying does work, somehow
+	ok((n * 2) + 1 == 18014398509481984);//but then adding doesn't change it
 
 	//clever code you came up with to detect this problem
-	test.ok(n + 1 === n);
+	ok(n + 1 === n);
 
 	//example of working with a very large file size
 	var f = Fraction(9007199254740992 - 1, Size.tb);//the biggest number divide and multiply will work with is 1 less than the int limit
-	test.ok(f.whole.toNumber() == 8191);// the size limit is 8191 terabytes
-	test.ok(f.remainder.toNumber() == 1099511627775);//and this remainder of bytes
-	test.ok(Fraction(f.remainder, Size.gb).whole.toNumber() == 1023);//which is 1023 gigabytes
-	test.ok(Fraction([8191, Size.tb], 1).whole.toNumber() + 1099511627775 == 9007199254740992 - 1);//put the number back together again
+	ok(f.whole.toNumber() == 8191);// the size limit is 8191 terabytes
+	ok(f.remainder.toNumber() == 1099511627775);//and this remainder of bytes
+	ok(Fraction(f.remainder, Size.gb).whole.toNumber() == 1023);//which is 1023 gigabytes
+	ok(Fraction([8191, Size.tb], 1).whole.toNumber() + 1099511627775 == 9007199254740992 - 1);//put the number back together again
 
-	test.done();
-}
+	done();
+});
 
 //   ____                      _ 
 //  / ___| _ __   ___  ___  __| |
@@ -508,8 +489,7 @@ exports.testNumberBig = function(test) {
 //        |_|                    
 
 //compare speeds of basic skills using j javascript numbers, t text numerals, b bignumber.js, and c custom code
-if (demo("speed-skill")) { speedSkill() }
-function speedSkill() {
+expose.main("speed-skill", function() {
 	speedLoop("empty",                  speedEmpty);   // ~10 million
 	speedLoop("base",                   speedBase);    // ~10 million
 	log();
@@ -528,7 +508,7 @@ function speedSkill() {
 	log();
 	speedLoop("divide number",          speedDivideJ); // ~10 million
 	speedLoop("divide int",             speedDivideC); // ~300 thousand
-}
+});
 
 function roll() {//make a random integer
 	var min = 1;
@@ -577,7 +557,7 @@ function speedLessT() {
 }
 function speedLessB() {
 	var i = roll();
-	var b = new platformBigNumber(i);
+	var b = new required.bignumber_js(i);
 	if (b.greaterThan(94906265)) log("mistake");
 }
 function speedLessC() {
@@ -599,7 +579,7 @@ function speedScaleB() {
 	var i = roll();
 	var n = roll();
 	var d = roll();
-	var t = (new platformBigNumber(i)).times(n);//top
+	var t = (new required.bignumber_js(i)).times(n);//top
 	var w = t.dividedToIntegerBy(d);//whole
 	var r = t.mod(d);//remainder
 	if (!w.times(d).plus(r).equals(t)) log("mistake");//check
@@ -625,15 +605,14 @@ function speedDivideC() {
 	var w = divideSafe(n, d);
 }
 
-if (demo("speed-check")) { demoSpeedCheck(); }
-function demoSpeedCheck() {
+expose.main("speed-check", function() {
 	speedLoop("empty",            function() {                                                                              });// ~10m
 	speedLoop("base",             function() { roll();                                                                      });// ~10m
 	speedLoop("checkNumber",      function() { checkNumber(0);         checkNumber(1);         checkNumber(roll());         });// ~4m
 	speedLoop("checkNumberMath",  function() { checkNumberMath(0);     checkNumberMath(1);     checkNumberMath(roll());     });// ~7m
 	speedLoop("checkNumerals",    function() { checkNumerals(0+"");    checkNumerals(1+"");    checkNumerals(roll()+"");    });// ~5m
 	speedLoop("checkNumeralsFit", function() { checkNumeralsFit(0+""); checkNumeralsFit(1+""); checkNumeralsFit(roll()+""); });// ~5m
-}
+});
 
 //    ____ _               _    
 //   / ___| |__   ___  ___| | __
@@ -642,15 +621,15 @@ function demoSpeedCheck() {
 //   \____|_| |_|\___|\___|_|\_\
 //                              
 
-exports.testMin = function(test) {
+expose.test("int min0 min1 checkMin", function(ok, done) {
 
-	function v0(n)      { min0(n);        test.ok(true); }//valid
-	function v1(n)      { min1(n);        test.ok(true); }
-	function vMin(n, m) { checkMin(n, m); test.ok(true); }
+	function v0(n)      { min0(n);        ok(true); }//valid
+	function v1(n)      { min1(n);        ok(true); }
+	function vMin(n, m) { checkMin(n, m); ok(true); }
 
-	function i0(n)      { try { min0(n);     test.fail(); } catch (e) { test.ok(true); } }//invalid
-	function i1(n)      { try { min1(n);     test.fail(); } catch (e) { test.ok(true); } }
-	function iMin(n, m) { try { checkMin(n); test.fail(); } catch (e) { test.ok(true); } }
+	function i0(n)      { try { min0(n);     ok(false); } catch (e) { ok(true); } }//invalid
+	function i1(n)      { try { min1(n);     ok(false); } catch (e) { ok(true); } }
+	function iMin(n, m) { try { checkMin(n); ok(false); } catch (e) { ok(true); } }
 
 	v0(0);
 	v0(1);
@@ -668,13 +647,13 @@ exports.testMin = function(test) {
 	iMin(0, 1);
 	iMin(1, 789);
 
-	test.done();
-}
+	done();
+});
 
-exports.testCheckNumber = function(test) {
+expose.test("int checkNumber", function(ok, done) {
 
-	function v(n) { checkNumber(n); test.ok(true); }
-	function i(n) { try { checkNumber(n); test.fail(); } catch (e) { test.ok(true); } }
+	function v(n) { checkNumber(n); ok(true); }
+	function i(n) { try { checkNumber(n); ok(false); } catch (e) { ok(true); } }
 
 	//valid
 	v(0);
@@ -719,26 +698,26 @@ exports.testCheckNumber = function(test) {
 	i(5.67e-3);//exponential that is decimal
 	i(456.789);//decimal literal
 
-	test.done();
-}
+	done();
+});
 
-exports.testCheckNumberMath = function(test) {
+expose.test("int checkNumberMath", function(ok, done) {
 
 	//hit as many of the 7 exceptions in checkNumberMath as you can
-	try { checkNumberMath("0");              test.fail(); } catch (e) { test.ok(e.name == "type");     test.ok(e.note == "type");     }//make sure i is a number
-	try { checkNumberMath(0/0);              test.fail(); } catch (e) { test.ok(e.name == "bounds");   test.ok(e.note == "nan");      }//not the weird not a number thing
-	try { checkNumberMath(1/0);              test.fail(); } catch (e) { test.ok(e.name == "overflow"); test.ok(e.note == "infinity"); }//not too big for floating point
-	try { checkNumberMath(9007199254740992); test.fail(); } catch (e) { test.ok(e.name == "overflow"); test.ok(e.note == "max");      }//not too big for int
-	try { checkNumberMath(1.5);              test.fail(); } catch (e) { test.ok(e.name == "type");     test.ok(e.note == "floor");    }//a whole number
-	try { checkNumberMath(-1);               test.fail(); } catch (e) { test.ok(e.name == "bounds");   test.ok(e.note == "negative"); }//not negative
+	try { checkNumberMath("0");              ok(false); } catch (e) { ok(e.name == "type");     ok(e.note == "type");     }//make sure i is a number
+	try { checkNumberMath(0/0);              ok(false); } catch (e) { ok(e.name == "bounds");   ok(e.note == "nan");      }//not the weird not a number thing
+	try { checkNumberMath(1/0);              ok(false); } catch (e) { ok(e.name == "overflow"); ok(e.note == "infinity"); }//not too big for floating point
+	try { checkNumberMath(9007199254740992); ok(false); } catch (e) { ok(e.name == "overflow"); ok(e.note == "max");      }//not too big for int
+	try { checkNumberMath(1.5);              ok(false); } catch (e) { ok(e.name == "type");     ok(e.note == "floor");    }//a whole number
+	try { checkNumberMath(-1);               ok(false); } catch (e) { ok(e.name == "bounds");   ok(e.note == "negative"); }//not negative
 
-	test.done();
-}
+	done();
+});
 
-exports.testCheckNumerals = function(test) {
+expose.test("int checkNumerals", function(ok, done) {
 
-	function v(s) { checkNumerals(s); test.ok(true); }
-	function i(s) { try { checkNumerals(s); test.fail(); } catch (e) { test.ok(true); } }
+	function v(s) { checkNumerals(s); ok(true); }
+	function i(s) { try { checkNumerals(s); ok(false); } catch (e) { ok(true); } }
 
 	v("0");
 	v("1");
@@ -769,22 +748,22 @@ exports.testCheckNumerals = function(test) {
 	i("056");
 	v("56");
 
-	test.done();
-}
+	done();
+});
 
-exports.testNumeralsFit = function(test) {
+expose.test("int numeralsFit", function(ok, done) {
 
 	function v(s) {
-		test.ok(numeralsFit(s));
+		ok(numeralsFit(s));
 		checkNumeralsFit(s);
-		test.ok(true);
+		ok(true);
 	}
 	function i(s) {
-		test.ok(!numeralsFit(s));
+		ok(!numeralsFit(s));
 		try {
 			checkNumeralsFit(s);
-			test.fail();
-		} catch (e) { test.ok(true); }
+			ok(false);
+		} catch (e) { ok(true); }
 	}
 
 	v(Number.MAX_SAFE_INTEGER+"");//valid
@@ -797,8 +776,8 @@ exports.testNumeralsFit = function(test) {
 	i("9007199254740993");
 	i("10000000000000000");//way too big
 
-	test.done();
-}
+	done();
+});
 
 //    ____                          _   
 //   / ___|___  _ ____   _____ _ __| |_ 
@@ -807,10 +786,10 @@ exports.testNumeralsFit = function(test) {
 //   \____\___/|_| |_|\_/ \___|_|   \__|
 //                                      
 
-exports.testNumeralsToNumber = function(test) {
+expose.test("int numeralsToNumber", function(ok, done) {
 
-	function v(s, n) { test.ok(numeralsToNumber(s) == n); }
-	function i(s) { try { numeralsToNumber(s); test.fail(); } catch (e) { test.ok(true); } }
+	function v(s, n) { ok(numeralsToNumber(s) == n); }
+	function i(s) { try { numeralsToNumber(s); ok(false); } catch (e) { ok(true); } }
 
 	v("0", 0);//common use
 	v("1", 1);
@@ -848,16 +827,16 @@ exports.testNumeralsToNumber = function(test) {
 	v("9007199254740991", Number.MAX_SAFE_INTEGER);//biggest number
 	i("9007199254740992");
 
-	test.done();
-}
+	done();
+});
 
-exports.testCheckSame = function(test) {
+expose.test("int checkSame", function(ok, done) {
 
-	test.ok(1 == "1");//this is why checkSame has to use !==
-	test.ok(1 !== "1");
+	ok(1 == "1");//this is why checkSame has to use !==
+	ok(1 !== "1");
 
-	function v(a, b) { checkSame(a, b); test.ok(true); }
-	function i(a, b) { try { checkSame(a, b); test.fail(); } catch (e) { test.ok(true); } }
+	function v(a, b) { checkSame(a, b); ok(true); }
+	function i(a, b) { try { checkSame(a, b); ok(false); } catch (e) { ok(true); } }
 
 	v(1, 1);//valid
 	i(1, 2);//invalid
@@ -871,8 +850,8 @@ exports.testCheckSame = function(test) {
 	v("hi", "hi");//not just for numbers
 	i("hi", "Hi");
 
-	test.done();
-}
+	done();
+});
 
 //    ____                                     
 //   / ___|___  _ __ ___  _ __   __ _ _ __ ___ 
@@ -881,55 +860,55 @@ exports.testCheckSame = function(test) {
 //   \____\___/|_| |_| |_| .__/ \__,_|_|  \___|
 //                       |_|                   
 
-exports.testCompareCheckedNumber = function(test) {
+expose.test("int compareCheckedNumber", function(ok, done) {
 
-	test.ok(compareCheckedNumber(50, 40) > 0);//positive, reverse order
-	test.ok(compareCheckedNumber(50, 50) == 0);//zero, same
-	test.ok(compareCheckedNumber(50, 60) < 0);//negative, correct order
+	ok(compareCheckedNumber(50, 40) > 0);//positive, reverse order
+	ok(compareCheckedNumber(50, 50) == 0);//zero, same
+	ok(compareCheckedNumber(50, 60) < 0);//negative, correct order
 
-	test.ok(compareCheckedNumber(5, 5) == 0);//same
-	test.ok(compareCheckedNumber(10, 11) < 0);//same length
-	test.ok(compareCheckedNumber(19, 13) > 0);
-	test.ok(compareCheckedNumber(11, 111) < 0);//different lengths
-	test.ok(compareCheckedNumber(11, 1) > 0);
+	ok(compareCheckedNumber(5, 5) == 0);//same
+	ok(compareCheckedNumber(10, 11) < 0);//same length
+	ok(compareCheckedNumber(19, 13) > 0);
+	ok(compareCheckedNumber(11, 111) < 0);//different lengths
+	ok(compareCheckedNumber(11, 1) > 0);
 
 	var a = [100, 0, 5, 99, 105, Size.pb, 7, 5];//use to sort an array
 	a.sort(compareCheckedNumber);
-	test.ok(a+"" == "0,5,5,7,99,100,105,1125899906842624");
+	ok(a+"" == "0,5,5,7,99,100,105,1125899906842624");
 
-	test.done()
-}
+	done()
+});
 
-exports.testCompareCheckedNumerals = function(test) {
+expose.test("int compareCheckedNumerals",testCompareCheckedNumerals = function(ok, done) {
 
-	test.ok(compareCheckedNumerals("5", "5") == 0);//same
-	test.ok(compareCheckedNumerals("10", "11") < 0);//same length
-	test.ok(compareCheckedNumerals("19", "13") > 0);
-	test.ok(compareCheckedNumerals("10", "100") < 0);//different lengths
-	test.ok(compareCheckedNumerals("10", "1")   > 0);
+	ok(compareCheckedNumerals("5", "5") == 0);//same
+	ok(compareCheckedNumerals("10", "11") < 0);//same length
+	ok(compareCheckedNumerals("19", "13") > 0);
+	ok(compareCheckedNumerals("10", "100") < 0);//different lengths
+	ok(compareCheckedNumerals("10", "1")   > 0);
 
-	test.ok(compareCheckedNumerals("11112222333344445555", "11112222333344445555") == 0);//big
-	test.ok(compareCheckedNumerals("11112222333344445555", "11112222333344445556") <  0);
-	test.ok(compareCheckedNumerals("11112222333344445555", "11112222333344445554") >  0);
+	ok(compareCheckedNumerals("11112222333344445555", "11112222333344445555") == 0);//big
+	ok(compareCheckedNumerals("11112222333344445555", "11112222333344445556") <  0);
+	ok(compareCheckedNumerals("11112222333344445555", "11112222333344445554") >  0);
 
-	test.ok(compareCheckedNumerals("5555555", "5555557") < 0);
-	test.ok(compareCheckedNumerals("5555555", "5555575") < 0);
-	test.ok(compareCheckedNumerals("5555555", "5557555") < 0);
-	test.ok(compareCheckedNumerals("5555555", "5755555") < 0);
-	test.ok(compareCheckedNumerals("5555555", "7555555") < 0);
+	ok(compareCheckedNumerals("5555555", "5555557") < 0);
+	ok(compareCheckedNumerals("5555555", "5555575") < 0);
+	ok(compareCheckedNumerals("5555555", "5557555") < 0);
+	ok(compareCheckedNumerals("5555555", "5755555") < 0);
+	ok(compareCheckedNumerals("5555555", "7555555") < 0);
 
-	test.ok(compareCheckedNumerals("5555555", "5555552") > 0);
-	test.ok(compareCheckedNumerals("5555555", "5555525") > 0);
-	test.ok(compareCheckedNumerals("5555555", "5552555") > 0);
-	test.ok(compareCheckedNumerals("5555555", "5255555") > 0);
-	test.ok(compareCheckedNumerals("5555555", "2555555") > 0);
+	ok(compareCheckedNumerals("5555555", "5555552") > 0);
+	ok(compareCheckedNumerals("5555555", "5555525") > 0);
+	ok(compareCheckedNumerals("5555555", "5552555") > 0);
+	ok(compareCheckedNumerals("5555555", "5255555") > 0);
+	ok(compareCheckedNumerals("5555555", "2555555") > 0);
 
 	var a = ["100", "0", "5", "99", "105", "11112222333344445555", "7", "5"];//use to sort an array
 	a.sort(compareCheckedNumerals);
-	test.ok(a+"" == "0,5,5,7,99,100,105,11112222333344445555");
+	ok(a+"" == "0,5,5,7,99,100,105,11112222333344445555");
 
-	test.done()
-}
+	done()
+});
 
 //   ___       _   
 //  |_ _|_ __ | |_ 
@@ -938,19 +917,19 @@ exports.testCompareCheckedNumerals = function(test) {
 //  |___|_| |_|\__|
 //                 
 
-exports.testIntMake = function(test) {
+expose.test("int make", function(ok, done) {
 
 	function v(n, s) {//valid input and expected numerals
-		test.ok(say(int(n)) == s);
-		test.ok(say(int(n+"")) == s);
-		test.ok(say(int(int(n))) == s);
-		test.ok(say(int(new platformBigNumber(n+""))) == s);
+		ok(say(int(n)) == s);
+		ok(say(int(n+"")) == s);
+		ok(say(int(int(n))) == s);
+		ok(say(int(new required.bignumber_js(n+""))) == s);
 	}
 	function i(x) {//invalid input
 		try {
 			int(x);
-			test.fail();
-		} catch (e) { test.ok(true); }
+			ok(false);
+		} catch (e) { ok(true); }
 	}
 
 	v(0, "0");//small
@@ -973,39 +952,39 @@ exports.testIntMake = function(test) {
 	for (var g = 0; g < 100; g++) googol += "0";
 	v(googol, googol);
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntMath = function(test) {
+expose.test("int math", function(ok, done) {
 
-	test.ok(say(int(5, "-", 4)) == "1");//subtract
-	test.ok(say(int(5, "-", 5)) == "0");//to zero
+	ok(say(int(5, "-", 4)) == "1");//subtract
+	ok(say(int(5, "-", 5)) == "0");//to zero
 	try {
 		int(5, "-", 6);//beyond zero
-		test.fail();
-	} catch (e) { test.ok(true); }
+		ok(false);
+	} catch (e) { ok(true); }
 
-	test.ok(say(int(0, "/", 1)) == "0");//divide 0
+	ok(say(int(0, "/", 1)) == "0");//divide 0
 	try {
 		int(10, "/", 0);//divide by 0
-		test.fail();
-	} catch (e) { test.ok(true); }
+		ok(false);
+	} catch (e) { ok(true); }
 
-	test.ok(say(int(0, "%", 1)) == "0");//modulo 0
+	ok(say(int(0, "%", 1)) == "0");//modulo 0
 	try {
 		int(10, "%", 0);//modulo by 0
-		test.fail();
-	} catch (e) { test.ok(true); }
+		ok(false);
+	} catch (e) { ok(true); }
 
-	test.ok(int(7, "*", 0, "==", 0));//multiply by 0
-	test.ok(int(0, "*", 7, "==", 0));
-	test.ok(int("70000000000000000000", "*", 0, "==", 0));
-	test.ok(int(0, "*", "70000000000000000000", "==", 0));
+	ok(int(7, "*", 0, "==", 0));//multiply by 0
+	ok(int(0, "*", 7, "==", 0));
+	ok(int("70000000000000000000", "*", 0, "==", 0));
+	ok(int(0, "*", "70000000000000000000", "==", 0));
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntStep = function(test) {
+expose.test("int step", function(ok, done) {
 
 	function f(start, width, columns, end) {
 		var s = int(start);
@@ -1015,108 +994,108 @@ exports.testIntStep = function(test) {
 		var u = int(t, "+", int(2, "*", width), "-", int(2, "*", width));
 		var e = int(end);
 
-		test.ok(say(t) == say(e));
-		test.ok(say(m) == say(e));
-		test.ok(say(u) == say(e));
+		ok(say(t) == say(e));
+		ok(say(m) == say(e));
+		ok(say(u) == say(e));
 	}
 
 	f(100, 5, 20, 200);//small
 	f(7*Size.pb, Size.tb, 2000, "10080322603450368");//big
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntScale = function(test) {
+expose.test("int scale", function(ok, done) {
 
 	function f(i, n, d) {//integer, numerator, and denominator
 		var t = int(i, "*", n);//top
 		var w = int(t, "/", d);//whole
 		var r = int(t, "%", d);//remainder
 		var a = int(w, "*", d, "+", r);
-		test.ok(int(a, "==", t));
-		test.ok(say(a) == say(t));
+		ok(int(a, "==", t));
+		ok(say(a) == say(t));
 	}
 
 	f(10, 10, 15);
 	f(Size.pb, 999, 1000);
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntEquals = function(test) {
+expose.test("int equals", function(ok, done) {
 
-	test.ok(int(0, "==", 0));//small
-	test.ok(int(5, "==", 5));
-	test.ok(!int(1, "==", 0));
-	test.ok(!int(4, "==", 5));
+	ok(int(0, "==", 0));//small
+	ok(int(5, "==", 5));
+	ok(!int(1, "==", 0));
+	ok(!int(4, "==", 5));
 
-	test.ok(!int(4, ">", 5));
-	test.ok(!int(5, ">", 5));
-	test.ok(int(6, ">", 5));
+	ok(!int(4, ">", 5));
+	ok(!int(5, ">", 5));
+	ok(int(6, ">", 5));
 
-	test.ok(!int(4, ">=", 5));
-	test.ok(int(5, ">=", 5));
-	test.ok(int(6, ">=", 5));
+	ok(!int(4, ">=", 5));
+	ok(int(5, ">=", 5));
+	ok(int(6, ">=", 5));
 
-	test.ok(int(4, "<=", 5));
-	test.ok(int(5, "<=", 5));
-	test.ok(!int(6, "<=", 5));
+	ok(int(4, "<=", 5));
+	ok(int(5, "<=", 5));
+	ok(!int(6, "<=", 5));
 
-	test.ok(int(4, "<", 5));
-	test.ok(!int(5, "<", 5));
-	test.ok(!int(6, "<", 5));
+	ok(int(4, "<", 5));
+	ok(!int(5, "<", 5));
+	ok(!int(6, "<", 5));
 
-	test.ok(int("9007199254740991", "==", "9007199254740991"));//boundary
-	test.ok(int("9007199254740992", "==", "9007199254740992"));
-	test.ok(!int("9007199254740991", "==", "9007199254740992"));
-	test.ok(!int("9007199254740993", "==", "9007199254740992"));
+	ok(int("9007199254740991", "==", "9007199254740991"));//boundary
+	ok(int("9007199254740992", "==", "9007199254740992"));
+	ok(!int("9007199254740991", "==", "9007199254740992"));
+	ok(!int("9007199254740993", "==", "9007199254740992"));
 
-	test.ok(!int("9007199254740990", ">", "9007199254740991"));
-	test.ok(!int("9007199254740991", ">", "9007199254740991"));
-	test.ok(int("9007199254740992", ">", "9007199254740991"));
+	ok(!int("9007199254740990", ">", "9007199254740991"));
+	ok(!int("9007199254740991", ">", "9007199254740991"));
+	ok(int("9007199254740992", ">", "9007199254740991"));
 
-	test.ok(!int("9007199254740990", ">=", "9007199254740991"));
-	test.ok(int("9007199254740991", ">=", "9007199254740991"));
-	test.ok(int("9007199254740992", ">=", "9007199254740991"));
+	ok(!int("9007199254740990", ">=", "9007199254740991"));
+	ok(int("9007199254740991", ">=", "9007199254740991"));
+	ok(int("9007199254740992", ">=", "9007199254740991"));
 
-	test.ok(int("9007199254740990", "<=", "9007199254740991"));
-	test.ok(int("9007199254740991", "<=", "9007199254740991"));
-	test.ok(!int("9007199254740992", "<=", "9007199254740991"));
+	ok(int("9007199254740990", "<=", "9007199254740991"));
+	ok(int("9007199254740991", "<=", "9007199254740991"));
+	ok(!int("9007199254740992", "<=", "9007199254740991"));
 
-	test.ok(int("9007199254740990", "<", "9007199254740991"));
-	test.ok(!int("9007199254740991", "<", "9007199254740991"));
-	test.ok(!int("9007199254740992", "<", "9007199254740991"));
+	ok(int("9007199254740990", "<", "9007199254740991"));
+	ok(!int("9007199254740991", "<", "9007199254740991"));
+	ok(!int("9007199254740992", "<", "9007199254740991"));
 
-	test.ok(int("10000000000000000", "==", "10000000000000000"));//big
-	test.ok(int("10000000000000005", "==", "10000000000000005"));
-	test.ok(!int("10000000000000001", "==", "10000000000000000"));
-	test.ok(!int("10000000000000004", "==", "10000000000000005"));
+	ok(int("10000000000000000", "==", "10000000000000000"));//big
+	ok(int("10000000000000005", "==", "10000000000000005"));
+	ok(!int("10000000000000001", "==", "10000000000000000"));
+	ok(!int("10000000000000004", "==", "10000000000000005"));
 
-	test.ok(!int("10000000000000004", ">", "10000000000000005"));
-	test.ok(!int("10000000000000005", ">", "10000000000000005"));
-	test.ok(int("10000000000000006", ">", "10000000000000005"));
+	ok(!int("10000000000000004", ">", "10000000000000005"));
+	ok(!int("10000000000000005", ">", "10000000000000005"));
+	ok(int("10000000000000006", ">", "10000000000000005"));
 
-	test.ok(!int("10000000000000004", ">=", "10000000000000005"));
-	test.ok(int("10000000000000005", ">=", "10000000000000005"));
-	test.ok(int("10000000000000006", ">=", "10000000000000005"));
+	ok(!int("10000000000000004", ">=", "10000000000000005"));
+	ok(int("10000000000000005", ">=", "10000000000000005"));
+	ok(int("10000000000000006", ">=", "10000000000000005"));
 
-	test.ok(int("10000000000000004", "<=", "10000000000000005"));
-	test.ok(int("10000000000000005", "<=", "10000000000000005"));
-	test.ok(!int("10000000000000006", "<=", "10000000000000005"));
+	ok(int("10000000000000004", "<=", "10000000000000005"));
+	ok(int("10000000000000005", "<=", "10000000000000005"));
+	ok(!int("10000000000000006", "<=", "10000000000000005"));
 
-	test.ok(int("10000000000000004", "<", "10000000000000005"));
-	test.ok(!int("10000000000000005", "<", "10000000000000005"));
-	test.ok(!int("10000000000000006", "<", "10000000000000005"));
+	ok(int("10000000000000004", "<", "10000000000000005"));
+	ok(!int("10000000000000005", "<", "10000000000000005"));
+	ok(!int("10000000000000006", "<", "10000000000000005"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntRepeating = function(test) {
+expose.test("int repeating", function(ok, done) {
 
 	function t(d, n, m, w) {//denominator and numerator, and expected modulo and whole answers
-		test.ok(int(n, "/", d, "==", w));//divide
-		test.ok(int(n, "%", d, "==", m));//modulo
-		test.ok(int(w, "*", d, "+", m, "==", n));//reassemble
+		ok(int(n, "/", d, "==", w));//divide
+		ok(int(n, "%", d, "==", m));//modulo
+		ok(int(w, "*", d, "+", m, "==", n));//reassemble
 	}
 	function l(d, n) {//change one to log l instead of test t to see what's going on
 		log("# #".fill(int(n, "%", d), int(n, "/", d)));
@@ -1190,82 +1169,82 @@ exports.testIntRepeating = function(test) {
 		return s;
 	}
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntNumber = function(test) {
+expose.test("int hasNumber toNumber", function(ok, done) {
 
 	//small
 	var i = int(7);
-	test.ok(i.hasNumber());
-	test.ok(i.toNumber() == 7);
+	ok(i.hasNumber());
+	ok(i.toNumber() == 7);
 
 	//biggest
 	i = int("9007199254740991");//max safe integer, 8pb-1
-	test.ok(i.hasNumber());
-	test.ok(i.toNumber()+"" == "9007199254740991");
+	ok(i.hasNumber());
+	ok(i.toNumber()+"" == "9007199254740991");
 
 	//one more
 	i = int("9007199254740992");//one more, 8pb
-	test.ok(!i.hasNumber());
+	ok(!i.hasNumber());
 	try {
 		i.toNumber();
-		test.fail();
-	} catch (e) { test.ok(true); }
-	test.ok(say(i) == "9007199254740992");
+		ok(false);
+	} catch (e) { ok(true); }
+	ok(say(i) == "9007199254740992");
 
 	//big
 	i = int(Size.pb, "*", 10);
-	test.ok(!i.hasNumber());
+	ok(!i.hasNumber());
 	try {
 		i.toNumber();
-		test.fail();
-	} catch (e) { test.ok(true); }
-	test.ok(say(i) == "11258999068426240");
+		ok(false);
+	} catch (e) { ok(true); }
+	ok(say(i) == "11258999068426240");
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntMethods = function(test) {
+expose.test("int methods", function(ok, done) {
 
-	test.ok(int(7, "*", 8, "==", 56));
-	test.ok(int(81, "/", 9, "==", 9));
-	test.ok(int(100, "%", 15, "==", 10));
+	ok(int(7, "*", 8, "==", 56));
+	ok(int(81, "/", 9, "==", 9));
+	ok(int(100, "%", 15, "==", 10));
 
-	test.ok(int(1, "+", 2, "==", 3));
-	test.ok(int(10, "-", 3, "==", 7));
-	test.ok(int(0, "++", "==", 1));
-	test.ok(int(1, "--", "==", 0));
+	ok(int(1, "+", 2, "==", 3));
+	ok(int(10, "-", 3, "==", 7));
+	ok(int(0, "++", "==", 1));
+	ok(int(1, "--", "==", 0));
 
-	test.ok(int(5, "==", 5));
-	test.ok(int(5, "!=", 6));
-	test.ok(int(0, "!"));//use like if (!i)
-	test.ok(int(1, ""));//use like if (i)
-	test.ok(int(5, ""));//use like if (i)
+	ok(int(5, "==", 5));
+	ok(int(5, "!=", 6));
+	ok(int(0, "!"));//use like if (!i)
+	ok(int(1, ""));//use like if (i)
+	ok(int(5, ""));//use like if (i)
 
-	test.ok(int(5, ">", 4));
-	test.ok(!int(5, ">", 5));
-	test.ok(!int(5, ">", 6));
+	ok(int(5, ">", 4));
+	ok(!int(5, ">", 5));
+	ok(!int(5, ">", 6));
 
-	test.ok(!int(5, "<", 4));
-	test.ok(!int(5, "<", 5));
-	test.ok(int(5, "<", 6));
+	ok(!int(5, "<", 4));
+	ok(!int(5, "<", 5));
+	ok(int(5, "<", 6));
 
-	test.ok(int(5, ">=", 4));
-	test.ok(int(5, ">=", 5));
-	test.ok(!int(5, ">=", 6));
+	ok(int(5, ">=", 4));
+	ok(int(5, ">=", 5));
+	ok(!int(5, ">=", 6));
 
-	test.ok(!int(5, "<=", 4));
-	test.ok(int(5, "<=", 5));
-	test.ok(int(5, "<=", 6));
+	ok(!int(5, "<=", 4));
+	ok(int(5, "<=", 5));
+	ok(int(5, "<=", 6));
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntParameters = function(test) {
+expose.test("int parameters", function(ok, done) {
 
-	function v(f) { f(); test.ok(true); }//valid
-	function i(f) { try { f(); test.fail(); } catch (e) { test.ok(true); } }//invalid
+	function v(f) { f(); ok(true); }//valid
+	function i(f) { try { f(); ok(false); } catch (e) { ok(true); } }//invalid
 
 	i(function() { int(); });//invalid, blank
 
@@ -1294,8 +1273,8 @@ exports.testIntParameters = function(test) {
 	i(function() { int(7, "++", "==");    });//invalid, missing number
 	v(function() { int(7, "++", "==", 8); });//valid, trailing followed by paired operators
 
-	test.done();
-}
+	done();
+});
 
 //   ___       _     ___           _     _      
 //  |_ _|_ __ | |_  |_ _|_ __  ___(_) __| | ___ 
@@ -1307,51 +1286,51 @@ exports.testIntParameters = function(test) {
 // See which types v has built up with text like "bns" or "--s" for testing
 function inside(i) { return "###".fill(i._b === "none" ? "-" : "b", i._n === "none" ? "-" : "n", i._s === "none" ? "-" : "s"); }
 
-exports.testIntInside = function(test) {
+expose.test("int inside", function(ok, done) {
 
-	test.ok(inside(int(5))                   == "-ns");//given a small number, Int holds number and string
-	test.ok(inside(int("5"))                 == "--s");//given numerals, Int holds just that string
-	test.ok(inside(int("11258999068426240")) == "--s");//even if the number is big
+	ok(inside(int(5))                   == "-ns");//given a small number, Int holds number and string
+	ok(inside(int("5"))                 == "--s");//given numerals, Int holds just that string
+	ok(inside(int("11258999068426240")) == "--s");//even if the number is big
 
 	var a = int("3");
 	var b = int("4");
-	test.ok(inside(a) == "--s");//two small numbers, kept just as strings
-	test.ok(inside(b) == "--s");
+	ok(inside(a) == "--s");//two small numbers, kept just as strings
+	ok(inside(b) == "--s");
 	var c = int(a, "*", b);
-	test.ok(inside(a) == "-ns");//do some math, and they gain numbers inside
-	test.ok(inside(b) == "-ns");
-	test.ok(inside(c) == "-ns");
+	ok(inside(a) == "-ns");//do some math, and they gain numbers inside
+	ok(inside(b) == "-ns");
+	ok(inside(c) == "-ns");
 
 	a = int(Size.pb+"");
 	b = int("10");
-	test.ok(inside(a) == "--s");//two small numbers, kept just as strings
-	test.ok(inside(b) == "--s");
+	ok(inside(a) == "--s");//two small numbers, kept just as strings
+	ok(inside(b) == "--s");
 	var c = int(a, "*", b);
-	test.ok(inside(a) == "b-s");//gained bignumber for math
-	test.ok(inside(b) == "--s");//passed to bignumber.js as a string
-	test.ok(inside(c) == "b-s");//result is big
+	ok(inside(a) == "b-s");//gained bignumber for math
+	ok(inside(b) == "--s");//passed to bignumber.js as a string
+	ok(inside(c) == "b-s");//result is big
 	var d = int(c, "/", Size.pb);
-	test.ok(inside(c) == "b-s");
-	test.ok(inside(d) == "b-s");//d is 10, but still big
+	ok(inside(c) == "b-s");
+	ok(inside(d) == "b-s");//d is 10, but still big
 	var e = int(d, "+", 2);
-	test.ok(inside(d) == "bns");//d gains a number for the small calculation
-	test.ok(inside(e) == "-ns");//the answer 12, is just a number
+	ok(inside(d) == "bns");//d gains a number for the small calculation
+	ok(inside(e) == "-ns");//the answer 12, is just a number
 
 	var f = int("5");//made from numerals
-	test.ok(inside(f) == "--s");//has only string
-	test.ok(f.toNumber() == 5);//asked for a number
-	test.ok(inside(f) == "-ns");//keeps the number also, maybe it'll need it later
+	ok(inside(f) == "--s");//has only string
+	ok(f.toNumber() == 5);//asked for a number
+	ok(inside(f) == "-ns");//keeps the number also, maybe it'll need it later
 
-	test.done();
-}
+	done();
+});
 
-exports.testSlideRule = function(test) {
+expose.test("int math slide rule", function(ok, done) {
 
 	function t(a, b, p, l) {
 		p2 = int(a, "*", b);
 		l2 = say(p).length;
-		test.ok(int(p2, "==", p));
-		test.ok(l2 == l);
+		ok(int(p2, "==", p));
+		ok(l2 == l);
 	}
 
 	/*
@@ -1377,57 +1356,57 @@ exports.testSlideRule = function(test) {
 	t(999999, 999999999,  999998999000001, 15);//6 and 9
 	t(9999999, 99999999,  999999890000001, 15);//7 and 8
 
-	test.ok((Number.MAX_SAFE_INTEGER+"").length == 16);//max safe integer is 16 digits, so every 15 digit number is small enough
+	ok((Number.MAX_SAFE_INTEGER+"").length == 16);//max safe integer is 16 digits, so every 15 digit number is small enough
 
-	test.done();
-}
+	done();
+});
 
-exports.testIntBothFitProduct = function(test) {
+expose.test("int math both fit product", function(ok, done) {
 
 	var s7 = "9000000";//7, 8, and 9 digit numbers
 	var s8 = "90000000";
 	var s9 = "900000000";
-	test.ok(s7.length == 7);
-	test.ok(s8.length == 8);
-	test.ok(s9.length == 9);
+	ok(s7.length == 7);
+	ok(s8.length == 8);
+	ok(s9.length == 9);
 
 	var i14 = int(s7, "*", s7);
 	var i15 = int(s8, "*", s7);
 	var i16 = int(s8, "*", s8);
 	var i17 = int(s8, "*", s9);
-	test.ok(say(i14).length == 14);
-	test.ok(say(i15).length == 15);
-	test.ok(say(i16).length == 16);
-	test.ok(say(i17).length == 17);
+	ok(say(i14).length == 14);
+	ok(say(i15).length == 15);
+	ok(say(i16).length == 16);
+	ok(say(i17).length == 17);
 
-	test.ok((Number.MAX_SAFE_INTEGER+"").length == 16);//the biggest value that number keeps as an integer takes up 16 digits
+	ok((Number.MAX_SAFE_INTEGER+"").length == 16);//the biggest value that number keeps as an integer takes up 16 digits
 
-	test.ok(inside(i14) == "-ns");//14 and 15 digit products must be small, so int multiplied numbers
-	test.ok(inside(i15) == "-ns");
-	test.ok(inside(i16) == "b-s");//a 16 digit product might be big, so int converted to bignumbers
-	test.ok(inside(i17) == "b-s");//a 17 digit product is definitely big
+	ok(inside(i14) == "-ns");//14 and 15 digit products must be small, so int multiplied numbers
+	ok(inside(i15) == "-ns");
+	ok(inside(i16) == "b-s");//a 16 digit product might be big, so int converted to bignumbers
+	ok(inside(i17) == "b-s");//a 17 digit product is definitely big
 
-	test.ok(say(i14)                     == "81000000000000");//here are the values we calculated
-	test.ok(say(i15)                     == "810000000000000");
-	test.ok(say(i16)                     == "8100000000000000");//while a 16 digit number could be bigger than max, this one happens to not be
-	test.ok(say(Number.MAX_SAFE_INTEGER) == "9007199254740991");//see that max is bigger
-	test.ok(say(i17)                     == "81000000000000000");
+	ok(say(i14)                     == "81000000000000");//here are the values we calculated
+	ok(say(i15)                     == "810000000000000");
+	ok(say(i16)                     == "8100000000000000");//while a 16 digit number could be bigger than max, this one happens to not be
+	ok(say(Number.MAX_SAFE_INTEGER) == "9007199254740991");//see that max is bigger
+	ok(say(i17)                     == "81000000000000000");
 
-	test.ok(i14.hasNumber());
-	test.ok(i15.hasNumber());
-	test.ok(i16.hasNumber());//kept as big, but could be small
-	test.ok(!i17.hasNumber());
+	ok(i14.hasNumber());
+	ok(i15.hasNumber());
+	ok(i16.hasNumber());//kept as big, but could be small
+	ok(!i17.hasNumber());
 
-	test.ok(i14.toNumber() == 81000000000000);//ask the small ones for numbers
-	test.ok(i15.toNumber() == 810000000000000);
-	test.ok(i16.toNumber() == 8100000000000000);
+	ok(i14.toNumber() == 81000000000000);//ask the small ones for numbers
+	ok(i15.toNumber() == 810000000000000);
+	ok(i16.toNumber() == 8100000000000000);
 
-	test.ok(inside(i14) == "-ns");
-	test.ok(inside(i15) == "-ns");
-	test.ok(inside(i16) == "bns");//gained a number
+	ok(inside(i14) == "-ns");
+	ok(inside(i15) == "-ns");
+	ok(inside(i16) == "bns");//gained a number
 
-	test.done();
-}
+	done();
+});
 
 //   _____               _   _             
 //  |  ___| __ __ _  ___| |_(_) ___  _ __  
@@ -1436,15 +1415,15 @@ exports.testIntBothFitProduct = function(test) {
 //  |_|  |_|  \__,_|\___|\__|_|\___/|_| |_|
 //                                         
 
-exports.testFractionMultiplyArray = function(test) {
+expose.test("int Fraction _multiplyArray", function(ok, done) {
 
 	function v(a, s) {
-		test.ok(say(_multiplyArray(a)) == s);
+		ok(say(_multiplyArray(a)) == s);
 	}
 	function i(a) {
 		try {
 			_multiplyArray(a);
-			test.fail();
+			ok(false);
 		} catch (e) {}
 	}
 
@@ -1459,42 +1438,42 @@ exports.testFractionMultiplyArray = function(test) {
 	i(["n"]);
 	i([5, "n"]);
 
-	test.done()
-}
+	done();
+});
 
-exports.testFractionBlankZero = function(test) {
+expose.test("int Fraction blank zero", function(ok, done) {
 
-	try { Fraction();              test.fail(); } catch (e) { test.ok(true); }
-	try { Fraction(1);             test.fail(); } catch (e) { test.ok(true); }
-	try { Fraction(1, 1).scale();  test.fail(); } catch (e) { test.ok(true); }
-	try { Fraction(1, 1).scale(1); test.fail(); } catch (e) { test.ok(true); }
+	try { Fraction();              ok(false); } catch (e) { ok(true); }
+	try { Fraction(1);             ok(false); } catch (e) { ok(true); }
+	try { Fraction(1, 1).scale();  ok(false); } catch (e) { ok(true); }
+	try { Fraction(1, 1).scale(1); ok(false); } catch (e) { ok(true); }
 
 	var f = Fraction(9, 0);//divide by zero doesn't throw, and returns null instead of a Fraction object
-	test.ok(!f);//which is falsey
+	ok(!f);//which is falsey
 	var o = {};//unlike even an empty object
-	test.ok(o);
+	ok(o);
 
-	test.ok(Fraction(1, 1));
-	test.ok(!Fraction(1, 0));
-	test.ok(Fraction(0, 1));//zero in the numerator is ok
-	test.ok(say(Fraction(0, 1).whole) == "0");
+	ok(Fraction(1, 1));
+	ok(!Fraction(1, 0));
+	ok(Fraction(0, 1));//zero in the numerator is ok
+	ok(say(Fraction(0, 1).whole) == "0");
 
-	test.done()
-}
+	done();
+});
 
-exports.testFractionMath = function(test) {
+expose.test("int Fraction math", function(ok, done) {
 
 	function t(f, numerator, denominator, remainder, whole, round, ceiling) {
-		test.ok(say(f.numerator)   == say(numerator));
-		test.ok(say(f.denominator) == say(denominator));
+		ok(say(f.numerator)   == say(numerator));
+		ok(say(f.denominator) == say(denominator));
 
-		test.ok(say(f.remainder)   == say(remainder));
-		test.ok(say(f.whole)       == say(whole));
-		test.ok(say(f.round)       == say(round));
-		test.ok(say(f.ceiling)     == say(ceiling));
+		ok(say(f.remainder)   == say(remainder));
+		ok(say(f.whole)       == say(whole));
+		ok(say(f.round)       == say(round));
+		ok(say(f.ceiling)     == say(ceiling));
 
-		test.ok(int(f.denominator, "*", f.whole, "+", f.remainder, "==", f.numerator));//reassemble
-		test.ok(int(f.whole, "+", int(f.remainder, "==", 0) ? 0 : 1, "==", f.ceiling));//presence of remainder adds 1 to get to ceiling
+		ok(int(f.denominator, "*", f.whole, "+", f.remainder, "==", f.numerator));//reassemble
+		ok(int(f.whole, "+", int(f.remainder, "==", 0) ? 0 : 1, "==", f.ceiling));//presence of remainder adds 1 to get to ceiling
 	}
 	function l(f) {
 		log("#/# remainder# whole# round# ceiling#".fill(f.numerator, f.denominator, f.remainder, f.whole, f.round, f.ceiling));
@@ -1570,8 +1549,8 @@ exports.testFractionMath = function(test) {
 	t(Fraction(1, 3).scale("1000000",             1), "1000000",             3, 1, "333333",             "333333",             "333334");
 	t(Fraction(1, 3).scale("1000000000000000000", 1), "1000000000000000000", 3, 1, "333333333333333333", "333333333333333333", "333333333333333334");
 
-	test.done();
-}
+	done();
+});
 
 //   ____              
 //  / ___|  __ _ _   _ 
@@ -1580,10 +1559,10 @@ exports.testFractionMath = function(test) {
 //  |____/ \__,_|\__, |
 //               |___/ 
 
-exports.testSayFractionPattern = function(test) {//test sayFraction with the string patterns #, #%, #/s, and #.###
+expose.test("int Fraction sayFraction pattern",testSayFractionPattern = function(ok, done) {//test sayFraction with the string patterns #, #%, #/s, and #.###
 
 	function l(s1, s2) { log(s1); log(s2);; }
-	function t(s1, s2) { test.ok(s1 == s2); }
+	function t(s1, s2) { ok(s1 == s2); }
 
 	t(sayFraction(Fraction(10, 2), "#"),     "5");
 	t(sayFraction(Fraction(10, 2), "#.#"),   "5.0");
@@ -1597,10 +1576,10 @@ exports.testSayFractionPattern = function(test) {//test sayFraction with the str
 	t(sayFraction(Fraction(5, Time.second), "#.#/s"),   "5.0/s");
 	t(sayFraction(Fraction(5, Time.second), "#.###/s"), "5.000/s");
 
-	done(test);
-}
+	done();
+});
 
-exports.testSayFractionRemainder = function(test) {//test sayFraction with remainder options whole, round, and ceiling
+expose.test("int Fraction sayFraction remainder", function(ok, done) {//test sayFraction with remainder options whole, round, and ceiling
 
 	function c(d, r) {//compose a variety of the forms individually
 		return("# # # # # # # # #".fill(
@@ -1616,7 +1595,7 @@ exports.testSayFractionRemainder = function(test) {//test sayFraction with remai
 	}
 
 	function l(d, r, s) { log(c(d, r)); }//log the result
-	function t(d, r, s) { test.ok(c(d, r) == s); }//test the result
+	function t(d, r, s) { ok(c(d, r) == s); }//test the result
 
 	//nothing and everything
 	t(Fraction(0, 1), "whole", "0/1 0 0.0 0.000 0.000000 0% 0.0% 0.000% 0.000000%");
@@ -1659,14 +1638,14 @@ exports.testSayFractionRemainder = function(test) {//test sayFraction with remai
 	t(Fraction(100, 81), "round",   "100/81 1 1.2 1.235 1.234568 123% 123.5% 123.457% 123.456790%");
 	t(Fraction(100, 81), "ceiling", "100/81 2 1.3 1.235 1.234568 124% 123.5% 123.457% 123.456791%");
 
-	done(test);
-}
+	done();
+});
 
-exports.testSayUnitPerUnit = function(test) {
+expose.test("int Fraction sayUnitPerUnit", function(ok, done) {
 
 	var f;
 	function l(s1, s2) { log(s1); }
-	function t(s1, s2) { test.ok(s1 == s2); }
+	function t(s1, s2) { ok(s1 == s2); }
 
 	//unit per unit, like an average test score
 
@@ -1777,38 +1756,38 @@ exports.testSayUnitPerUnit = function(test) {
 		saySize(f.denominator)),
 		"2.000s/mb (10.000s/5mb 0kb 0b)");//seconds per megabyte
 
-	done(test);
-}
+	done();
+});
 
-exports.testSayUnitPerUnitMore = function(test) {
+expose.test("int Fraction sayUnitPerUnit unit size time", function(ok, done) {
 
 	//average test scores
-	test.ok(sayUnitPerUnit(Fraction(5,   1), "#.### (#/#)", "round") ==  "5.000 (5/1)");
-	test.ok(sayUnitPerUnit(Fraction(15,  3), "#.### (#/#)", "round") ==  "5.000 (15/3)");
-	test.ok(sayUnitPerUnit(Fraction(100, 3), "#.### (#/#)", "round") == "33.333 (100/3)");
-	test.ok(sayUnitPerUnit(Fraction(200, 3), "#.### (#/#)", "round") == "66.667 (200/3)");//rounds up or down
+	ok(sayUnitPerUnit(Fraction(5,   1), "#.### (#/#)", "round") ==  "5.000 (5/1)");
+	ok(sayUnitPerUnit(Fraction(15,  3), "#.### (#/#)", "round") ==  "5.000 (15/3)");
+	ok(sayUnitPerUnit(Fraction(100, 3), "#.### (#/#)", "round") == "33.333 (100/3)");
+	ok(sayUnitPerUnit(Fraction(200, 3), "#.### (#/#)", "round") == "66.667 (200/3)");//rounds up or down
 
 	//events per second
-	test.ok(sayUnitPerTime(Fraction(5,  Time.second), "#.###/s (#/#)", "round") == "5.000/s (5/1.000s)");
-	test.ok(sayUnitPerTime(Fraction(90, Time.minute), "#.###/s (#/#)", "round") == "1.500/s (90/1m 0.000s)");
+	ok(sayUnitPerTime(Fraction(5,  Time.second), "#.###/s (#/#)", "round") == "5.000/s (5/1.000s)");
+	ok(sayUnitPerTime(Fraction(90, Time.minute), "#.###/s (#/#)", "round") == "1.500/s (90/1m 0.000s)");
 
 	//average packet size
-	test.ok(saySizePerUnit(Fraction(Size.mb,      1), "# (#/#)") == "1mb 0kb 0b (1mb 0kb 0b/1)");
-	test.ok(saySizePerUnit(Fraction(Size.kb,      7), "# (#/#)") == "146b (1kb 0b/7)");
-	test.ok(saySizePerUnit(Fraction(Size.tb, 123456), "# (#/#)") == "8mb 505kb 373b (1tb 0gb 0mb 0kb 0b/123,456)");
+	ok(saySizePerUnit(Fraction(Size.mb,      1), "# (#/#)") == "1mb 0kb 0b (1mb 0kb 0b/1)");
+	ok(saySizePerUnit(Fraction(Size.kb,      7), "# (#/#)") == "146b (1kb 0b/7)");
+	ok(saySizePerUnit(Fraction(Size.tb, 123456), "# (#/#)") == "8mb 505kb 373b (1tb 0gb 0mb 0kb 0b/123,456)");
 
 	//data transfer speed
-	test.ok(saySizePerTime(Fraction(Size.mb,    Time.second), "#/s (#/#)") == "1mb 0kb 0b/s (1mb 0kb 0b/1.000s)");
-	test.ok(saySizePerTime(Fraction(60*Size.kb, Time.minute), "#/s (#/#)") == "1kb 0b/s (60kb 0b/1m 0.000s)");
-	test.ok(saySizePerTime(Fraction(90*Size.kb, Time.minute), "#/s (#/#)") == "1kb 512b/s (90kb 0b/1m 0.000s)");
-	test.ok(saySizePerTime(Fraction(Size.tb,    Time.day),    "#/s (#/#)") == "12mb 139kb 581b/s (1tb 0gb 0mb 0kb 0b/1d 0h 0m 0.000s)");
+	ok(saySizePerTime(Fraction(Size.mb,    Time.second), "#/s (#/#)") == "1mb 0kb 0b/s (1mb 0kb 0b/1.000s)");
+	ok(saySizePerTime(Fraction(60*Size.kb, Time.minute), "#/s (#/#)") == "1kb 0b/s (60kb 0b/1m 0.000s)");
+	ok(saySizePerTime(Fraction(90*Size.kb, Time.minute), "#/s (#/#)") == "1kb 512b/s (90kb 0b/1m 0.000s)");
+	ok(saySizePerTime(Fraction(Size.tb,    Time.day),    "#/s (#/#)") == "12mb 139kb 581b/s (1tb 0gb 0mb 0kb 0b/1d 0h 0m 0.000s)");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSayDivide = function(test) {
+expose.test("int Fraction sayUnitPerUnit divide", function(ok, done) {
 
-	function f(n, d, p, s) { test.ok(sayUnitPerUnit(Fraction(n, d), p) == s); }
+	function f(n, d, p, s) { ok(sayUnitPerUnit(Fraction(n, d), p) == s); }
 	function l(n, d, p, s) { log(sayUnitPerUnit(Fraction(n, d), p), " ",  s); }
 
 	f(   1, 2, "#.###",     "0.500");
@@ -1836,20 +1815,20 @@ exports.testSayDivide = function(test) {
 
 	f(1, 0, "#.###", "");//divide by zero returns blank
 
-	test.done();
-}
+	done();
+});
 
-exports.testSayPercent = function(test) {
+expose.test("int Fraction sayUnitPerUnit percent", function(ok, done) {
 
-	test.ok(sayUnitPerUnit(Fraction(1, 2),   "#.###% #/#") == "50.000% 1/2");
-	test.ok(sayUnitPerUnit(Fraction(10, 30), "#.###% #/#") == "33.333% 10/30");
-	test.ok(sayUnitPerUnit(Fraction(1, 0),   "#.###% #/#") == "");//divide by zero returns blank
-	test.done();
-}
+	ok(sayUnitPerUnit(Fraction(1, 2),   "#.###% #/#") == "50.000% 1/2");
+	ok(sayUnitPerUnit(Fraction(10, 30), "#.###% #/#") == "33.333% 10/30");
+	ok(sayUnitPerUnit(Fraction(1, 0),   "#.###% #/#") == "");//divide by zero returns blank
+	done();
+});
 
-exports.testSayProgress = function(test) {
+expose.test("int Fraction sayFraction progress", function(ok, done) {
 
-	function t(a, b) { test.ok(a == b); }
+	function t(a, b) { ok(a == b); }
 	function l(a, b) { log(); log(a); log(b); }
 
 	t(sayFraction(Fraction(1, 2),                     "#% #/#",   "whole", commas, saySize4, saySize4), "50% 1b/2b");
@@ -1860,8 +1839,8 @@ exports.testSayProgress = function(test) {
 
 	var f = Fraction(Size.mb, 2*Size.mb);//two lines, but easy to customize further
 	t("# #/#".fill(sayFraction(f, "#.#%"), saySizeK(f.numerator, 1), saySizeK(f.denominator, 1)), "50.0% 1,024.0kb/2,048.0kb");
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1890,30 +1869,30 @@ exports.testSayProgress = function(test) {
 //   \___/|_| |_|_|\__|___/
 //                         
 
-exports.testUnits = function(test) {
+expose.test("measure units Size freeze", function(ok, done) {
 
-	test.ok(Size.kb == 1024);
+	ok(Size.kb == 1024);
 	Size.kb = 5;//this won't change it, but also won't throw an exception
-	test.ok(Size.kb == 1024);//make sure Objet.freeze() worked
+	ok(Size.kb == 1024);//make sure Objet.freeze() worked
 
-	test.done();
-}
+	done();
+});
 
-exports.testSizeBig = function(test) {
+expose.test("measure units Size big", function(ok, done) {
 
 	var i = int(1);
-	test.ok(int(i, "==", Size.b));
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.kb)); test.ok(say(i) == "1024");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.mb)); test.ok(say(i) == "1048576");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.gb)); test.ok(say(i) == "1073741824");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.tb)); test.ok(say(i) == "1099511627776");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.pb)); test.ok(say(i) == "1125899906842624");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.eb)); test.ok(say(i) == "1152921504606846976");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.zb)); test.ok(say(i) == "1180591620717411303424");
-	i = int(i, "*", 1024); test.ok(int(i, "==", Size.yb)); test.ok(say(i) == "1208925819614629174706176");
+	ok(int(i, "==", Size.b));
+	i = int(i, "*", 1024); ok(int(i, "==", Size.kb)); ok(say(i) == "1024");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.mb)); ok(say(i) == "1048576");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.gb)); ok(say(i) == "1073741824");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.tb)); ok(say(i) == "1099511627776");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.pb)); ok(say(i) == "1125899906842624");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.eb)); ok(say(i) == "1152921504606846976");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.zb)); ok(say(i) == "1180591620717411303424");
+	i = int(i, "*", 1024); ok(int(i, "==", Size.yb)); ok(say(i) == "1208925819614629174706176");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1933,52 +1912,52 @@ exports.testSizeBig = function(test) {
 
 // now, When, earlier, recent, Duration
 
-exports.testWhenImmutable = function(test) {
+expose.test("measure now immutable", function(ok, done) {
 
 	var w = now();//remember the time right now
 	var time = w.time;//get it
 	w.time = 7;//try to change it
-	test.ok(time == w.time);//confirm that didn't work
+	ok(time == w.time);//confirm that didn't work
 
-	test.done();
-}
+	done();
+});
 
-exports.testWhen = function(test) {
+expose.test("measure When", function(ok, done) {
 
 	//load a saved time
 	var w = When(1030338738133);
-	if      (timeZone == "m") test.ok(w.text() == "2002 Aug 25 Sun 11:12p 18.133s");
-	else if (timeZone == "e") test.ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
+	if      (timeZone == "m") ok(w.text() == "2002 Aug 25 Sun 11:12p 18.133s");
+	else if (timeZone == "e") ok(w.text() == "2002 Aug 26 Mon 1:12a 18.133s");
 
-	test.done();
-}
+	done();
+});
 
-exports.testDuration = function(test) {
+expose.test("measure When Duration", function(ok, done) {
 
 	try {
 		Duration();//must have start time
-		test.fail();
+		ok(false);
 	} catch (e) {}
 	Duration(When(1));//you can omit end time to use now
 	Duration(When(1), When(1));//start and finish can be the same
 	Duration(When(1), When(2));//finish can be later
 	try {
 		Duration(When(2), When(1));//start must be before finish
-		test.fail();
-	} catch (e) { test.ok(e.name = "bounds"); }
+		ok(false);
+	} catch (e) { ok(e.name = "bounds"); }
 
 	var d = Duration(When(Time.year), When(Time.year + 10*Time.second));//test the parts
-	test.ok(d.start.time = Time.year);
-	test.ok(d.finish.time = Time.year + 10*Time.second);
-	test.ok(d.time = 10*Time.second);
-	if (timeZone == "e") test.ok(say(d) == "1971 Jan 1 Fri 1:00a 10.000s after 10.000s");
+	ok(d.start.time = Time.year);
+	ok(d.finish.time = Time.year + 10*Time.second);
+	ok(d.time = 10*Time.second);
+	if (timeZone == "e") ok(say(d) == "1971 Jan 1 Fri 1:00a 10.000s after 10.000s");
 
 	var w = When(Time.year);
 	w.duration(When(Time.year + 5*Time.minute));//make one from a when
-	test.ok(w.time = 5*Time.minute);
+	ok(w.time = 5*Time.minute);
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1997,8 +1976,8 @@ exports.testDuration = function(test) {
 
 //put this in measure number to watch out for it
 /*
-	test.ok((0 < 1) == true);
-	test.ok((undefined < 1) == false);
+	ok((0 < 1) == true);
+	ok((undefined < 1) == false);
 */
 
 
@@ -2022,7 +2001,7 @@ log(typeof Date.now());//number
 
 
 
-exports.testStripeFrozen = function(test) {
+expose.test("measure Stripe Frozen",testStripeFrozen = function(ok, done) {
 
 /*
 	log("hi");
@@ -2039,8 +2018,8 @@ exports.testStripeFrozen = function(test) {
 
 
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2080,31 +2059,31 @@ exports.testStripeFrozen = function(test) {
 //  |_| \_|\__,_|_| |_| |_|_.__/ \___|_|   
 //                                         
 
-exports.testCommas = function(test) {
+expose.test("measure say commas", function(ok, done) {
 
-	test.ok(commas("1")        ==          "1");
-	test.ok(commas("1234")     ==      "1,234");
-	test.ok(commas("12345")    ==     "12,345");
-	test.ok(commas("12345678") == "12,345,678");
+	ok(commas("1")        ==          "1");
+	ok(commas("1234")     ==      "1,234");
+	ok(commas("12345")    ==     "12,345");
+	ok(commas("12345678") == "12,345,678");
 
-	test.ok(commas("1",       3) ==     "0.001");
-	test.ok(commas("12",      3) ==     "0.012");
-	test.ok(commas("12345",   3) ==    "12.345");
-	test.ok(commas("1234567", 3) == "1,234.567");
+	ok(commas("1",       3) ==     "0.001");
+	ok(commas("12",      3) ==     "0.012");
+	ok(commas("12345",   3) ==    "12.345");
+	ok(commas("1234567", 3) == "1,234.567");
 
-	test.done();
-}
+	done();
+});
 
-exports.testItems = function(test) {
+expose.test("measure say items", function(ok, done) {
 
-	test.ok(items(0, "apple") == "0 apples");
-	test.ok(items(1, "apple") == "1 apple");
-	test.ok(items(2, "apple") == "2 apples");
+	ok(items(0, "apple") == "0 apples");
+	ok(items(1, "apple") == "1 apple");
+	ok(items(2, "apple") == "2 apples");
 
-	test.ok(items(12345, "apple") == "12,345 apples");
+	ok(items(12345, "apple") == "12,345 apples");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2121,10 +2100,10 @@ exports.testItems = function(test) {
 //  |____/|_/___\___|
 //                   
 
-exports.testSaySize = function(test) {
+expose.test("measure say saySize", function(ok, done) {
 
 	function f(n, s) {
-		test.ok(saySize(n) == s);
+		ok(saySize(n) == s);
 	}
 
 	f(0, "0b");
@@ -2141,76 +2120,76 @@ exports.testSaySize = function(test) {
 
 	//TODO add some bigger ones to show it works on values that would overflow number
 
-	test.done();
-}
+	done();
+});
 
-exports.testSaySize4 = function(test) {
+expose.test("measure say saySize4", function(ok, done) {
 
-	test.ok(saySize4(0) == "0b");
-	test.ok(saySize4(5) == "5b");
-	test.ok(saySize4(9999) == "9999b");
-	test.ok(saySize4(10000) == "9kb");
+	ok(saySize4(0) == "0b");
+	ok(saySize4(5) == "5b");
+	ok(saySize4(9999) == "9999b");
+	ok(saySize4(10000) == "9kb");
 
-	test.ok(saySize4(256 * Size.kb) == "256kb");
-	test.ok(saySize4(5 * Size.gb) == "5120mb");
-	test.ok(saySize4(Size.tb) == "1024gb");
+	ok(saySize4(256 * Size.kb) == "256kb");
+	ok(saySize4(5 * Size.gb) == "5120mb");
+	ok(saySize4(Size.tb) == "1024gb");
 
-	test.ok(saySize4(Number.MAX_SAFE_INTEGER) == "8191tb");
+	ok(saySize4(Number.MAX_SAFE_INTEGER) == "8191tb");
 
-	test.ok(saySize4(1)                == "1b");
-	test.ok(saySize4(10)               == "10b");
-	test.ok(saySize4(100)              == "100b");
-	test.ok(saySize4(1000)             == "1000b");
-	test.ok(saySize4(10000)            == "9kb");
-	test.ok(saySize4(100000)           == "97kb");
-	test.ok(saySize4(1000000)          == "976kb");
-	test.ok(saySize4(10000000)         == "9765kb");
-	test.ok(saySize4(100000000)        == "95mb");
-	test.ok(saySize4(1000000000)       == "953mb");
-	test.ok(saySize4(10000000000)      == "9536mb");
-	test.ok(saySize4(100000000000)     == "93gb");
-	test.ok(saySize4(1000000000000)    == "931gb");
-	test.ok(saySize4(10000000000000)   == "9313gb");
-	test.ok(saySize4(100000000000000)  == "90tb");
-	test.ok(saySize4(1000000000000000) == "909tb");
+	ok(saySize4(1)                == "1b");
+	ok(saySize4(10)               == "10b");
+	ok(saySize4(100)              == "100b");
+	ok(saySize4(1000)             == "1000b");
+	ok(saySize4(10000)            == "9kb");
+	ok(saySize4(100000)           == "97kb");
+	ok(saySize4(1000000)          == "976kb");
+	ok(saySize4(10000000)         == "9765kb");
+	ok(saySize4(100000000)        == "95mb");
+	ok(saySize4(1000000000)       == "953mb");
+	ok(saySize4(10000000000)      == "9536mb");
+	ok(saySize4(100000000000)     == "93gb");
+	ok(saySize4(1000000000000)    == "931gb");
+	ok(saySize4(10000000000000)   == "9313gb");
+	ok(saySize4(100000000000000)  == "90tb");
+	ok(saySize4(1000000000000000) == "909tb");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSaySizeUnits = function(test) {
+expose.test("measure say saySize units", function(ok, done) {
 
 	var n = 5 * Size.gb;
-	test.ok(saySizeB(n) == "5,368,709,120b");
-	test.ok(saySizeK(n) == "5,242,880kb");
-	test.ok(saySizeM(n) == "5,120mb");
-	test.ok(saySizeG(n) == "5gb");
-	test.ok(saySizeT(n) == "0tb");
-	test.ok(saySizeP(n) == "0pb");
+	ok(saySizeB(n) == "5,368,709,120b");
+	ok(saySizeK(n) == "5,242,880kb");
+	ok(saySizeM(n) == "5,120mb");
+	ok(saySizeG(n) == "5gb");
+	ok(saySizeT(n) == "0tb");
+	ok(saySizeP(n) == "0pb");
 
 	n = Number.MAX_SAFE_INTEGER;
-	test.ok(saySizeB(n)  == "9,007,199,254,740,991b");
-	test.ok(saySizeK(n) == "8,796,093,022,208kb");
-	test.ok(saySizeM(n) == "8,589,934,592mb");
-	test.ok(saySizeG(n) == "8,388,607gb");
-	test.ok(saySizeT(n) == "8,191tb");
-	test.ok(saySizeP(n) == "7pb");
+	ok(saySizeB(n)  == "9,007,199,254,740,991b");
+	ok(saySizeK(n) == "8,796,093,022,208kb");
+	ok(saySizeM(n) == "8,589,934,592mb");
+	ok(saySizeG(n) == "8,388,607gb");
+	ok(saySizeT(n) == "8,191tb");
+	ok(saySizeP(n) == "7pb");
 
-	test.ok(saySizeB(9876543210, 3) == "9,876,543,210.000b");
-	test.ok(saySizeK(9876543210, 3) == "9,645,061.729kb");
-	test.ok(saySizeM(9876543210, 3) == "9,419.006mb");
-	test.ok(saySizeG(9876543210, 3) == "9.198gb");
-	test.ok(saySizeT(9876543210, 3) == "0.008tb");
-	test.ok(saySizeP(9876543210, 3) == "0.000pb");
+	ok(saySizeB(9876543210, 3) == "9,876,543,210.000b");
+	ok(saySizeK(9876543210, 3) == "9,645,061.729kb");
+	ok(saySizeM(9876543210, 3) == "9,419.006mb");
+	ok(saySizeG(9876543210, 3) == "9.198gb");
+	ok(saySizeT(9876543210, 3) == "0.008tb");
+	ok(saySizeP(9876543210, 3) == "0.000pb");
 
-	test.ok(saySizeG(9876543210, 0) == "9gb");
-	test.ok(saySizeG(9876543210, 1) == "9.1gb");
-	test.ok(saySizeG(9876543210, 2) == "9.19gb");
-	test.ok(saySizeG(9876543210, 3) == "9.198gb");
-	test.ok(saySizeG(9876543210, 4) == "9.1982gb");
-	test.ok(saySizeG(9876543210, 5) == "9.19824gb");
+	ok(saySizeG(9876543210, 0) == "9gb");
+	ok(saySizeG(9876543210, 1) == "9.1gb");
+	ok(saySizeG(9876543210, 2) == "9.19gb");
+	ok(saySizeG(9876543210, 3) == "9.198gb");
+	ok(saySizeG(9876543210, 4) == "9.1982gb");
+	ok(saySizeG(9876543210, 5) == "9.19824gb");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2228,13 +2207,13 @@ exports.testSaySizeUnits = function(test) {
 //  |____/| .__/ \___|\___|\__,_|
 //        |_|                    
 
-exports.testSaySpeed = function(test) {
+expose.test("measure say sayFraction Fraction speed", function(ok, done) {
 
-	test.ok(sayFraction(Fraction([10, Size.mb], [2, Time.second]), "#/s", "whole", saySize4) == "5120kb/s");//10mb in 2s is 5mb/s
-	test.ok(sayFraction(Fraction(1, 0),                            "#/s", "whole", saySize4) == "");//show the user blank instead of throwing on divide by zero
+	ok(sayFraction(Fraction([10, Size.mb], [2, Time.second]), "#/s", "whole", saySize4) == "5120kb/s");//10mb in 2s is 5mb/s
+	ok(sayFraction(Fraction(1, 0),                            "#/s", "whole", saySize4) == "");//show the user blank instead of throwing on divide by zero
 
 	function f(b, s) {//b is bytes per second
-		test.ok(sayFraction(Fraction(b, Time.second), "#/s", "whole", saySize4) == s);
+		ok(sayFraction(Fraction(b, Time.second), "#/s", "whole", saySize4) == s);
 	}
 
 	f(9, "9b/s");
@@ -2247,17 +2226,17 @@ exports.testSaySpeed = function(test) {
 	f(23456789, "22mb/s");
 	f(123456789, "117mb/s");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSaySpeedKbps = function(test) {
+expose.test("measure say saySpeedKbps", function(ok, done) {
 
-	test.ok(saySpeedKbps(Fraction(Size.mb, Time.hour)) ==    "0.28kb/s");
-	test.ok(saySpeedKbps(Fraction(Size.gb, Time.hour)) ==     "291kb/s");
-	test.ok(saySpeedKbps(Fraction(Size.tb, Time.hour)) == "298,261kb/s");//this one pokes above max int
+	ok(saySpeedKbps(Fraction(Size.mb, Time.hour)) ==    "0.28kb/s");
+	ok(saySpeedKbps(Fraction(Size.gb, Time.hour)) ==     "291kb/s");
+	ok(saySpeedKbps(Fraction(Size.tb, Time.hour)) == "298,261kb/s");//this one pokes above max int
 
 	function f(b, s) {//b is bytes per second
-		test.ok(saySpeedKbps(Fraction(b, Time.second)) == s);
+		ok(saySpeedKbps(Fraction(b, Time.second)) == s);
 	}
 
 	f(0, "0.00kb/s");
@@ -2278,13 +2257,13 @@ exports.testSaySpeedKbps = function(test) {
 	f(23456789, "22,907kb/s");
 	f(123456789, "120,563kb/s");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSaySpeedTimePerMegabyte = function(test) {
+expose.test("measure say saySpeedTimePerMegabyte", function(ok, done) {
 
 	function f(b, s) {//b is bytes per second
-		test.ok(saySpeedTimePerMegabyte(Fraction(b, Time.second)) == s);
+		ok(saySpeedTimePerMegabyte(Fraction(b, Time.second)) == s);
 	}
 
 	f(0, "");//say blank instead of forever
@@ -2294,8 +2273,8 @@ exports.testSaySpeedTimePerMegabyte = function(test) {
 	f(Size.mb, "1s/mb");//1mb/s is 1s/mb
 	f(Size.mb + 1, "");//say blank instead of "0s/mb"
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2313,10 +2292,10 @@ exports.testSaySpeedTimePerMegabyte = function(test) {
 //    |_| |_|_| |_| |_|\___|
 //                          
 
-exports.testSayTime = function(test) {
+expose.test("measure say sayTime", function(ok, done) {
 
 	function f(t, s) {
-		test.ok(sayTime(t) == s);
+		ok(sayTime(t) == s);
 	}
 
 	f(0,    "0.000s");
@@ -2336,13 +2315,13 @@ exports.testSayTime = function(test) {
 	f(Time.minute - 1, "59.999s");//one millisecond less than the unit
 	f(Time.year - 1, "11m 30d 10h 29m 59.999s");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSayTimeRemaining = function(test) {
+expose.test("measure say sayTimeRemaining", function(ok, done) {
 
 	function f(t, s) {
-		test.ok(sayTimeRemaining(t) == s);
+		ok(sayTimeRemaining(t) == s);
 	}
 
 	// "0s" to "59s"
@@ -2376,8 +2355,8 @@ exports.testSayTimeRemaining = function(test) {
 
 	//coarse
 	function coarse(t, s, sCoarse) {
-		test.ok(sayTimeRemaining(t) == s);
-		test.ok(sayTimeRemainingCoarse(t) == sCoarse);
+		ok(sayTimeRemaining(t) == s);
+		ok(sayTimeRemainingCoarse(t) == sCoarse);
 	}
 	coarse(1*Time.second, "1s", "1s");
 	coarse(4*Time.second, "4s", "4s");
@@ -2386,13 +2365,13 @@ exports.testSayTimeRemaining = function(test) {
 	coarse(11*Time.second, "11s", "10s");
 	coarse(14*Time.second, "14s", "10s");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSayTimeRace = function(test) {
+expose.test("measure say sayTimeRace", function(ok, done) {
 
 	function f(t, s) {
-		test.ok(sayTimeRace(t) == s);
+		ok(sayTimeRace(t) == s);
 	}
 
 	f(0, "0'00\"000");
@@ -2403,8 +2382,8 @@ exports.testSayTimeRace = function(test) {
 	f(5*Time.minute + 21*Time.second + 789, "5'21\"789");
 	f(100*Time.minute, "100'00\"000");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2428,13 +2407,13 @@ exports.testSayTimeRace = function(test) {
 // sayDate, sayDateAndTime, sayDayAndTime, sayDateTemplate, dateParts
 // optionCulture
 
-exports.testSayDateDay = function(test) {
+expose.test("measure say date time day template parts culture", function(ok, done) {
 
 	function f(t, i, f, e) {
 
-		optionCulture.set("i"); test.ok(sayDateAndTime(t) == i);
-		optionCulture.set("f"); test.ok(sayDateAndTime(t) == f);
-		optionCulture.set("e"); test.ok(sayDateAndTime(t) == e);
+		optionCulture.set("i"); ok(sayDateAndTime(t) == i);
+		optionCulture.set("f"); ok(sayDateAndTime(t) == f);
+		optionCulture.set("e"); ok(sayDateAndTime(t) == e);
 	}
 
 	var t = 32*Time.year + 4*Time.month + 22*Time.day + 10*Time.hour + 35*Time.minute + 44*Time.second + 456;//32 years after 1970
@@ -2477,9 +2456,9 @@ exports.testSayDateDay = function(test) {
 			"2002 May 25 Sat 9:35p 44.456s");//pm double digit
 
 		t += 7*Time.month + 20*Time.second + 545;
-		test.ok(sayDate(t)        == "2002 Dec 24 Tue 10:06p");
-		test.ok(sayDateAndTime(t) == "2002 Dec 24 Tue 10:06p 05.001s");
-		test.ok(sayDayAndTime(t)  ==             "Tue 10:06p 05.001s");
+		ok(sayDate(t)        == "2002 Dec 24 Tue 10:06p");
+		ok(sayDateAndTime(t) == "2002 Dec 24 Tue 10:06p 05.001s");
+		ok(sayDayAndTime(t)  ==             "Tue 10:06p 05.001s");
 
 	} else if (timeZone == "e") {
 
@@ -2519,13 +2498,13 @@ exports.testSayDateDay = function(test) {
 			"2002 May 25 Sat 11:35p 44.456s");//pm double digit
 
 		t += 7*Time.month + 20*Time.second + 545;
-		test.ok(sayDate(t)        == "2002 Dec 25 Wed 12:06a");
-		test.ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:06a 05.001s");
-		test.ok(sayDayAndTime(t)  ==             "Wed 12:06a 05.001s");
+		ok(sayDate(t)        == "2002 Dec 25 Wed 12:06a");
+		ok(sayDateAndTime(t) == "2002 Dec 25 Wed 12:06a 05.001s");
+		ok(sayDayAndTime(t)  ==             "Wed 12:06a 05.001s");
 	}
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -2590,7 +2569,7 @@ var stripeChunkToByte = requireMeasure.stripeChunkToByte;
 var stripePieceToChunk = requireMeasure.stripePieceToChunk;
 var stripePieceToByte = requireMeasure.stripePieceToByte;
 
-exports.testChunkExample = function(test) {
+expose.test("measure chunk example", function(ok, done) {
 
 	//just show how a 2.1mb file is split into 3 pieces with chunks inside
 
@@ -2600,8 +2579,8 @@ exports.testChunkExample = function(test) {
 	var chunks = numberOfChunks(bytes);
 	var pieces = numberOfPieces(bytes);
 
-	test.ok(chunks == 130);
-	test.ok(pieces == 3);
+	ok(chunks == 130);
+	ok(pieces == 3);
 
 	//each chunk has X or X bytes
 	//each piece has 43 or 44 chunks
@@ -2613,8 +2592,8 @@ exports.testChunkExample = function(test) {
 
 	try {
 		log(say(stripePieceToChunk(bytes, Stripe(3, 1))));//bounds
-		test.fail();
-	} catch (e) { test.ok(e.name == "bounds"); }
+		ok(false);
+	} catch (e) { ok(e.name == "bounds"); }
 
 
 
@@ -2625,10 +2604,10 @@ exports.testChunkExample = function(test) {
 
 
 
-	test.done();
-}
+	done();
+});
 
-exports.testChunkOverflow = function(test) {
+expose.test("measure chunk overflow", function(ok, done) {
 
 	//size is the largest file that won't overflow
 	//max is the largest number javascript treats as an integer, 2^53
@@ -2649,11 +2628,11 @@ exports.testChunkOverflow = function(test) {
 	attempt(11*Size.gb);
 	try {
 		attempt(12*Size.gb);
-		test.fail();
-	} catch (e) { test.ok(e.name == "overflow"); }
+		ok(false);
+	} catch (e) { ok(e.name == "overflow"); }
 
-	test.done();
-}
+	done();
+});
 
 */
 
@@ -2666,4 +2645,5 @@ exports.testChunkOverflow = function(test) {
 
 
 
-
+});
+console.log("measure test/");

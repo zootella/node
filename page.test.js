@@ -1,62 +1,63 @@
-
-require("./load").library();
-
-
-
-
+console.log("page test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
-exports.testRequire = function(test) {
 
+
+expose.test("page require", function(ok, done) {
+
+/*
 	var $ = require("jquery");
-	var platformHandlebars = require("handlebars");
+	var required.handlebars = require("handlebars");
 
-	test.ok(typeof $ == "function");//command line node can require jquery and handlebars
-	test.ok(typeof platformHandlebars.compile == "function");
+	ok(typeof $ == "function");//command line node can require jquery and handlebars
+	ok(typeof required.handlebars.compile == "function");
 
 	//and it can use handlebars
-	test.ok(platformHandlebars.compile("<p>{{content}}</p>")({content:"Some content."}) == "<p>Some content.</p>");
+	ok(required.handlebars.compile("<p>{{content}}</p>")({content:"Some content."}) == "<p>Some content.</p>");
 	try {
 		var d = $("<div/>");//but not jquery
-		test.fail();
-	} catch (e) { test.ok(e.message == "jQuery requires a window with a document"); }
+		ok(false);
+	} catch (e) { ok(e.message == "jQuery requires a window with a document"); }
+*/
+//TODO only run this one in the electron page, if ($)
 
-	done(test);
-}
-
-
-
-
+	done();
+});
 
 
 
 
 
-exports.testTemplate = function(test) {
+
+
+
+
+expose.test("page template", function(ok, done) {
 
 	var t = "<p>{{name}} is a <b>{{color}}</b> {{animal}}.</p>";//template
 	var c = {name:"Morris", color:"red", animal:"fox"};//content
-	test.ok(template(t, c) == "<p>Morris is a <b>red</b> fox.</p>");//merge
+	ok(template(t, c) == "<p>Morris is a <b>red</b> fox.</p>");//merge
 
-	test.ok(template(t, {name:"Ben", color:"yellow", animal:"bird"})  == "<p>Ben is a <b>yellow</b> bird.</p>");
-	test.ok(template(t, {name:"Tom", color:"blue",   animal:"whale"}) == "<p>Tom is a <b>blue</b> whale.</p>");
+	ok(template(t, {name:"Ben", color:"yellow", animal:"bird"})  == "<p>Ben is a <b>yellow</b> bird.</p>");
+	ok(template(t, {name:"Tom", color:"blue",   animal:"whale"}) == "<p>Tom is a <b>blue</b> whale.</p>");
 
-	done(test);
-}
+	done();
+});
 
-exports.testTemplateBlank = function(test) {
+expose.test("page template blank", function(ok, done) {
 
 	var t = "l{{a}}r";
-	test.ok(template(t, {a:"A"})        == "lAr");//correct
-	test.ok(template(t, {})             == "lr");//missing
-	test.ok(template(t, {a:"A", b:"B"}) == "lAr");//extra
-	test.ok(template(t, {b:"B"})        == "lr");//missing and extra
+	ok(template(t, {a:"A"})        == "lAr");//correct
+	ok(template(t, {})             == "lr");//missing
+	ok(template(t, {a:"A", b:"B"}) == "lAr");//extra
+	ok(template(t, {b:"B"})        == "lr");//missing and extra
 
-	done(test);
-}
-
-
+	done();
+});
 
 
 
@@ -65,8 +66,9 @@ exports.testTemplateBlank = function(test) {
 
 
 
-if (demo("snip")) { demoSnip(); }
-function demoSnip() {
+
+
+expose.main("snip-page", function() {
 
 
 
@@ -108,7 +110,7 @@ function demoSnip() {
 	//what happens when you do two arguments
 	//and what happens when there are \r\n in the strings
 	//make it work the same on terminal and page
-}
+});
 
 
 
@@ -168,4 +170,5 @@ move this into a test, see how handlebars protects you better than query does
 
 
 
-
+});
+console.log("page test/");

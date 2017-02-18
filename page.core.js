@@ -1,5 +1,6 @@
+console.log("page core\\");
+contain(function(expose) {
 
-var platformHandlebars = require("handlebars");
 
 
 
@@ -11,11 +12,11 @@ var platformHandlebars = require("handlebars");
 // Remember to call say() on each part of content to turn it into text
 function template(template, content) {
 	if (!content) content = {};
-	var compiledTemplate = platformHandlebars.compile(template);
+	var compiledTemplate = required.handlebars.compile(template);
 	return compiledTemplate(content);
 }
 
-exports.template = template;
+expose.core({template});
 
 
 
@@ -29,3 +30,5 @@ exports.template = template;
 
 
 
+});
+console.log("page core/");

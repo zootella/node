@@ -1,3 +1,5 @@
+console.log("data core\\");
+contain(function(expose) {
 
 
 
@@ -38,8 +40,7 @@ function bufferCopy(n, sourceBuffer, sourceI, targetBuffer, targetI) {
 	sourceBuffer.copy(targetBuffer, targetI, sourceI, sourceI + n);
 }
 
-exports.bufferShift = bufferShift;
-exports.bufferCopy = bufferCopy;
+expose.core({bufferShift, bufferCopy});
 
 
 
@@ -157,7 +158,7 @@ function Data(p) {
 	o.type = "Data";
 	return freeze(o);
 }
-exports.Data = Data;
+expose.core({Data});
 
 // Find where in data tag appears
 // forward true to search forwards from the start, false to search backwards from the end
@@ -222,7 +223,7 @@ function compareData(d1, d2) {
 	}
 }
 
-exports.compareData = compareData;
+expose.core({compareData});
 
 
 
@@ -243,13 +244,19 @@ exports.compareData = compareData;
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
 
+/*
 // Give String a data() method so you can do "a".data() instead of Data("a")
 if (!String.prototype.data) {
 	String.prototype.data = function() {
 		return Data(this + ""); // this is the string, but as an array of characters, so add blank
 	}
 };
-
+*/
+function stringToData(s) {
+	return Data(s);
+}
+expose.methodOnString({data:stringToData});
+//TODO used method on string
 
 
 
@@ -373,7 +380,7 @@ function Bay(a) {
 		type:"Bay"
 	};
 }
-exports.Bay = Bay;
+expose.core({Bay});
 
 
 
@@ -411,10 +418,7 @@ function moveBin(source, target) {
 	target.add(source); // Move data from the source Bin to the target Bin
 }
 
-exports.mediumBin = mediumBin;
-exports.bigBin = bigBin;
-exports.testBin = testBin;
-exports.moveBin = moveBin;
+expose.core({mediumBin, bigBin, testBin, moveBin});
 
 // Single global recycleBin object
 var recycleBin = {};
@@ -744,11 +748,7 @@ function base64(s, bay) {
 	} catch (e) { p.reset(); throw e; }
 }
 
-exports.toByte = toByte;
-exports.base16 = base16;
-exports.base32 = base32;
-exports.base62 = base62;
-exports.base64 = base64;
+expose.core({toByte, base16, base32, base62, base64});
 
 //TODO you probably dont' need to bay in these, because you'll only be encoding and decoding small blocks that will fit comfortably in memory
 //also, if you do want to keep to bay functionality, you should probably update it to work with node evented streams
@@ -839,8 +839,8 @@ function ParseToBay(b) {
 	return { add:add, bay:bay, parsed:parsed, reset:reset };
 }
 
-exports.ParseFromClip = ParseFromClip;
-exports.ParseToBay = ParseToBay;
+expose.core({ParseFromClip, ParseToBay});
+//TODO these should be parseToClip and parseFromBay, except streams will get rid of them entirely, of course
 
 //TODO the real test of this design will be, what do you think it should be when you understand node evented streams?
 
@@ -995,7 +995,7 @@ function Outline(setName, setValue) {
 		type:"Outline"
 	};
 }
-exports.Outline = Outline;
+expose.core({Outline});
 
 // Determine which should appear first in sorted order
 // Zero if same, negative if o1 then o2, positive if o2 first
@@ -1029,7 +1029,6 @@ function compareOutline(o1, o2) {
 	}
 }
 
-exports.compareOutline = compareOutline;
 
 
 
@@ -1236,14 +1235,9 @@ function outlineFromData(clip) {
 	return o;
 }
 
-exports.compareOutline = compareOutline;
-exports.outline = outline;
-exports.outlineFromText = outlineFromText;
-exports._parseOutline = _parseOutline;
-exports._parseGroup = _parseGroup;
-exports._parseLine = _parseLine;
-exports.outlineFromData = outlineFromData;
-
+expose.core({compareOutline, outline, outlineFromText});
+expose.core({_parseOutline, _parseGroup, _parseLine});
+expose.core({outlineFromData});
 
 
 
@@ -1314,9 +1308,7 @@ function spanSize(n) {
 	toss("bounds");
 }
 
-exports.spanMake = spanMake;
-exports.spanParse = spanParse;
-exports.spanSize = spanSize;
+expose.core({spanMake, spanParse, spanSize});
 
 
 
@@ -1414,11 +1406,7 @@ function quoteIs(y) {
 	return (y >= ' '.code() && y <= '~'.code()) && y != '"'.code(); // Otherwise we'll have to encode y as data
 }
 
-exports.quote = toquote; // Rename to quote()
-exports.unquote = unquote;
-exports.quoteCount = quoteCount;
-exports.quoteMore = quoteMore;
-exports.quoteIs = quoteIs;
+expose.core({quote:toquote, unquote, quoteCount, quoteMore, quoteIs}); // Rename to quote()
 
 
 
@@ -1473,3 +1461,5 @@ exports.quoteIs = quoteIs;
 
 
 
+});
+console.log("data core/");

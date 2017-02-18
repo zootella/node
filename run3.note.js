@@ -43,7 +43,7 @@ have everything that needs to be closed use close(a, b, c) to be simple and cons
 
 
 //INT
-if (demo("snip")) { demoSnip(); }
+if (demo("snip-run3")) { demoSnip(); }
 function demoSnip() {
 
 	var r1 = 94906265;

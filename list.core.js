@@ -1,3 +1,5 @@
+console.log("list core\\");
+contain(function(expose) {
 
 
 
@@ -325,13 +327,8 @@ function ReferenceSet() {
 	return list;
 }
 
-exports._list = _list; // Exported for testing
-exports.List = List;
-exports.UniqueList = UniqueList;
-exports.SortedList = SortedList;
-exports.SortedUniqueList = SortedUniqueList;
-exports.ReferenceList = ReferenceList;
-exports.ReferenceSet = ReferenceSet;
+expose.core({_list}); // Exported for testing
+expose.core({List, UniqueList, SortedList, SortedUniqueList, ReferenceList, ReferenceSet});
 
 //have it count how many compares it does
 
@@ -388,3 +385,5 @@ exports.ReferenceSet = ReferenceSet;
 
 
 
+});
+console.log("list core/");

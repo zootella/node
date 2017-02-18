@@ -1,7 +1,6 @@
+console.log("path core\\");
+contain(function(expose) {
 
-var platformUtility = require("util");
-var platformFile = require("fs");
-var platformPath = require("path");
 
 
 
@@ -87,27 +86,20 @@ function _pathPrepare(s) {
 
 	return s;
 }
-function _pathSeparator()   { return platformPath.sep; }
-function _pathResolve(s)    { return platformPath.resolve(s); }
-function _pathFolder(s)     { return platformPath.dirname(s); }
-function _pathNameDotExt(s) { return platformPath.basename(s); }
-function _pathName(s)       { return platformPath.basename(s, _pathDotExt(s)); }
-function _pathDotExt(s)     { return platformPath.extname(s); }
+function _pathSeparator()   { return required.path.sep; }
+function _pathResolve(s)    { return required.path.resolve(s); }
+function _pathFolder(s)     { return required.path.dirname(s); }
+function _pathNameDotExt(s) { return required.path.basename(s); }
+function _pathName(s)       { return required.path.basename(s, _pathDotExt(s)); }
+function _pathDotExt(s)     { return required.path.extname(s); }
 function _pathExt(s) {
 	var t = _pathDotExt(s);
 	if (t.starts(".")) t = t.beyond(1);
 	return t;
 }
 
-exports.Path = Path;
-exports._pathSeparator = _pathSeparator; // Exported for testing
-exports._pathPrepare = _pathPrepare;
-exports._pathResolve = _pathResolve;
-exports._pathFolder = _pathFolder;
-exports._pathNameDotExt = _pathNameDotExt;
-exports._pathName = _pathName;
-exports._pathDotExt = _pathDotExt;
-exports._pathExt = _pathExt;
+expose.core({Path});
+expose.core({_pathSeparator, _pathPrepare, _pathResolve, _pathFolder, _pathNameDotExt, _pathName, _pathDotExt, _pathExt}); // Exported for testing
 
 
 
@@ -177,12 +169,10 @@ function pathCheck(folder, file) {
 	if (s != _pathSeparator())  toss("data", {note:"slash",  watch:{folder:folder, file:file}});
 }
 
-function _pathResolveTo(from, to) { return platformPath.resolve(from, to); }
+function _pathResolveTo(from, to) { return required.path.resolve(from, to); }
 
-exports.pathAdd = pathAdd;
-exports.pathSubtract = pathSubtract;
-exports.pathCheck = pathCheck;
-exports._pathResolveTo = _pathResolveTo; // Exported for testing
+expose.core({pathAdd, pathSubtract, pathCheck});
+expose.core({_pathResolveTo}); // Exported for testing
 
 
 
@@ -231,8 +221,7 @@ function pathNumber(path, n) {
 	return path.up.add("# (#)#".fill(path.name, n, path._ext)); // Compose the new path
 }
 
-exports.replaceReservedCharacters = replaceReservedCharacters;
-exports.pathNumber = pathNumber;
+expose.core({replaceReservedCharacters, pathNumber});
 
 
 
@@ -267,7 +256,7 @@ function absolute(p) {
 	toss("type");                           // Only works for Path and string
 }
 
-exports.absolute = absolute;
+expose.core({absolute});
 
 
 
@@ -276,3 +265,5 @@ exports.absolute = absolute;
 
 
 
+});
+console.log("path core/");

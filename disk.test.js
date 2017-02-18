@@ -1,8 +1,7 @@
-
-var platformFile = require("fs");
-
-require("./load").library();
-
+console.log("disk test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 //at long last, you can open a file
 //you can see what it's like to write functions that go from file to string and from string to file
 
@@ -149,7 +148,7 @@ function pathOpen(path, flags, mode, next) {
 		var task = Task(next);
 		if (getType(path) == "string") path = Path(path);
 		checkType(path, "Path");
-		platformFile.open(path.text, flags, mode, callback);
+		required.fs.open(path.text, flags, mode, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }
@@ -170,7 +169,7 @@ function fileClose(descriptor, next) {
 	try {
 
 		var task = Task(next);
-		platformFile.close(descriptor, callback);
+		required.fs.close(descriptor, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }
@@ -195,7 +194,7 @@ function pathLook(path, next) {
 	try {
 
 		var task = Task(next);
-		platformFile.stat(absolute(path).text, callback);
+		required.fs.stat(absolute(path).text, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }//(parse)
@@ -241,7 +240,7 @@ function pathDelete(path, next) {
 	try {
 
 		var task = Task(next);
-		platformFile.unlink(absolute(path).text, callback);
+		required.fs.unlink(absolute(path).text, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }
@@ -256,7 +255,7 @@ function pathMove(source, target, next) {
 	try {
 
 		var task = Task(next);
-		platformFile.rename(absolute(source).text, absolute(target).text, callback);
+		required.fs.rename(absolute(source).text, absolute(target).text, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }
@@ -272,7 +271,7 @@ function pathOpen(path, flags, mode, next) {
 	try {
 
 		var task = Task(next);
-		platformFile.open(absolute(path).text, flags, mode, callback);
+		required.fs.open(absolute(path).text, flags, mode, callback);
 		return task;
 
 	} catch (e) { task.fail(e); }
@@ -491,8 +490,7 @@ function somethingLater(done) {
 
 //demos of the posix 11
 
-if (demo("resolve")) { demoResolve(); }
-function demoResolve() {
+expose.main("resolve", function() {
 
 	resolve("E:\\test\\file.ext", next);
 
@@ -502,7 +500,7 @@ function demoResolve() {
 	}
 
 
-}
+});
 
 
 
@@ -572,4 +570,5 @@ function demoResolve() {
 
 
 
-
+});
+console.log("disk test/");

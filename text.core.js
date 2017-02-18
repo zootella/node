@@ -1,6 +1,6 @@
+console.log("text core\\");
+contain(function(expose) {
 
-var platformUtility = require("util");
-var platformPath = require("path");
 
 
 
@@ -41,7 +41,7 @@ var platformPath = require("path");
 //                              
 
 var freeze = Object.freeze; // Shortcut so you can say just freeze(o) instead of Object.freeze(o)
-exports.freeze = freeze;
+expose.core({freeze});
 
 
 
@@ -126,7 +126,7 @@ function stackParse(stack) {
 
 		// The filename
 		var f = p;
-		if (f.has(platformPath.sep)) f = f.afterLast(platformPath.sep);
+		if (f.has(required.path.sep)) f = f.afterLast(required.path.sep);
 		f = f.before(":");
 
 		var h = p.starts(process.cwd());          // True if the file is here in the current working directory
@@ -155,8 +155,7 @@ function stackSay(stack) {
 	return s;
 }
 
-exports.toss = toss;
-exports.Mistake = Mistake;
+expose.core({toss, Mistake});
 
 //TODO find and use or make a system that does not just 1 call stack, 2 catch and nest, which you already have, but 3 build a story across multiple events, the single line call stack from stackLine() would work well with this
 //TODO test in node webkit, the our code means a path in pwd trick that stackParse uses might not work
@@ -203,11 +202,7 @@ function getType(o) {
 function isType(o, name) { return getType(o) == name; } // True if object o is of type name
 function checkType(o, name) { if (!isType(o, name)) toss("type"); } // Throw type if o is not of type name
 
-exports.hasPropertyOfType = hasPropertyOfType;
-exports.hasMethod = hasMethod;
-exports.getType = getType;
-exports.isType = isType;
-exports.checkType = checkType;
+expose.core({hasPropertyOfType, hasMethod, getType, isType, checkType});
 
 
 
@@ -252,7 +247,7 @@ function arraySame(a1, a2) {
 	return true;
 }
 
-exports.arraySame = arraySame;
+expose.core({arraySame});
 
 //TODO maybe write a get() that checks bounds as well, just to use when you're outside a tight loop and not absolutely sure
 
@@ -382,16 +377,13 @@ function compareText(s1, s2) {
 	return s1.localeCompare(s2);
 }
 
-exports.is = is;
-exports.blank = blank;
-augment(upper, "upper");
-augment(lower, "lower");
-augment(code, "code");
-augment(range, "range");
-augment(isLetter, "isLetter");
-augment(isNumber, "isNumber");
-augment(isSpace, "isSpace");
-exports.compareText = compareText;
+expose.core({is, blank});
+expose.methodOnString({upper, lower, code, range, isLetter, isNumber, isSpace});
+expose.core({compareText});
+
+
+
+
 
 
 
@@ -422,8 +414,7 @@ function parseCheckMatch(oToString, s) { // Matches cases, use for things like b
 	if (!match(oToString, s)) toss("data");
 }
 
-exports.parseCheck = parseCheck;
-exports.parseCheckMatch = parseCheckMatch;
+expose.core({parseCheck, parseCheckMatch});
 
 
 
@@ -465,14 +456,7 @@ function clip(s, i, n) {                                   // Clip out part of s
 	return s.slice(i, i + n); // Using slice instead of substr or substring
 }
 
-augment(first, "first");
-augment(get, "get");
-augment(start, "start");
-augment(end, "end");
-augment(beyond, "beyond");
-augment(chop, "chop");
-augment(clip, "clip");
-
+expose.methodOnString({first, get, start, end, beyond, chop, clip});
 
 
 
@@ -587,21 +571,8 @@ function _either(s, tag1, tag2, match) {
 	else return Math.min(i1, i2); // Both found, return the one that appears first
 }
 
-exports.same = same;
-exports.match = match;
-augment(starts, "starts");
-augment(startsMatch, "startsMatch");
-augment(ends, "ends");
-augment(endsMatch, "endsMatch");
-augment(has, "has");
-augment(hasMatch, "hasMatch");
-augment(find, "find");
-augment(findMatch, "findMatch");
-augment(last, "last");
-augment(lastMatch, "lastMatch");
-augment(either, "either");
-augment(eitherMatch, "eitherMatch");
-
+expose.core({same, match});
+expose.methodOnString({starts, startsMatch, ends, endsMatch, has, hasMatch, find, findMatch, last, lastMatch, either, eitherMatch});
 
 
 
@@ -701,23 +672,11 @@ function _parse(s, t1, t2, match) {
 	}
 }
 
-augment(before, "before");
-augment(beforeMatch, "beforeMatch");
-augment(beforeLast, "beforeLast");
-augment(beforeLastMatch, "beforeLastMatch");
-augment(after, "after");
-augment(afterMatch, "afterMatch");
-augment(afterLast, "afterLast");
-augment(afterLastMatch, "afterLastMatch");
-augment(cut, "cut");
-augment(cutMatch, "cutMatch");
-augment(cutLast, "cutLast");
-augment(cutLastMatch, "cutLastMatch");
-augment(swap, "swap");
-augment(swapMatch, "swapMatch");
-augment(parse, "parse");
-augment(parseMatch, "parseMatch");
-
+expose.methodOnString({before, beforeMatch, beforeLast, beforeLastMatch});
+expose.methodOnString({after, afterMatch, afterLast, afterLastMatch});
+expose.methodOnString({cut, cutMatch, cutLast, cutLastMatch});
+expose.methodOnString({swap, swapMatch});
+expose.methodOnString({parse, parseMatch});
 
 
 
@@ -800,13 +759,7 @@ function off(s) {
 	return s;
 }
 
-augment(trimStart, "trimStart");
-augment(trimEnd, "trimEnd");
-augment(onStart, "onStart");
-augment(onEnd, "onEnd");
-augment(offStart, "offStart");
-augment(offEnd, "offEnd");
-augment(off, "off");
+expose.methodOnString({trimStart, trimEnd, onStart, onEnd, offStart, offEnd, off});
 
 // Add tag to the start of s until it's w long, like "   1"
 function widenStart(s, w, tag) {
@@ -822,9 +775,7 @@ function widenEnd(s, w, tag) {
 	return s;
 }
 
-augment(widenStart, "widenStart");
-augment(widenEnd, "widenEnd");
-
+expose.methodOnString({widenStart, widenEnd});
 
 
 
@@ -899,9 +850,7 @@ function _ripCustom(s, tag, trimItems, skipBlankItems) { // Implemented without 
 	return a;
 }
 
-augment(ripWords, "ripWords");
-augment(ripLines, "ripLines");
-augment(rip, "rip");
+expose.methodOnString({ripWords, ripLines, rip});
 
 //TODO windows does 0d0a, mac just 0a, isn't there a platform that does just 0d? ripLines needs to deal with all 3
 //javascript has .split, and you can't remember .rip, change it to just s.words() and s.lines()
@@ -958,13 +907,13 @@ function line() {
 
 // Turn anything into text the best way possible
 function _say(o) {
-	if      (typeof o == "string")           return o;                          // Strings pass through
-	else if (typeof o == "number")           return o+"";                       // Convert a number into numerals
-	else if (o instanceof Error)             return platformUtility.inspect(o); // Inspect to see the inside
-	else if (o && typeof o.text == "string") return o.text;                     // Use the object's text member
-	else if (hasMethod(o, "text"))           return o.text();                   // Call the object's text() method
-	else if (hasMethod(o, "toString"))       return o.toString();               // Use toString() instead
-	else                                     return o + "";                     // Last resort, add to blank
+	if      (typeof o == "string")           return o;                        // Strings pass through
+	else if (typeof o == "number")           return o+"";                     // Convert a number into numerals
+	else if (o instanceof Error)             return required.util.inspect(o); // Inspect to see the inside
+	else if (o && typeof o.text == "string") return o.text;                   // Use the object's text member
+	else if (hasMethod(o, "text"))           return o.text();                 // Call the object's text() method
+	else if (hasMethod(o, "toString"))       return o.toString();             // Use toString() instead
+	else                                     return o + "";                   // Last resort, add to blank
 }
 
 // Use this line separator when composing text
@@ -1016,11 +965,9 @@ function table(a) {
 	return t;
 }
 
-exports.say = say;
-exports.line = line;
-augment(fill, "fill");
-exports.lines = lines;
-exports.table = table;
+expose.core({say, line});
+expose.methodOnString({fill});
+expose.core({lines, table});
 
 
 
@@ -1081,10 +1028,7 @@ function pilcrow(s) {
 	return s;
 }
 
-augment(encode, "encode");
-augment(decode, "decode");
-augment(pilcrow, "pilcrow");
-
+expose.methodOnString({encode, decode, pilcrow});
 
 
 
@@ -1199,3 +1143,5 @@ js valueOf
 
 
 
+});
+console.log("text core/");

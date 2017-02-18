@@ -1,9 +1,7 @@
-
-var platformEvent = require("events");
-var platformFile = require("fs");
-
-require("./load").library();
-
+console.log("state test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -26,47 +24,43 @@ require("./load").library();
 //                                     |_|                                      |_|    
 
 //example of synchronous code
-if (demo("example")) { example(); }
-function example() {
+expose.main("example", function() {
 
 	function f() {//example synchronous code makes a guid
 		log("a unique value: ", unique().base62());
 	}
 
 	f();//just call our synchronous function once
-}
+});
 
 //example using that synchronous code with speedLoop
-if (demo("example-loop")) { exampleLoop(); }
-function exampleLoop() {
+expose.main("example-loop", function() {
 
 	function f() {//example synchronous code makes a guid
 		var s = unique().base62();
 	}
 
 	speedLoop8("unique", f);//give our synchronous function to speed loop, which will call it over and over
-}
+});
 
 //example of asynchronous code
-if (demo("example-next")) { exampleNext(); }
-function exampleNext() {
+expose.main("example-next", function() {
 
 	function f() {//example asynchronous code looks at a file on the disk
-		platformFile.realpath("state.js", {}, next);
+		required.fs.realpath("state.js", {}, next);
 		function next(e, resolvedPath) {
 			log("exception '#', resolved path '#'".fill(e, resolvedPath));
 		}
 	}
 
 	f();//just call our asynchronous function once
-}
+});
 
 //example using that asynchronous code with speedLoopNext
-if (demo("example-loop-next")) { exampleLoopNext(); }
-function exampleLoopNext() {
+expose.main("example-loop-next", function() {
 
 	function f() {//example asynchronous code looks at a file on the disk
-		platformFile.realpath("state.js", {}, next);
+		required.fs.realpath("state.js", {}, next);
 		function next(e, resolvedPath) {
 			callWhenDone();
 		}
@@ -74,21 +68,19 @@ function exampleLoopNext() {
 
 	var callWhenDone = speedLoopNext("look", f);//get the function we have to call when our code is done
 	f();//call our asynchronous function once to get the whole thing started
-}
+});
 
 //empty speedLoop to see maximum speed
-if (demo("example-empty")) { exampleEmpty(); }
-function exampleEmpty() {
+expose.main("example-empty", function() {
 
 	function f() {
 	}
 
 	speedLoop8("empty", f);
-}
+});
 
 //empty speedLoopNext to see maximum speed
-if (demo("example-empty-next")) { exampleEmptyNext(); }
-function exampleEmptyNext() {
+expose.main("example-empty-next", function() {
 
 	function f() {
 		callWhenDone();//ordinarily, f would call callWhenDone in a callback, but it's ok to call it directly too
@@ -96,17 +88,16 @@ function exampleEmptyNext() {
 
 	var callWhenDone = speedLoopNext("empty", f);
 	f();
-}
+});
 
 //empty speedLoopForever to see average settle
-if (demo("example-empty-forever")) { exampleEmptyForever(); }
-function exampleEmptyForever() {
+expose.main("example-empty-forever", function() {
 
 	function f() {
 	}
 
 	speedLoopForever("empty", f);
-}
+});
 
 
 
@@ -131,38 +122,34 @@ function exampleEmptyForever() {
 //demos of basic use
 
 //run code that throws an exception
-if (demo("throw")) { demoThrow(); }
-function demoThrow() {
+expose.main("throw", function() {
 
 	Data("hello").start(6);//throws chop
-}
+});
 
 //catch an exception and sand it to mistakeLog(e)
-if (demo("mistake-log")) { demoMistakeLog(); }
-function demoMistakeLog() {
+expose.main("mistake-log", function() {
 
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeLog(e); }
 
 	log("code after runs");
-}
+});
 
 //catch an exception and sand it to mistakeStop(e)
-if (demo("mistake-stop")) { demoMistakeStop(); }
-function demoMistakeStop() {
+expose.main("mistake-stop", function() {
 
 	try {
 		Data("hello").start(6);
 	} catch (e) { mistakeStop(e); }
 
 	log("code after does not run");
-}
+});
 
 //code in a timeout function that throws an exception
 //confirms that an uncaught exception in a timeout function ends the node process, even if there are more events that might work later
-if (demo("timeout-throw")) { demoTimeoutThrow(); }
-function demoTimeoutThrow() {
+expose.main("timeout-throw", function() {
 	log("setting timeouts for 2 and 4 seconds from now");
 
 	wait(4000, function() {//in 4 seconds, this function will run successfully
@@ -177,55 +164,53 @@ function demoTimeoutThrow() {
 		Data("hello").start(6);//throws chop
 
 	});
-}
+});
 
 //test of basic use
 
-exports.testToss = function(test) {
+expose.test("state toss", function(ok, done) {
 
 	try {
 		toss();//blank ok
-		test.fail();//this line doesn't run
+		ok(false);//this line doesn't run
 	} catch (e) {}
 
 	try {
 		toss("custom");
-		test.fail();
-	} catch (e) { test.ok(e.name == "custom"); }//the name we expect
+		ok(false);
+	} catch (e) { ok(e.name == "custom"); }//the name we expect
 
-	done(test);
-}
+	done();
+});
 
 //demos of real exceptions with details
 
-if (demo("path-1")) { demoPath1(); }
-function demoPath1() {
+expose.main("path-1", function() {
 	try {
 
 		pathCheck(Path("C:\\name"), Path("C:\\name2"));
 
 	} catch (e) { log(e); }
-}
+});
 
-if (demo("path-2")) { demoPath2(); }
-function demoPath2() {
+expose.main("path-2", function() {
 
 	try { a(); } catch (e) { log(e); }
 	function a() { b(); }
 	function b() { c(); }
 	function c() { Path("file.ext"); }
-}
+});
 
 //demos and tests that catch or receive example exceptions
 
-if (demo("mistake-1")) { catchMistake(mistake1); }
-if (demo("mistake-2")) { catchMistake(mistake2); }
-if (demo("mistake-3")) { catchMistake(mistake3); }
-if (demo("mistake-4")) { catchMistake(mistake4); }
-if (demo("mistake-5")) { getMistake(mistake5); }
-if (demo("mistake-6")) { getMistake(mistake6); }
-if (demo("mistake-7")) { getMistake(mistake7); }
-if (demo("mistake-8")) { catchMistake(mistake8); }
+expose.main("mistake-1", function() { catchMistake(mistake1); });
+expose.main("mistake-2", function() { catchMistake(mistake2); });
+expose.main("mistake-3", function() { catchMistake(mistake3); });
+expose.main("mistake-4", function() { catchMistake(mistake4); });
+expose.main("mistake-5", function() { getMistake(mistake5);   });
+expose.main("mistake-6", function() { getMistake(mistake6);   });
+expose.main("mistake-7", function() { getMistake(mistake7);   });
+expose.main("mistake-8", function() { catchMistake(mistake8); });
 function catchMistake(f) {//synchronous behavior
 	try {
 		f();//call the given function f
@@ -244,22 +229,22 @@ catchMistake() mistake1() toss_test.js:164
 function mistake1() {
 	toss("data");
 }
-exports.testMistake1 = function(test) {
+expose.test("state mistake 1", function(ok, done) {
 	try {
 		mistake1();
-		test.fail();
+		ok(false);
 	} catch (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "data");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "data");
 
 		var s = say(e);//check text form
-		test.ok(s.starts("data"));
-		test.ok(s.has("mistake1()"));
+		ok(s.starts("data"));
+		ok(s.has("mistake1()"));
 
-		done(test);
+		done();
 	}
-}
+});
 
 //2. throw a detailed mistake, with all the bells and whistles
 /*
@@ -279,25 +264,25 @@ function mistake2() {
 	var d = Data("Text in a Data object");
 	toss("data", {note:"note about what happened", watch:{a:a, b:b, c:c, d:d}});
 }
-exports.testMistake2 = function(test) {
+expose.test("state mistake 2", function(ok, done) {
 	try {
 		mistake2();
-		test.fail();
+		ok(false);
 	} catch (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "data");
-		test.ok(e.note == "note about what happened");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "data");
+		ok(e.note == "note about what happened");
 
 		var s = say(e);//check text form
-		test.ok(s.starts("data"));
-		test.ok(s.has("mistake2()"));
-		test.ok(s.has("a: apple"));
-		test.ok(s.has("d: Text in a Data object"));
+		ok(s.starts("data"));
+		ok(s.has("mistake2()"));
+		ok(s.has("a: apple"));
+		ok(s.has("d: Text in a Data object"));
 
-		done(test);
+		done();
 	}
-}
+});
 
 //3. throw a deep mistake, with a long call stack of program functions
 /*
@@ -311,22 +296,22 @@ function mistake3() {
 	function c() { toss("data"); }
 	a();
 }
-exports.testMistake3 = function(test) {
+expose.test("state mistake 3", function(ok, done) {
 	try {
 		mistake3();
-		test.fail();
+		ok(false);
 	} catch (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "data");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "data");
 
 		var s = say(e);//check text form
-		test.ok(s.starts("data"));
-		test.ok(s.has("mistake3() a() b() c()"));
+		ok(s.starts("data"));
+		ok(s.has("mistake3() a() b() c()"));
 
-		done(test);
+		done();
 	}
-}
+});
 
 //4. throw a nested mistake, with a caught mistake inside
 /*
@@ -342,26 +327,26 @@ function mistake4() {
 		Data("hello").start(6);//throws chop
 	} catch (e) { toss("data", {caught:e}); }//catch chop, wrap it in a data exception, and throw that
 }
-exports.testMistake4 = function(test) {
+expose.test("state mistake 4", function(ok, done) {
 	try {
 		mistake4();
-		test.fail();
+		ok(false);
 	} catch (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "data");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "data");
 
-		test.ok(e.caught.name == "chop");//look at e.caught
-		test.ok(isType(e.caught, "Mistake"));
+		ok(e.caught.name == "chop");//look at e.caught
+		ok(isType(e.caught, "Mistake"));
 
 		var s = say(e);//check text form
-		test.ok(s.starts("data"));
-		test.ok(s.has("caught chop"));
-		test.ok(s.has("mistake4() start() _clip()"));
+		ok(s.starts("data"));
+		ok(s.has("caught chop"));
+		ok(s.has("mistake4() start() _clip()"));
 
-		done(test);
+		done();
 	}
-}
+});
 
 //5. pass to f(e) a platform error, no program mistake at all, nothing thrown or caught
 /*
@@ -371,27 +356,27 @@ exports.testMistake4 = function(test) {
   path: 'c:\\node\\notfound.ext' }
 */
 function mistake5(f) {
-	platformFile.open("notfound.ext", "r", function(error, file) {
+	required.fs.open("notfound.ext", "r", function(error, file) {
 		if (error) f(error);
 	});
 }
-exports.testMistake5 = function(test) {
+expose.test("state mistake 5", function(ok, done) {
 	mistake5(function (e) {
 
-		test.ok(isType(e, "Error"));//look at e
-		test.ok(e.errno == -2 || e.errno == -4058);//getting -2 on mac, -4058 on windows
-		test.ok(e.code == "ENOENT");
-		test.ok(e.path.ends("notfound.ext"));
+		ok(isType(e, "Error"));//look at e
+		ok(e.errno == -2 || e.errno == -4058);//getting -2 on mac, -4058 on windows
+		ok(e.code == "ENOENT");
+		ok(e.path.ends("notfound.ext"));
 
 		/*TODO
 		var s = say(e);//check text form
-		test.ok(s.has("[Error: ENOENT"));
-		test.ok(s.has("errno: -4058,"));
-		test.ok(s.has("code: 'ENOENT',"));
+		ok(s.has("[Error: ENOENT"));
+		ok(s.has("errno: -4058,"));
+		ok(s.has("code: 'ENOENT',"));
 		*/
-		done(test);//mark the text done in the callback to make sure it gets called
+		done();//mark the text done in the callback to make sure it gets called
 	});
-}
+});
 
 //6. pass to f(e) a platform error enclosed in a tossed and then caught mistake
 /*
@@ -404,7 +389,7 @@ caught { [Error: ENOENT, open 'c:\node\notfound.ext']
   path: 'c:\\node\\notfound.ext' }
 */
 function mistake6(f) {
-	platformFile.open("notfound.ext", "r", function(error, file) {
+	required.fs.open("notfound.ext", "r", function(error, file) {
 		if (error) {
 			try {
 				toss("data", {caught:error});
@@ -412,27 +397,27 @@ function mistake6(f) {
 		}
 	});
 }
-exports.testMistake6 = function(test) {
+expose.test("state mistake 6", function(ok, done) {
 	mistake6(function (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "data");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "data");
 
-		test.ok(isType(e.caught, "Error"));//look at the caught and contained error
-		test.ok(e.caught.errno == -2 || e.caught.errno == -4058);
-		test.ok(e.caught.code == "ENOENT");
-		test.ok(e.caught.path.ends("notfound.ext"));
+		ok(isType(e.caught, "Error"));//look at the caught and contained error
+		ok(e.caught.errno == -2 || e.caught.errno == -4058);
+		ok(e.caught.code == "ENOENT");
+		ok(e.caught.path.ends("notfound.ext"));
 
 		/*TODO
 		var s = say(e);//check text form
-		test.ok(s.starts("data"));
-		test.ok(s.has("caught { [Error: ENOENT"));
-		test.ok(s.has("errno: -4058,"));
-		test.ok(s.has("code: 'ENOENT',"));
+		ok(s.starts("data"));
+		ok(s.has("caught { [Error: ENOENT"));
+		ok(s.has("errno: -4058,"));
+		ok(s.has("code: 'ENOENT',"));
 		*/
-		done(test);
+		done();
 	});
-}
+});
 
 //7. a combination of everything fancy
 /*
@@ -455,7 +440,7 @@ function mistake7(done) {
 
 	var name   = "notfound.ext";
 	var access = "r";
-	platformFile.open(name, access, next);//try to open a file that doesn't exist
+	required.fs.open(name, access, next);//try to open a file that doesn't exist
 
 	function next(e1, file) {//in a new event, the platform gives us e1 here
 		if (e1) a(e1);
@@ -482,41 +467,41 @@ function mistake7(done) {
 		}
 	}
 }
-exports.testMistake7 = function(test) {
+expose.test("state mistake 7", function(ok, done) {
 	mistake7(function (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(e.name == "program");
-		test.ok(e.note == "settings not available");
+		ok(isType(e, "Mistake"));//look at e
+		ok(e.name == "program");
+		ok(e.note == "settings not available");
 
-		test.ok(isType(e.caught, "Mistake"));//caught and kept inside
-		test.ok(e.caught.name == "disk");
-		test.ok(e.caught.note == "couldnt open file");
-		test.ok(e.caught.watch.name == "notfound.ext");
-		test.ok(e.caught.watch.access == "r");
+		ok(isType(e.caught, "Mistake"));//caught and kept inside
+		ok(e.caught.name == "disk");
+		ok(e.caught.note == "couldnt open file");
+		ok(e.caught.watch.name == "notfound.ext");
+		ok(e.caught.watch.access == "r");
 
-		test.ok(isType(e.caught.caught, "Error"));//inside again
-		test.ok(e.caught.caught.errno == -2 || e.caught.caught.errno == -4058);
-		test.ok(e.caught.caught.code == "ENOENT");
-		test.ok(e.caught.caught.path.ends("notfound.ext"));
+		ok(isType(e.caught.caught, "Error"));//inside again
+		ok(e.caught.caught.errno == -2 || e.caught.caught.errno == -4058);
+		ok(e.caught.caught.code == "ENOENT");
+		ok(e.caught.caught.path.ends("notfound.ext"));
 
 		/*TODO
 		var s = say(e);//check text form
-		test.ok(s.starts("program"));
-		test.ok(s.has("a() b() c() d() e() f()"));
-		test.ok(s.has("settings not available"));
+		ok(s.starts("program"));
+		ok(s.has("a() b() c() d() e() f()"));
+		ok(s.has("settings not available"));
 
-		test.ok(s.has("caught disk"));
-		test.ok(s.has("couldnt open file"));
-		test.ok(s.has("name: notfound.ext"));
+		ok(s.has("caught disk"));
+		ok(s.has("couldnt open file"));
+		ok(s.has("name: notfound.ext"));
 
-		test.ok(s.has("caught { [Error: ENOENT"));
-		test.ok(s.has("errno: -4058,"));
-		test.ok(s.has("code: 'ENOENT',"));
+		ok(s.has("caught { [Error: ENOENT"));
+		ok(s.has("errno: -4058,"));
+		ok(s.has("code: 'ENOENT',"));
 		*/
-		done(test);
+		done();
 	});
-}
+});
 
 //8. a completely blank toss
 /*
@@ -527,22 +512,22 @@ catchMistake() mistake8() toss_test.js:237
 function mistake8() {
 	toss();//not even a name
 }
-exports.testMistake8 = function(test) {
+expose.test("state mistake 8", function(ok, done) {
 	try {
 		mistake8();
-		test.fail();
+		ok(false);
 	} catch (e) {
 
-		test.ok(isType(e, "Mistake"));//look at e
-		test.ok(!e.name);//no name, not even a blank name
+		ok(isType(e, "Mistake"));//look at e
+		ok(!e.name);//no name, not even a blank name
 
 		var s = say(e);//check text form
-		test.ok(s.starts("exception"));//say labels it an exception when there is no name
-		test.ok(s.has("mistake8()"));
+		ok(s.starts("exception"));//say labels it an exception when there is no name
+		ok(s.has("mistake8()"));
 
-		done(test);
+		done();
 	}
-}
+});
 
 
 
@@ -566,43 +551,43 @@ exports.testMistake8 = function(test) {
 //   \____|_|\___/|___/\___|
 //                          
 
-exports.testCloseCount = function(test) {
+expose.test("state closeCount", function(ok, done) {
 
-	test.ok(closeCount() == 0);
+	ok(closeCount() == 0);
 	var r = mustClose();
-	test.ok(closeCount() == 1);
+	ok(closeCount() == 1);
 	close(r);
-	test.ok(closeCount() == 0);
+	ok(closeCount() == 0);
 	var r1 = mustClose();
 	var r2 = mustClose();
-	test.ok(closeCount() == 2);
+	ok(closeCount() == 2);
 	close(r1, r2);
-	test.ok(closeCount() == 0);
+	ok(closeCount() == 0);
 
-	done(test);
-}
+	done();
+});
 
-exports.testCloseOnce = function(test) {
+expose.test("state close once", function(ok, done) {
 
 	var r = mustClose();
-	test.ok(!r.isClosed());//not closed
+	ok(!r.isClosed());//not closed
 	close(r);
-	test.ok(r.isClosed());//closed
+	ok(r.isClosed());//closed
 	close(r);
-	test.ok(r.isClosed());//still closed
+	ok(r.isClosed());//still closed
 
 	var closed = 0;
 	r = mustClose(function() {
 		closed++;
 	});
-	test.ok(closed == 0);
+	ok(closed == 0);
 	close(r);
-	test.ok(closed == 1);
+	ok(closed == 1);
 	close(r);
-	test.ok(closed == 1);//only ran once
+	ok(closed == 1);//only ran once
 
-	done(test);
-}
+	done();
+});
 
 //example object that needs to get closed
 function Resource(name) {
@@ -613,38 +598,38 @@ function Resource(name) {
 	return o;
 };
 
-exports.testCloseCycle = function(test) {
+expose.test("state close cycle", function(ok, done) {
 
 	var r;
-	test.ok(!r);//not made yet
+	ok(!r);//not made yet
 	r = Resource();
-	test.ok(!r.isClosed());//new and open
+	ok(!r.isClosed());//new and open
 	close(r);
-	test.ok(r.isClosed());//closed
+	ok(r.isClosed());//closed
 	r = null;
-	test.ok(!r);//discarded
+	ok(!r);//discarded
 
-	done(test);		
-}
+	done();		
+});
 
-exports.testCloseSeparate = function(test) {
+expose.test("state close separate", function(ok, done) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
-	test.ok(!r1.isClosed());//both start out open
-	test.ok(!r2.isClosed());
+	ok(!r1.isClosed());//both start out open
+	ok(!r2.isClosed());
 
 	close(r2);//close one
-	test.ok(!r1.isClosed());//confirm this didn't change the first one
+	ok(!r1.isClosed());//confirm this didn't change the first one
 
 	close(r1);//close the other one
-	test.ok(r1.isClosed());//now they're both closed
-	test.ok(r2.isClosed());
+	ok(r1.isClosed());//now they're both closed
+	ok(r2.isClosed());
 
-	done(test);
-}
+	done();
+});
 
-exports.testCloseSeveral = function(test) {
+expose.test("state close several", function(ok, done) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
@@ -656,12 +641,11 @@ exports.testCloseSeveral = function(test) {
 	var u = undefined;
 	close(d, s, r1, r2, n, u);//close will try to close them all
 
-	done(test);
-}
+	done();
+});
 
 //close logs exceptions but keeps going
-if (demo("close-throw")) { demoCloseThrow(); }
-function demoCloseThrow() {
+expose.main("close-throw", function() {
 
 	var r1 = mustClose(function() { log("closing r1, which will work");                      });
 	var r2 = mustClose(function() { log("closing r2, which will throw"); undefined.notFound; });
@@ -669,7 +653,7 @@ function demoCloseThrow() {
 	close(r1, r2, r3);
 
 	closeCheck();
-}
+});
 
 
 
@@ -694,8 +678,7 @@ function demoCloseThrow() {
 //                          
 
 //an object getting pulsed
-if (demo("pulse")) { demoPulse(); }
-function demoPulse() {
+expose.main("pulse", function() {
 
 	function ExamplePulse() {
 		var o = mustClose();
@@ -707,12 +690,11 @@ function demoPulse() {
 
 	log("here we go");
 	var u = ExamplePulse();
-}
+});
 
 //code in a pulse function that throws an exception
 //pulse will catch the exception so we don't need to catch it here
-if (demo("pulse-throw")) { demoPulseThrow(); }
-function demoPulseThrow() {
+expose.main("pulse-throw", function() {
 
 	function ExamplePulseThrow() {
 		var o = mustClose();
@@ -723,30 +705,27 @@ function demoPulseThrow() {
 	};
 
 	var u = ExamplePulseThrow();//make a new object which will throw on the first pulse
-}
+});
 
 //make an object that needs to be closed, and close it
-if (demo("close")) { demoClose(); }
-function demoClose() {
+expose.main("close", function() {
 
 	var m = Resource();
 	close(m);
 	closeCheck();
 	//with no more code to run here, the process exits normally
-}
+});
 
 //make an object that needs to be closed, and forget to close it
-if (demo("forget")) { demoForget(); }
-function demoForget() {
+expose.main("forget", function() {
 
 	var m = Resource("forgotten resource");
 	closeCheck();//forgot to close it
-}
+});
 
 //two objects that pulse and then close after 2 and 4 seconds
 //when both objects are closed, the process will exit
-if (demo("pulse-two")) { demoPulseTwo(); }
-function demoPulseTwo() {
+expose.main("pulse-two", function() {
 
 	function Pulse1() {
 		var o = mustClose(function() {
@@ -774,7 +753,7 @@ function demoPulseTwo() {
 
 	var pulse1 = Pulse1();
 	var pulse2 = Pulse2();
-}
+});
 
 
 
@@ -799,18 +778,18 @@ function demoPulseTwo() {
 
 var globalVariable;
 
-exports.testPersists1 = function(test) {//runs first
+expose.test("state persists 1", function(ok, done) {//runs first
 
 	globalVariable = "value 1";//set the global variable
-	test.ok(globalVariable == "value 1");
-	done(test);
-}
+	ok(globalVariable == "value 1");
+	done();
+});
 
-exports.testPersists2 = function(test) {//runs afterwards
+expose.test("state persists 2", function(ok, done) {//runs afterwards
 
-	test.ok(globalVariable == "value 1");//it's still set to the value from the previous test
-	done(test);
-}
+	ok(globalVariable == "value 1");//it's still set to the value from the previous test
+	done();
+});
 
 
 
@@ -837,20 +816,19 @@ exports.testPersists2 = function(test) {//runs afterwards
 //node events are synchronous
 //this demo will log received before sent
 //written both as a demo and a test
-if (demo("event-order")) { demoEventOrder(); }
-function demoEventOrder() {
+expose.main("event-order", function() {
 
 	function f() {
 		log("received");
 	}
 
-	var e = new platformEvent.EventEmitter();
+	var e = new required.events.EventEmitter();
 	e.on("name", f);
 
 	e.emit("name");
 	log("sent");
-}
-exports.testEventSynchronous = function(test) {
+});
+expose.test("state event synchronous", function(ok, done) {
 
 	var s = "";
 
@@ -858,50 +836,48 @@ exports.testEventSynchronous = function(test) {
 		s += "received;";
 	}
 
-	var e = new platformEvent.EventEmitter();
+	var e = new required.events.EventEmitter();
 	e.on("name", f);
 
 	e.emit("name");//works less like an event, more like just calling f()
 	s += "sent;";
 
-	test.ok(s == "received;sent;");//not the order you would expect
-	test.done();
-}
+	ok(s == "received;sent;");//not the order you would expect
+	done();
+});
 
 //sending an event is just like calling a function
 //a speed loop causes a stack overflow
 //"RangeError: Maximum call stack size exceeded"
 //having f and g call each other doesn't avoid this, either
-if (demo("loop-event")) { demoLoopEvent(); }
-function demoLoopEvent() {
+expose.main("loop-event", function() {
 
 	function f() {
 		log("logging this slows it down so it doesn't complain immediately");
 		e.emit("name");
 	}
 
-	var e = new platformEvent.EventEmitter();
+	var e = new required.events.EventEmitter();
 	e.on("name", f);
 	e.emit("name");
-}
+});
 
 //we can't speed loop process.nextTick either, because node notices and complains
 //"(node) warning: Recursive process.nextTick detected. This will break in the next  version of node. Please use setImmediate for recursive deferral. RangeError: Maximum call stack size exceeded"
 //having f and g call each other doesn't avoid this, either
-if (demo("loop-tick")) { demoLoopTick(); }
-function demoLoopTick() {
+expose.main("loop-tick", function() {
 
 	function f() {
 		process.nextTick(f);
 	}
 
 	f();
-}
+});
 
 //see how fast node can notify itself asynchronously three different ways
-if (demo("speed-timeout"))   { demoSpeed("timeout"); }
-if (demo("speed-immediate")) { demoSpeed("immediate"); }
-if (demo("speed-tick"))      { demoSpeed("tick"); }
+expose.main("speed-timeout",   function() { demoSpeed("timeout");   });
+expose.main("speed-immediate", function() { demoSpeed("immediate"); });
+expose.main("speed-tick",      function() { demoSpeed("tick");      });
 function demoSpeed(method) {
 
 	var l = 0;         //number of second long loops we've completed
@@ -933,8 +909,7 @@ function demoSpeed(method) {
 
 //now let's use the pulse system
 //~16k pulses/s, not as fast as immediate by itself, but plenty fast
-if (demo("speed-pulse")) { demoSpeedPulse(); }
-function demoSpeedPulse() {
+expose.main("speed-pulse", function() {
 
 	function SpeedResource() {//a resource that finishes on the first pulse
 		var o = mustClose();
@@ -961,7 +936,7 @@ function demoSpeedPulse() {
 
 	var callWhenDone = speedLoopNext("pulse", start, allDone);
 	start();
-}
+});
 
 
 
@@ -985,20 +960,20 @@ function demoSpeedPulse() {
 //test.done() won't notice the unclosed resource
 //all the tests will pass, but the process will stay open, and the resource will keep pulsing
 /*
-exports.testDoneNotGoodEnough = function(test) {
+expose.test("state done() not good enough", function(ok, done) {
 	var r = Resource("resource test done");
 	test.done();
-}
+});
 */
 
 //uncomment this test to see the right way to do it, done(test)
 //done(test) will notice the unclosed resource, tell nodeunit the test failed, and exit the process
 //nodeunit doesn't seem to respond to the failed test, but will complain that the process ended without a test being done
 /*
-exports.testUseDoneTestInstead = function(test) {
+expose.test("state use done(test) instead", function(ok, done) {
 	var r = Resource("resource done test");
 	done(test);
-}
+});
 */
 
 
@@ -1038,4 +1013,5 @@ exports.testUseDoneTestInstead = function(test) {
 
 
 
-
+});
+console.log("state test/");

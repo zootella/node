@@ -1,5 +1,6 @@
+console.log("hide core\\");
+contain(function(expose) {
 
-var platformCrypto = require("crypto");
 
 
 
@@ -72,18 +73,13 @@ function unique()      {          return Data(_randomBytes(Size.value)); } // 20
 function randomData(n) { min1(n); return Data(_randomBytes(n));          } // Make n bytes of random data
 function _randomBytes(n) { // Generate n bytes of random data
 	try {
-		return platformCrypto.randomBytes(n); // Try high quality random
+		return required.crypto.randomBytes(n); // Try high quality random
 	} catch (e) { mistakeLog(Mistake("platform", {note:"using pseudo random instead", caught:e, watch:{n:n}})); }
-	return platformCrypto.pseudoRandomBytes(n); // Fall back to lower quality random
+	return required.crypto.pseudoRandomBytes(n); // Fall back to lower quality random
 }
 //TODO make a RandomValve that writes random data into a stream forever, or for as long as the Range you give it
 
-exports.chance = chance;
-exports.randomThrough = randomThrough;
-exports.randomUnder = randomUnder;
-exports.randomBit = randomBit;
-exports.unique = unique;
-exports.randomData = randomData;
+expose.core({chance, randomThrough, randomUnder, randomBit, unique, randomData});
 
 
 
@@ -109,3 +105,5 @@ exports.randomData = randomData;
 
 
 
+});
+console.log("hide core/");

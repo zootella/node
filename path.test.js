@@ -1,7 +1,7 @@
-
-require("./load").library();
-
-
+console.log("path test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -16,34 +16,34 @@ require("./load").library();
 //                                                                     |___/ 
 
 //before a thousand lines of detail, the most common and important use and protection of the path functions
-exports.testPathSummary = function(test) {
+expose.test("Path summary", function(ok, done) {
 
 	var p;
-	function badPath(s)                { try { Path(s);                    test.fail(); } catch (e) {} }
-	function badAdd(folder, name)      { try { pathAdd(folder, name);      test.fail(); } catch (e) {} }
-	function badSubtract(folder, file) { try { pathSubtract(folder, file); test.fail(); } catch (e) {} }
-	function badCheck(folder, file)    { try { pathCheck(folder, file);    test.fail(); } catch (e) {} }
+	function badPath(s)                { try { Path(s);                    ok(false); } catch (e) {} }
+	function badAdd(folder, name)      { try { pathAdd(folder, name);      ok(false); } catch (e) {} }
+	function badSubtract(folder, file) { try { pathSubtract(folder, file); ok(false); } catch (e) {} }
+	function badCheck(folder, file)    { try { pathCheck(folder, file);    ok(false); } catch (e) {} }
 
 	//validation
 
 	if (platform() == "windows") {
 
 		//running on windows, path accepts and validates drive and network absolute paths
-		test.ok(Path("C:\\").text == "C:\\");//makes sure it's absolute or throws data
-		test.ok(Path("C:\\folder").text == "C:\\folder");
-		test.ok(Path("C:\\folder\\file.ext").text == "C:\\folder\\file.ext");
+		ok(Path("C:\\").text == "C:\\");//makes sure it's absolute or throws data
+		ok(Path("C:\\folder").text == "C:\\folder");
+		ok(Path("C:\\folder\\file.ext").text == "C:\\folder\\file.ext");
 
-		test.ok(Path("\\\\computer\\share\\").text == "\\\\computer\\share\\");//also works for network paths
-		test.ok(Path("\\\\computer\\share\\folder").text == "\\\\computer\\share\\folder");
-		test.ok(Path("\\\\computer\\share\\folder\\file.ext").text == "\\\\computer\\share\\folder\\file.ext");
+		ok(Path("\\\\computer\\share\\").text == "\\\\computer\\share\\");//also works for network paths
+		ok(Path("\\\\computer\\share\\folder").text == "\\\\computer\\share\\folder");
+		ok(Path("\\\\computer\\share\\folder\\file.ext").text == "\\\\computer\\share\\folder\\file.ext");
 
 		//drive and share roots get corrected to have a trailing slash
-		test.ok(Path("C:").text == "C:\\");//adds the missing slash
-		test.ok(Path("\\\\computer\\share").text == "\\\\computer\\share\\");
+		ok(Path("C:").text == "C:\\");//adds the missing slash
+		ok(Path("\\\\computer\\share").text == "\\\\computer\\share\\");
 
 		//folders get corrected to not have a trailing slash
-		test.ok(Path("C:\\folder\\").text == "C:\\folder");//removes the trailing slash
-		test.ok(Path("\\\\computer\\share\\folder\\").text == "\\\\computer\\share\\folder");
+		ok(Path("C:\\folder\\").text == "C:\\folder");//removes the trailing slash
+		ok(Path("\\\\computer\\share\\folder\\").text == "\\\\computer\\share\\folder");
 		badPath("C:\\folder\\\\");//only one extra trailing slash is allowed, however
 
 		//blank, individual filenames, relative paths, and path navigation are importantly blocked
@@ -60,17 +60,17 @@ exports.testPathSummary = function(test) {
 	} else {
 
 		//running on mac, absolute paths have to be unix style, which are a lot better
-		test.ok(Path("/").text == "/");
-		test.ok(Path("/folder").text == "/folder");
-		test.ok(Path("/folder/file.ext").text == "/folder/file.ext");
+		ok(Path("/").text == "/");
+		ok(Path("/folder").text == "/folder");
+		ok(Path("/folder/file.ext").text == "/folder/file.ext");
 
 		//a single extra trailing slash on a folder is removed
-		test.ok(Path("/folder/").text == "/folder");
+		ok(Path("/folder/").text == "/folder");
 		badPath("/folder//");//double not ok
 
 		//on mac and unix, backslash is a valid character for a filename
-		test.ok(Path("/has\\backslash").text == "/has\\backslash");
-		test.ok(Path("/\\").text == "/\\");//a file or folder named just backslash at the unix root
+		ok(Path("/has\\backslash").text == "/has\\backslash");
+		ok(Path("/\\").text == "/\\");//a file or folder named just backslash at the unix root
 
 		//blank, individual filenames, relative paths, and path navigation are importantly blocked
 		badPath("");//blank, blocked
@@ -91,69 +91,69 @@ exports.testPathSummary = function(test) {
 	if (platform() == "windows") {
 
 		//use path.platform to see what type it is
-		test.ok(Path("C:\\file.ext").platform == "windows");
-		test.ok(Path("\\\\computer\\share\\file.ext").platform == "network");
+		ok(Path("C:\\file.ext").platform == "windows");
+		ok(Path("\\\\computer\\share\\file.ext").platform == "network");
 
 		//it's easy to get at all the parts of the file name and extension
 		p = Path("C:\\folder\\file.ext");
-		test.ok(p.name_ext == "file.ext");
-		test.ok(p.name     == "file"    );
-		test.ok(p._ext     ==     ".ext");
-		test.ok(p.ext      ==      "ext");
+		ok(p.name_ext == "file.ext");
+		ok(p.name     == "file"    );
+		ok(p._ext     ==     ".ext");
+		ok(p.ext      ==      "ext");
 
 		p = Path("C:\\folder\\file");//a folder, or a file with no extension
-		test.ok(p.name_ext == "file");
-		test.ok(p.name     == "file");
-		test.ok(p._ext     ==     "");
-		test.ok(p.ext      ==     "");
+		ok(p.name_ext == "file");
+		ok(p.name     == "file");
+		ok(p._ext     ==     "");
+		ok(p.ext      ==     "");
 
 		p = Path("C:\\folder\\file.backup.ext");//two extensions
-		test.ok(p.name_ext == "file.backup.ext");
-		test.ok(p.name     == "file.backup"    );
-		test.ok(p._ext     ==            ".ext");
-		test.ok(p.ext      ==             "ext");
+		ok(p.name_ext == "file.backup.ext");
+		ok(p.name     == "file.backup"    );
+		ok(p._ext     ==            ".ext");
+		ok(p.ext      ==             "ext");
 
 		p = Path("C:\\folder\\.hidden");//named to be hidden on unix
-		test.ok(p.name_ext == ".hidden");//the name is the name, not the extension
-		test.ok(p.name     == ".hidden");
-		test.ok(p._ext     ==        "");
-		test.ok(p.ext      ==        "");
+		ok(p.name_ext == ".hidden");//the name is the name, not the extension
+		ok(p.name     == ".hidden");
+		ok(p._ext     ==        "");
+		ok(p.ext      ==        "");
 
 		p = Path("\\\\computer\\share\\folder\\file.ext");//works the same on network shares
-		test.ok(p.name_ext == "file.ext");
-		test.ok(p.name     == "file"    );
-		test.ok(p._ext     ==     ".ext");
-		test.ok(p.ext      ==      "ext");
+		ok(p.name_ext == "file.ext");
+		ok(p.name     == "file"    );
+		ok(p._ext     ==     ".ext");
+		ok(p.ext      ==      "ext");
 
 	} else {
 
 		//use path.platform to see what type it is
-		test.ok(Path("/file.ext").platform == "unix");
+		ok(Path("/file.ext").platform == "unix");
 
 		//it's easy to get at all the parts of the file name and extension
 		p = Path("/folder/file.ext");
-		test.ok(p.name_ext == "file.ext");
-		test.ok(p.name     == "file"    );
-		test.ok(p._ext     ==     ".ext");
-		test.ok(p.ext      ==      "ext");
+		ok(p.name_ext == "file.ext");
+		ok(p.name     == "file"    );
+		ok(p._ext     ==     ".ext");
+		ok(p.ext      ==      "ext");
 
 		p = Path("/folder/file");//a folder, or a file with no extension
-		test.ok(p.name_ext == "file");
-		test.ok(p.name     == "file");
-		test.ok(p._ext     ==     "");
-		test.ok(p.ext      ==     "");
+		ok(p.name_ext == "file");
+		ok(p.name     == "file");
+		ok(p._ext     ==     "");
+		ok(p.ext      ==     "");
 
 		p = Path("/folder/file.backup.ext");//two extensions
-		test.ok(p.name_ext == "file.backup.ext");
-		test.ok(p.name     == "file.backup"    );
-		test.ok(p._ext     ==            ".ext");
-		test.ok(p.ext      ==             "ext");
+		ok(p.name_ext == "file.backup.ext");
+		ok(p.name     == "file.backup"    );
+		ok(p._ext     ==            ".ext");
+		ok(p.ext      ==             "ext");
 
 		p = Path("/folder/.hidden");//named to be hidden on unix
-		test.ok(p.name_ext == ".hidden");//the name is the name, not the extension
-		test.ok(p.name     == ".hidden");
-		test.ok(p._ext     ==        "");
-		test.ok(p.ext      ==        "");
+		ok(p.name_ext == ".hidden");//the name is the name, not the extension
+		ok(p.name     == ".hidden");
+		ok(p._ext     ==        "");
+		ok(p.ext      ==        "");
 	}
 
 	//up
@@ -162,60 +162,60 @@ exports.testPathSummary = function(test) {
 
 		//use up, root, and step to get all the paths up to the root
 		p = Path("C:\\f1\\f2\\file.ext");
-		test.ok(p.up.text    == "C:\\f1\\f2");//up is the containing folder
-		test.ok(p.up.up.text == "C:\\f1");//go up twice
-		test.ok(p.root.text  == "C:\\");//root is the highest containing path
-		test.ok(!p.root.up);//root has no up
+		ok(p.up.text    == "C:\\f1\\f2");//up is the containing folder
+		ok(p.up.up.text == "C:\\f1");//go up twice
+		ok(p.root.text  == "C:\\");//root is the highest containing path
+		ok(!p.root.up);//root has no up
 
-		test.ok(p.step.length == 4);//there is also an array with all the paths
-		test.ok(p.step[0].text == "C:\\f1\\f2\\file.ext");//starting with this one
-		test.ok(p.step[1].text == "C:\\f1\\f2");
-		test.ok(p.step[2].text == "C:\\f1");
-		test.ok(p.step[3].text == "C:\\");//and ending with the drive root
+		ok(p.step.length == 4);//there is also an array with all the paths
+		ok(p.step[0].text == "C:\\f1\\f2\\file.ext");//starting with this one
+		ok(p.step[1].text == "C:\\f1\\f2");
+		ok(p.step[2].text == "C:\\f1");
+		ok(p.step[3].text == "C:\\");//and ending with the drive root
 
 		//also works for network shares
 		p = Path("\\\\c\\s\\f1\\f2\\file.ext");
-		test.ok(p.up.text    == "\\\\c\\s\\f1\\f2");//up is the containing folder
-		test.ok(p.up.up.text == "\\\\c\\s\\f1");//go up twice
-		test.ok(p.root.text  == "\\\\c\\s\\");//root is the highest containing path
-		test.ok(!p.root.up);//root has no up
+		ok(p.up.text    == "\\\\c\\s\\f1\\f2");//up is the containing folder
+		ok(p.up.up.text == "\\\\c\\s\\f1");//go up twice
+		ok(p.root.text  == "\\\\c\\s\\");//root is the highest containing path
+		ok(!p.root.up);//root has no up
 
-		test.ok(p.step.length == 4);//there is also an array with all the paths
-		test.ok(p.step[0].text == "\\\\c\\s\\f1\\f2\\file.ext");//starting with this one
-		test.ok(p.step[1].text == "\\\\c\\s\\f1\\f2");
-		test.ok(p.step[2].text == "\\\\c\\s\\f1");
-		test.ok(p.step[3].text == "\\\\c\\s\\");//and ending with the share root
+		ok(p.step.length == 4);//there is also an array with all the paths
+		ok(p.step[0].text == "\\\\c\\s\\f1\\f2\\file.ext");//starting with this one
+		ok(p.step[1].text == "\\\\c\\s\\f1\\f2");
+		ok(p.step[2].text == "\\\\c\\s\\f1");
+		ok(p.step[3].text == "\\\\c\\s\\");//and ending with the share root
 
 	} else {
 
 		//use up, root, and step to get all the paths up to the root
 		p = Path("/f1/f2/file.ext");
-		test.ok(p.up.text    == "/f1/f2");//up is the containing folder
-		test.ok(p.up.up.text == "/f1");//go up twice
-		test.ok(p.root.text  == "/");//root is the highest containing path
-		test.ok(!p.root.up);//root has no up
+		ok(p.up.text    == "/f1/f2");//up is the containing folder
+		ok(p.up.up.text == "/f1");//go up twice
+		ok(p.root.text  == "/");//root is the highest containing path
+		ok(!p.root.up);//root has no up
 
-		test.ok(p.step.length == 4);//there is also an array with all the paths
-		test.ok(p.step[0].text == "/f1/f2/file.ext");//starting with this one
-		test.ok(p.step[1].text == "/f1/f2");
-		test.ok(p.step[2].text == "/f1");
-		test.ok(p.step[3].text == "/");//and ending with the filesystem root
+		ok(p.step.length == 4);//there is also an array with all the paths
+		ok(p.step[0].text == "/f1/f2/file.ext");//starting with this one
+		ok(p.step[1].text == "/f1/f2");
+		ok(p.step[2].text == "/f1");
+		ok(p.step[3].text == "/");//and ending with the filesystem root
 	}
 
 	//math methods
 
 	if (platform() == "windows") {
 
-		test.ok(Path("C:\\a").add("b").text == "C:\\a\\b");//add a file or folder name to the end of a path
-		test.ok(Path("C:\\a\\b").subtract(Path("C:\\a")) == "b");//subtract a shorter path from a longer one to get the relative path between them
+		ok(Path("C:\\a").add("b").text == "C:\\a\\b");//add a file or folder name to the end of a path
+		ok(Path("C:\\a\\b").subtract(Path("C:\\a")) == "b");//subtract a shorter path from a longer one to get the relative path between them
 
-		test.ok(Path("\\\\c\\s\\a").add("b").text == "\\\\c\\s\\a\\b");//also works for network paths
-		test.ok(Path("\\\\c\\s\\a\\b").subtract(Path("\\\\c\\s\\a")) == "b");
+		ok(Path("\\\\c\\s\\a").add("b").text == "\\\\c\\s\\a\\b");//also works for network paths
+		ok(Path("\\\\c\\s\\a\\b").subtract(Path("\\\\c\\s\\a")) == "b");
 
 	} else {
 
-		test.ok(Path("/a").add("b").text == "/a/b");//and unix paths
-		test.ok(Path("/a/b").subtract(Path("/a")) == "b");
+		ok(Path("/a").add("b").text == "/a/b");//and unix paths
+		ok(Path("/a/b").subtract(Path("/a")) == "b");
 	}
 
 	//add
@@ -223,8 +223,8 @@ exports.testPathSummary = function(test) {
 	if (platform() == "windows") {
 
 		//use path add to add a relative path to an absolute one
-		test.ok(pathAdd(Path("C:\\f1"), "file").text == "C:\\f1\\file");
-		test.ok(pathAdd(Path("C:\\"), "f1\\f2\\file").text == "C:\\f1\\f2\\file");
+		ok(pathAdd(Path("C:\\f1"), "file").text == "C:\\f1\\file");
+		ok(pathAdd(Path("C:\\"), "f1\\f2\\file").text == "C:\\f1\\f2\\file");
 
 		//very importantly, pathAdd guards against the directory traversal attack
 		badAdd(Path("C:\\downloads"), "..\\autoexec.bat");
@@ -233,8 +233,8 @@ exports.testPathSummary = function(test) {
 		badAdd(Path("C:\\folder"), "file\\");//or an ending one
 
 		//same for network paths
-		test.ok(pathAdd(Path("\\\\c\\s\\f1"), "file").text == "\\\\c\\s\\f1\\file");
-		test.ok(pathAdd(Path("\\\\c\\s\\"), "f1\\f2\\file").text == "\\\\c\\s\\f1\\f2\\file");
+		ok(pathAdd(Path("\\\\c\\s\\f1"), "file").text == "\\\\c\\s\\f1\\file");
+		ok(pathAdd(Path("\\\\c\\s\\"), "f1\\f2\\file").text == "\\\\c\\s\\f1\\f2\\file");
 		badAdd(Path("\\\\c\\s\\downloads"), "..\\autoexec.bat");
 		badAdd(Path("\\\\c\\s\\f1"), "f2\\..\\file");
 		badAdd(Path("\\\\c\\s\\folder"), "\\file");
@@ -243,8 +243,8 @@ exports.testPathSummary = function(test) {
 	} else {
 
 		//use path add to add a relative path to an absolute one
-		test.ok(pathAdd(Path("/f1"), "file").text == "/f1/file");
-		test.ok(pathAdd(Path("/"), "f1/f2/file").text == "/f1/f2/file");
+		ok(pathAdd(Path("/f1"), "file").text == "/f1/file");
+		ok(pathAdd(Path("/"), "f1/f2/file").text == "/f1/f2/file");
 
 		//very importantly, pathAdd guards against the directory traversal attack
 		badAdd(Path("/downloads"), "../autoexec.bat");
@@ -258,18 +258,18 @@ exports.testPathSummary = function(test) {
 	if (platform() == "windows") {
 
 		//drive
-		test.ok(pathSubtract(Path("C:\\"),     Path("C:\\file.ext"))             == "file.ext");
-		test.ok(pathSubtract(Path("C:\\a\\b"), Path("C:\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
+		ok(pathSubtract(Path("C:\\"),     Path("C:\\file.ext"))             == "file.ext");
+		ok(pathSubtract(Path("C:\\a\\b"), Path("C:\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
 
 		//network
-		test.ok(pathSubtract(Path("\\\\c\\s\\"),     Path("\\\\c\\s\\file.ext"))             == "file.ext");
-		test.ok(pathSubtract(Path("\\\\c\\s\\a\\b"), Path("\\\\c\\s\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
+		ok(pathSubtract(Path("\\\\c\\s\\"),     Path("\\\\c\\s\\file.ext"))             == "file.ext");
+		ok(pathSubtract(Path("\\\\c\\s\\a\\b"), Path("\\\\c\\s\\a\\b\\c\\d\\file.ext")) == "c\\d\\file.ext");
 
 	} else {
 
 		//unix
-		test.ok(pathSubtract(Path("/"),    Path("/file.ext"))         == "file.ext");
-		test.ok(pathSubtract(Path("/a/b"), Path("/a/b/c/d/file.ext")) == "c/d/file.ext");
+		ok(pathSubtract(Path("/"),    Path("/file.ext"))         == "file.ext");
+		ok(pathSubtract(Path("/a/b"), Path("/a/b/c/d/file.ext")) == "c/d/file.ext");
 	}
 
 	//check
@@ -303,8 +303,8 @@ exports.testPathSummary = function(test) {
 		badCheck(Path("/folder"), Path("/folder\\file"));//you can't use it to sneak in something that looks like a subfolder
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -321,20 +321,20 @@ exports.testPathSummary = function(test) {
 //                                                                     
 
 //first, demonstrate how the platform functions Path uses change different kinds of possible input text
-exports.testPathSeparator = function(test) {
+expose.test("Path _pathSeparator", function(ok, done) {
 
-	if (platform() == "windows") test.ok(_pathSeparator() == "\\");
-	else                         test.ok(_pathSeparator() == "/");
+	if (platform() == "windows") ok(_pathSeparator() == "\\");
+	else                         ok(_pathSeparator() == "/");
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathResolve = function(test) {
+expose.test("Path _pathResolve", function(ok, done) {
 
 	var show = false;//set to true to turn on the output a test can't easily check
 	function note(s) { if (show) { log(); log(s); } }//make a note
 	function l(n, s) { if (show) log(n, " '", _pathResolve(s), "'"); }//log the result
-	function t(n, s, r) { test.ok(_pathResolve(s) == r); }//test the result
+	function t(n, s, r) { ok(_pathResolve(s) == r); }//test the result
 
 	if (platform() == "windows") {//test running on windows
 
@@ -471,15 +471,15 @@ exports.testPathResolve = function(test) {
 		t(87, "/a\\/\\\\///b", "/a\\/\\\\/b");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathFolder = function(test) {
+expose.test("Path _pathFolder", function(ok, done) {
 
 	var show = false;//set to true to turn on the output a test can't easily check
 	function note(s) { if (show) { log(); log(s); } }//make a note
 	function l(n, s) { if (show) log(n, " '", _pathFolder(s), "'"); }//log the result
-	function t(n, s, r) { test.ok(_pathFolder(s) == r); }//test the result
+	function t(n, s, r) { ok(_pathFolder(s) == r); }//test the result
 
 	if (platform() == "windows") {
 
@@ -534,10 +534,10 @@ exports.testPathFolder = function(test) {
 		t(44, "/",                "/");//unix root stays the same
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathNameDotExt = function(test) {
+expose.test("Path name dot ext", function(ok, done) {
 
 	var show = false;//set to true to turn on the output a test can't easily check
 	function note(s) { if (show) { log(); log(s); } }//make a note
@@ -552,10 +552,10 @@ exports.testPathNameDotExt = function(test) {
 		}
 	}
 	function t(n, s, nameDotExt, name, dotExt, ext) {//test the result
-		test.ok(_pathNameDotExt(s) == nameDotExt);
-		test.ok(_pathName(s)       == name);
-		test.ok(_pathDotExt(s)     == dotExt);
-		test.ok(_pathExt(s)        == ext);
+		ok(_pathNameDotExt(s) == nameDotExt);
+		ok(_pathName(s)       == name);
+		ok(_pathDotExt(s)     == dotExt);
+		ok(_pathExt(s)        == ext);
 	}
 
 	if (platform() == "windows") {
@@ -587,8 +587,8 @@ exports.testPathNameDotExt = function(test) {
 		t(17, "/folder/.",       ".",       ".",       "",  "");//invalid, treats dot as the filename
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -605,10 +605,10 @@ exports.testPathNameDotExt = function(test) {
 //                                        |_|                   
 
 //second, show how we prepare text before handing it to the platform functions
-exports.testPathPrepare = function(test) {
+expose.test("Path _pathPrepare", function(ok, done) {
 
 	function l(s) { log("'", _pathPrepare(s), "'"); }//log the result
-	function t(s, r) { test.ok(_pathPrepare(s) == r); }//test the result
+	function t(s, r) { ok(_pathPrepare(s) == r); }//test the result
 
 	/*
 	_pathPrepare() gets text ready before handing it to the platform's resolve
@@ -685,8 +685,8 @@ exports.testPathPrepare = function(test) {
 		t("/\\", "/\\");//valid file named just backslash in the mac root
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -703,10 +703,10 @@ exports.testPathPrepare = function(test) {
 //                        
 
 //finally, test Path as a whole, in valid, invalid, and attack situations
-exports.testPathValid = function(test) {
+expose.test("Path valid", function(ok, done) {
 
-	function g(s, r) { test.ok(Path(s).text == r); }//good source and intended result
-	function b(s) { try { Path(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//bad source
+	function g(s, r) { ok(Path(s).text == r); }//good source and intended result
+	function b(s) { try { Path(s); ok(false); } catch (e) { ok(e.name == "data"); } }//bad source
 
 	if (platform() == "windows") {
 
@@ -835,33 +835,33 @@ exports.testPathValid = function(test) {
 		g("/folder\\file.ext", "/folder\\file.ext");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathPlatform = function(test) {
+expose.test("Path platform", function(ok, done) {
 
 	if (platform() == "windows") {
 
-		test.ok(Path("C:\\").platform == "windows");
-		test.ok(Path("C:\\file.ext").platform == "windows");
-		test.ok(Path("C:\\folder\\file.ext").platform == "windows");
-		test.ok(Path("Z:\\file.ext").platform == "windows");
+		ok(Path("C:\\").platform == "windows");
+		ok(Path("C:\\file.ext").platform == "windows");
+		ok(Path("C:\\folder\\file.ext").platform == "windows");
+		ok(Path("Z:\\file.ext").platform == "windows");
 
-		test.ok(Path("\\\\computer\\share\\").platform == "network");
-		test.ok(Path("\\\\computer\\share\\file.ext").platform == "network");
-		test.ok(Path("\\\\computer\\share\\folder\\file.ext").platform == "network");
+		ok(Path("\\\\computer\\share\\").platform == "network");
+		ok(Path("\\\\computer\\share\\file.ext").platform == "network");
+		ok(Path("\\\\computer\\share\\folder\\file.ext").platform == "network");
 
 	} else {
 
-		test.ok(Path("/").platform == "unix");
-		test.ok(Path("/file.ext").platform == "unix");
-		test.ok(Path("/folder/file.ext").platform == "unix");
+		ok(Path("/").platform == "unix");
+		ok(Path("/file.ext").platform == "unix");
+		ok(Path("/folder/file.ext").platform == "unix");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathUp = function(test) {
+expose.test("Path step up root", function(ok, done) {
 
 	var p;
 
@@ -869,98 +869,98 @@ exports.testPathUp = function(test) {
 
 		//windows
 		p = Path("C:\\folder1\\folder2\\folder3\\file.ext");
-		test.ok(p.step.length == 5);
-		test.ok(p.step[0].text == "C:\\folder1\\folder2\\folder3\\file.ext");
-		test.ok(p.step[1].text == "C:\\folder1\\folder2\\folder3");
-		test.ok(p.step[2].text == "C:\\folder1\\folder2");
-		test.ok(p.step[3].text == "C:\\folder1");
-		test.ok(p.step[4].text == "C:\\");
-		test.ok(p.up.text   == "C:\\folder1\\folder2\\folder3");
-		test.ok(p.root.text == "C:\\");
+		ok(p.step.length == 5);
+		ok(p.step[0].text == "C:\\folder1\\folder2\\folder3\\file.ext");
+		ok(p.step[1].text == "C:\\folder1\\folder2\\folder3");
+		ok(p.step[2].text == "C:\\folder1\\folder2");
+		ok(p.step[3].text == "C:\\folder1");
+		ok(p.step[4].text == "C:\\");
+		ok(p.up.text   == "C:\\folder1\\folder2\\folder3");
+		ok(p.root.text == "C:\\");
 
 		p = Path("C:\\file.ext");
-		test.ok(p.step.length == 2);
-		test.ok(p.step[0].text == "C:\\file.ext");
-		test.ok(p.step[1].text == "C:\\");
-		test.ok(p.up.text   == "C:\\");
-		test.ok(p.root.text == "C:\\");
+		ok(p.step.length == 2);
+		ok(p.step[0].text == "C:\\file.ext");
+		ok(p.step[1].text == "C:\\");
+		ok(p.up.text   == "C:\\");
+		ok(p.root.text == "C:\\");
 
 		p = Path("C:\\");
-		test.ok(p.step.length == 1);
-		test.ok(p.step[0].text == "C:\\");
-		test.ok(!p.up);
-		test.ok(p.root.text == "C:\\");
+		ok(p.step.length == 1);
+		ok(p.step[0].text == "C:\\");
+		ok(!p.up);
+		ok(p.root.text == "C:\\");
 
 		//network
 		p = Path("\\\\computer\\share\\folder1\\folder2\\file.ext");
-		test.ok(p.step.length == 4);
-		test.ok(p.step[0].text == "\\\\computer\\share\\folder1\\folder2\\file.ext");
-		test.ok(p.step[1].text == "\\\\computer\\share\\folder1\\folder2");
-		test.ok(p.step[2].text == "\\\\computer\\share\\folder1");
-		test.ok(p.step[3].text == "\\\\computer\\share\\");
-		test.ok(p.up.text   == "\\\\computer\\share\\folder1\\folder2");
-		test.ok(p.root.text == "\\\\computer\\share\\");
+		ok(p.step.length == 4);
+		ok(p.step[0].text == "\\\\computer\\share\\folder1\\folder2\\file.ext");
+		ok(p.step[1].text == "\\\\computer\\share\\folder1\\folder2");
+		ok(p.step[2].text == "\\\\computer\\share\\folder1");
+		ok(p.step[3].text == "\\\\computer\\share\\");
+		ok(p.up.text   == "\\\\computer\\share\\folder1\\folder2");
+		ok(p.root.text == "\\\\computer\\share\\");
 
 		p = Path("\\\\computer\\share\\file.ext");
-		test.ok(p.step.length == 2);
-		test.ok(p.step[0].text == "\\\\computer\\share\\file.ext");
-		test.ok(p.step[1].text == "\\\\computer\\share\\");
-		test.ok(p.up.text   == "\\\\computer\\share\\");
-		test.ok(p.root.text == "\\\\computer\\share\\");
+		ok(p.step.length == 2);
+		ok(p.step[0].text == "\\\\computer\\share\\file.ext");
+		ok(p.step[1].text == "\\\\computer\\share\\");
+		ok(p.up.text   == "\\\\computer\\share\\");
+		ok(p.root.text == "\\\\computer\\share\\");
 
 		p = Path("\\\\computer\\share\\");
-		test.ok(p.step.length == 1);
-		test.ok(p.step[0].text == "\\\\computer\\share\\");
-		test.ok(!p.up);
-		test.ok(p.root.text == "\\\\computer\\share\\");
+		ok(p.step.length == 1);
+		ok(p.step[0].text == "\\\\computer\\share\\");
+		ok(!p.up);
+		ok(p.root.text == "\\\\computer\\share\\");
 
 	} else {
 
 		//unix
 		p = Path("/folder1/folder2/folder3/file.ext");
-		test.ok(p.step.length == 5);
-		test.ok(p.step[0].text == "/folder1/folder2/folder3/file.ext");
-		test.ok(p.step[1].text == "/folder1/folder2/folder3");
-		test.ok(p.step[2].text == "/folder1/folder2");
-		test.ok(p.step[3].text == "/folder1");
-		test.ok(p.step[4].text == "/");
-		test.ok(p.up.text   == "/folder1/folder2/folder3");
-		test.ok(p.root.text == "/");
+		ok(p.step.length == 5);
+		ok(p.step[0].text == "/folder1/folder2/folder3/file.ext");
+		ok(p.step[1].text == "/folder1/folder2/folder3");
+		ok(p.step[2].text == "/folder1/folder2");
+		ok(p.step[3].text == "/folder1");
+		ok(p.step[4].text == "/");
+		ok(p.up.text   == "/folder1/folder2/folder3");
+		ok(p.root.text == "/");
 
 		p = Path("/file.ext");
-		test.ok(p.step.length == 2);
-		test.ok(p.step[0].text == "/file.ext");
-		test.ok(p.step[1].text == "/");
-		test.ok(p.up.text   == "/");
-		test.ok(p.root.text == "/");
+		ok(p.step.length == 2);
+		ok(p.step[0].text == "/file.ext");
+		ok(p.step[1].text == "/");
+		ok(p.up.text   == "/");
+		ok(p.root.text == "/");
 
 		p = Path("/");
-		test.ok(p.step.length == 1);
-		test.ok(p.step[0].text == "/");
-		test.ok(!p.up);
-		test.ok(p.root.text == "/");
+		ok(p.step.length == 1);
+		ok(p.step[0].text == "/");
+		ok(!p.up);
+		ok(p.root.text == "/");
 
 		//backslash
 		p = Path("/folder/backslash\\");//on mac, a filename can end with a backslash
-		test.ok(p.step.length == 3);
-		test.ok(p.step[0].text == "/folder/backslash\\");
-		test.ok(p.step[1].text == "/folder");
-		test.ok(p.step[2].text == "/");
-		test.ok(p.up.text   == "/folder");
-		test.ok(p.root.text == "/");
+		ok(p.step.length == 3);
+		ok(p.step[0].text == "/folder/backslash\\");
+		ok(p.step[1].text == "/folder");
+		ok(p.step[2].text == "/");
+		ok(p.up.text   == "/folder");
+		ok(p.root.text == "/");
 
 		p = Path("/\\");//valid file named just backslash in the mac root
-		test.ok(p.step.length == 2);
-		test.ok(p.step[0].text == "/\\");
-		test.ok(p.step[1].text == "/");
-		test.ok(p.up.text   == "/");
-		test.ok(p.root.text == "/");
+		ok(p.step.length == 2);
+		ok(p.step[0].text == "/\\");
+		ok(p.step[1].text == "/");
+		ok(p.up.text   == "/");
+		ok(p.root.text == "/");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathParts = function(test) {
+expose.test("Path parts", function(ok, done) {
 
 	function l(s) {//look at the result
 		var p = Path(s);
@@ -973,12 +973,12 @@ exports.testPathParts = function(test) {
 	}
 	function t(s, name_ext, name, _ext, ext) {//test the result of good input
 		var p = Path(s);
-		test.ok(p.name_ext == name_ext);
-		test.ok(p.name     == name);
-		test.ok(p._ext     == _ext);
-		test.ok(p.ext      == ext);
+		ok(p.name_ext == name_ext);
+		ok(p.name     == name);
+		ok(p._ext     == _ext);
+		ok(p.ext      == ext);
 	}
-	function b(s) { try { Path(s); test.fail(); } catch (e) { test.ok(e.name == "data"); } }//bad input
+	function b(s) { try { Path(s); ok(false); } catch (e) { ok(e.name == "data"); } }//bad input
 
 	if (platform() == "windows") {
 
@@ -1024,8 +1024,8 @@ exports.testPathParts = function(test) {
 		t("/\\",                 "\\",          "\\",          "", "");
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -1041,10 +1041,10 @@ exports.testPathParts = function(test) {
 //  |_|   \__,_|\__|_| |_| |_|  |_|\__,_|\__|_| |_|
 //                                                 
 
-exports.testPathResolveTo = function(test) {
+expose.test("Path _pathResolveTo", function(ok, done) {
 
 	function l(from, to) { log(_pathResolveTo(from, to)); }
-	function t(from, to, result) { test.ok(_pathResolveTo(from, to) == result); }
+	function t(from, to, result) { ok(_pathResolveTo(from, to) == result); }
 
 	if (platform() == "windows") {
 
@@ -1078,10 +1078,10 @@ exports.testPathResolveTo = function(test) {
 		t("/",          "/file.ext", "/file.ext");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathCheck = function(test) {
+expose.test("Path pathCheck", function(ok, done) {
 
 	function l(folder, file) {
 		try {
@@ -1093,8 +1093,8 @@ exports.testPathCheck = function(test) {
 	function b(folder, file) {
 		try {
 			pathCheck(Path(folder), Path(file));
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 
 	if (platform() == "windows") {
@@ -1194,10 +1194,10 @@ exports.testPathCheck = function(test) {
 		b("/Folder", "/folder/file.ext");//importantly blocked on unix, where Folder and folder are two different folders side by side
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathAdd = function(test) {
+expose.test("Path pathAdd", function(ok, done) {
 
 	function l(folder, name) {
 		try {
@@ -1209,14 +1209,14 @@ exports.testPathAdd = function(test) {
 	function b(folder, name) {
 		try {
 			pathAdd(Path(folder), name);
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 	function g(folder, name, file) {
-		test.ok(file == pathAdd(Path(folder), name).text);
-		test.ok(name == pathSubtract(Path(folder), Path(file)));//also use these to test subtract
-		test.ok(Path(folder).add(name).text == file);//also test using the methods on path
-		test.ok(Path(file).subtract(Path(folder)) == name);
+		ok(file == pathAdd(Path(folder), name).text);
+		ok(name == pathSubtract(Path(folder), Path(file)));//also use these to test subtract
+		ok(Path(folder).add(name).text == file);//also test using the methods on path
+		ok(Path(file).subtract(Path(folder)) == name);
 	}
 
 	if (platform() == "windows") {
@@ -1304,10 +1304,10 @@ exports.testPathAdd = function(test) {
 		g("/", "\\file.ext", "/\\file.ext");
 	}
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathSubtract = function(test) {
+expose.test("Path pathSubtract", function(ok, done) {
 
 	function l(folder, file) {
 		try {
@@ -1317,14 +1317,14 @@ exports.testPathSubtract = function(test) {
 	function b(folder, file) {
 		try {
 			pathSubtract(Path(folder), Path(file));
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 	function g(folder, file, name) {
-		test.ok(name == pathSubtract(Path(folder), Path(file)));
-		test.ok(file == pathAdd(Path(folder), name).text);//also use these to test add
-		test.ok(Path(file).subtract(Path(folder)) == name);//also test using the methods on path
-		test.ok(Path(folder).add(name).text == file);
+		ok(name == pathSubtract(Path(folder), Path(file)));
+		ok(file == pathAdd(Path(folder), name).text);//also use these to test add
+		ok(Path(file).subtract(Path(folder)) == name);//also test using the methods on path
+		ok(Path(folder).add(name).text == file);
 	}
 
 	if (platform() == "windows") {
@@ -1377,8 +1377,8 @@ exports.testPathSubtract = function(test) {
 		b("/folder/subfolder", "/folder/subfolder\\file");//fails pathCheck
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -1394,60 +1394,60 @@ exports.testPathSubtract = function(test) {
 //  |_|   |_|_|\___| |_| \_|\__,_|_| |_| |_|\___|
 //                                               
 
-exports.testReplaceReservedCharacters = function(test) {
+expose.test("Path replaceReservedCharacters", function(ok, done) {
 
-	test.ok(replaceReservedCharacters("file.ext",   "windows") == "file.ext");
-	test.ok(replaceReservedCharacters('"\\/:*?<>|', "windows") == '”﹨⁄։﹡﹖‹›।');
+	ok(replaceReservedCharacters("file.ext",   "windows") == "file.ext");
+	ok(replaceReservedCharacters('"\\/:*?<>|', "windows") == '”﹨⁄։﹡﹖‹›।');
 
-	test.ok(replaceReservedCharacters("file.ext",   "mac") == "file.ext");
-	test.ok(replaceReservedCharacters('"\\/:*?<>|', "mac") == '"\\/։*?<>|');//just the colon changes
+	ok(replaceReservedCharacters("file.ext",   "mac") == "file.ext");
+	ok(replaceReservedCharacters('"\\/:*?<>|', "mac") == '"\\/։*?<>|');//just the colon changes
 
-	test.ok(replaceReservedCharacters("file.ext",   "unix") == "file.ext");
-	test.ok(replaceReservedCharacters('"\\/:*?<>|', "unix") == '"\\/:*?<>|');//nothing changes
+	ok(replaceReservedCharacters("file.ext",   "unix") == "file.ext");
+	ok(replaceReservedCharacters('"\\/:*?<>|', "unix") == '"\\/:*?<>|');//nothing changes
 
-	done(test);
-}
+	done();
+});
 
-exports.testPathNumber = function(test) {
+expose.test("Path pathNumber", function(ok, done) {
 
 	if (platform() == "windows") {
 
 		//drive
-		test.ok(pathNumber(Path("C:\\folder\\file.ext"), 2).text == "C:\\folder\\file (2).ext");
-		test.ok(pathNumber(Path("C:\\folder\\.hidden"), 2).text  == "C:\\folder\\.hidden (2)");
-		test.ok(pathNumber(Path("C:\\folder\\file"), 2).text     == "C:\\folder\\file (2)");
+		ok(pathNumber(Path("C:\\folder\\file.ext"), 2).text == "C:\\folder\\file (2).ext");
+		ok(pathNumber(Path("C:\\folder\\.hidden"), 2).text  == "C:\\folder\\.hidden (2)");
+		ok(pathNumber(Path("C:\\folder\\file"), 2).text     == "C:\\folder\\file (2)");
 
 		//share
-		test.ok(pathNumber(Path("\\\\c\\s\\folder\\file.ext"), 2).text == "\\\\c\\s\\folder\\file (2).ext");
-		test.ok(pathNumber(Path("\\\\c\\s\\folder\\.hidden"), 2).text  == "\\\\c\\s\\folder\\.hidden (2)");
-		test.ok(pathNumber(Path("\\\\c\\s\\folder\\file"), 2).text     == "\\\\c\\s\\folder\\file (2)");
+		ok(pathNumber(Path("\\\\c\\s\\folder\\file.ext"), 2).text == "\\\\c\\s\\folder\\file (2).ext");
+		ok(pathNumber(Path("\\\\c\\s\\folder\\.hidden"), 2).text  == "\\\\c\\s\\folder\\.hidden (2)");
+		ok(pathNumber(Path("\\\\c\\s\\folder\\file"), 2).text     == "\\\\c\\s\\folder\\file (2)");
 
 		//method
 		var p = Path("C:\\folder\\file.ext");
-		test.ok(p.number(1).text == "C:\\folder\\file.ext");
-		test.ok(p.number(2).text == "C:\\folder\\file (2).ext");
-		test.ok(p.number(3).text == "C:\\folder\\file (3).ext");
-		test.ok(p.number(4).text == "C:\\folder\\file (4).ext");
-		test.ok(p.number(567).text == "C:\\folder\\file (567).ext");
+		ok(p.number(1).text == "C:\\folder\\file.ext");
+		ok(p.number(2).text == "C:\\folder\\file (2).ext");
+		ok(p.number(3).text == "C:\\folder\\file (3).ext");
+		ok(p.number(4).text == "C:\\folder\\file (4).ext");
+		ok(p.number(567).text == "C:\\folder\\file (567).ext");
 
 	} else {
 
 		//unix
-		test.ok(pathNumber(Path("/folder/file.ext"), 2).text == "/folder/file (2).ext");
-		test.ok(pathNumber(Path("/folder/.hidden"), 2).text  == "/folder/.hidden (2)");
-		test.ok(pathNumber(Path("/folder/file"), 2).text     == "/folder/file (2)");
+		ok(pathNumber(Path("/folder/file.ext"), 2).text == "/folder/file (2).ext");
+		ok(pathNumber(Path("/folder/.hidden"), 2).text  == "/folder/.hidden (2)");
+		ok(pathNumber(Path("/folder/file"), 2).text     == "/folder/file (2)");
 
 		//method
 		var p = Path("/folder/file.ext");
-		test.ok(p.number(1).text == "/folder/file.ext");
-		test.ok(p.number(2).text == "/folder/file (2).ext");
-		test.ok(p.number(3).text == "/folder/file (3).ext");
-		test.ok(p.number(4).text == "/folder/file (4).ext");
-		test.ok(p.number(567).text == "/folder/file (567).ext");
+		ok(p.number(1).text == "/folder/file.ext");
+		ok(p.number(2).text == "/folder/file (2).ext");
+		ok(p.number(3).text == "/folder/file (3).ext");
+		ok(p.number(4).text == "/folder/file (4).ext");
+		ok(p.number(567).text == "/folder/file (567).ext");
 	}
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -1474,27 +1474,25 @@ exports.testPathNumber = function(test) {
 
 
 
-exports.testAbsolute = function(test) {
+expose.test("Path absolute", function(ok, done) {
 
 	var p = working().add("file.ext");//absolute path to file.ext in the present working directory
 
-	test.ok(getType(absolute(p)) == "string");//absolute always returns a string
-	test.ok(absolute(p) == p.text);//p didn't change as it passed through
+	ok(getType(absolute(p)) == "string");//absolute always returns a string
+	ok(absolute(p) == p.text);//p didn't change as it passed through
 
 	try {
 		absolute("file.ext");//relative path, throws data
-		test.fail();
-	} catch (e) { test.ok(e.name == "data"); }
+		ok(false);
+	} catch (e) { ok(e.name == "data"); }
 
 	try {
 		absolute();//object without any text, throws type
-		test.fail();
-	} catch (e) { test.ok(e.name == "type"); }
+		ok(false);
+	} catch (e) { ok(e.name == "type"); }
 
-	done(test);
-}
-
-
+	done();
+});
 
 
 
@@ -1502,3 +1500,6 @@ exports.testAbsolute = function(test) {
 
 
 
+
+});
+console.log("path test/");

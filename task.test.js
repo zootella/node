@@ -1,6 +1,7 @@
-
-require("./load").library();
-
+console.log("task test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 //TODO when done, move this into state_test.js
 
 
@@ -26,7 +27,7 @@ function addMore(o) {//the object we will add more to
 	o.setShape = function (s) { _shape = s; }
 }
 
-exports.testDoubleClosure = function(test) {//omg what does it mean
+expose.test("task double closure", function(ok, done) {//omg what does it mean
 
 	var o = addCore();//make a new object that has color
 	addMore(o);//add to it the ability to hold shape
@@ -34,30 +35,30 @@ exports.testDoubleClosure = function(test) {//omg what does it mean
 	var p = addCore();//make another one to show they don't clash
 	addMore(p);
 
-	test.ok(o.getColor() == "white");//reading the defaults works
-	test.ok(o.getShape() == "amorphous");
+	ok(o.getColor() == "white");//reading the defaults works
+	ok(o.getShape() == "amorphous");
 
 	o.setColor("blue");//and you can change them both
 	o.setShape("triangle");
-	test.ok(o.getColor() == "blue");
-	test.ok(o.getShape() == "triangle");
+	ok(o.getColor() == "blue");
+	ok(o.getShape() == "triangle");
 
-	test.ok(o.getColor());
-	test.ok(o.getShape());
-	test.ok(!o._color);//the enclosed local variables are really private
-	test.ok(!o._shape);
+	ok(o.getColor());
+	ok(o.getShape());
+	ok(!o._color);//the enclosed local variables are really private
+	ok(!o._shape);
 
-	test.ok(p.getColor() == "white");//none of that changed the second object
-	test.ok(p.getShape() == "amorphous");
+	ok(p.getColor() == "white");//none of that changed the second object
+	ok(p.getShape() == "amorphous");
 	p.setColor("red");
 	p.setShape("circle");
-	test.ok(p.getColor() == "red");//which can be changed independently
-	test.ok(p.getShape() == "circle");
-	test.ok(o.getColor() == "blue");//separate of the first one
-	test.ok(o.getShape() == "triangle");
+	ok(p.getColor() == "red");//which can be changed independently
+	ok(p.getShape() == "circle");
+	ok(o.getColor() == "blue");//separate of the first one
+	ok(o.getShape() == "triangle");
 
-	done(test);
-}
+	done();
+});
 
 
 
@@ -223,7 +224,7 @@ data.js:125 _clip()
 
 //thinking about next and result
 //make it so that next can only get called once, if code tries to call it a second time, the call doesn't go through
-//for instance, platformFile.stat throws, the top try block catches, next gets called with an error result
+//for instance, required.fs.stat throws, the top try block catches, next gets called with an error result
 //later, node successfully finishes, and calls the callback somehow, your code somewhere stops this
 
 //you might be able to combine next(resultWhatever(time into a single thing
@@ -489,7 +490,7 @@ function newWay() {
 function read(name) {
 
 	var d = Q.defer();
-	platformFile.readFile("test/" + name, "utf-8", function(error, text) {
+	required.fs.readFile("test/" + name, "utf-8", function(error, text) {
 		if (error) {
 			d.reject(error);
 		} else {
@@ -849,4 +850,5 @@ or, head over to a totally different part to work on, like charm, or the ui, or 
 
 
 
-
+});
+console.log("task test/");

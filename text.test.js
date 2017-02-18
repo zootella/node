@@ -1,8 +1,7 @@
-
-var platformFile = require("fs");
-
-require("./load").library();
-
+console.log("text test\\");
+if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
+contain(function(expose) {
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
 
 
 
@@ -28,147 +27,147 @@ require("./load").library();
 
 // hasPropertyOfType, hasMethod, getType, isType, checkType
 
-exports.testHasPropertyOfType = function(test) {
+expose.test("text hasPropertyOfType", function(ok, done) {
 
 	var u;//undefined
-	test.ok(!hasPropertyOfType(u, "name", "string"));
-	test.ok(!hasPropertyOfType(u, "name", "function"));
+	ok(!hasPropertyOfType(u, "name", "string"));
+	ok(!hasPropertyOfType(u, "name", "function"));
 
 	var s = "hi";//string
-	test.ok(!hasPropertyOfType(s, "name", "string"));
-	test.ok(!hasPropertyOfType(s, "name", "function"));
-	test.ok(hasPropertyOfType(s, "charAt", "function"));//comes with the platform
-	test.ok(hasPropertyOfType(s, "rip", "function"));//a function we added
+	ok(!hasPropertyOfType(s, "name", "string"));
+	ok(!hasPropertyOfType(s, "name", "function"));
+	ok(hasPropertyOfType(s, "charAt", "function"));//comes with the platform
+	ok(hasPropertyOfType(s, "rip", "function"));//a function we added
 
 	var e = {};//empty object
-	test.ok(!hasPropertyOfType(e, "name", "string"));
-	test.ok(!hasPropertyOfType(e, "name", "function"));
+	ok(!hasPropertyOfType(e, "name", "string"));
+	ok(!hasPropertyOfType(e, "name", "function"));
 
 	var a = [];//empty array
-	test.ok(!hasPropertyOfType(a, "name", "string"));
-	test.ok(!hasPropertyOfType(a, "name", "function"));
-	test.ok(hasPropertyOfType(a, "splice", "function"));//comes with the platform
-	test.ok(hasPropertyOfType(a, "add", "function"));//a function we added
+	ok(!hasPropertyOfType(a, "name", "string"));
+	ok(!hasPropertyOfType(a, "name", "function"));
+	ok(hasPropertyOfType(a, "splice", "function"));//comes with the platform
+	ok(hasPropertyOfType(a, "add", "function"));//a function we added
 
 	var o = {};//object with
 	o.name1 = "string value";//string property
 	o.name2 = function() { return "return value"; }//function property
 
-	test.ok(!hasPropertyOfType(o, "name",  "string"));//still no property named "name"
-	test.ok(!hasPropertyOfType(o, "name",  "function"));
+	ok(!hasPropertyOfType(o, "name",  "string"));//still no property named "name"
+	ok(!hasPropertyOfType(o, "name",  "function"));
 
-	test.ok(hasPropertyOfType(o,  "name1", "string"));
-	test.ok(!hasPropertyOfType(o, "name1", "function"));
+	ok(hasPropertyOfType(o,  "name1", "string"));
+	ok(!hasPropertyOfType(o, "name1", "function"));
 
-	test.ok(!hasPropertyOfType(o, "name2", "string"));
-	test.ok(hasPropertyOfType(o,  "name2", "function"));
+	ok(!hasPropertyOfType(o, "name2", "string"));
+	ok(hasPropertyOfType(o,  "name2", "function"));
 
 	var d = Data();//custom program objects
 	var p = working();//Path object
 
-	test.ok(hasPropertyOfType(d, "type", "string"));//type is always a string
-	test.ok(hasPropertyOfType(p, "type", "string"));
-	test.ok(hasPropertyOfType(d, "text", "function"));//Data has a text function
-	test.ok(hasPropertyOfType(p, "text", "string"));//Path is immutable and has a text string
+	ok(hasPropertyOfType(d, "type", "string"));//type is always a string
+	ok(hasPropertyOfType(p, "type", "string"));
+	ok(hasPropertyOfType(d, "text", "function"));//Data has a text function
+	ok(hasPropertyOfType(p, "text", "string"));//Path is immutable and has a text string
 
-	test.ok(!hasPropertyOfType(d, "type", "function"));//valid names, incorrect types
-	test.ok(!hasPropertyOfType(p, "type", "function"));
-	test.ok(!hasPropertyOfType(d, "text", "string"));
-	test.ok(!hasPropertyOfType(p, "text", "function"));
+	ok(!hasPropertyOfType(d, "type", "function"));//valid names, incorrect types
+	ok(!hasPropertyOfType(p, "type", "function"));
+	ok(!hasPropertyOfType(d, "text", "string"));
+	ok(!hasPropertyOfType(p, "text", "function"));
 
-	test.ok(hasPropertyOfType(d, "base16", "function"));//methods
-	test.ok(hasPropertyOfType(p, "subtract", "function"));
+	ok(hasPropertyOfType(d, "base16", "function"));//methods
+	ok(hasPropertyOfType(p, "subtract", "function"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testHasMethod = function(test) {
+expose.test("text hasMethod", function(ok, done) {
 
-	test.ok(hasMethod(Data(), "base62"));//there
-	test.ok(!hasMethod(Data(), "notFound"));//not found
+	ok(hasMethod(Data(), "base62"));//there
+	ok(!hasMethod(Data(), "notFound"));//not found
 
-	test.ok(!hasMethod(undefined, "name"));//not an object, returns false
-	test.ok(!hasMethod(null, "name"));
-	test.ok(!hasMethod(false, "name"));
-	test.ok(!hasMethod(0, "name"));
-	test.ok(!hasMethod("hi", "name"));
+	ok(!hasMethod(undefined, "name"));//not an object, returns false
+	ok(!hasMethod(null, "name"));
+	ok(!hasMethod(false, "name"));
+	ok(!hasMethod(0, "name"));
+	ok(!hasMethod("hi", "name"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testGetType = function(test) {
+expose.test("text getType", function(ok, done) {
 
 	//nothings
-	test.ok("undefined" == getType());//nothing passed
-	test.ok("undefined" == getType(undefined));
-	test.ok("undefined" == getType(Data().anUndefinedMember));
+	ok("undefined" == getType());//nothing passed
+	ok("undefined" == getType(undefined));
+	ok("undefined" == getType(Data().anUndefinedMember));
 
 	//boolean
-	test.ok("boolean" == getType(false));
-	test.ok("boolean" == getType(true));
+	ok("boolean" == getType(false));
+	ok("boolean" == getType(true));
 
 	//number
-	test.ok("number" == getType(0));
-	test.ok("number" == getType(500));
-	test.ok("number" == getType(-1.2));
-	test.ok("number" == getType(Infinity));
-	test.ok("number" == getType(NaN));
+	ok("number" == getType(0));
+	ok("number" == getType(500));
+	ok("number" == getType(-1.2));
+	ok("number" == getType(Infinity));
+	ok("number" == getType(NaN));
 
 	//string
-	test.ok("string" == getType(""));
-	test.ok("string" == getType("hi"));
+	ok("string" == getType(""));
+	ok("string" == getType("hi"));
 
 	//function
-	test.ok("function" == getType(function(){}));
-	test.ok("function" == getType(Math.sin));
-	test.ok("function" == getType(isType));
-	test.ok("function" == getType(Data().size));
+	ok("function" == getType(function(){}));
+	ok("function" == getType(Math.sin));
+	ok("function" == getType(isType));
+	ok("function" == getType(Data().size));
 
 	//javascript object
-	test.ok("object" == getType(null));//null has been an object since the beginning of javascript
-	test.ok("object" == getType({a:1}));//hash
-	test.ok("object" == getType([1, 2, 4]));//array
-	test.ok("object" == getType(/s/));//node says a regular expression literal is an object
+	ok("object" == getType(null));//null has been an object since the beginning of javascript
+	ok("object" == getType({a:1}));//hash
+	ok("object" == getType([1, 2, 4]));//array
+	ok("object" == getType(/s/));//node says a regular expression literal is an object
 
 	//platform object
-	test.ok("object" == getType(new Date()));//javascript object
+	ok("object" == getType(new Date()));//javascript object
 
 	//node object
-	test.ok("object" == getType(new Buffer(0)));//node object
-	test.ok("object" == getType(new Buffer(8)));
+	ok("object" == getType(new Buffer(0)));//node object
+	ok("object" == getType(new Buffer(8)));
 
 	//program object with type member
-	test.ok("Bay"  == getType(Bay()));
-	test.ok("Data" == getType(Bay().data()));
-	test.ok("Clip" == getType(Bay().data().clip()));
+	ok("Bay"  == getType(Bay()));
+	ok("Data" == getType(Bay().data()));
+	ok("Clip" == getType(Bay().data().clip()));
 
 	//program object without that method
 	function Sample() {
 		function method() {}
 		return { method:method }//no type() method
 	}
-	test.ok("object" == getType(Sample()));
+	ok("object" == getType(Sample()));
 
-	test.done();
-}
+	done();
+});
 
-exports.testGetTypeError = function(test) {
+expose.test("text getType Error", function(ok, done) {
 
-	platformFile.open("notfound.ext", "r", function(e, file) {//make a platform error object
+	required.fs.open("notfound.ext", "r", function(e, file) {//make a platform error object
 		var o = {};//and an empty object
 
-		test.ok(typeof o == "object");//typeof sees both as just objects
-		test.ok(typeof e == "object");
+		ok(typeof o == "object");//typeof sees both as just objects
+		ok(typeof e == "object");
 
-		test.ok(!(o instanceof Error));//instanceof sees the error
-		test.ok(e instanceof Error);
+		ok(!(o instanceof Error));//instanceof sees the error
+		ok(e instanceof Error);
 
-		test.ok(getType(o) == "object");//getType can distinguish the two
-		test.ok(getType(e) == "Error");
+		ok(getType(o) == "object");//getType can distinguish the two
+		ok(getType(e) == "Error");
 
-		test.done();//mark the test done in the callback
+		done();//mark the test done in the callback
 	});
-}
+});
 
 
 
@@ -200,45 +199,45 @@ exports.testGetTypeError = function(test) {
 //  /_/   \_\_|  |_|  \__,_|\__, |
 //                          |___/ 
 
-exports.testArray = function(test) {
+expose.test("text array", function(ok, done) {
 
 	var a = [];
 	a.add("a");//add to the end of the array
 	a.add("b");
 	a.add("c");
-	test.ok(a.length == 3);
-	test.ok(a[2] == "c");
+	ok(a.length == 3);
+	ok(a[2] == "c");
 
 	var o = a.remove(1);//remove b, which is a distance 1 into the array
-	test.ok(a.length == 2);//that changed the length
-	test.ok(a[0] == "a");
-	test.ok(a[1] == "c");//and the index of items afterwards
+	ok(a.length == 2);//that changed the length
+	ok(a[0] == "a");
+	ok(a[1] == "c");//and the index of items afterwards
 
-	test.ok(o == "b");//remove returned it
+	ok(o == "b");//remove returned it
 
 	function out(a, i) {//out of bounds
 		try {
 			a.remove(i);
-			test.fail();
-		} catch (e) { test.ok(e.name == "bounds"); }
+			ok(false);
+		} catch (e) { ok(e.name == "bounds"); }
 	}
 	out(a, -1);
 	out(a, 2);
 
-	test.done();
-}
+	done();
+});
 
-exports.testArraySame = function(test) {
+expose.test("text arraySame", function(ok, done) {
 
-	test.ok(arraySame([], []));
-	test.ok(arraySame(["a"], ["a"]));
-	test.ok(!arraySame(["a"], ["A"]));
-	test.ok(!arraySame(["a", "b"], ["a"]));
-	test.ok(arraySame(["a", "b"], ["a", "b"]));
-	test.ok(!arraySame(["a", "2"], ["a", 2]));//different because arraySame uses triple equals
+	ok(arraySame([], []));
+	ok(arraySame(["a"], ["a"]));
+	ok(!arraySame(["a"], ["A"]));
+	ok(!arraySame(["a", "b"], ["a"]));
+	ok(arraySame(["a", "b"], ["a", "b"]));
+	ok(!arraySame(["a", "2"], ["a", 2]));//different because arraySame uses triple equals
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -270,39 +269,39 @@ exports.testArraySame = function(test) {
 
 // is, blank, compareText
 
-exports.testLengthSize = function(test) {
+expose.test("text length size", function(ok, done) {
 
 	var s;
 
 	s = "a";//ascii
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 1);
+	ok(s.length == 1);
+	ok(Data(s).size() == 1);
 
 	s = "ö";//umlaut
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 2);//two bytes
-	test.ok(Data(s).base16() == "c3b6");
+	ok(s.length == 1);
+	ok(Data(s).size() == 2);//two bytes
+	ok(Data(s).base16() == "c3b6");
 
 	s = "خ";//arabic ha
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 2);//two bytes
+	ok(s.length == 1);
+	ok(Data(s).size() == 2);//two bytes
 
 	s = "の";//hiragana no
-	test.ok(s.length == 1);
-	test.ok(Data(s).size() == 3);//three bytes
-	test.ok(Data(s).base16() == "e381ae");
+	ok(s.length == 1);
+	ok(Data(s).size() == 3);//three bytes
+	ok(Data(s).base16() == "e381ae");
 
 	// The number of characters in string s is s.length
 	// MDN warns: This property returns the number of code units in the string. UTF-16, the string format used by JavaScript, uses a single 16-bit code unit to represent the most common characters, but needs to use two code units for less commonly-used characters, so it's possible for the value returned by length to not match the actual number of characters in the string.
 	//TODO write a test that demonstrates how s.length fails, then a function that corrects it
 
-	test.done();
-}
+	done();
+});
 
-exports.testEqualsQuotes = function(test) {
+expose.test("text equals quotes", function(ok, done) {
 
-	function likeBlank(v) { test.ok(v == ""); test.ok(!(v != "")); }
-	function likeText(v)  { test.ok(v != ""); test.ok(!(v == "")); }
+	function likeBlank(v) { ok(v == ""); ok(!(v != "")); }
+	function likeText(v)  { ok(v != ""); ok(!(v == "")); }
 
 	likeText(undefined);//undefined and null
 	likeText(null);
@@ -324,124 +323,124 @@ exports.testEqualsQuotes = function(test) {
 	likeBlank("");//strings
 	likeText("a");
 
-	test.done();
-}
+	done();
+});
 
-exports.testIsBlank = function(test) {
+expose.test("text is blank", function(ok, done) {
 
-	test.ok(is("a"));//standard use
-	test.ok(blank(""));
+	ok(is("a"));//standard use
+	ok(blank(""));
 
 	//throws for non string
-	try { is(null);             test.fail(); } catch (e) { test.ok(e.name == "type"); }
-	try { is(1);                test.fail(); } catch (e) { test.ok(e.name == "type"); }
-	try { blank(false);         test.fail(); } catch (e) { test.ok(e.name == "type"); }
-	try { blank(new Buffer(0)); test.fail(); } catch (e) { test.ok(e.name == "type"); }
+	try { is(null);             ok(false); } catch (e) { ok(e.name == "type"); }
+	try { is(1);                ok(false); } catch (e) { ok(e.name == "type"); }
+	try { blank(false);         ok(false); } catch (e) { ok(e.name == "type"); }
+	try { blank(new Buffer(0)); ok(false); } catch (e) { ok(e.name == "type"); }
 
-	test.done();
-}
+	done();
+});
 
-exports.testUpperLower = function(test) {
+expose.test("text lower upper", function(ok, done) {
 
 	//use
-	test.ok("A".lower() == "a");
-	test.ok("a".upper() == "A");
-	test.ok("Shhhh. Whisper, please.".lower() == "shhhh. whisper, please.");
-	test.ok("Do you want to buy a duck?".upper() == "DO YOU WANT TO BUY A DUCK?");
+	ok("A".lower() == "a");
+	ok("a".upper() == "A");
+	ok("Shhhh. Whisper, please.".lower() == "shhhh. whisper, please.");
+	ok("Do you want to buy a duck?".upper() == "DO YOU WANT TO BUY A DUCK?");
 
 	//greek alphabet
 	var greekLower = "αβγδεζηθικλμνξοπρστυφχψω";
 	var greekUpper = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ";
-	test.ok(greekLower.upper() == greekUpper);
-	test.ok(greekUpper.lower() == greekLower);
+	ok(greekLower.upper() == greekUpper);
+	ok(greekUpper.lower() == greekLower);
 
-	test.done();
-}
+	done();
+});
 
-exports.testCode = function(test) {
+expose.test("text code", function(ok, done) {
 
-	test.ok("A".code() == 65);//you can omit i to get the first character
+	ok("A".code() == 65);//you can omit i to get the first character
 
 	var s = "\0\r\n\x0d\x0a\t\"";//control characters
-	test.ok(s.length == 7);
-	test.ok(s.code(0) == 0);//null
-	test.ok(s.code(1) == 0x0d);//r
-	test.ok(s.code(2) == 0x0a);//n
-	test.ok(s.code(3) == 0x0d);//r
-	test.ok(s.code(4) == 0x0a);//n
-	test.ok(s.code(5) == 9);//tab
-	test.ok(s.code(6) == 34);//quote
+	ok(s.length == 7);
+	ok(s.code(0) == 0);//null
+	ok(s.code(1) == 0x0d);//r
+	ok(s.code(2) == 0x0a);//n
+	ok(s.code(3) == 0x0d);//r
+	ok(s.code(4) == 0x0a);//n
+	ok(s.code(5) == 9);//tab
+	ok(s.code(6) == 34);//quote
 
 	s = "09AZaz";//letters and numbers
-	test.ok(s.code(0) == 48);
-	test.ok(s.code(1) == 57);
-	test.ok(s.code(2) == 65);
-	test.ok(s.code(3) == 90);
-	test.ok(s.code(4) == 97);
-	test.ok(s.code(5) == 122);
+	ok(s.code(0) == 48);
+	ok(s.code(1) == 57);
+	ok(s.code(2) == 65);
+	ok(s.code(3) == 90);
+	ok(s.code(4) == 97);
+	ok(s.code(5) == 122);
 
 	s = " !.^_";//punctuation
-	test.ok(s.code(0) == 32);
-	test.ok(s.code(1) == 33);
-	test.ok(s.code(2) == 46);
-	test.ok(s.code(3) == 94);
-	test.ok(s.code(4) == 95);
+	ok(s.code(0) == 32);
+	ok(s.code(1) == 33);
+	ok(s.code(2) == 46);
+	ok(s.code(3) == 94);
+	ok(s.code(4) == 95);
 
 	s = "español";//europe
-	test.ok(s.length == 7);
-	test.ok(s.code(0) == 101);
-	test.ok(s.code(4) == 241);//beyond the ascii table
-	test.ok(s.code(6) == 108);
+	ok(s.length == 7);
+	ok(s.code(0) == 101);
+	ok(s.code(4) == 241);//beyond the ascii table
+	ok(s.code(6) == 108);
 
 	s = "中文";//asia
-	test.ok(s.length == 2);
-	test.ok(s.code(0) == 20013);//tens of thousands
-	test.ok(s.code(1) == 25991);
+	ok(s.length == 2);
+	ok(s.code(0) == 20013);//tens of thousands
+	ok(s.code(1) == 25991);
 
 	s = "مرحبا";//arabic
-	test.ok(s.length == 5);
-	test.ok(s.code(0) == 1605);//just thousands
-	test.ok(s.code(1) == 1585);
-	test.ok(s.code(2) == 1581);
-	test.ok(s.code(3) == 1576);
-	test.ok(s.code(4) == 1575);
+	ok(s.length == 5);
+	ok(s.code(0) == 1605);//just thousands
+	ok(s.code(1) == 1585);
+	ok(s.code(2) == 1581);
+	ok(s.code(3) == 1576);
+	ok(s.code(4) == 1575);
 
-	test.done();
-}
+	done();
+});
 
-exports.testRange = function(test) {
+expose.test("text range", function(ok, done) {
 
-	test.ok("a".range("a", "z"));//first
-	test.ok("z".range("a", "z"));//last
-	test.ok("k".range("a", "z"));//middle
-	test.ok("5".range("5", "5"));//only
+	ok("a".range("a", "z"));//first
+	ok("z".range("a", "z"));//last
+	ok("k".range("a", "z"));//middle
+	ok("5".range("5", "5"));//only
 
-	test.ok(!"0".range("a", "z"));//outside
-	test.ok(!"A".range("a", "z"));
+	ok(!"0".range("a", "z"));//outside
+	ok(!"A".range("a", "z"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testIsLetterIsNumber = function(test) {
+expose.test("text isLetter isNumber", function(ok, done) {
 
-	test.ok("a".isLetter());//lower
-	test.ok("b".isLetter());
-	test.ok("z".isLetter());
+	ok("a".isLetter());//lower
+	ok("b".isLetter());
+	ok("z".isLetter());
 
-	test.ok("A".isLetter());//upper
-	test.ok("K".isLetter());
-	test.ok("Z".isLetter());
+	ok("A".isLetter());//upper
+	ok("K".isLetter());
+	ok("Z".isLetter());
 
-	test.ok("0".isNumber());//number
-	test.ok("2".isNumber());
-	test.ok("9".isNumber());
+	ok("0".isNumber());//number
+	ok("2".isNumber());
+	ok("9".isNumber());
 
 	//blank is false, doesn't throw
-	test.ok(!"".isLetter());
+	ok(!"".isLetter());
 
 	function neither(c) {
-		test.ok(!c.isLetter());
-		test.ok(!c.isNumber());
+		ok(!c.isLetter());
+		ok(!c.isNumber());
 	}
 
 	neither(" ");
@@ -451,32 +450,32 @@ exports.testIsLetterIsNumber = function(test) {
 	neither("\0");
 	neither("\r");
 
-	test.done();
-}
+	done();
+});
 
-exports.testIsSpace = function(test) {
+expose.test("text isSpace", function(ok, done) {
 
-	test.ok("".isSpace());
-	test.ok(" ".isSpace());
-	test.ok("\r\n".isSpace());
-	test.ok(!"a".isSpace());
+	ok("".isSpace());
+	ok(" ".isSpace());
+	ok("\r\n".isSpace());
+	ok(!"a".isSpace());
 
-	test.done();
-}
+	done();
+});
 
-exports.testSort = function(test) {
+expose.test("text compareText sort", function(ok, done) {
 //TODO this works on node 10, doesn't on node 12, figure out why, switch to a method of comparing text that works on both
 /*
 	//make sure we got the sign right
-	test.ok(compareText("a", "b") < 0);//negative, correct order
-	test.ok(compareText("a", "a") == 0);//zero, tie
-	test.ok(compareText("b", "a") > 0);//positive, reverse order
+	ok(compareText("a", "b") < 0);//negative, correct order
+	ok(compareText("a", "a") == 0);//zero, tie
+	ok(compareText("b", "a") > 0);//positive, reverse order
 
 	//but what this is really good for is sorting arrays
 	function run(before, sorted) {
 		var a = before.rip(",");
 		a.sort(compareText);
-		test.ok(a + "" == sorted);
+		ok(a + "" == sorted);
 	}
 	run("b,c,a", "a,b,c");
 	run("c,b,a", "a,b,c");
@@ -490,17 +489,17 @@ exports.testSort = function(test) {
 	run("二,一,三", "一,三,二");
 	run("三,一,二", "一,三,二");
 	run("二,三,一", "一,三,二");
-	test.ok("一".code() == 0x4e00);//one is first
-	test.ok("二".code() == 0x4e8c);//two is third
-	test.ok("三".code() == 0x4e09);//three is second
+	ok("一".code() == 0x4e00);//one is first
+	ok("二".code() == 0x4e8c);//two is third
+	ok("三".code() == 0x4e09);//three is second
 
 	var greek = "α,β,γ,δ,ε,ζ,η,θ,ι,κ,λ,μ,ν,ξ,ο,π,ρ,σ,τ,υ,φ,χ,ψ,ω";//sort the greek alphabet
 	run("β,γ,δ,ε,φ,ξ,ο,π,ρ,σ,α,θ,χ,ψ,ω,μ,ν,ζ,η,κ,λ,ι,τ,υ", greek);
 	run("α,β,λ,δ,ε,υ,γ,φ,κ,ρ,π,ω,μ,ν,ξ,ο,ζ,η,χ,ψ,σ,τ,θ,ι", greek);
 	run("θ,ι,κ,δ,ε,ω,χ,ψ,β,ξ,ο,ν,τ,υ,α,ζ,ρ,σ,γ,π,λ,η,φ,μ", greek);
 */
-	test.done();
-}
+	done();
+});
 
 
 
@@ -529,98 +528,98 @@ exports.testSort = function(test) {
 //   \____|_|_| .__/ 
 //            |_|    
 
-exports.testFirst = function(test) {
+expose.test("text first", function(ok, done) {
 
 	var s = "abc";
-	test.ok(s.first() == "a");
-	test.ok(s.get(0) == "a");
-	test.ok(s.get() == "a");//you can also just omit the 0
+	ok(s.first() == "a");
+	ok(s.get(0) == "a");
+	ok(s.get() == "a");//you can also just omit the 0
 
-	test.done();
-}
+	done();
+});
 
-exports.testLengthGet = function(test) {
+expose.test("text length get", function(ok, done) {
 
 	var s;
 	s = "abc";
-	test.ok(s.length == 3);
-	test.ok(s.get(0) == "a");
-	test.ok(s.get(1) == "b");
-	test.ok(s.get(2) == "c");
-	test.ok(s.get(-1) == "");
-	test.ok(s.get(3) == "");
+	ok(s.length == 3);
+	ok(s.get(0) == "a");
+	ok(s.get(1) == "b");
+	ok(s.get(2) == "c");
+	ok(s.get(-1) == "");
+	ok(s.get(3) == "");
 
 	s = "一二三";
-	test.ok(s.length == 3);
-	test.ok(s.get(0) == "一");
-	test.ok(s.get(1) == "二");
-	test.ok(s.get(2) == "三");
-	test.ok(s.get(-1) == "");
-	test.ok(s.get(3) == "");
+	ok(s.length == 3);
+	ok(s.get(0) == "一");
+	ok(s.get(1) == "二");
+	ok(s.get(2) == "三");
+	ok(s.get(-1) == "");
+	ok(s.get(3) == "");
 
 	s = "中文 español English हिन्दी العربية português বাংলা русский 日本語 ਪੰਜਾਬੀ";//international string literal
 	s64 = "5Lit5paHIGVzcGHDsW9sIEVuZ2xpc2gg4KS54KS/4KSo4KWN4KSm4KWAINin2YTYudix2KjZitipIHBvcnR1Z3XDqnMg4Kas4Ka+4KaC4Kay4Ka+INGA0YPRgdGB0LrQuNC5IOaXpeacrOiqniDgqKrgqbDgqJzgqL7gqKzgqYA=";//same text as utf8 bytes encoded as base64
-	test.ok(s == base64(s64).text());//turn data into text and compare
-	test.ok(Data(s).same(base64(s64)));//turn text into data and compare
+	ok(s == base64(s64).text());//turn data into text and compare
+	ok(Data(s).same(base64(s64)));//turn text into data and compare
 
-	test.ok(s.length == 68);
-	test.ok(s.get(0) == "中");
-	test.ok(s.get(1) == "文");
-	test.ok(s.get(41) == "ê");
-	test.ok(s.get(66) == "ਬ");
-	test.ok(s.get(67) == "ੀ");
+	ok(s.length == 68);
+	ok(s.get(0) == "中");
+	ok(s.get(1) == "文");
+	ok(s.get(41) == "ê");
+	ok(s.get(66) == "ਬ");
+	ok(s.get(67) == "ੀ");
 
 	s = "español 中文 বাংলা português";
-	test.ok(s.length == 26);
-	test.ok(s.get(0) == "e");
-	test.ok(s.get(4) == "ñ");
+	ok(s.length == 26);
+	ok(s.get(0) == "e");
+	ok(s.get(4) == "ñ");
 
-	test.ok(s.get(8) == "中");
-	test.ok(s.get(9) == "文");
+	ok(s.get(8) == "中");
+	ok(s.get(9) == "文");
 
-	test.ok(s.get(11) == "ব");//the closing quotes may not line up vertically, because a fixed width font isn't fixed width for international characters
-	test.ok(s.get(12) == "া");
-	test.ok(s.get(13) == "ং");
-	test.ok(s.get(14) == "ল");
-	test.ok(s.get(15) == "া");
+	ok(s.get(11) == "ব");//the closing quotes may not line up vertically, because a fixed width font isn't fixed width for international characters
+	ok(s.get(12) == "া");
+	ok(s.get(13) == "ং");
+	ok(s.get(14) == "ল");
+	ok(s.get(15) == "া");
 
-	test.ok(s.get(24) == "ê");
+	ok(s.get(24) == "ê");
 
-	test.done();
-}
+	done();
+});
 
-exports.testStartEndBeyondChop = function(test) {
-
-	var s = "abcdefgh";
-	test.ok(s.start(3)  == "abc");
-	test.ok(s.end(3)    ==      "fgh");
-	test.ok(s.beyond(3) ==    "defgh");
-	test.ok(s.chop(3)   == "abcde");
-
-	test.done();
-}
-
-exports.testClip = function(test) {
+expose.test("text start end beyond chop", function(ok, done) {
 
 	var s = "abcdefgh";
-	test.ok(s.clip(1, 2) == "bc");//middle
-	test.ok(s.clip(0, 2) == "ab");//start
-	test.ok(s.clip(6, 2) == "gh");//end
-	test.ok(s.clip(0, 8) == "abcdefgh");//everything
-	test.ok(s.clip(0, 0) == "");//nothing start
-	test.ok(s.clip(8, 0) == "");//nothing end
-	test.ok(s.clip(4, 0) == "");//nothing middle
+	ok(s.start(3)  == "abc");
+	ok(s.end(3)    ==      "fgh");
+	ok(s.beyond(3) ==    "defgh");
+	ok(s.chop(3)   == "abcde");
 
-	test.ok(typeof s.clip(0, 0) === "string");//make sure nothing gives us ""
+	done();
+});
 
-	try { s.clip(-1, 1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//before start
-	try { s.clip(8, 1); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//beyond end
+expose.test("text clip", function(ok, done) {
 
-	try { s.clip(-1, 0); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//nothing before start
-	try { s.clip(9, 0); test.fail(); } catch (e) { test.ok(e.name == "bounds"); }//nothing beyond end
+	var s = "abcdefgh";
+	ok(s.clip(1, 2) == "bc");//middle
+	ok(s.clip(0, 2) == "ab");//start
+	ok(s.clip(6, 2) == "gh");//end
+	ok(s.clip(0, 8) == "abcdefgh");//everything
+	ok(s.clip(0, 0) == "");//nothing start
+	ok(s.clip(8, 0) == "");//nothing end
+	ok(s.clip(4, 0) == "");//nothing middle
 
-	test.done();
-}
+	ok(typeof s.clip(0, 0) === "string");//make sure nothing gives us ""
+
+	try { s.clip(-1, 1); ok(false); } catch (e) { ok(e.name == "bounds"); }//before start
+	try { s.clip(8, 1); ok(false); } catch (e) { ok(e.name == "bounds"); }//beyond end
+
+	try { s.clip(-1, 0); ok(false); } catch (e) { ok(e.name == "bounds"); }//nothing before start
+	try { s.clip(9, 0); ok(false); } catch (e) { ok(e.name == "bounds"); }//nothing beyond end
+
+	done();
+});
 
 
 
@@ -648,17 +647,17 @@ exports.testClip = function(test) {
 //  |_|   |_|_| |_|\__,_|
 //                       
 
-exports.testSameMatch = function(test) {
+expose.test("text same match", function(ok, done) {
 
 	function run(answerMatch, answerCase, s1, s2) {
 
-		test.ok(answerMatch == match(s1, s2));
-		test.ok(answerCase == same(s1, s2));
-		test.ok(answerCase == (s1 == s2));
+		ok(answerMatch == match(s1, s2));
+		ok(answerCase == same(s1, s2));
+		ok(answerCase == (s1 == s2));
 
-		test.ok(answerMatch == match(s2, s1));//flip inputs
-		test.ok(answerCase == same(s2, s1));
-		test.ok(answerCase == (s2 == s1));
+		ok(answerMatch == match(s2, s1));//flip inputs
+		ok(answerCase == same(s2, s1));
+		ok(answerCase == (s2 == s1));
 	}
 
 	//same
@@ -680,83 +679,83 @@ exports.testSameMatch = function(test) {
 	run(true, false, "español", "ESPAÑOL");
 	run(true, false, "português", "PORTUGUÊS");
 
-	test.done();
-}
+	done();
+});
 
-exports.testStartsEndsHas = function(test) {
+expose.test("text starts ends has", function(ok, done) {
 
-	test.ok("abcd".starts("ab"));
-	test.ok("abcd".ends("cd"));
-	test.ok("abcd".has("bc"));
+	ok("abcd".starts("ab"));
+	ok("abcd".ends("cd"));
+	ok("abcd".has("bc"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testFindLast = function(test) {
+expose.test("text find last findMatch", function(ok, done) {
 
 	//no tag
-	try { "abcd".find(""); test.fail(); } catch (e) { test.ok(e.name == "argument"); }
+	try { "abcd".find(""); ok(false); } catch (e) { ok(e.name == "argument"); }
 
 	//basic use
-	test.ok(0  == "abcd".find(  "ab"));//first
-	test.ok(2  == "abcd".find(    "cd"));//last
-	test.ok(1  == "abcd".find(   "bc"));//middle
-	test.ok(-1 == "abcd".find("YZ"));//not found
+	ok(0  == "abcd".find(  "ab"));//first
+	ok(2  == "abcd".find(    "cd"));//last
+	ok(1  == "abcd".find(   "bc"));//middle
+	ok(-1 == "abcd".find("YZ"));//not found
 
 	//tag longer
-	test.ok(-1 == "abcd".find(  "abcdef"));//tag matches but longer beyond end
-	test.ok(-1 == "abcd".find("YZabcd"));//tag matches but longer before start
-	test.ok(-1 == "abcd".find(  "abcE"));//tag matches at start
+	ok(-1 == "abcd".find(  "abcdef"));//tag matches but longer beyond end
+	ok(-1 == "abcd".find("YZabcd"));//tag matches but longer before start
+	ok(-1 == "abcd".find(  "abcE"));//tag matches at start
 
 	//forward and reverse
-	test.ok( 1 == " abc ab bcde abcd ".find("ab"));
-	test.ok(13 == " abc ab bcde abcd ".last("ab"));
-	test.ok( 2 == " abc ab bcde abcd ".find("bc"));
-	test.ok(14 == " abc ab bcde abcd ".last("bc"));
-	test.ok( 9 == " abc ab bcde abcd ".find("cd"));
-	test.ok(15 == " abc ab bcde abcd ".last("cd"));
-	test.ok(10 == " abc ab bcde abcd ".find("de"));
-	test.ok(10 == " abc ab bcde abcd ".last("de"));
+	ok( 1 == " abc ab bcde abcd ".find("ab"));
+	ok(13 == " abc ab bcde abcd ".last("ab"));
+	ok( 2 == " abc ab bcde abcd ".find("bc"));
+	ok(14 == " abc ab bcde abcd ".last("bc"));
+	ok( 9 == " abc ab bcde abcd ".find("cd"));
+	ok(15 == " abc ab bcde abcd ".last("cd"));
+	ok(10 == " abc ab bcde abcd ".find("de"));
+	ok(10 == " abc ab bcde abcd ".last("de"));
 
 	//matching cases
-	test.ok(0 == "abcd".findMatch("AB"));//first
-	test.ok(2 == "abcd".findMatch(  "cD"));//last
-	test.ok(1 == "abcd".findMatch( "Bc"));//middle
+	ok(0 == "abcd".findMatch("AB"));//first
+	ok(2 == "abcd".findMatch(  "cD"));//last
+	ok(1 == "abcd".findMatch( "Bc"));//middle
 
 	//international
 	var s = "español 中文 বাংলা português";
-	test.ok( 0 == s.find("español"));
-	test.ok( 8 == s.find("中文"));
-	test.ok(11 == s.find("বাংলা"));
-	test.ok(17 == s.find("português"));
+	ok( 0 == s.find("español"));
+	ok( 8 == s.find("中文"));
+	ok(11 == s.find("বাংলা"));
+	ok(17 == s.find("português"));
 
 	//international matching cases
-	test.ok(-1 == s.find(     "ESPAÑOL"));
-	test.ok( 0 == s.findMatch("ESPAÑOL"));
-	test.ok(-1 == s.find(     "PORTUGUÊS"));
-	test.ok(17 == s.findMatch("PORTUGUÊS"));
+	ok(-1 == s.find(     "ESPAÑOL"));
+	ok( 0 == s.findMatch("ESPAÑOL"));
+	ok(-1 == s.find(     "PORTUGUÊS"));
+	ok(17 == s.findMatch("PORTUGUÊS"));
 
 	//international forward and reverse
 	s = " X বাংলা X বাংলা X ";
-	test.ok( 3 == s.find("বাংলা"));
-	test.ok(11 == s.last("বাংলা"));
+	ok( 3 == s.find("বাংলা"));
+	ok(11 == s.last("বাংলা"));
 
-	test.done();
-}
+	done();
+});
 
-exports.testEither = function(test) {
+expose.test("text either eitherMatch", function(ok, done) {
 
 	var s = "sample abc text def and more";
 
-	test.ok(s.either("abc", "xyz") == 7);//first found
-	test.ok(s.either("xyz", "abc") == 7);//second found
+	ok(s.either("abc", "xyz") == 7);//first found
+	ok(s.either("xyz", "abc") == 7);//second found
 
-	test.ok(s.either("abc", "def") == 7);//both found
-	test.ok(s.either("aBC", "def") == 16);//first case mismatch
-	test.ok(s.eitherMatch("aBC", "def") == 7);//matching cases
+	ok(s.either("abc", "def") == 7);//both found
+	ok(s.either("aBC", "def") == 16);//first case mismatch
+	ok(s.eitherMatch("aBC", "def") == 7);//matching cases
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -774,72 +773,72 @@ exports.testEither = function(test) {
 //   \____\__,_|\__|
 //                  
 
-exports.testBeforeAfterCut = function(test) {
+expose.test("text before after last match", function(ok, done) {
 
 	var s = "apple<tag>banana<tag>carrot";
 
 	//before and after
-	test.ok(s.before(    "<tag>") == "apple");
-	test.ok(s.after(     "<tag>") ==           "banana<tag>carrot");
-	test.ok(s.beforeLast("<tag>") == "apple<tag>banana");
-	test.ok(s.afterLast( "<tag>") ==                      "carrot");
+	ok(s.before(    "<tag>") == "apple");
+	ok(s.after(     "<tag>") ==           "banana<tag>carrot");
+	ok(s.beforeLast("<tag>") == "apple<tag>banana");
+	ok(s.afterLast( "<tag>") ==                      "carrot");
 
 	//cut
 	var c = s.cutLastMatch("<TAG>");//tag uppercase, matching on
-	test.ok(c.found);
-	test.ok(c.before == "apple<tag>banana");
-	test.ok(c.tag    == "<tag>");//tag lowercase from s
-	test.ok(c.after  == "carrot");
+	ok(c.found);
+	ok(c.before == "apple<tag>banana");
+	ok(c.tag    == "<tag>");//tag lowercase from s
+	ok(c.after  == "carrot");
 
 	s = "Sample text";
 
 	//not found
-	test.ok(s.before(         "E") == "Sample text");//not found, all before
-	test.ok(s.after(          "E") == "");
-	test.ok(s.beforeLast(     "E") == "Sample text");
-	test.ok(s.afterLast(      "E") == "");
+	ok(s.before(         "E") == "Sample text");//not found, all before
+	ok(s.after(          "E") == "");
+	ok(s.beforeLast(     "E") == "Sample text");
+	ok(s.afterLast(      "E") == "");
 
 	//case matching
-	test.ok(s.beforeMatch(    "E") == "Sampl");
-	test.ok(s.afterMatch(     "E") ==       " text");
-	test.ok(s.beforeLastMatch("E") == "Sample t");
-	test.ok(s.afterLastMatch( "E") ==          "xt");
+	ok(s.beforeMatch(    "E") == "Sampl");
+	ok(s.afterMatch(     "E") ==       " text");
+	ok(s.beforeLastMatch("E") == "Sample t");
+	ok(s.afterLastMatch( "E") ==          "xt");
 
-	test.done();
-}
+	done();
+});
 
-exports.testSwap = function(test) {
+expose.test("text swap swapMatch", function(ok, done) {
 
 	var s = "Abacore tuna is absolutely the best.";
-	test.ok(s.swapMatch("ab", "Ba") == "Baacore tuna is Basolutely the best.");
+	ok(s.swapMatch("ab", "Ba") == "Baacore tuna is Basolutely the best.");
 
 	s = "Yesterday. Bill said it. That's when Bill was in here.";
-	test.ok(s.swapMatch("bill", "REDACTED") == "Yesterday. REDACTED said it. That's when REDACTED was in here.");
+	ok(s.swapMatch("bill", "REDACTED") == "Yesterday. REDACTED said it. That's when REDACTED was in here.");
 
-	test.ok("aaaaa".swap("aa", "bb") == "bbbba");//replaced 2 whole instances
-	test.ok("aaaaa".swap("aa", "bbb") == "bbbbbba");
+	ok("aaaaa".swap("aa", "bb") == "bbbba");//replaced 2 whole instances
+	ok("aaaaa".swap("aa", "bbb") == "bbbbbba");
 
-	test.done();
-}
+	done();
+});
 
-exports.testParse = function(test) {
+expose.test("text parse", function(ok, done) {
 
 	var p = "He <b>really</b> wants to go.".parse("<b>", "</b>");
-	test.ok(p.found     == true);
-	test.ok(p.before    == "He ");
-	test.ok(p.tagBefore == "<b>");
-	test.ok(p.middle    == "really");
-	test.ok(p.tagAfter  == "</b>");
-	test.ok(p.after     == " wants to go.");
+	ok(p.found     == true);
+	ok(p.before    == "He ");
+	ok(p.tagBefore == "<b>");
+	ok(p.middle    == "really");
+	ok(p.tagAfter  == "</b>");
+	ok(p.after     == " wants to go.");
 
 	function f(s, t1, t2, found, before, tagBefore, middle, tagAfter, after) {
 		var p = s.parse(t1, t2);
-		test.ok(p.found     == found);
-		test.ok(p.before    == before);
-		test.ok(p.tagBefore == tagBefore);
-		test.ok(p.middle    == middle);
-		test.ok(p.tagAfter  == tagAfter);
-		test.ok(p.after     == after);
+		ok(p.found     == found);
+		ok(p.before    == before);
+		ok(p.tagBefore == tagBefore);
+		ok(p.middle    == middle);
+		ok(p.tagAfter  == tagAfter);
+		ok(p.after     == after);
 	}
 
 	f("a[b]c", "[", "]", true, "a", "[", "b", "]", "c");//different tags
@@ -849,8 +848,8 @@ exports.testParse = function(test) {
 	f("a b]c", "[", "]", false, "a b]c", "", "", "", "");//missing first
 	f("a b c", "[", "]", false, "a b c", "", "", "", "");//missing both
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -875,61 +874,61 @@ exports.testParse = function(test) {
 //    |_||_|  |_|_| |_| |_|
 //                         
 
-exports.testTrim = function(test) {
+expose.test("text trim", function(ok, done) {
 
-	test.ok("hi".trim() == "hi");
-	test.ok(" hi ".trim() == "hi");//spaces
-	test.ok("\rhi\r".trim() == "hi");//single newline characters
-	test.ok("\nhi\n".trim() == "hi");
-	test.ok("\r\nhi\r\n".trim() == "hi");//windows newlines
-	test.ok("\thi\t".trim() == "hi");//tabs
-	test.ok(" \t\r\nwords inside\r \n\t".trim() == "words inside");//everything
+	ok("hi".trim() == "hi");
+	ok(" hi ".trim() == "hi");//spaces
+	ok("\rhi\r".trim() == "hi");//single newline characters
+	ok("\nhi\n".trim() == "hi");
+	ok("\r\nhi\r\n".trim() == "hi");//windows newlines
+	ok("\thi\t".trim() == "hi");//tabs
+	ok(" \t\r\nwords inside\r \n\t".trim() == "words inside");//everything
 
-	test.ok(" hi ".trimStart() == "hi ");
-	test.ok(" hi ".trimEnd()   == " hi");
+	ok(" hi ".trimStart() == "hi ");
+	ok(" hi ".trimEnd()   == " hi");
 
-	test.done();
-}
+	done();
+});
 
-exports.testOff = function(test) {
+expose.test("text onStart onEnd offStart offEnd", function(ok, done) {
 
 	//on start and end
-	test.ok("/folder".onStart("/") == "/folder");//already there
-	test.ok("folder".onStart("/") == "/folder");//added it
+	ok("/folder".onStart("/") == "/folder");//already there
+	ok("folder".onStart("/") == "/folder");//added it
 
-	test.ok("folder/".onEnd("/") == "folder/");//already there
-	test.ok("folder".onEnd("/") == "folder/");//added it
+	ok("folder/".onEnd("/") == "folder/");//already there
+	ok("folder".onEnd("/") == "folder/");//added it
 
-	test.ok("folder///".onEnd("//") == "folder///");//already there
-	test.ok("folderABC".onEnd("AB") == "folderABCAB");//added it
+	ok("folder///".onEnd("//") == "folder///");//already there
+	ok("folderABC".onEnd("AB") == "folderABCAB");//added it
 
 	//off start and end
-	test.ok("/folder".offStart("/") == "folder");//removed it
-	test.ok("folder".offStart("/") == "folder");//didn't need to
-	test.ok("///folder".offStart("/") == "folder");//removed multiple
+	ok("/folder".offStart("/") == "folder");//removed it
+	ok("folder".offStart("/") == "folder");//didn't need to
+	ok("///folder".offStart("/") == "folder");//removed multiple
 
-	test.ok("folder/".offEnd("/") == "folder");//removed it
-	test.ok("folder".offEnd("/") == "folder");//didn't need to
-	test.ok("folder///".offEnd("/") == "folder");//removed multiple
+	ok("folder/".offEnd("/") == "folder");//removed it
+	ok("folder".offEnd("/") == "folder");//didn't need to
+	ok("folder///".offEnd("/") == "folder");//removed multiple
 
 	//off
 	var s = " --_ folder-_-- -";
-	test.ok(s.off(" ") == "--_ folder-_-- -");
-	test.ok(s.off("-") == " --_ folder-_-- ");
-	test.ok(s.off(" ", "-") == "_ folder-_");
-	test.ok(s.off(" ", "-", "_") == "folder");
+	ok(s.off(" ") == "--_ folder-_-- -");
+	ok(s.off("-") == " --_ folder-_-- ");
+	ok(s.off(" ", "-") == "_ folder-_");
+	ok(s.off(" ", "-", "_") == "folder");
 
-	test.done();
-}
+	done();
+});
 
-exports.testWiden = function(test) {
+expose.test("text widen", function(ok, done) {
 
 	//on start and end
-	test.ok("note".widenStart(10) == "      note");//space is default
-	test.ok("1".widenEnd(4, "0") == "1000");
+	ok("note".widenStart(10) == "      note");//space is default
+	ok("1".widenEnd(4, "0") == "1000");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -948,13 +947,13 @@ exports.testWiden = function(test) {
 //  |_| \_\_| .__/ 
 //          |_|    
 
-exports.testRip = function(test) {
+expose.test("text rip", function(ok, done) {
 
 	// Make sure rip will throw if you try to give it a regular expression
 	try {
 		"hello".rip(/abc/);
-		test.fail();
-	} catch (e) { test.ok(e.name == "type"); }
+		ok(false);
+	} catch (e) { ok(e.name == "type"); }
 
 	function view(a) {
 		var s = "";
@@ -962,7 +961,7 @@ exports.testRip = function(test) {
 			s += "<" + a[i] + ">";
 		return s;
 	}
-	function f(s, v) { test.ok(view(s.rip(",")) == v); }
+	function f(s, v) { ok(view(s.rip(",")) == v); }
 
 	//patterns
 
@@ -998,19 +997,19 @@ exports.testRip = function(test) {
 
 	//features
 
-	test.ok(view("a , ,,b".rip(",", false, false)) == "<a >< ><><b>");
-	test.ok(view("a , ,,b".rip(",", true,  false)) == "<a><><><b>");//trim items
-	test.ok(view("a , ,,b".rip(",", false, true))  == "<a >< ><b>");//skip blanks
-	test.ok(view("a , ,,b".rip(",", true,  true))  == "<a><b>");//both
+	ok(view("a , ,,b".rip(",", false, false)) == "<a >< ><><b>");
+	ok(view("a , ,,b".rip(",", true,  false)) == "<a><><><b>");//trim items
+	ok(view("a , ,,b".rip(",", false, true))  == "<a >< ><b>");//skip blanks
+	ok(view("a , ,,b".rip(",", true,  true))  == "<a><b>");//both
 
 	//words
 
 	var s = "  somewhere here  is  my tulip";
 
-	test.ok(view(s.ripWords(false, false)) == "<><><somewhere><here><><is><><my><tulip>");
-	test.ok(view(s.ripWords(true,  false)) == "<><><somewhere><here><><is><><my><tulip>");//trim
-	test.ok(view(s.ripWords(false, true))  == "<somewhere><here><is><my><tulip>");//skip
-	test.ok(view(s.ripWords(true,  true))  == "<somewhere><here><is><my><tulip>");//both
+	ok(view(s.ripWords(false, false)) == "<><><somewhere><here><><is><><my><tulip>");
+	ok(view(s.ripWords(true,  false)) == "<><><somewhere><here><><is><><my><tulip>");//trim
+	ok(view(s.ripWords(false, true))  == "<somewhere><here><is><my><tulip>");//skip
+	ok(view(s.ripWords(true,  true))  == "<somewhere><here><is><my><tulip>");//both
 
 	//lines
 
@@ -1023,19 +1022,19 @@ exports.testRip = function(test) {
 
 	var da = "<One><Two><Three>";
 
-	test.ok(view(du.ripLines(false, false)) == da);
-	test.ok(view(dw.ripLines(true,  false)) == da);//trim windows line endings
+	ok(view(du.ripLines(false, false)) == da);
+	ok(view(dw.ripLines(true,  false)) == da);//trim windows line endings
 
-	test.ok(view(d1.ripLines(true, true)) == da);//trim and skip
-	test.ok(view(d2.ripLines(true, true)) == da);
-	test.ok(view(d3.ripLines(true, true)) == da);
+	ok(view(d1.ripLines(true, true)) == da);//trim and skip
+	ok(view(d2.ripLines(true, true)) == da);
+	ok(view(d3.ripLines(true, true)) == da);
 
-	test.ok(view(d1.ripLines(true, false)) == "<><One><Two><Three>");//just trim
-	test.ok(view(d2.ripLines(true, false)) == "<One><Two><><Three>");
-	test.ok(view(d3.ripLines(true, false)) == "<One><Two><Three><>");
+	ok(view(d1.ripLines(true, false)) == "<><One><Two><Three>");//just trim
+	ok(view(d2.ripLines(true, false)) == "<One><Two><><Three>");
+	ok(view(d3.ripLines(true, false)) == "<One><Two><Three><>");
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1059,58 +1058,58 @@ exports.testRip = function(test) {
 
 // say, line, lines, table
 
-exports.testSay = function(test) {
+expose.test("text say", function(ok, done) {
 
-	test.ok(say("hi") == "hi");
-	test.ok(say(7) == "7");//easy way to turn a number into numerals
-	test.ok(say("boolean is ", false) == "boolean is false");//works with booleans too
+	ok(say("hi") == "hi");
+	ok(say(7) == "7");//easy way to turn a number into numerals
+	ok(say("boolean is ", false) == "boolean is false");//works with booleans too
 
-	test.ok(say("a", "b", "cd") == "abcd");
-	test.ok(say("aaa", "", "bbb") == "aaabbb");//middle string is blank
+	ok(say("a", "b", "cd") == "abcd");
+	ok(say("aaa", "", "bbb") == "aaabbb");//middle string is blank
 
-	test.ok(say("a", 2, "b") == "a2b");
+	ok(say("a", 2, "b") == "a2b");
 
-	test.done();
-}
+	done();
+});
 
-exports.testLine = function(test) {
+expose.test("text line", function(ok, done) {
 
-	test.ok(line("hi") == "hi\r\n");
-	test.ok(line("a", 2, "b") == "a2b\r\n");
-	test.ok(line("") == "\r\n");//blank line
+	ok(line("hi") == "hi\r\n");
+	ok(line("a", 2, "b") == "a2b\r\n");
+	ok(line("") == "\r\n");//blank line
 
-	test.done();
-}
+	done();
+});
 
-exports.testFill = function(test) {
+expose.test("text fill", function(ok, done) {
 	
-	test.ok("".fill() == "");//blank
-	test.ok("hello".fill() == "hello");//no tags
+	ok("".fill() == "");//blank
+	ok("hello".fill() == "hello");//no tags
 
-	test.ok("#ab".fill(7) == "7ab");//start
-	test.ok("a#b".fill(7) == "a7b");//middle
-	test.ok("ab#".fill(7) == "ab7");//end
+	ok("#ab".fill(7) == "7ab");//start
+	ok("a#b".fill(7) == "a7b");//middle
+	ok("ab#".fill(7) == "ab7");//end
 
-	test.ok("###".fill("a", "b", "c")      == "abc");//multiple
-	test.ok("###".fill("a", "b", "c", "d") == "abcd");//too many
-	test.ok("###".fill("a", "b")           == "ab#");//too few
+	ok("###".fill("a", "b", "c")      == "abc");//multiple
+	ok("###".fill("a", "b", "c", "d") == "abcd");//too many
+	ok("###".fill("a", "b")           == "ab#");//too few
 
 	// What if you want to include a # that doesn't get replaced? Assemble your string the old fasioned way, or replace a # in the format string with "#" as an additional argument, like this:
-	test.ok("Assumed # of kittens: #.".fill("#", 4) == "Assumed # of kittens: 4.");
+	ok("Assumed # of kittens: #.".fill("#", 4) == "Assumed # of kittens: 4.");
 
-	test.done();
-}
+	done();
+});
 
-exports.testLinesTable = function(test) {
+expose.test("text lines table", function(ok, done) {
 
 	//check formatting
-	test.ok(table([
+	ok(table([
 		["a",     "b",      "c"],
 		["apple", "banana", "carrot"]]) ==
 	lines(
 		"a      b       c",
 		"apple  banana  carrot"));
-	test.ok(table([
+	ok(table([
 		["Item",   "Color"],
 		["-",      "-"],
 		["leaf",   "green"],
@@ -1125,7 +1124,7 @@ exports.testLinesTable = function(test) {
 
 	//cells with more than just string literals
 	function fun() { return "answer"; }
-	test.ok(table([
+	ok(table([
 		["Name",   "Value"],
 		["-",      "-"],
 		["number", 7], // A number instead of a string literal
@@ -1137,19 +1136,19 @@ exports.testLinesTable = function(test) {
 		"return  answer"));
 
 	//string output
-	test.ok(table([["A", "B"], ["CC", "DD"]]) == "A   B\r\nCC  DD\r\n");
-	test.ok(table([["AA", "B"], ["C", "DD"]]) == "AA  B\r\nC   DD\r\n");
+	ok(table([["A", "B"], ["CC", "DD"]]) == "A   B\r\nCC  DD\r\n");
+	ok(table([["AA", "B"], ["C", "DD"]]) == "AA  B\r\nC   DD\r\n");
 
 	//blank cells	
-	test.ok(table([
+	ok(table([
 		["apple apricot", "", "c"],//cell b is blank
 		["dictionary", "eggs earth eager", "f"]]) ==
 	lines(
 		"apple apricot                    c",
 		"dictionary     eggs earth eager  f"));
 
-	test.done();
-}
+	done();
+});
 
 
 
@@ -1197,65 +1196,65 @@ exports.testLinesTable = function(test) {
 //  |_____|_| |_|\___\___/ \__,_|\___|
 //                                    
 
-exports.testEncodeDecodeUriComponent = function(test) {
+expose.test("text encodeURIComponent decodeURIComponent", function(ok, done) {
 
 	//encode characters
-	test.ok(encodeURIComponent("A") == "A");//lets A pass through
-	test.ok(encodeURIComponent("-") == "-");//lets hyphen pass through
-	test.ok(encodeURIComponent(" ") == "%20");//turns space into %20
-	test.ok(encodeURIComponent("%") == "%25");
-	test.ok(encodeURIComponent("&") == "%26");
-	test.ok(encodeURIComponent("+") == "%2B");//writes base16 in upper case
-	test.ok(encodeURIComponent(",") == "%2C");
-	test.ok(encodeURIComponent("\r\n") == "%0D%0A");
+	ok(encodeURIComponent("A") == "A");//lets A pass through
+	ok(encodeURIComponent("-") == "-");//lets hyphen pass through
+	ok(encodeURIComponent(" ") == "%20");//turns space into %20
+	ok(encodeURIComponent("%") == "%25");
+	ok(encodeURIComponent("&") == "%26");
+	ok(encodeURIComponent("+") == "%2B");//writes base16 in upper case
+	ok(encodeURIComponent(",") == "%2C");
+	ok(encodeURIComponent("\r\n") == "%0D%0A");
 
 	//decode them back
-	test.ok(decodeURIComponent("A")   == "A");
-	test.ok(decodeURIComponent("-")   == "-");
-	test.ok(decodeURIComponent("%20") == " ");
-	test.ok(decodeURIComponent("%25") == "%");
-	test.ok(decodeURIComponent("%26") == "&");
-	test.ok(decodeURIComponent("%2B") == "+");
-	test.ok(decodeURIComponent("%2C") == ",");
-	test.ok(decodeURIComponent("%0D%0A") == "\r\n");
+	ok(decodeURIComponent("A")   == "A");
+	ok(decodeURIComponent("-")   == "-");
+	ok(decodeURIComponent("%20") == " ");
+	ok(decodeURIComponent("%25") == "%");
+	ok(decodeURIComponent("%26") == "&");
+	ok(decodeURIComponent("%2B") == "+");
+	ok(decodeURIComponent("%2C") == ",");
+	ok(decodeURIComponent("%0D%0A") == "\r\n");
 
 	//double space and double encode
-	test.ok(encodeURIComponent("  ") == "%20%20");//two spaces
-	test.ok(encodeURIComponent(encodeURIComponent(" ")) == "%2520");//double encode
+	ok(encodeURIComponent("  ") == "%20%20");//two spaces
+	ok(encodeURIComponent(encodeURIComponent(" ")) == "%2520");//double encode
 
 	//see if it can decode lowercase base 16
-	test.ok(decodeURIComponent("%2C") == ",");//uppercase, what it produces
-	test.ok(decodeURIComponent("%2c") == ",");//lowercase, it accepts that also
+	ok(decodeURIComponent("%2C") == ",");//uppercase, what it produces
+	ok(decodeURIComponent("%2c") == ",");//lowercase, it accepts that also
 
 	//see what happens if you give decode characters that should have been encoded
-	test.ok(decodeURIComponent(" ") == " ");//these pass through
-	test.ok(decodeURIComponent("&") == "&");
-	test.ok(decodeURIComponent("+") == "+");//plus stays plus, doesn't become space
+	ok(decodeURIComponent(" ") == " ");//these pass through
+	ok(decodeURIComponent("&") == "&");
+	ok(decodeURIComponent("+") == "+");//plus stays plus, doesn't become space
 	try {
 		decodeURIComponent("%");//just a percent throws URIError
-		test.fail();
-	} catch (e) { test.ok(e.name == "URIError"); }
+		ok(false);
+	} catch (e) { ok(e.name == "URIError"); }
 
 	//looking at plus and space
-	test.ok(encodeURIComponent("hello you")   == "hello%20you");//encode
-	test.ok(decodeURIComponent("hello%20you") == "hello you");//decode
-	test.ok(decodeURIComponent("hello+you")   == "hello+you");//doesn't decode spaces
+	ok(encodeURIComponent("hello you")   == "hello%20you");//encode
+	ok(decodeURIComponent("hello%20you") == "hello you");//decode
+	ok(decodeURIComponent("hello+you")   == "hello+you");//doesn't decode spaces
 
-	test.done();
-}
+	done();
+});
 
-exports.testEncodeDecode = function(test) {
+expose.test("text encode decode", function(ok, done) {
 
 	function round(plain, encoded) {
-		test.ok(plain.encode() == encoded);//confirm plain encodes into encoded
-		test.ok(encoded.decode() == plain);//confirm encoded decodes back into plain
+		ok(plain.encode() == encoded);//confirm plain encodes into encoded
+		ok(encoded.decode() == plain);//confirm encoded decodes back into plain
 	}
 	function unchanged(plain) { round(plain, plain); }//confirm encoding and decoding plain doesn't change it
 	function decodeInvalid(encoded) {
 		try {
 			encoded.decode();
-			test.fail();
-		} catch (e) { test.ok(e.name == "data"); }
+			ok(false);
+		} catch (e) { ok(e.name == "data"); }
 	}
 
 	//blank
@@ -1270,13 +1269,13 @@ exports.testEncodeDecode = function(test) {
 	round("?", "%3F");
 	round("&", "%26");
 	round(",", "%2C");//encode writes base 16 in uppercase
-	test.ok("%2c".decode() == ",");//decode accepts lowercase also
+	ok("%2c".decode() == ",");//decode accepts lowercase also
 
 	//space, plus, and %20
 	round("a b", "a+b");//custom enhancement encodes space into + instead of %20
 	round("a+b", "a%2Bb");//plus gets encoded into %2B
-	test.ok("a+b".decode()   == "a b");//decodes both plus and %20 back to space
-	test.ok("a%20b".decode() == "a b");
+	ok("a+b".decode()   == "a b");//decodes both plus and %20 back to space
+	ok("a%20b".decode() == "a b");
 
 	//percent and decoding a fragment
 	round("%", "%25");//percent becomes %25, and back again
@@ -1287,7 +1286,7 @@ exports.testEncodeDecode = function(test) {
 	//international
 	function roundData(plain, encoded, base16) {
 		round(plain, encoded);//confirm encoding works both ways
-		test.ok(Data(plain).base16() == base16);//and the bytes in base16 match
+		ok(Data(plain).base16() == base16);//and the bytes in base16 match
 	}
 	roundData("a", "a", "61");
 	roundData("ö", "%C3%B6", "c3b6");
@@ -1295,20 +1294,18 @@ exports.testEncodeDecode = function(test) {
 	roundData("の", "%E3%81%AE", "e381ae");
 	roundData("一二三", "%E4%B8%80%E4%BA%8C%E4%B8%89", "e4b880e4ba8ce4b889");
 
-	test.done();
-}
+	done();
+});
 
-exports.testEncodeDecode = function(test) {
+expose.test("text encode decode", function(ok, done) {
 
-	test.ok("¶".data().base16() == "c2b6");//we're using the standard unicode pilcrow character
-	test.ok("\n".pilcrow().data().base16() == "c2b6");//utf8
+	ok("¶".data().base16() == "c2b6");//we're using the standard unicode pilcrow character
+	ok("\n".pilcrow().data().base16() == "c2b6");//utf8
 
-	test.ok("windows newline\r\nunix newline\nextra line".pilcrow() == "windows newline¶unix newline¶extra line");
+	ok("windows newline\r\nunix newline\nextra line".pilcrow() == "windows newline¶unix newline¶extra line");
 
-	test.done();
-}
-
-
+	done();
+});
 
 
 
@@ -1356,3 +1353,6 @@ exports.testEncodeDecode = function(test) {
 
 
 
+
+});
+console.log("text test/");
