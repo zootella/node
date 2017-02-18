@@ -85,9 +85,9 @@ expose.main("watch", function() {
 	});
 
 	keyboard("exit", function() {
-		close(w);
+		shut(w);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 });
 

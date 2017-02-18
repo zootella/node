@@ -47,7 +47,7 @@ function demoMeter(meter) {
 	});
 
 	keyboard("exit", function() {
-		close(r);
+		shut(r);
 		closeKeyboard();
 		closeCheck();
 	});

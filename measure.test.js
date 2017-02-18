@@ -178,17 +178,17 @@ exit6: uses both
 */
 
 expose.main("exit1", function() {//exits when done, uses neither
-	var r = mustClose();
+	var r = mustShut();
 	log("log");
-	close(r);
-	closeCheck();
+	shut(r);
+	shutCheck();
 });
 
 expose.main("exit2", function() {//exits when done, uses charm
-	var r = mustClose();
+	var r = mustShut();
 	stick("stick");
-	close(r);
-	closeCheck();
+	shut(r);
+	shutCheck();
 });
 
 expose.main("exit3", function() {//exits when done, uses keypress
@@ -196,11 +196,11 @@ expose.main("exit3", function() {//exits when done, uses keypress
 		log("keyboard");
 	});
 
-	var r = mustClose();
+	var r = mustShut();
 	log("log");
-	close(r);
+	shut(r);
 	closeKeyboard();
-	closeCheck();
+	shutCheck();
 });
 
 expose.main("exit4", function() {//exits when done, uses both
@@ -208,11 +208,11 @@ expose.main("exit4", function() {//exits when done, uses both
 		log("keyboard");
 	});
 
-	var r = mustClose();
+	var r = mustShut();
 	stick("stick");
-	close(r);
+	shut(r);
 	closeKeyboard();
-	closeCheck();
+	shutCheck();
 });
 
 expose.main("exit5", function() {//user exits, uses keypress
@@ -221,13 +221,13 @@ expose.main("exit5", function() {//user exits, uses keypress
 	});
 	keyboard("exit", function() {
 		log("user exit");
-		close(r, s);
+		shut(r, s);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 
-	var r = mustClose();
-	var s = mustClose();
+	var r = mustShut();
+	var s = mustShut();
 	s.pulseScreen = function() {
 		log(sayDateAndTime(now().time));//scrolling clock
 	}
@@ -239,13 +239,13 @@ expose.main("exit6", function() {//user exits, uses both
 	});
 	keyboard("exit", function() {
 		log("user exit");
-		close(r, s);
+		shut(r, s);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 
-	var r = mustClose();
-	var s = mustClose();
+	var r = mustShut();
+	var s = mustShut();
 	s.pulseScreen = function() {
 		stick(sayDateAndTime(now().time));//clock that stays in place
 	}
@@ -258,10 +258,13 @@ expose.main("exit6", function() {//user exits, uses both
 //   \____|_|\___/|___/\___|
 //                          
 
-//escape to close both with and without all the resources you made closed
+//TODO not sure if this heading should be Close or Shut
+//but also, who cares? you spent too much code debugging the way node does processes, which doesn't really matter
+
+//escape to close both with and without all the resources you made shut
 expose.main("keyboard-resource", function() {
 
-	var clock = mustClose();
+	var clock = mustShut();
 	var resources = [];
 
 	clock.pulseScreen = function() {
@@ -272,23 +275,23 @@ expose.main("keyboard-resource", function() {
 			"[m]ake or [c]lose a resource");
 	}
 
-	keyboard("m", function() { resources.add(mustClose()); });
-	keyboard("c", function() { if (resources.length) close(resources.remove(0)); });
+	keyboard("m", function() { resources.add(mustShut()); });
+	keyboard("c", function() { if (resources.length) shut(resources.remove(0)); });
 
 	keyboard("exit", function() {
-		close(clock);
+		shut(clock);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 });
 
 //this demo shows that keyboard exit lets the process exit naturally, rather than ending it by force
 //it also shows that a timeout will prevent the process from exiting
 //start, escape: exits naturally right away, same thing if you s and wait for the timeout to happen
-//start, s, escape: close check passes, but the process stays alive until the timeout happens
+//start, s, escape: shut check passes, but the process stays alive until the timeout happens
 expose.main("keyboard-timeout", function() {
 
-	var c = mustClose();
+	var c = mustShut();
 	var t = null;
 
 	c.pulseScreen = function() {
@@ -311,9 +314,9 @@ expose.main("keyboard-timeout", function() {
 	});
 
 	keyboard("exit", function() {
-		close(c);
+		shut(c);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 });
 

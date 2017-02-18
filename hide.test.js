@@ -329,9 +329,9 @@ expose.main("in-place", function(n, d) {
 
 	keyboard("exit", function() {
 		go = false;//stop generating random data
-		close(screen);
+		shut(screen);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 });
 
@@ -389,9 +389,9 @@ expose.main("random-limit", function() {
 
 	keyboard("exit", function() {
 		go = false;//stop generating random data
-		close(screen);
+		shut(screen);
 		closeKeyboard();
-		closeCheck();
+		shutCheck();
 	});
 });
 

@@ -118,7 +118,7 @@ function speedLoopForever(name, f) {
 	keyboard("exit", function() {
 		go = false;
 		closeKeyboard();
-		closeCheck();//have a close check silent, only complains if something left open
+		shutCheck();//have a shut check silent, only complains if something left open
 	});
 }
 
@@ -227,29 +227,29 @@ function mistakeStop(e) {
 	exit(); // Terminate the process right here without closing the program properly
 }
 
-// How many objects still need to be closed
-function closeCount() {
-	clear(); // Remove closed objects from the list
+// How many objects still need to be shut
+function shutCount() {
+	clear(); // Remove shut objects from the list
 	return list.length;
 }
 
-// Call after you've closed all the objects the program used
-function closeCheck() {
-	if (closeCount()) { // We should have closed them all, but didn't
+// Call after you've shut all the objects the program used
+function shutCheck() {
+	if (shutCount()) { // We should have shut them all, but didn't
 		log(_sayList());
 		exit(); // Otherwise the pulse timer will keep the process running
 	}
 }
 //TODO log(monitorDescribeEfficiency()); // Log performance and efficiency statistics
 
-// Call after you've closed all the objects a test used
+// Call after you've shut all the objects a test used
 function customDone(test) {
-	clear(); // Remove closed objects from the list
-	if (list.length) { // We should have closed them all, but didn't
+	clear(); // Remove shut objects from the list
+	if (list.length) { // We should have shut them all, but didn't
 		log(_sayList());
 		test.fail();
 		exit(); // Stop here instead of running the remaining tests
-	} else { // The test closed everything correctly
+	} else { // The test shut everything correctly
 		test.done(); // Tell nodeunit the test finished successfully
 	}
 }
@@ -273,13 +273,13 @@ function _logException(e) {
 
 // Compose text about the objects left open in the pulse list
 function _sayList() {
-	var s = line(items(list.length, "object"), " not closed:"); // Compose text about the objects still open by mistake
+	var s = line(items(list.length, "object"), " not shut:"); // Compose text about the objects still open by mistake
 	for (var i = 0; i < list.length; i++)
 		s += line(list[i]); // Say each forgotten item on one or more lines of text
 	return s;
 }
 
-expose.core({mistakeLog, mistakeStop, closeCount, closeCheck, customDone, exit});
+expose.core({mistakeLog, mistakeStop, shutCount, shutCheck, customDone, exit});
 
 //TODO check out process.on('uncaughtException'), and see how it works in node and electron
 
@@ -293,21 +293,21 @@ expose.core({mistakeLog, mistakeStop, closeCount, closeCheck, customDone, exit})
 
 
 
-//    ____ _                
-//   / ___| | ___  ___  ___ 
-//  | |   | |/ _ \/ __|/ _ \
-//  | |___| | (_) \__ \  __/
-//   \____|_|\___/|___/\___|
-//                          
+//   ____  _           _   
+//  / ___|| |__  _   _| |_ 
+//  \___ \| '_ \| | | | __|
+//   ___) | | | | |_| | |_ 
+//  |____/|_| |_|\__,_|\__|
+//                         
 
-// Close the given objects, keeps going through null and exceptions
-function close() {
-	for (var i = 0; i < arguments.length; i++) { // Use like close(o) or close(o1, o2, o3)
+// Shut the given objects, keeps going through null and exceptions
+function shut() {
+	for (var i = 0; i < arguments.length; i++) { // Use like shut(o) or shut(o1, o2, o3)
 		var o = arguments[i];
 		try {
-			if (hasMethod(o, "isClosed") && !o.isClosed()) {
-				o._private_isClosed = true; // Mark this object as closed, and only do this once
-				if (hasMethod(o, "_private_closeMethod")) o._private_closeMethod();
+			if (hasMethod(o, "isShut") && !o.isShut()) {
+				o._private_isShut = true; // Mark this object as shut, and only do this once
+				if (hasMethod(o, "_private_shutMethod")) o._private_shutMethod();
 				soon(); // Have the program pulse soon so the object that made this one can notice it finished
 			}
 		} catch (e) { mistakeLog(e); }
@@ -315,28 +315,28 @@ function close() {
 }
 
 /*
-Make your object so the program will pulse it, and notice if you forget to later close it
-Pass in and add on your close, pulse, and pulseScreen methods like this:
+Make your object so the program will pulse it, and notice if you forget to later shut it
+Pass in and add on your shut, pulse, and pulseScreen methods like this:
 
-var o = mustClose(function() {}); // Close your objects inside, put away resources, and never change again
-o.pulse = function() {};          // Notice things inside your object that have changed or finished, and do the next step to move forward
-o.pulseScreen = function() {};    // Compose text and information for the user based on the current state of things
-close(o);                         // Close your object when you're done with it so they're all closed when the program exits
+var o = mustShut(function() {}); // Shut your objects inside, put away resources, and never change again
+o.pulse = function() {};         // Notice things inside your object that have changed or finished, and do the next step to move forward
+o.pulseScreen = function() {};   // Compose text and information for the user based on the current state of things
+shut(o);                         // Shut your object when you're done with it so they're all shut when the program exits
 
-canClose(c)     Provide a close method, close(o) works and is optional, o.pulse() not available
-mustClose(c)    Provide a close method, close(o) is mandatory, you can add o.pulse() and o.pulseScreen()
-pulseScreen(p)  Provide a pulseScreen method, close(o) is mandatory, close method not available
+canShut(s)      Provide a shut method, shut(o) works and is optional, o.pulse() not available
+mustShut(s)     Provide a shut method, shut(o) is mandatory, you can add o.pulse() and o.pulseScreen()
+pulseScreen(p)  Provide a pulseScreen method, shut(o) is mandatory, shut method not available
 */
-function canClose(c) { // Takes your object's close method
+function canShut(s) { // Takes your object's shut method s
 	var o = {}; // The start of your object we will fill and return
-	o._private_closeMethod = c;
-	o._private_isClosed = false;
-	o.isClosed = function() { return o._private_isClosed; } // True once we're closed, and promise to not change again
+	o._private_shutMethod = s;
+	o._private_isShut = false;
+	o.isShut = function() { return o._private_isShut; } // True once we're shut, and promise to not change again
 	return o;
 }
-function mustClose(c) { // Takes your object's close method
-	var o = canClose(c);
-	// Add the given new object that needs to be closed to the program's list of open objects to keep track of it
+function mustShut(s) { // Takes your object's shut method
+	var o = canShut(s);
+	// Add the given new object that needs to be shut to the program's list of open objects to keep track of it
 	// It's safe to add to the end of the list even during a pulse because we loop by index number
 	// The objects in the list are in the order they were made, so contained objects are after those that made them
 	list.add(o);
@@ -345,12 +345,12 @@ function mustClose(c) { // Takes your object's close method
 	return o;
 }
 function pulseScreen(p) { // Takes your object's pulseScreen method
-	var o = mustClose();
+	var o = mustShut();
 	o.pulseScreen = p;
 	return o;
 }
 
-expose.core({close, canClose, mustClose, pulseScreen});
+expose.core({shut, canShut, mustShut, pulseScreen});
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -359,12 +359,12 @@ expose.core({close, canClose, mustClose, pulseScreen});
 //  |_____|_|___/\__|
 //                   
 
-var list = []; // Every object the program needs to close, and hasn't yet
+var list = []; // Every object the program needs to shut, and hasn't yet
 
-// Remove objects that got closed from the list
+// Remove objects that got shut from the list
 function clear() {
 	for (var i = list.length - 1; i >= 0; i--) { // Loop backwards so we can remove things along the way
-		if (list[i].isClosed()) // Only remove closed objects
+		if (list[i].isShut()) // Only remove shut objects
 			list.remove(i);
 	}
 	if (!list.length) dingStop(); // Stop the ding if the list is empty
@@ -465,7 +465,7 @@ function _pulse() {
 
 		// Pulse up the list in a single pass
 		for (var i = list.length - 1; i >= 0; i--) { // Loop backwards to pulse contained objects before the older objects that made them
-			if (!list[i].isClosed() && hasMethod(list[i], "pulse")) { // Skip closed objects
+			if (!list[i].isShut() && hasMethod(list[i], "pulse")) { // Skip shut objects
 				try {
 					list[i].pulse(); // Pulse the object so it notices things that have finished and moves to the next step
 				} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
@@ -475,14 +475,14 @@ function _pulse() {
 
 	// In a single pass after that, pulse up the list to have objects compose information for the user
 	for (var i = list.length - 1; i >= 0; i--) {
-		if (!list[i].isClosed() && hasMethod(list[i], "pulseScreen")) { // Skip closed objects
+		if (!list[i].isShut() && hasMethod(list[i], "pulseScreen")) { // Skip shut objects
 			try {
 				list[i].pulseScreen(); // Pulse the object to have it compose text for the user to show current information
 			} catch (e) { mistakeStop(e); } // Stop the program for an exception we didn't expect
 		}
 	}
 
-	clear(); // Remove closed objects from the list all at once at the end
+	clear(); // Remove shut objects from the list all at once at the end
 	monitorEnd(list.length);
 	start = false; // Allow the next call to soon() to start a new pulse
 }

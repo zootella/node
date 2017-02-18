@@ -17,7 +17,7 @@
 
 //all the awesomeness of node streams, with these additional features
 //Meter - metering on every valve input and output, see total distance, speed, histograms, max and min
-//timeout - if something gets stuck for 4s, cancel and close rather than just waiting forever
+//timeout - if something gets stuck for 4s, cancel and shut rather than just waiting forever
 //Range - requested ranges that may be a certain distance then done, or may be infinity
 
 

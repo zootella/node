@@ -26,9 +26,9 @@ contain(function(expose) {
 
 
 // An open file on the disk with access to its data
-// Wrap a file descriptor d in a File object to notice if you forget to close it
-function File(descriptor) {
-	var o = mustClose(o.close = function() { // Close the open disk file
+// Wrap a file descriptor d in a File object to notice if you forget to shut it
+function File2(descriptor) {
+	var o = mustShut(o.shut = function() { // Close the open disk file
 
 		fileClose(o.descriptor); // No callback provided
 		o.descriptor = null;
@@ -36,11 +36,11 @@ function File(descriptor) {
 
 	o.descriptor = function() { return descriptor; } // Access to the platform file descriptor we hold
 
-	o.type = "File";
+	o.type = "File2";
 	return o;
 }
 
-expose.core({File});
+expose.core({File2});//TODO renamed to File2 to avoid overwriting a native function electron renderer has on global.File
 
 
 

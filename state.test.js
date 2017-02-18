@@ -544,115 +544,115 @@ expose.test("state mistake 8", function(ok, done) {
 
 
 
-//    ____ _                
-//   / ___| | ___  ___  ___ 
-//  | |   | |/ _ \/ __|/ _ \
-//  | |___| | (_) \__ \  __/
-//   \____|_|\___/|___/\___|
-//                          
+//   ____  _           _   
+//  / ___|| |__  _   _| |_ 
+//  \___ \| '_ \| | | | __|
+//   ___) | | | | |_| | |_ 
+//  |____/|_| |_|\__,_|\__|
+//                         
 
-expose.test("state closeCount", function(ok, done) {
+expose.test("state shutCount", function(ok, done) {
 
-	ok(closeCount() == 0);
-	var r = mustClose();
-	ok(closeCount() == 1);
-	close(r);
-	ok(closeCount() == 0);
-	var r1 = mustClose();
-	var r2 = mustClose();
-	ok(closeCount() == 2);
-	close(r1, r2);
-	ok(closeCount() == 0);
+	ok(shutCount() == 0);
+	var r = mustShut();
+	ok(shutCount() == 1);
+	shut(r);
+	ok(shutCount() == 0);
+	var r1 = mustShut();
+	var r2 = mustShut();
+	ok(shutCount() == 2);
+	shut(r1, r2);
+	ok(shutCount() == 0);
 
 	done();
 });
 
-expose.test("state close once", function(ok, done) {
+expose.test("state shut once", function(ok, done) {
 
-	var r = mustClose();
-	ok(!r.isClosed());//not closed
-	close(r);
-	ok(r.isClosed());//closed
-	close(r);
-	ok(r.isClosed());//still closed
+	var r = mustShut();
+	ok(!r.isShut());//not shut
+	shut(r);
+	ok(r.isShut());//shut
+	shut(r);
+	ok(r.isShut());//still shut
 
-	var closed = 0;
-	r = mustClose(function() {
-		closed++;
+	var n = 0;
+	r = mustShut(function() {
+		n++;
 	});
-	ok(closed == 0);
-	close(r);
-	ok(closed == 1);
-	close(r);
-	ok(closed == 1);//only ran once
+	ok(n == 0);
+	shut(r);
+	ok(n == 1);
+	shut(r);
+	ok(n == 1);//only ran once
 
 	done();
 });
 
-//example object that needs to get closed
+//example object that needs to get shut
 function Resource(name) {
 	if (!name) name = "resource";
-	var o = mustClose();//we have to remember to close it
+	var o = mustShut();//we have to remember to shut it
 	o.pulse = function() { log("pulse " + name); }//the program will pulse it for us
 	o.text = name;
 	return o;
 };
 
-expose.test("state close cycle", function(ok, done) {
+expose.test("state shut cycle", function(ok, done) {
 
 	var r;
 	ok(!r);//not made yet
 	r = Resource();
-	ok(!r.isClosed());//new and open
-	close(r);
-	ok(r.isClosed());//closed
+	ok(!r.isShut());//new and open
+	shut(r);
+	ok(r.isShut());//shut
 	r = null;
 	ok(!r);//discarded
 
 	done();		
 });
 
-expose.test("state close separate", function(ok, done) {
+expose.test("state shut separate", function(ok, done) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
-	ok(!r1.isClosed());//both start out open
-	ok(!r2.isClosed());
+	ok(!r1.isShut());//both start out open
+	ok(!r2.isShut());
 
-	close(r2);//close one
-	ok(!r1.isClosed());//confirm this didn't change the first one
+	shut(r2);//shut one
+	ok(!r1.isShut());//confirm this didn't change the first one
 
-	close(r1);//close the other one
-	ok(r1.isClosed());//now they're both closed
-	ok(r2.isClosed());
+	shut(r1);//shut the other one
+	ok(r1.isShut());//now they're both shut
+	ok(r2.isShut());
 
 	done();
 });
 
-expose.test("state close several", function(ok, done) {
+expose.test("state shut several", function(ok, done) {
 
 	var r1 = Resource();//make two resources
 	var r2 = Resource();
 	var r3 = Resource();
-	close(r3);//this one will be already closed
+	shut(r3);//this one will be already shut
 	var d = Data();//and lots of other stuff
 	var s = "hello";
 	var n = null;
 	var u = undefined;
-	close(d, s, r1, r2, n, u);//close will try to close them all
+	shut(d, s, r1, r2, n, u);//shut will try to shut them all
 
 	done();
 });
 
-//close logs exceptions but keeps going
-expose.main("close-throw", function() {
+//shut logs exceptions but keeps going
+expose.main("shut-throw", function() {
 
-	var r1 = mustClose(function() { log("closing r1, which will work");                      });
-	var r2 = mustClose(function() { log("closing r2, which will throw"); undefined.notFound; });
-	var r3 = mustClose(function() { log("closing r3, which will work");                      });
-	close(r1, r2, r3);
+	var r1 = mustShut(function() { log("closing r1, which will work");                      });
+	var r2 = mustShut(function() { log("closing r2, which will throw"); undefined.notFound; });
+	var r3 = mustShut(function() { log("closing r3, which will work");                      });
+	shut(r1, r2, r3);
 
-	closeCheck();
+	shutCheck();
 });
 
 
@@ -681,7 +681,7 @@ expose.main("close-throw", function() {
 expose.main("pulse", function() {
 
 	function ExamplePulse() {
-		var o = mustClose();
+		var o = mustShut();
 		o.pulse = function() {
 			log("pulse");
 		}
@@ -697,7 +697,7 @@ expose.main("pulse", function() {
 expose.main("pulse-throw", function() {
 
 	function ExamplePulseThrow() {
-		var o = mustClose();
+		var o = mustShut();
 		o.pulse = function() {
 			Data("hello").start(6);//throws chop
 		}
@@ -707,44 +707,44 @@ expose.main("pulse-throw", function() {
 	var u = ExamplePulseThrow();//make a new object which will throw on the first pulse
 });
 
-//make an object that needs to be closed, and close it
-expose.main("close", function() {
+//make an object that needs to be shut, and shut it
+expose.main("shut", function() {
 
 	var m = Resource();
-	close(m);
-	closeCheck();
+	shut(m);
+	shutCheck();
 	//with no more code to run here, the process exits normally
 });
 
-//make an object that needs to be closed, and forget to close it
+//make an object that needs to be shut, and forget to shut it
 expose.main("forget", function() {
 
 	var m = Resource("forgotten resource");
-	closeCheck();//forgot to close it
+	shutCheck();//forgot to shut it
 });
 
-//two objects that pulse and then close after 2 and 4 seconds
-//when both objects are closed, the process will exit
+//two objects that pulse and then shut after 2 and 4 seconds
+//when both objects are shut, the process will exit
 expose.main("pulse-two", function() {
 
 	function Pulse1() {
-		var o = mustClose(function() {
-			log("closed 1");
+		var o = mustShut(function() {
+			log("shut 1");
 		});
 		o.pulse = function() {
 			log("pulse 1");
-			if (start.expired(2*Time.second)) close(o);//close this pulse1 object
+			if (start.expired(2*Time.second)) shut(o);//shut this pulse1 object
 		}
 		return o;
 	};
 
 	function Pulse2() {
-		var o = mustClose(function() {
-			log("closed 2");
+		var o = mustShut(function() {
+			log("shut 2");
 		});
 		o.pulse = function() {
 			log("pulse 2");
-			if (start.expired(4*Time.second)) close(o);
+			if (start.expired(4*Time.second)) shut(o);
 		}
 		return o;
 	};
@@ -912,9 +912,9 @@ function demoSpeed(method) {
 expose.main("speed-pulse", function() {
 
 	function SpeedResource() {//a resource that finishes on the first pulse
-		var o = mustClose();
+		var o = mustShut();
 		o.pulse = function() {
-			end();//close this resource on the first pulse
+			end();//shut this resource on the first pulse
 		}
 
 		return o;
@@ -926,12 +926,12 @@ expose.main("speed-pulse", function() {
 	}
 
 	function end() {
-		close(r);//close the resource
+		shut(r);//shut the resource
 		callWhenDone();//have speedLoopNext record another cycle and maybe call start again
 	}
 
 	function allDone() {//speedLoopNext calls this once after the last cycle of the last second
-		closeCheck();
+		shutCheck();
 	}
 
 	var callWhenDone = speedLoopNext("pulse", start, allDone);

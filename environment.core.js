@@ -56,7 +56,7 @@ expose.core({platform, working});
 
 
 function Watch(paths, options, events, call) {
-	var o = mustClose(function() {
+	var o = mustShut(function() {
 		o._watcher.close();
 	});
 	o._watcher = required.chokidar.watch(paths, options).on(events, call);

@@ -1238,7 +1238,7 @@ function Stripe(i, w) {
 	return freeze(o);
 }
 
-function Range(i, w) {
+function Range2(i, w) {
 	min0(i);
 	if (w !== -1) min0(w); //TODO use a string or something instead of a negative number
 	var o = {};
@@ -1247,19 +1247,19 @@ function Range(i, w) {
 	o.w = w; // The size of this Range, its width, -1 no limit, 0 done, 1+ size
 
 	o.same = function(s) {
-		checkType(s, "Range");
+		checkType(s, "Range2");
 		return i == s.i && w == s.w;
 	}
 
 	o.text = function() { return "i#w#".fill(i, w); }
-	o.type = "Range";
+	o.type = "Range2";
 	return freeze(o);
 }
 
 function sortStripe(){}
 function sortRange(){}
 
-expose.core({Stripe, Range});
+expose.core({Stripe, Range2});//TODO renamed to avoid electron renderer conflict
 
 //TODO lots more to bring over from chan, tests, and use in stripe pattern
 

@@ -179,7 +179,7 @@ expose.core({identity, required, $, arguments, contain, loadCopy, nameTest}); //
 containers();
 
 // Load the containers in any neighboring files
-var d = required.fs.readdirSync("./"); // List the files in this folder
+var d = required.fs.readdirSync("./"); // List the files in the folder node or Electron started us in
 for (var i = 0; i < d.length; i++) { // Loop through each file name
 	if (d[i].endsWith(".main.js") || d[i].endsWith(".core.js") || d[i].endsWith(".demo.js") || d[i].endsWith(".test.js")) {
 		require("./" + d[i]); // If the file has an ending we recognize, run the contents, which will call contain() above
