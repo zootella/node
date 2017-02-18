@@ -165,6 +165,35 @@ move this into a test, see how handlebars protects you better than query does
 
 
 
+//see the arguments in node and electron renderer
+expose.main("arguments", function(a, b, c) {
+	log("got the arguments: '#', '#', and '#'".fill(a, b, c));//see the arguments in node and electron renderer
+});
+
+//check which global names are already in use by node and electron
+expose.main("reserved", function() {
+	function check(n) {
+		if (undefined === global[n]) log("ok: '#'".fill(n));
+		else                         log("no: '#' is already a # that as text is: #".fill(n, typeof global[n], say(global[n]).pilcrow()));
+		log();
+	}
+
+	check("setTimeout");//obviously taken everywhere
+	check("_very_obscure_2");//probably not taken anywhere
+
+	check("File");//ok in node and electron browser, but not in electron renderer
+	check("Range");
+	check("close");
+
+	check("done");//ok each place
+	check("end");
+	check("shut");//this is why i had to rename close() to shut(), but the new name is shorter and more unique
+	check("free");
+});
+
+
+
+
 
 
 

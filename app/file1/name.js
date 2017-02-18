@@ -47,57 +47,6 @@ if (process.type == "browser") {//main
 }
 
 
-function available() {
-	console.log("let's see what's available");
-	console.log();
-
-
-	function check(n) {
-		if (undefined === global[n]) {
-			console.log(n + " ok!");
-		} else {
-			console.log(n + " <---- taken :(");
-			console.log(typeof global[n]);
-			console.log(global[n]+"");
-
-
-			console.log(".");
-		}
-	}
-
-	check("nobodyWouldUseThis");
-	check("File");
-	check("Range");
-	check("close");
-	check("done");
-	check("end");
-	check("shut");
-	check("free");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	console.log();
-}
-
-
-
 
 
 

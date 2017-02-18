@@ -62,7 +62,7 @@ finish apart and then try together
 
 
 
-
+/*
 you can inject css using $
 try this out actually, but you're sure you can
 so now you don't need a css file or css section of the html file at all
@@ -104,7 +104,7 @@ name.txt
 
 
 also have .note.js, which doesn't get run or loaded, but hangs out for development next to the others
-
+*/
 
 
 
@@ -246,7 +246,7 @@ Because module provides a filename property (normally equivalent to __filename),
 
 
 
-
+/*
 each folder contains a single demo composed of multiple files that don't use code elsewhere
 
 
@@ -487,7 +487,7 @@ in the code
 run the tests
 -from the command line
 -from inside the running process
-
+*/
 
 
 

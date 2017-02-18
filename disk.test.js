@@ -515,7 +515,7 @@ expose.main("resolve", function() {
 //and you learned how to chain multiple promises together to perform multiple steps, and catch exceptions at the end
 //keep going, learning how to do the following things, which shouldn't be too hard
 //add your own timeout, have the promise finish on timeout, and then close the too late resource if the inner promise finishes
-//wrap raw resources in objects that have mustClose
+//wrap raw resources in objects that have mustShut
 
 
 

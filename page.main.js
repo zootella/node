@@ -22,6 +22,8 @@ expose.main("electron-browser", function() {
 		app.quit();
 	});
 
+	//TODO is 'var win' local here good enough? probably also loadCopy that onto global to really pin it
+
 
 });
 
@@ -34,19 +36,6 @@ expose.main("electron-renderer", function() {
 	
 });
 
-
-expose.main("program7", function(a, b, c) {
-	console.log("hello from program 7");
-	console.log(a);
-	console.log(b);
-	console.log(c);
-
-
-
-});
-
-
-//here's where you put electron-browser and electron-renderer
 
 
 
