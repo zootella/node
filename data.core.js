@@ -244,19 +244,9 @@ expose.core({compareData});
 //  |____/ \__|_|  |_|_| |_|\__, |
 //                          |___/ 
 
-/*
 // Give String a data() method so you can do "a".data() instead of Data("a")
-if (!String.prototype.data) {
-	String.prototype.data = function() {
-		return Data(this + ""); // this is the string, but as an array of characters, so add blank
-	}
-};
-*/
-function stringToData(s) {
-	return Data(s);
-}
+function stringToData(s) { return Data(s); }
 expose.methodOnString({data:stringToData});
-//TODO used method on string
 
 
 
@@ -840,7 +830,7 @@ function ParseToBay(b) {
 }
 
 expose.core({ParseFromClip, ParseToBay});
-//TODO these should be parseToClip and parseFromBay, except streams will get rid of them entirely, of course
+//TODO these should be parseFromClip and parseToBay, except streams will get rid of them entirely, of course
 
 //TODO the real test of this design will be, what do you think it should be when you understand node evented streams?
 

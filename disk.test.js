@@ -1,7 +1,10 @@
 console.log("disk test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
-if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };
+if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
+
+
+
 //at long last, you can open a file
 //you can see what it's like to write functions that go from file to string and from string to file
 
