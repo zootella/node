@@ -27,9 +27,9 @@ function myStringLength(s, n1, n2) {
 	return s.length + n1 + n2;
 }
 
-expose.enhanceArray({myLength:myArrayLength});
-expose.enhanceString({myLength:myStringLength});
-expose.enhance("add", Array.prototype.push, Array.prototype);
+expose.methodOnArray({myLength:myArrayLength});
+expose.methodOnString({myLength:myStringLength});
+expose.methodOnPrototype("add", Array.prototype.push, Array.prototype);
 
 
 expose.main("snip", function() {

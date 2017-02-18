@@ -250,3 +250,35 @@ ways to get the program
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+
+this is a special code
+in here, a postprocessor wraps neighboring lines
+
+#Header
+gets expanded into bubble letters
+
+and a bookreader app written within can pull these sections out, and turn them into nice html
+there's no code in here, rather, code is between them
+this is how you make the demo sections, for instance
+
+**/
+
+

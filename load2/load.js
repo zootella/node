@@ -2,6 +2,14 @@ console.log("load\\");
 console.log("process.pid " + process.pid + ", __filename " + __filename);
 function load() {
 
+/**
+welcome, describe this program
+describe this file, assembly instructions
+
+bundler wraps and formats contents of these double star blocks
+markdown-like syntax turns them into nice html in the program
+**/
+
 var identity = {};
 identity.name = "zootella";
 identity.line = "----------------------------------------";
@@ -55,7 +63,7 @@ required.chokidar     = require("chokidar");
 required.handlebars   = require("handlebars");
 
 //electron and jquery
-var $;
+var $;//leave undefined if we don't have a page
 if (typeof process.versions.electron == "string") {
 	required.electron = require("electron");//load electron if its here
 	if (process.type == "renderer") {
@@ -79,13 +87,13 @@ function loadCopy(l, a) {
 }
 
 // Add method function f to prototype p as a method with name n
-function _enhance1(n, f, p) {
+function methodCopy(n, f, p) {
 	if (n in p) throw new Error("duplicate: '" + n + "'"); // Don't overwrite an existing method
 	Object.defineProperty(p, n, { enumerable: false, value: f }); // Link f under the new name n
 }
 
 // Given functions in l like f(s, a2) add methods to prototype p like s.n(a2)
-function _enhance2(l, p) {
+function methodMake(l, p) {
 	var k = Object.keys(l);
 	for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
 		var n = k[i]; // Name of function, and for method
@@ -104,7 +112,7 @@ function _enhance2(l, p) {
 }
 
 //TODO
-function _test(n, f) {
+function exposeTest(n, f) {
 
 }
 
@@ -137,12 +145,12 @@ var tests = []; // Automated unit tests of the core library TODO $ node load tes
 
 // Prepare the single expose object that we'll pass into every container
 var expose = {};
-expose.main          = function(n, f)    { loadCopy({[n]:f}, [mains]);     }
-expose.core          = function(l)       { loadCopy(l, [cores, global]);   }
-expose.enhance       = function(n, f, p) { _enhance1(n, f, p);             }
-expose.enhanceString = function(l)       { _enhance2(l, String.prototype); }
-expose.enhanceArray  = function(l)       { _enhance2(l, Array.prototype);  }
-expose.test          = function(n, f)    { _test(n, f);             }
+expose.main              = function(n, f)    { loadCopy({[n]:f}, [mains]);      }
+expose.core              = function(l)       { loadCopy(l, [cores, global]);    }
+expose.methodOnPrototype = function(n, f, p) { methodCopy(n, f, p);             }
+expose.methodOnString    = function(l)       { methodMake(l, String.prototype); }
+expose.methodOnArray     = function(l)       { methodMake(l, Array.prototype);  }
+expose.test              = function(n, f)    { exposeTest(n, f);                }
 function contain(container) { container(expose); } // Pass the same expose object into each container
 expose.core({identity, required, $, arguments, contain, loadCopy, nameTest}); // Expose the core functions defined here in load
 
