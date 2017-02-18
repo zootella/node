@@ -1,19 +1,19 @@
 
 // The modules that make up the library
 var worldMap = [
-	"text",        // Search, convert, and adjust text
-	"measure",     // Measure and communicate time, distance, and speed
-	"state",       // Notice something has changed, and remember to close everything
-	"list",        // Organize objects into lists and dictionaries
-	"data",        // Search, encode, and manipulate binary data
-	"hide",        // Encrypt, decrypt, and sign data
-	"path",        // Parse file system paths
-	"disk",        // Look at and change the files and folders on the disk
-	"environment", // Get information about the computer we're running on
-	"meter",       // Record, analyize and show how events happened over time
-	"step",        // Complete processes where it's not sure what will happen later
-	"flow",        // Compose and direct streams of data
-	"page"         // Show the user information with HTML
+	"text.core.js",        // Search, convert, and adjust text
+	"measure.core.js",     // Measure and communicate time, distance, and speed
+	"state.core.js",       // Notice something has changed, and remember to close everything
+	"list.core.js",        // Organize objects into lists and dictionaries
+	"data.core.js",        // Search, encode, and manipulate binary data
+	"hide.core.js",        // Encrypt, decrypt, and sign data
+	"path.core.js",        // Parse file system paths
+	"disk.core.js",        // Look at and change the files and folders on the disk
+	"environment.core.js", // Get information about the computer we're running on
+	"meter.core.js",       // Record, analyize and show how events happened over time
+	"step.core.js",        // Complete processes where it's not sure what will happen later
+	"flow.core.js",        // Compose and direct streams of data
+	"page.core.js"         // Show the user information with HTML
 ];
 
 var loaded = false;
