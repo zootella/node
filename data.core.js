@@ -245,8 +245,8 @@ expose.core({compareData});
 //                          |___/ 
 
 // Give String a data() method so you can do "a".data() instead of Data("a")
-function stringToData(s) { return Data(s); }
-expose.methodOnString({data:stringToData});
+function string_data(s) { return Data(s); }
+expose.methodOnString({data:string_data});
 
 
 

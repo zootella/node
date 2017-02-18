@@ -226,18 +226,17 @@ expose.core({hasPropertyOfType, hasMethod, getType, isType, checkType});
 //                          |___/ 
 
 // Add o to the end of array a with a.add(o)
-if ("add" in Array.prototype) toss("program");
-Object.defineProperty(Array.prototype, "add", { enumerable: false, value: Array.prototype.push }); // Just link to push
+expose.methodOnPrototype("add", Array.prototype.push, Array.prototype); // Just link to push
 
 // Remove and return the element at index i in an array with a.remove(i)
 // Shift remaining elements forward instead of leaving a hole
-if ("remove" in Array.prototype) toss("program");
-Object.defineProperty(Array.prototype, "remove", { enumerable: false, value: function(i) {
-	if (i < 0 || i >= this.length) toss("bounds");
-	var o = this[i];
-	this.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
+function array_remove(a, i) {
+	if (i < 0 || i >= a.length) toss("bounds");
+	var o = a[i];
+	a.splice(i, 1); // At index i, remove 1 item and shift those after it towards the start
 	return o;
-}});
+}
+expose.methodOnArray({remove:array_remove});
 
 // True if the given arrays are the same
 function arraySame(a1, a2) {
@@ -253,39 +252,6 @@ expose.core({arraySame});
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   ____  _        _             
-//  / ___|| |_ _ __(_)_ __   __ _ 
-//  \___ \| __| '__| | '_ \ / _` |
-//   ___) | |_| |  | | | | | (_| |
-//  |____/ \__|_|  |_|_| |_|\__, |
-//                          |___/ 
-
-// Add function f to the String type so that s.name(a, b) calls and returns name(s, a, b)
-function augment(f, name) {
-	if (name in String.prototype) toss("program"); // Don't add a method to String over one already there
-
-	String.prototype[name] = function() { // Call this function when you call s.name()
-		var a = [this + ""]; // Coax this into a string, rather than an array of characters
-		for (var i = 0; i < arguments.length; i++) // After this, add all the arguments from name(s)
-			a.push(arguments[i]);
-		return f.apply(this, a); // Call f(s, a) and return the result
-	}
-}
 
 
 

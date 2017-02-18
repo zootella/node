@@ -198,6 +198,12 @@ the single text file contains
 -ascii art
 -poetry
 
+there are diagrams and maps like rogue
+there are headings and borders like gamefaqs
+
+there are contents and hyperlinks with control+f
+there could be a choose your own adventure book with control+f
+
 
 
 

@@ -1,10 +1,5 @@
-console.log("name3 main\\");
+console.log("page main\\");
 contain(function(expose) {
-
-
-
-
-
 
 
 
@@ -40,8 +35,8 @@ expose.main("electron-renderer", function() {
 });
 
 
-expose.main("name7", function(a, b, c) {
-	console.log("hello from name 7");
+expose.main("program7", function(a, b, c) {
+	console.log("hello from program 7");
 	console.log(a);
 	console.log(b);
 	console.log(c);
@@ -50,32 +45,8 @@ expose.main("name7", function(a, b, c) {
 
 });
 
-expose.main("page1", function(a, b, c) {
-	console.log("this is a main which is a page, so that's interesting");
 
-
-/*
-	$(document).ready(function() {
-		var t = `
-			<input type="button" value="Refresh" onClick="window.location.reload()"/>
-			<div id="page">
-				<div id="stack"/>
-			</div>
-		`;
-		$("body").html(t);
-	});
-*/
-
-
-});
-
-
-
-
-
-
-
-
+//here's where you put electron-browser and electron-renderer
 
 
 
@@ -84,4 +55,4 @@ expose.main("page1", function(a, b, c) {
 
 
 });
-console.log("name3 main/");
+console.log("page main/");

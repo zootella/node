@@ -57,17 +57,6 @@ finish apart and then try together
 
 [run]
 
-$ node load
-$ node load main name1
-$ node load test
-$ node load test tag1
-
-$ electron/win/electron.exe
-$ electron/win/electron.exe .
-$ electron/win/electron.exe . main name1
-$ electron/win/electron.exe . test
-$ electron/win/electron.exe . test tag1
-
 */
 
 

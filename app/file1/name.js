@@ -7,10 +7,8 @@ console.log("module.filename: " + module.filename);
 
 
 
-
-
 if (process.type == "browser") {//main
-	console.log("main role");
+	console.log("browser role ----");
 
 	var platformElectron = require("electron");
 	var app = platformElectron.app;
@@ -30,18 +28,72 @@ if (process.type == "browser") {//main
 		app.quit();
 	});
 
-
+	available();
 
 } else if (process.type == "renderer") {//page
-	console.log("page role");
+	console.log("renderer role ----");
 
 	var $ = require("jquery");
 	$(document).ready(function() {
 		$("body").html('<input type="button" value="Refresh" onClick="window.location.reload()"/>');
+
+		available();
 	});
 
+} else {
+	console.log("shell role ----");
+
+	available();
+}
 
 
+function available() {
+	console.log("let's see what's available");
+	console.log();
+
+
+	function check(n) {
+		if (undefined === global[n]) {
+			console.log(n + " ok!");
+		} else {
+			console.log(n + " <---- taken :(");
+			console.log(typeof global[n]);
+			console.log(global[n]+"");
+
+
+			console.log(".");
+		}
+	}
+
+	check("nobodyWouldUseThis");
+	check("File");
+	check("Range");
+	check("close");
+	check("done");
+	check("end");
+	check("shut");
+	check("free");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	console.log();
 }
 
 
