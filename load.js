@@ -90,8 +90,8 @@ if (typeof process.versions.electron == "string") { // Electron is running us
 	}
 }
 
-// Add the functions in l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
-function loadCopy(l, a) {
+// Copy the references in l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
+function copyAllToEach(l, a) {
 	var k = Object.keys(l);
 	for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
 		var n = k[i]; // Source name
@@ -106,7 +106,7 @@ function loadCopy(l, a) {
 }
 
 // Given functions in l like f name(mystring, arg1, arg2) add methods to prototype p like mystring.name(arg1, arg2)
-function methodMake(l, p) {
+function makeMethods(l, p) {
 	var k = Object.keys(l);
 	for (var i = 0; i < k.length; i++) { // Loop for each named function in l, the source object
 		var n = k[i]; // Name of function, and for method
@@ -122,12 +122,12 @@ function methodMake(l, p) {
 			for (var j = 0; j < arguments.length; j++) a.push(arguments[j]); // Add the method's arguments
 			return f.apply(this, a); // Calling s.n(a1, a2) calls f(s, a1, a2) and returns the result
 		}
-		methodCopy(n, method, p); // Add the new method we made
+		copyMethod(n, method, p); // Add the new method we made
 	}
 }
 
 // Add f to prototype p as a method with name n
-function methodCopy(n, f, p) {
+function copyMethod(n, f, p) {
 	if (n in p) throw new Error("duplicate: '" + n + "'"); // Don't overwrite an existing method
 	Object.defineProperty(p, n, { enumerable: false, value: f }); // Link f under the new name n
 }
@@ -153,7 +153,7 @@ if (!required.electron) { // Node is running us from the command line
 } else { // Electron is running us instead
 	if (!$) { // It's Electron's browser process, the starting one that doesn't have a page
 		arguments = process.argv; // Get the command line arguments
-		loadCopy({electronArguments:process.argv}, [global]); // Share them through global so the code below can pick them up
+		copyAllToEach({electronArguments:process.argv}, [global]); // Share them through global so the code below can pick them up
 	} else { // It's Electron's renderer process, which has a page
 		arguments = required.electron.remote.getGlobal("electronArguments"); // Get the shared arguments
 	}
@@ -166,14 +166,14 @@ var tests = []; // Automated unit tests of the core library TODO $ node load tes
 
 // Prepare the single expose object that we'll pass into every container
 var expose = {};
-expose.main              = function(n, f)    { loadCopy({[n]:f}, [mains]);      }
-expose.core              = function(l)       { loadCopy(l, [cores, global]);    }
-expose.methodOnPrototype = function(n, f, p) { methodCopy(n, f, p);             }
-expose.methodOnString    = function(l)       { methodMake(l, String.prototype); }
-expose.methodOnArray     = function(l)       { methodMake(l, Array.prototype);  }
-expose.test              = function(n, f)    { exposeTest(n, f);                }
+expose.main              = function(n, f)    { copyAllToEach({[n]:f}, [mains]);   }
+expose.core              = function(l)       { copyAllToEach(l, [cores, global]); }
+expose.methodOnPrototype = function(n, f, p) { copyMethod(n, f, p);               }
+expose.methodOnString    = function(l)       { makeMethods(l, String.prototype);  }
+expose.methodOnArray     = function(l)       { makeMethods(l, Array.prototype);   }
+expose.test              = function(n, f)    { exposeTest(n, f);                  }
 function contain(container) { container(expose); } // Pass the same expose object into each container
-expose.core({identity, required, $, arguments, contain, loadCopy, nameTest}); // Let all our code reach this useful stuff
+expose.core({identity, required, $, arguments, contain, copyAllToEach, nameTest}); // Let all our code reach this useful stuff
 
 // Load the containers in this file
 containers();
@@ -185,6 +185,7 @@ for (var i = 0; i < d.length; i++) { // Loop through each file name
 		require("./" + d[i]); // If the file has an ending we recognize, run the contents, which will call contain() above
 	}
 }
+//TODO don't do this if all the code is bundeled into this single file
 
 // If Electron is running us, set it up
 if (required.electron) { // Here's how to tell if Electron is running us

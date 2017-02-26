@@ -23,7 +23,19 @@ expose.main("electron-browser", function() {
 	});
 
 	//TODO is 'var win' local here good enough? probably also loadCopy that onto global to really pin it
+	//no, attach it to a program object that load already put on global
+	//yeah, the application object, time to start thinking about that
 
+//do real ipc with node core module and bluebird
+//rather than all the synchronous electron cheats
+
+/*
+look at the ipc stuff you did a year ago
+update that with bluebird
+
+
+
+*/
 
 });
 
@@ -37,7 +49,12 @@ expose.main("electron-renderer", function() {
 });
 
 
+expose.main("snip", function() {
+	log("hello snip");
 
+
+	
+});
 
 
 

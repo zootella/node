@@ -735,6 +735,7 @@ function Culture() {
 var culture = Culture();
 
 expose.core({optionCulture:culture});//first time trying to export a global var
+//TODO put the global culture setting on the application object, not on a local variable in this container
 
 
 

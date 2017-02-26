@@ -16,17 +16,16 @@ $ npm install
 
 run in node and electron on windows and mac
 <pre>
-$ node
 $ node load
 $ node load main ~name~
 
 $ electron/win/electron.exe
-$ electron/win/electron.exe .
-$ electron/win/electron.exe . main ~name~
+$ electron/win/electron.exe load
+$ electron/win/electron.exe load main ~name~
 
 $ electron/mac/Electron.app/Contents/MacOS/Electron
-$ electron/mac/Electron.app/Contents/MacOS/Electron .
-$ electron/mac/Electron.app/Contents/MacOS/Electron . main ~name~
+$ electron/mac/Electron.app/Contents/MacOS/Electron load
+$ electron/mac/Electron.app/Contents/MacOS/Electron load main ~name~
 </pre>
 
 run and test

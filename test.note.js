@@ -3,6 +3,23 @@
 
 
 
+/*
+nodeunit and tape figure out that a test didn't done() right away, while mocha can't do that
+but how do they do that?
+look in the tape code to figure it out
+
+
+
+you still don't know how to make pop quiz, running the tests in the current process
+but, you could still make familiar spirit--just run nodeunit in another process, and parse the results
+
+
+
+
+
+
+
+*/
 
 
 
@@ -14,6 +31,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 $ node familiar.js
 
 http://localhost:5000/
@@ -42,6 +81,7 @@ http://localhost:3001/   a huge browsersync control panel
 
 change anything and the page changes, too
 but what about a distant and unrelated js file, does taht do it? a text file doesn't
+*/
 
 
 
@@ -67,8 +107,7 @@ but what about a distant and unrelated js file, does taht do it? a text file doe
 
 
 
-
-
+/*
 var platformHttp = require("http");
 
 require("./load").load("base", function() { return this; });
@@ -92,6 +131,7 @@ server.listen(port, function () {
 
 
 log("hello");
+*/
 
 
 
@@ -103,24 +143,7 @@ log("hello");
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 make familiar spirit now as a winxp-compatible one-off
 
 browsersync
@@ -186,8 +209,8 @@ https://css-tricks.com/gulp-for-beginners/
 
 
 
-first gulpfile that worked on a static file, but not a dynamic return string
-/*
+//first gulpfile that worked on a static file, but not a dynamic return string
+`
 var gulp = require("gulp");
 var platformBrowserSync = require("browser-sync");
 var platformNodemon = require("gulp-nodemon");
@@ -211,7 +234,7 @@ gulp.task("nodemon-task", function(givenCallback) {
 		} 
 	});
 });
-*/
+`
 
 
 
@@ -220,7 +243,7 @@ gulp.task("nodemon-task", function(givenCallback) {
 
 
 
-
+/*
 //myunit.js
 
 var reporter = require('nodeunit').reporters.default;
@@ -249,6 +272,9 @@ $ ./electron/win/electron.exe nodeunit.js
 the electron command line ones work, but you have to control+c to close them
 
 */
+
+
+
 
 
 

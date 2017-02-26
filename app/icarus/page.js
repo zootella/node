@@ -1,7 +1,7 @@
 
 var $ = require("jquery");
 
-require("../../load").load("base", function() { return this; });
+require("../../load");
 
 log("page pid #, dirname #".fill(process.pid, __dirname));
 

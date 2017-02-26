@@ -57,7 +57,7 @@ expose.test("load platform", function(ok, done) {
 			function c(){}//empty function named c
 			var l = {};//list of functions to copy from
 			l[n] = c;//add c to the list under the given name n
-			loadCopy(l, [global]);//try to load the list into the global
+			copyAllToEach(l, [global]);//try to load the list into the global
 			ok(false);//make sure that throws
 		} catch (e) { ok(true); }//count that it threw
 	}
@@ -82,7 +82,7 @@ expose.test("load platform", function(ok, done) {
 	done();
 });
 
-expose.test("load loadCopy", function(ok, done) {
+expose.test("load copyAllToEach", function(ok, done) {
 
 	function a() {}//empty functions named a, b, c, and d
 	function b() {}
@@ -95,12 +95,12 @@ expose.test("load loadCopy", function(ok, done) {
 
 	ok(Object.keys(d1).length == 0);//before
 	ok(Object.keys(d2).length == 1);
-	loadCopy({a, b, c}, [d1, d2]);//copy functions a, b, and c into objects d1 and d2
+	copyAllToEach({a, b, c}, [d1, d2]);//copy functions a, b, and c into objects d1 and d2
 	ok(Object.keys(d1).length == 3);//after, more stuff in there
 	ok(Object.keys(d2).length == 4);
 
 	try {
-		loadCopy({e, d}, [d1, d2]);//second function has conflict on the second object
+		copyAllToEach({e, d}, [d1, d2]);//second function has conflict on the second object
 		ok(false);
 	} catch (e) { ok(true); }
 

@@ -285,6 +285,31 @@ and a bookreader app written within can pull these sections out, and turn them i
 there's no code in here, rather, code is between them
 this is how you make the demo sections, for instance
 
+
+
+
+
+
+
+
+
+[Data>] is a link, and
+[>Data] is a link target
+in the reader, these become wiki style hyperlinks
+but you can also just ctrl+f them
+[Google>http://www.google.com/] is how you'd do a web link, except you might not have any of those
+
+
+
+
+
+
+
+
+
+
+
 **/
+
 
 

@@ -1,9 +1,9 @@
 
 var platformElectron = require("electron");
 
-require("../../load").library();
+//require("../../load");
 
-log("main pid #, dirname #".fill(process.pid, __dirname));
+//console.log("main pid #, dirname #".fill(process.pid, __dirname));
 
 
 

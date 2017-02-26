@@ -1,7 +1,11 @@
 
 
 
-
+/*
+think of a way to turn off loading neighboring files if the program is shipping in a single file
+just if (true) and then change that to false
+or, if there is a main named main, then don't do it
+*/
 
 /*
 

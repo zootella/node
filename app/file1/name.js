@@ -28,7 +28,6 @@ if (process.type == "browser") {//main
 		app.quit();
 	});
 
-	available();
 
 } else if (process.type == "renderer") {//page
 	console.log("renderer role ----");
@@ -37,13 +36,11 @@ if (process.type == "browser") {//main
 	$(document).ready(function() {
 		$("body").html('<input type="button" value="Refresh" onClick="window.location.reload()"/>');
 
-		available();
 	});
 
 } else {
 	console.log("shell role ----");
 
-	available();
 }
 
 

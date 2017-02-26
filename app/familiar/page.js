@@ -1,14 +1,22 @@
 
 var $ = require("jquery");
 var platformChildProcess = require("child_process");
+var platformHandlebars = require("handlebars");
 
-require("../../load").library();
+//require("../../load").library();
 
-log("page pid #, dirname #".fill(process.pid, __dirname));
+//log("page pid #, dirname #".fill(process.pid, __dirname));
 
 var liveReload = false;
 
 
+
+
+function template(template, content) {
+	if (!content) content = {};
+	var compiledTemplate = platformHandlebars.compile(template);
+	return compiledTemplate(content);
+}
 
 
 var app = {};
@@ -57,9 +65,10 @@ function printLog(s) {
 function logPage() {
 
 	//one big line that starts wiht the timestamp
-	var s = sayDateTemplate(now().time, "ddHH12:MMaSS.TTT") + "  ";
+//	var s = sayDateTemplate(now().time, "ddHH12:MMaSS.TTT") + "  ";
+	var s = Date.now()+"";
 	for (var i = 0; i < arguments.length; i++)
-		s += say(arguments[i]);
+		s += arguments[i]+"";
 
 	//at this point, it's ready to hand to the terminal
 	//console.log(t);
@@ -67,7 +76,7 @@ function logPage() {
 	//but for the page...
 	//the given line might include newlines, we need to break them up for the html
 
-	var lines = s.ripLines();
+	var lines = s.split("\n");
 	for (var i = 0; i < lines.length; i++) {
 		var h = template(`
 			<p><span class="line">{{line}}</span></p>
@@ -81,12 +90,12 @@ function logPage() {
 function stickPage() {
 
 	var a = []; // Separate lines of text and put them in a
-	a.add(""); // Start stick text with a blank line to keep it visually separate from log lines above
-	if (!arguments.length) a.add(""); // Make stick() the same as stick("")
+	a.push(""); // Start stick text with a blank line to keep it visually separate from log lines above
+	if (!arguments.length) a.push(""); // Make stick() the same as stick("")
 
 	for (var i = 0; i < arguments.length; i++) {
-		var s = say(arguments[i]); // Turn each argument into text
-		a = a.concat(s.swap("\r\n", "\n").swap("\r", "\n").rip("\n")); // Separate multiple lines in a single string
+		var s = arguments[i]+""; // Turn each argument into text
+		a = a.concat(s.replace("\r\n", "\n").replace("\r", "\n").split("\n")); // Separate multiple lines in a single string
 	}
 
 	for (var i = 0; i < a.length; i++) {
@@ -129,7 +138,7 @@ function main() {
 
 
 
-	log("hello you");
+	console.log("hello you");
 
 
 	logPage("log 1");
@@ -196,7 +205,7 @@ function runTest(name, next) {
 		r.dataOut = Data(bufferOut);
 		r.dataError = Data(bufferError);
 
-		r.lines = say(r.dataOut).ripLines();
+		r.lines = say(r.dataOut).split("\n");
 		for (var i = 0; i < r.lines.length; i++) {
 			while (true) {
 				var c = r.lines[i].parse("\u001b[", "m");

@@ -120,44 +120,6 @@ expose.main("snip-page", function() {
 
 
 
-//TODO attack
-/*
-does handlebars protect you from a mistake template that has broken html, like no closing div tag or something
-
-confirm that nothing can get through handlebars, and then always use handlebars with jquery, and you'll be fine
-write a test to show that " and ' and the others can make it through jquery, but not handlebars, that handlebar's protection is better
-
-dangerous things
-"
-'
-</div>
-&
-<script>alert()</script>
-
-push through
-jquery text
-jquery html
-handlebars template
-
-all you have to do with safety is confirm that nothing can get through handlebars, and then always use handlebars
-see where you can sneak in a < or an alert(), and where you are protected from that
-in jquery in a test, make a new p, add some inner text, then get the html
-move this into a test, see how handlebars protects you better than query does
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
