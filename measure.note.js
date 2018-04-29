@@ -339,89 +339,10 @@ function demoSnip() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
+you updated bignumber.js from version 2 to 7, and some tests failed, so you went back to version 2
+at some point, understand what's changed in the current version, and update your code correctly
+*/
 
 
 

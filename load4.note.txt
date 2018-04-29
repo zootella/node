@@ -496,12 +496,6 @@ and then bring that back to your main node project, for great justice
 
 
 
-when is the last time you've pushed 'node' to github?
-before you start changing anything, is your dropbox 'node' still current?
-
-
-
-
 
 
 
@@ -511,67 +505,36 @@ before you start changing anything, is your dropbox 'node' still current?
 
 yeah, get jquery in here to do the stuff outside <div id="page">, like the window title
 
+get rid of the stuff in 'vue' and then 'app'
 
-
-duh, you figure dit out
-obviously you don't have to constantly be doing every permutation
-and if at any point you want to try one of the three, you know them by heart now so it's easy to do so
-this way, you can easily switch between mac and windows, and dropbox is really small, too
-
-to develop on widnows, use electron globally with electron .
-to develop of mac, use electron from npm, with npm run electron-here
-deployed, electron will be unzipped
-
-
-
-just npm install -D electron on mac
-
-
--S
-"bignumber.js": "^7.0.1",
-"bluebird": "^3.5.1",
-"chokidar": "^2.0.3",
-"jquery": "^3.3.1", (maybe don't use)
-"vue": "^2.5.16"
-
--D
-"blessed": "^0.1.81",
-"charm": "^1.0.2", (probably replace with blessed or just vue)
-"electron": "^1.8.6",
-"handlebars": "^4.0.11", (probably replace with vue)
-"keypress": "^0.2.1", (probably replace with blessed or just vue)
-"q": "^1.5.1" (probably replace with bluebird)
+>notes about dependencies
+jquery, maybe just use vue
+q, switch to bluebird
+handlebars, switch to vue
+charm and keypress, switch to blessed or vue
 
 
 
 
 
 
-next, let's see what's going on with your github node repo
-Latest commit d0c49e1  on Feb 25, 2017
+/*
+in page.main.js you've got a main named snip2
+ways to run it, in global node, global electron, and module electron
+checked that these work on mac and windows
 
-$ git clone https://github.com/zootella/node
+$ node --version
+$ node load
+$ node load main snip2 apple banana carrot
 
+$ electron --version
+$ electron load
+$ electron load main snip2 apple banana carrot
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-also in this process, it would be nice if you could get rid of the 'app' folder
-either by moving it aside, to the vue area below (but still in dropbox)
-or going through it and moving all its functionality into the main code of the real project, that would be even better
-
-
+$ npm run electron-version
+$ npm run electron-load
+$ npm run electron-load main snip2 apple banana carrot
+*/
 
 
 

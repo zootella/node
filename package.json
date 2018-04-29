@@ -1,18 +1,33 @@
 {
-  "name": "zootella",
-  "version": "0.1.0",
-  "main": "load.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "bignumber.js": "^2.3.0",
-    "bluebird": "^3.4.1",
-    "charm": "^1.0.1",
-    "chokidar": "^1.6.1",
-    "handlebars": "^4.0.5",
-    "jquery": "^3.1.0",
-    "keypress": "^0.2.1",
-    "q": "^1.4.1"
-  }
+	"name": "zootella",
+	"version": "0.1.0",
+	"license": "UNLICENSED",
+	"description": "my node.js playground",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zootella/node"
+	},
+	"main": "load.js",
+	"scripts": {
+		"electron-version": "electron --version",
+		"electron-interactive": "electron -i",
+		"electron-empty": "electron",
+		"electron-here": "electron .",
+		"electron-load": "electron load.js"
+	},
+	"dependencies": {
+		"bignumber.js": "^2.3.0",
+		"bluebird": "^3.5.1",
+		"chokidar": "^2.0.3",
+		"jquery": "^3.3.1",
+		"vue": "^2.5.16"
+	},
+	"devDependencies": {
+		"blessed": "^0.1.81",
+		"charm": "^1.0.2",
+		"electron": "^1.8.6",
+		"handlebars": "^4.0.11",
+		"keypress": "^0.2.1",
+		"q": "^1.5.1"
+	}
 }

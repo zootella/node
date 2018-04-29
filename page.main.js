@@ -50,13 +50,13 @@ expose.main("electron-renderer", function() {
 	
 });
 
-
 expose.main("snip2", function(a, b, c) {
-	log("hello snip #, #, #".fill(a, b, c));
+	log("hello snip #, #, and #".fill(a, b, c));
 
 
 	
 });
+
 
 
 

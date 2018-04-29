@@ -1,5 +1,8 @@
 console.log("load\\");
-console.log("process.pid " + process.pid + ", __filename " + __filename);
+console.log(`process.pid ${process.pid}
+__filename ${__filename}
+__dirname  ${__dirname}
+arguments (${process.argv.length}) ${process.argv}`);
 function load() {
 
 /**
