@@ -2,6 +2,87 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+function() {
+	function() {
+		function() {
+
+			/*
+			for page templates, outline text format, and more, the new multiline template text literal is great
+			you've have them in your code like this
+			*/
+
+			var t = `
+				first line
+					second line, indented
+					second indented line
+				third line which uses javascript's new ${some.expression} thing
+				fourth line
+				fifth line
+			`;
+
+			/*
+			so that's fine, except
+			-you don't want the tabs indenting the whole block, indents beyond that you do want
+			-you don't want the starting newline, the ending one is fine, and
+			-you want to control the newline character if it's different when the code runs on different platforms
+
+			so write a function called unindent() and use it like this
+			*/
+
+			var t2 = unindent(`
+				first line
+					line 1a
+					line 1b
+				second line
+				third line
+				fourth line
+				`);
+
+			/*
+			and have it fix all those things
+
+			and have an object that represents an array of strings, with methods on that to
+			set the newline character if you want something different than the default, which should be windows on all platforms
+			ask and set if there are starting, trailing, both of those, blank lines, remove all those
+			detect and remove a global indent, and freak out if there's something that looks wrong with it
+			say into a string
+			loop by getting the array
+			get size of number of lines
+
+			and that's how you implement unindent, it goes into a Lines and back to a string again
+
+			this is a cool idea and likely a good design for this problem with multiple lines that you've been thinking about since the start
+			*/
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 kry noticed
 $ electron/win/electron.exe load
@@ -74,33 +155,33 @@ $ node node_modules/nodemon/bin/nodemon.js file.js demo name
 
 
 
-                node >           demo (works) $ node environment_test.js demo platform
-                node > nodemon > demo (works) $ node node_modules/nodemon/bin/nodemon.js environment_test.js demo platform
-                  win electron > demo (works) $ electron/win/electron.exe environment_test.js demo platform
-                  mac electron > demo (works) $ electron/mac/Electron.app/Contents/MacOS/Electron environment_test.js demo platform
+								node >           demo (works) $ node environment_test.js demo platform
+								node > nodemon > demo (works) $ node node_modules/nodemon/bin/nodemon.js environment_test.js demo platform
+									win electron > demo (works) $ electron/win/electron.exe environment_test.js demo platform
+									mac electron > demo (works) $ electron/mac/Electron.app/Contents/MacOS/Electron environment_test.js demo platform
 
-     node >           nodeunit > test (works) $ node node_modules/nodeunit/bin/nodeunit text_test.js
-     node > nodemon > nodeunit > test (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit text_test.js
-       win electron > nodeunit > test (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit text_test.js
-       mac electron > nodeunit > test (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit text_test.js
+		 node >           nodeunit > test (works) $ node node_modules/nodeunit/bin/nodeunit text_test.js
+		 node > nodemon > nodeunit > test (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit text_test.js
+			 win electron > nodeunit > test (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit text_test.js
+			 mac electron > nodeunit > test (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit text_test.js
 
 node >           nodeunit > all tests (works) $ node node_modules/nodeunit/bin/nodeunit *_test.js
 node > nodemon > nodeunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit *_test.js
-  win electron > nodeunit > all tests (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit *_test.js
-  mac electron > nodeunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit *_test.js
+	win electron > nodeunit > all tests (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit *_test.js
+	mac electron > nodeunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit *_test.js
 
-       node >           myunit > test (todo)  $ node myunit.js text_test.js
-       node > nodemon > myunit > test (todo)  $ node node_modules/nodemon/bin/nodemon.js myunit.js text_test.js
-         win electron > myunit > test (todo)  $ electron/win/electron.exe myunit.js text_test.js
-         mac electron > myunit > test (todo)  $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js text_test.js
+			 node >           myunit > test (todo)  $ node myunit.js text_test.js
+			 node > nodemon > myunit > test (todo)  $ node node_modules/nodemon/bin/nodemon.js myunit.js text_test.js
+				 win electron > myunit > test (todo)  $ electron/win/electron.exe myunit.js text_test.js
+				 mac electron > myunit > test (todo)  $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js text_test.js
 
-  node >           myunit > all tests (works) $ node myunit.js *_test.js
-  node > nodemon > myunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js myunit.js *_test.js
-    win electron > myunit > all tests (works) $ electron/win/electron.exe myunit.js *_test.js
-    mac electron > myunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js *_test.js
+	node >           myunit > all tests (works) $ node myunit.js *_test.js
+	node > nodemon > myunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js myunit.js *_test.js
+		win electron > myunit > all tests (works) $ electron/win/electron.exe myunit.js *_test.js
+		mac electron > myunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js *_test.js
 
-                   win electron > app (works) $ electron/win/electron.exe app/hello
-                   mac electron > app (works) $ electron/mac/Electron.app/Contents/MacOS/Electron app/hello
+									 win electron > app (works) $ electron/win/electron.exe app/hello
+									 mac electron > app (works) $ electron/mac/Electron.app/Contents/MacOS/Electron app/hello
 
 
 >todo
@@ -690,7 +771,7 @@ clock3e - electron app, react updates the time
 
 1 html
 2 jquery and handlebars
-  ember
+	ember
 3 react
 
 

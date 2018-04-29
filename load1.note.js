@@ -313,3 +313,33 @@ but you can also just ctrl+f them
 
 
 
+
+
+
+
+
+
+
+
+
+
+/*
+
+       .= .-_-. =.    
+      ((_/)o o(\_))   
+       `-'(. .)`-'    
+        /| \_/ |\     
+       ( | GNU | )    
+       /"\_____/"\    
+       \__)   (__/    
+
+format the gpl into two columns, with the gnu in the middle between them
+and lots of scallops and frames around the top and bottom
+*/
+
+
+
+
+
+
+

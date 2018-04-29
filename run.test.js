@@ -1,4 +1,4 @@
-console.log("run test\\");
+//console.log("run test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
 if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
@@ -6,21 +6,11 @@ if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { expor
 
 
 
-var thisFile = "run_test.js";//the name of this file
 
 
 
 
-
-
-
-
-
-
-
-
-
-
+//TODO use https://github.com/sindresorhus/execa instead, cleans up spawned processes when the parent process dies
 
 
 
@@ -68,7 +58,7 @@ expose.main("p20", function() { p20(); });//try it: terminal runs p, p runs c, c
 function p20(name) {
 	log("in p, log hi");
 
-	var c = required.child_process.spawn("node", [thisFile, "demo", "c20"]);
+	var c = required.child_process.spawn("node", ["load", "main", "c20"]);
 	c.stdout.on("data", function(d) { log("in p, c.out got:  " + Data(d).quote()); });
 	c.on("exit", function(d) { log("in p, c got exit: " + Data(d).quote()); });
 }
@@ -81,7 +71,7 @@ expose.main("c22", function() { c22();     });//try it: runs forever, see the pr
 expose.main("p21", function() { p2("c21"); });//try it: use spawn on log
 expose.main("p22", function() { p2("c22"); });//try it: use spawn on clock, see the 2 processes with ps, Ctrl+C kills them both
 function p2(name) {
-	var c = required.child_process.spawn("node", [thisFile, "demo", name]);
+	var c = required.child_process.spawn("node", ["load", "main", name]);
 	c.stdout.on("data", function(d) { log("in p, c.out got:  " + Data(d).quote()); });
 	c.on("exit", function(d) { log("in p, c got exit: " + Data(d).quote()); });
 }
@@ -109,7 +99,7 @@ expose.main("c30", function() { c30(); });//try it: logs
 expose.main("p30", function() { p30(); });//try it: logs and forks c, which logs up through p and to the terminal
 function p30() {
 	console.log("from p");//use console.log() directly
-	var c = required.child_process.fork("./" + thisFile, ["demo", "c30"]);
+	var c = required.child_process.fork("./load", ["main", "c30"]);
 }
 function c30() {
 	console.log("from c");
@@ -119,7 +109,7 @@ function c30() {
 expose.main("c31", function() { c31(); });//don't run: this is just for fork to run, not for you to run directly from the terminal
 expose.main("p31", function() { p31(); });//try it: p sends a message down to c, c echos it back up, p logs it up to terminal, Ctrl+C to kill them both
 function p31() {
-	var c = required.child_process.fork("./" + thisFile, ["demo", "c31"]);
+	var c = required.child_process.fork("./load", ["main", "c31"]);
 	c.send({ name: "a name", amount: 7, several: ["a", "b", "c"] });//messages can be strings, numbers, arrays, and objects
 	c.on("message", function(m) { log(m); });
 }
@@ -134,7 +124,7 @@ expose.main("c32", function() { c32(); });//don't run
 expose.main("p32", function() { p32(); });//try it: detect if you're forked or not
 function p32() {
 	log(say("in p, isFork() returns ", isFork()));
-	var c = required.child_process.fork("./" + thisFile, ["demo", "c32"]);
+	var c = required.child_process.fork("./load", ["main", "c32"]);
 	c.on("message", function(m) { log(m); });
 }
 function c32() {
@@ -152,7 +142,7 @@ function c32() {
 expose.main("c33", function() { c33(); });//try it: does nothing and exits
 expose.main("p33", function() { p33(); });//try it: stays running waiting for another message, you have to Ctrl+C
 function p33() {
-	var c = required.child_process.fork("./" + thisFile, ["demo", "c33"]);
+	var c = required.child_process.fork("./load", ["main", "c33"]);
 	c.send("hello");
 	c.on("message", function(m) { log(m); });
 }
@@ -166,7 +156,7 @@ function c33() {
 expose.main("c34", function() { c34(); });//don't run
 expose.main("p34", function() { p34(); });//try it: after 6 seconds, both exit naturally
 function p34() {
-	var c = required.child_process.fork("./" + thisFile, ["demo", "c34"]);
+	var c = required.child_process.fork("./load", ["main", "c34"]);
 	c.on("message", function(m) {
 		log(m);
 		if (m == "special done code") c.disconnect();//allows both c and p to exit naturally
@@ -234,7 +224,7 @@ expose.main("c36", function() { c36();     });//don't run
 expose.main("p35", function() { p3("c35"); });//try it: uses timers
 expose.main("p36", function() { p3("c36"); });//try it: uses busy loops
 function p3(name) {
-	var c = required.child_process.fork("./"+thisFile, ["demo", name]);
+	var c = required.child_process.fork("./load", ["main", name]);
 	c.on("message",    function(m) { log("message: ",    inspect(m)); });
 	c.on("close",      function(m) { log("close: ",      inspect(m)); });
 	c.on("disconnect", function(m) { log("disconnect: ", inspect(m)); });
@@ -305,7 +295,21 @@ the while demo p36 uses a busy loop to make each event take several seconds, and
 
 
 
+/*
+ok, that's all great, but here's all you actually want to do now
 
+use node ipc
+add bluebird
+send js object messages between electron windows
+
+that's it
+
+
+
+
+
+
+*/
 
 
 
@@ -319,4 +323,4 @@ the while demo p36 uses a busy loop to make each event take several seconds, and
 
 
 });
-console.log("run test/");
+//console.log("run test/");

@@ -26,6 +26,8 @@ expose.main("electron-browser", function() {
 	//no, attach it to a program object that load already put on global
 	//yeah, the application object, time to start thinking about that
 
+	//TODO try index.html?serialized js object of parameters so you don't have to share global arguments with ipc
+
 //do real ipc with node core module and bluebird
 //rather than all the synchronous electron cheats
 
@@ -49,12 +51,37 @@ expose.main("electron-renderer", function() {
 });
 
 
-expose.main("snip", function() {
-	log("hello snip");
+expose.main("snip2", function(a, b, c) {
+	log("hello snip #, #, #".fill(a, b, c));
 
 
 	
 });
+
+
+
+
+
+/*
+wait, does electron have child and modal windows now?
+https://github.com/electron/electron/blob/master/docs/api/browser-window.md
+try that out
+
+const {BrowserWindow} = require('electron')
+let top = new BrowserWindow()
+let child = new BrowserWindow({parent: top})
+child.show()
+top.show()
+
+
+*/
+
+
+
+
+
+
+
 
 
 
