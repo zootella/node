@@ -1,0 +1,9 @@
+{
+	"name": "e8module",
+	"main": "main.js",
+	"scripts": {
+	},
+	"dependencies": {
+		"vue": "^2.5.16"
+	}
+}

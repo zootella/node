@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>v2adjust</title>
+</head>
+<body>
+
+<!-- earlier unrelated page at the top -->
+<h1>v2adjust</h1>
+<div>
+We are using node <script>document.write(process.versions.node)</script>,
+Chrome <script>document.write(process.versions.chrome)</script>,
+and Electron <script>document.write(process.versions.electron)</script>.
+</div>
+
+<!-- load vue -->
+<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
+
+<!-- make the app, and use components -->
+<div id="app">
+<p>now let's try some components</p>
+<p>
+	<button v-on:click="method1">Method 1</button>
+	<button v-on:click="method2">Method 2</button>
+	<button v-on:click="method3">Method 3</button>
+</p>
+<p>{{ message }}</p>
+<ol>
+	<fruit v-for="f in fruits" v-bind:key="f.id" v-bind:f="f"></fruit>
+</ol>
+</div>
+
+<!-- run the mostly javascript code that is long and contains more html templates -->
+<script type="text/javascript" src="page.js"></script>
+
+</body>
+</html>

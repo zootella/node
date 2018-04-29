@@ -83,6 +83,7 @@ required.bignumber_js = require("bignumber.js");
 required.bluebird     = require("bluebird");
 required.chokidar     = require("chokidar");
 required.handlebars   = require("handlebars");
+required.vue          = require("vue/dist/vue.js");
 
 // Load Electron and jQuery if this process can use them
 var $; // Leave undefined if we don't have a page

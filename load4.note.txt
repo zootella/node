@@ -502,8 +502,9 @@ and then bring that back to your main node project, for great justice
 
 
 
+yeah, get jquery in here, you might need it to change the window title or set some css or something
+it doesn't matter if it's not standard if it works without errors
 
-yeah, get jquery in here to do the stuff outside <div id="page">, like the window title
 
 get rid of the stuff in 'vue' and then 'app'
 
@@ -535,6 +536,19 @@ $ npm run electron-version
 $ npm run electron-load
 $ npm run electron-load main snip2 apple banana carrot
 */
+
+
+
+Asteroid
+
+
+<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
+
+
+
+
+
+
 
 
 

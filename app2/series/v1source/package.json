@@ -1,0 +1,8 @@
+{
+	"name": "v1source",
+	"main": "main.js",
+	"scripts": {
+	},
+	"dependencies": {
+	}
+}

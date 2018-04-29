@@ -1,0 +1,11 @@
+{
+	"name": "f1require",
+	"main": "script.js",
+	"scripts": {},
+	"dependencies": {
+		"bignumber.js": "^6.0.0",
+		"bluebird": "^3.5.1",
+		"chokidar": "^2.0.3",
+		"vue": "^2.5.16"
+	}
+}

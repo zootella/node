@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Page 2</title>
+</head>
+<body>
+<div id="app">
+
+<p><button v-on:click="method1">My Button</button></p>
+<ol>
+	<li v-for="todo in todos">
+		{{ todo.text }}
+	</li>
+</ol>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+
+var app = new Vue({
+	el: '#app',
+	data: {
+		todos: [
+			{ text: 'line1' },
+			{ text: 'line2' },
+			{ text: 'line3' }
+		]
+	},
+	methods: {
+		method1() {
+			this.todos.push({ text: 'line4' });//add line 4
+			this.todos.splice(1, 1);//remove line 2, one line at index one
+			//in the console, you can reach in with app.todos.push
+		}
+	}
+});
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

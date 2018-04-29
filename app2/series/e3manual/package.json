@@ -1,0 +1,9 @@
+{
+	"name": "e3manual",
+	"main": "main.js",
+	"scripts": {},
+	"dependencies": {
+		"jquery": "^3.3.1",
+		"vue": "^2.5.16"
+	}
+}
