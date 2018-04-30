@@ -1,4 +1,4 @@
-console.log("disk core\\");
+//console.log("disk core\\");
 contain(function(expose) {
 
 
@@ -258,4 +258,4 @@ Asynchronous close(2). No arguments other than a possible exception are given to
 
 
 });
-console.log("disk core/");
+//console.log("disk core/");

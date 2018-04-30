@@ -1,4 +1,4 @@
-console.log("text core\\");
+//console.log("text core\\");
 contain(function(expose) {
 
 
@@ -1110,4 +1110,4 @@ js valueOf
 
 
 });
-console.log("text core/");
+//console.log("text core/");

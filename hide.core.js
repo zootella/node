@@ -1,4 +1,4 @@
-console.log("hide core\\");
+//console.log("hide core\\");
 contain(function(expose) {
 
 
@@ -106,4 +106,4 @@ expose.core({chance, randomThrough, randomUnder, randomBit, unique, randomData})
 
 
 });
-console.log("hide core/");
+//console.log("hide core/");

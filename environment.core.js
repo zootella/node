@@ -1,4 +1,4 @@
-console.log("environment core\\");
+//console.log("environment core\\");
 contain(function(expose) {
 
 
@@ -74,4 +74,4 @@ expose.core({Watch});
 
 
 });
-console.log("environment core/");
+//console.log("environment core/");

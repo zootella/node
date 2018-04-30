@@ -1,5 +1,5 @@
 
-
+/*
 
 
 
@@ -515,7 +515,7 @@ handlebars, switch to vue
 charm and keypress, switch to blessed or vue
 
 
-
+*/
 
 
 
@@ -538,12 +538,12 @@ $ npm run electron-load main snip2 apple banana carrot
 */
 
 
-
+/*
 Asteroid
 
 
 <script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
-
+*/
 
 
 

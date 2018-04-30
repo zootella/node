@@ -1,4 +1,4 @@
-console.log("data core\\");
+//console.log("data core\\");
 contain(function(expose) {
 
 
@@ -1452,4 +1452,4 @@ expose.core({quote:toquote, unquote, quoteCount, quoteMore, quoteIs}); // Rename
 
 
 });
-console.log("data core/");
+//console.log("data core/");

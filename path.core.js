@@ -1,4 +1,4 @@
-console.log("path core\\");
+//console.log("path core\\");
 contain(function(expose) {
 
 
@@ -266,4 +266,4 @@ expose.core({absolute});
 
 
 });
-console.log("path core/");
+//console.log("path core/");

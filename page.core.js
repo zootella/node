@@ -1,4 +1,4 @@
-console.log("page core\\");
+//console.log("page core\\");
 contain(function(expose) {
 
 
@@ -31,4 +31,4 @@ expose.core({template});
 
 
 });
-console.log("page core/");
+//console.log("page core/");

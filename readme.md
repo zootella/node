@@ -18,12 +18,12 @@ $ npm install
 
 run in node and electron on windows and mac
 <pre>
-$ node load
-$ node load main ~name~
+$ node load.js
+$ node load.js main ~name~
 
 $ electron --version
-$ electron load
-$ electron load main ~name~ ~arguments~
+$ electron load.js
+$ electron load.js main ~name~ ~arguments~
 
 $ npm run electron-version
 $ npm run electron-load
@@ -32,9 +32,9 @@ $ npm run electron-load main ~name~ ~arguments~
 
 run and test
 <pre>
-$ node load main ~name~ ~arg1~ ~arg2~ ~arg3~
-$ node load test
-$ node load test ~tag~
+$ node load.js main ~name~ ~arguments~
+$ node load.js test
+$ node load.js test ~tag~
 
 $ nodeunit name.test.js
 $ nodeunit *.test.js

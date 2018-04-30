@@ -1,4 +1,4 @@
-console.log("list core\\");
+//console.log("list core\\");
 contain(function(expose) {
 
 
@@ -386,4 +386,4 @@ expose.core({List, UniqueList, SortedList, SortedUniqueList, ReferenceList, Refe
 
 
 });
-console.log("list core/");
+//console.log("list core/");

@@ -1,4 +1,4 @@
-console.log("measure core\\");
+//console.log("measure core\\");
 contain(function(expose) {
 
 
@@ -1458,4 +1458,4 @@ expose.core({stripeChunkToByte, stripePieceToChunk, stripePieceToByte});
 
 
 });
-console.log("measure core/");
+//console.log("measure core/");

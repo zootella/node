@@ -1,4 +1,4 @@
-console.log("list test\\");
+//console.log("list test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
 if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
@@ -657,4 +657,4 @@ and put those in list.js
 
 
 });
-console.log("list test/");
+//console.log("list test/");

@@ -1,4 +1,4 @@
-console.log("task test\\");
+//console.log("task test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
 if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
@@ -854,4 +854,4 @@ or, head over to a totally different part to work on, like charm, or the ui, or 
 
 
 });
-console.log("task test/");
+//console.log("task test/");

@@ -34,7 +34,7 @@ var page = new Vue({
 	el: '#page',
 	data: {
 		title: 'this is the starting title',
-		message: 'this is the starting message',
+		message: 'this is the starting message, edited again',
 		fruits: []
 	},
 	methods: {

@@ -1,4 +1,4 @@
-console.log("state core\\");
+//console.log("state core\\");
 contain(function(expose) {
 
 
@@ -696,4 +696,4 @@ expose.core({isFork, isProcessRunning});
 
 
 });
-console.log("state core/");
+//console.log("state core/");

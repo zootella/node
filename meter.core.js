@@ -1,4 +1,4 @@
-console.log("meter core\\");
+//console.log("meter core\\");
 contain(function(expose) {
 
 
@@ -596,4 +596,4 @@ function ColumnMeter(made, h) { // Given variables to hold columns, make a meter
 
 
 });
-console.log("meter core/");
+//console.log("meter core/");

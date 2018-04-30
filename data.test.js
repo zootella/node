@@ -1,4 +1,4 @@
-console.log("data test\\");
+//console.log("data test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
 if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
@@ -2527,4 +2527,4 @@ expose.test("Data quote international", function(ok, done) {
 
 
 });
-console.log("data test/");
+//console.log("data test/");

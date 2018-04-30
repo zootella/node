@@ -1,6 +1,12 @@
 
 
 
+/*
+
+
+
+
+
 
 oh, it does work
 well that was silly
@@ -119,6 +125,7 @@ here's what your going to make with vue
 
 
 
+*/
 
 
 
@@ -128,6 +135,18 @@ here's what your going to make with vue
 
 
 
+/*
+
+
+new design:
+dont run main or snip on blank, you always have to spell out exactly what you want to run
+let every electron main bring a set of three functions:
+ask for 'main7' and node just runs 'main7'
+but electron main runs 'main7-electron-main', and then electron renderer runs 'main7-electron-renderer' and 'main7'
+and if you put those suffixes on them, it happens for you
+
+
+*/
 
 
 
@@ -135,6 +154,38 @@ here's what your going to make with vue
 
 
 
+<input type="button" value="Refresh" onClick="window.location.reload()"/>
+<p>now let's try some components</p>
+<p>
+	<button v-on:click="method1">Method 1</button>
+	<button v-on:click="method2">Method 2</button>
+	<button v-on:click="method3">Method 3</button>
+</p>
+<p>{{ message }}</p>
+<fruit v-for="f in fruits" v-bind:key="f.id" v-bind:f="f"></fruit>
+<container v-for="p in containers" v-bind:key="p.id" v-bind:p="p"></container>
+
+
+
+
+
+
+/*
+
+ok, vue seems to be working right now
+next, actually build something
+
+stick and log
+right now, not attached to or interacting with the real stick and log
+
+<log-list>
+	<log-item></log-item>
+	<log-item></log-item>
+	<log-item></log-item>
+	<log-item></log-item>
+	<log-item></log-item>
+</log list>
+<stick-item></stick-item>
 
 
 
@@ -142,6 +193,7 @@ here's what your going to make with vue
 
 
 
+*/
 
 
 

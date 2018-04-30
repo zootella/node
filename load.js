@@ -1,8 +1,8 @@
-console.log("load\\");
+//console.log("load\\");
 console.log(`process.pid ${process.pid}
 __filename ${__filename}
-__dirname  ${__dirname}
-arguments (${process.argv.length}) ${process.argv}`);
+__dirname  ${__dirname}`);
+//arguments (${process.argv.length}) ${process.argv}`);
 function load() {
 
 /**
@@ -41,29 +41,50 @@ identity.date = 20171001; // Year, month and day
 identity["package.json"] = `
 {
 	"name": "zootella",
+	"version": "0.1.0",
+	"license": "UNLICENSED",
+	"description": "TODO",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zootella/node"
+	},
 	"main": "zootella.js",
+	"scripts": {
+		"electron-version": "electron --version",
+		"electron-interactive": "electron -i",
+		"electron-empty": "electron",
+		"electron-here": "electron .",
+		"electron-load": "electron load.js"
+	},
 	"dependencies": {
 		"bignumber.js": "^2.3.0",
-		"bluebird": "^3.4.1",
-		"charm": "^1.0.1",
-		"chokidar": "^1.6.1",
-		"handlebars": "^4.0.5",
-		"jquery": "^3.1.0",
-		"keypress": "^0.2.1"
+		"bluebird": "^3.5.1",
+		"chokidar": "^2.0.3",
+		"jquery": "^3.3.1",
+		"vue": "^2.5.16"
+	},
+	"devDependencies": {
+		"blessed": "^0.1.81",
+		"charm": "^1.0.2",
+		"electron": "^1.8.6",
+		"handlebars": "^4.0.11",
+		"keypress": "^0.2.1",
+		"q": "^1.5.1"
 	}
 }
 `;
 
 // Text for the file named index.html alongside this one, a blank Web page Electron will open and jQuery will change
 identity["index.html"] = `
-<!doctype html>
+<!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="UTF-8">
 		<title>zootella</title>
-		<script type="text/javascript" src="zootella.js"></script>
 	</head>
 	<body>
+		<div id="page"></div>
+		<script type="text/javascript" src="load.js"></script>
 	</body>
 </html>
 `;
@@ -83,16 +104,26 @@ required.bignumber_js = require("bignumber.js");
 required.bluebird     = require("bluebird");
 required.chokidar     = require("chokidar");
 required.handlebars   = require("handlebars");
-required.vue          = require("vue/dist/vue.js");
+required.vue          = require("vue/dist/vue.js"); // Reach the build of Vue with the template compiler
+
+// Find out what's running us
+function runByNode()             { return typeof process.versions.electron != "string"  }
+function runByElectron()         { return typeof process.versions.electron == "string"  }
+function runByElectronMain()     { return runByElectron() && process.type != "renderer" }
+function runByElectronRenderer() { return runByElectron() && process.type == "renderer" }
 
 // Load Electron and jQuery if this process can use them
-var $; // Leave undefined if we don't have a page
+if (runByElectron()) required.electron = require("electron");
+if (runByElectronRenderer()) required.jquery = require("jquery");
+
+/*
 if (typeof process.versions.electron == "string") { // Electron is running us
 	required.electron = require("electron"); // Keep a reference to it in our required object
 	if (process.type == "renderer") { // There's also a web page
-		$ = require("jquery"); // Load jQuery to change the page
+		required.jquery = require("jquery"); // Load jQuery to change the page
 	}
 }
+*/
 
 // Copy the references in l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
 function copyAllToEach(l, a) {
@@ -152,10 +183,10 @@ function nameTest(n, o) {
 
 // Get the command line arguments
 var arguments;
-if (!required.electron) { // Node is running us from the command line
+if (runByNode()) { // Node is running us from the command line
 	arguments = process.argv; // Here are the arguments
 } else { // Electron is running us instead
-	if (!$) { // It's Electron's browser process, the starting one that doesn't have a page
+	if (runByElectronMain()) { // It's Electron's browser process, the starting one that doesn't have a page
 		arguments = process.argv; // Get the command line arguments
 		copyAllToEach({electronArguments:process.argv}, [global]); // Share them through global so the code below can pick them up
 	} else { // It's Electron's renderer process, which has a page
@@ -177,7 +208,8 @@ expose.methodOnString    = function(l)       { makeMethods(l, String.prototype);
 expose.methodOnArray     = function(l)       { makeMethods(l, Array.prototype);   }
 expose.test              = function(n, f)    { exposeTest(n, f);                  }
 function contain(container) { container(expose); } // Pass the same expose object into each container
-expose.core({identity, required, $, arguments, contain, copyAllToEach, nameTest}); // Let all our code reach this useful stuff
+expose.core({identity, required, arguments, contain, copyAllToEach, nameTest}); // Let all our code reach this useful stuff
+expose.core({runByNode, runByElectron, runByElectronMain, runByElectronRenderer});
 
 // Load the containers in this file
 containers();
@@ -192,16 +224,16 @@ for (var i = 0; i < d.length; i++) { // Loop through each file name
 //TODO don't do this if all the code is bundeled into this single file
 
 // If Electron is running us, set it up
-if (required.electron) { // Here's how to tell if Electron is running us
-	if (!$) { // Here's how to tell if we've got a page or not
-		if (mains["electron-browser"]) mains["electron-browser"](); // Electron, no page, run our function for that
+if (runByElectron()) {
+	if (runByElectronMain()) {
+		if (mains["electron-main"]) mains["electron-main"](); // Electron, no page, run our function for that
 	} else {
 		if (mains["electron-renderer"]) mains["electron-renderer"](); // Electron, yes page, run our function for that
 	}
 }
 
 // Now that everything's loaded, run a main function, the entry point to the program this code is about
-if (!required.electron || $) { // Do this if node is running us, or for the Electron process that has a page
+if (runByNode() || runByElectronRenderer()) { // Do this if node is running us, or for the Electron process that has a page
 	if (mains["snip"]) { // If there's a main called "snip", run that snippet of code
 		mains["snip"]();
 	} else if (mains["main"]) { // If there's a main called "main", run that entry point
@@ -226,4 +258,4 @@ function containers() { // Halfway through the load() function, it'll call this 
 //TODO here's where you can paste all the contents of the neighboring files, to get everything in a single file
 
 }
-console.log("load/");
+//console.log("load/");

@@ -1,4 +1,4 @@
-console.log("path test\\");
+//console.log("path test\\");
 if (process.argv[1].endsWith("nodeunit")) require("./load");//TODO
 contain(function(expose) {
 if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { exports[nameTest(n, exports)] = function(t) { f(t.ok, function() { customDone(t); }); }; }; };//TODO
@@ -1502,4 +1502,4 @@ expose.test("Path absolute", function(ok, done) {
 
 
 });
-console.log("path test/");
+//console.log("path test/");
