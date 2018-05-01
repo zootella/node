@@ -31,6 +31,11 @@ expose.main("vue-update", function() {
 //same thing, with a component
 expose.main("vue-update-component", function() {
 
+	Vue.component("component-a", {
+		props: ["p"],
+		template: `<div>This is a Component A with message "{{ p.message }}"</div>`
+	});
+
 	var page = new Vue({
 		el: '#page',
 		template: `
@@ -200,20 +205,107 @@ expose.main("vue-grow", function() {
 
 //make a container of some other things
 expose.main("vue-contain", function() {
+
+	Vue.component("my-container", {
+		props: ["p"],
+		template: `
+			<div style="border: 1px solid #ccc; padding: 8px; background: #eee; margin: 4px;">
+			Container with message "{{ p.message }}"
+				<component-a v-bind:p="p.p2" v-if="p.p2.myShow"></component-a>
+			</div>
+		`
+	});
+
+	Vue.component("component-a", {
+		props: ["p"],
+		template: `
+			<div style="border: 1px solid #ccc; padding: 8px; background: #eee; margin: 4px;">
+			This is a Component A with message "{{ p.message }}"
+			</div>
+		`
+	});
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Show Container</button>
+					<button v-on:click="method2">Show Contents</button>
+					<button v-on:click="method3">Hide Container</button>
+					<button v-on:click="method4">Hide Contents</button>
+				</p>
+				<my-container v-bind:p="p1" v-if="p1.myShow"></my-container>
+			</div>
+		`,
+		data: {
+			p1: {
+				message: "default container message",
+				myShow: true,
+				p2: {
+					message: "default component message",
+					myShow: true
+				}
+			},
+		},
+		methods: {
+			method1() {
+				this.p1.myShow = true;
+			},
+			method2() {
+				this.p1.p2.myShow = true;
+			},
+			method3() {
+				this.p1.myShow = false;
+			},
+			method4() {
+				this.p1.p2.myShow = false;
+			}
+		}
+	});
+
+
 });
 
 
 /*
+
+instead of this.thing, do page.thing
+
+
 this is going really well
 next, do this:
 -combine them, have containers in containers, lists in containers, components in components
 -play around with scope, have them keep their own records, affect them from afar
 -make the counter, clock, and timer
+-make hasher
+
+is v-if showing and hiding, or building and destroying the dom? you want the one that just hides. what's the other one called?
+
+
+instead of arrays, can you use
+
+
+instead of matching up idn555 numbers with program-specific ids, you can also always do this
+call makeUnique once to get the prefix
+then have as many as you want idn555-yourUniqueId
+this is a really good idea
+
+
+figure out button and text area
+available and ghosted
+event on edit
+get and set text
+make a little sample that shows how to do those things
+
+
+
+
 
 
 */
 
-//play around with 
 
 
 //you can define global vue components way early during load
