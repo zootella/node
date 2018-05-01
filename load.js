@@ -106,24 +106,15 @@ required.chokidar     = require("chokidar");
 required.handlebars   = require("handlebars");
 required.vue          = require("vue/dist/vue.js"); // Reach the build of Vue with the template compiler
 
-// Find out what's running us
-function runByNode()             { return typeof process.versions.electron != "string"  }
-function runByElectron()         { return typeof process.versions.electron == "string"  }
-function runByElectronMain()     { return runByElectron() && process.type != "renderer" }
-function runByElectronRenderer() { return runByElectron() && process.type == "renderer" }
-
 // Load Electron and jQuery if this process can use them
 if (runByElectron()) required.electron = require("electron");
 if (runByElectronRenderer()) required.jquery = require("jquery");
 
-/*
-if (typeof process.versions.electron == "string") { // Electron is running us
-	required.electron = require("electron"); // Keep a reference to it in our required object
-	if (process.type == "renderer") { // There's also a web page
-		required.jquery = require("jquery"); // Load jQuery to change the page
-	}
-}
-*/
+// Find out what's running us
+function runByNode()             { return typeof process.versions.electron != "string"  } // Command line Node
+function runByElectron()         { return typeof process.versions.electron == "string"  } // Electron
+function runByElectronMain()     { return runByElectron() && process.type != "renderer" } // Electron's main or browser process, that has no page
+function runByElectronRenderer() { return runByElectron() && process.type == "renderer" } // An Electron renderer process, with a page
 
 // Copy the references in l like {name1, name2} to each object in a like [cores, global] careful to not overwrite anything
 function copyAllToEach(l, a) {
@@ -172,7 +163,7 @@ function exposeTest(n, f) {
 
 }
 
-//TODO remove with $ node load test
+//TODO remove with $ node load.js test
 function nameTest(n, o) {
 	n = 'test "' + n + '"';
 	var i = 1;
@@ -183,21 +174,20 @@ function nameTest(n, o) {
 
 // Get the command line arguments
 var arguments;
-if (runByNode()) { // Node is running us from the command line
-	arguments = process.argv; // Here are the arguments
-} else { // Electron is running us instead
-	if (runByElectronMain()) { // It's Electron's browser process, the starting one that doesn't have a page
-		arguments = process.argv; // Get the command line arguments
-		copyAllToEach({electronArguments:process.argv}, [global]); // Share them through global so the code below can pick them up
-	} else { // It's Electron's renderer process, which has a page
-		arguments = required.electron.remote.getGlobal("electronArguments"); // Get the shared arguments
-	}
+if (runByNode()) {
+	arguments = process.argv;
+} else if (runByElectronMain()) {
+	arguments = process.argv;
+	copyAllToEach({electronArguments:process.argv}, [global]); // Share the arguments through global so the code below can pick them up
+} else if (runByElectronRenderer()) {
+	arguments = required.electron.remote.getGlobal("electronArguments"); // Get the shared arguments
 }
+//TODO maybe try to switch to index.html?arguments
 
 // Keep references to all the program's main, core, demo, and test functions
 var mains = {}; // Entry points to run an entire program
 var cores = {}; // Useful library functions that bring code to a very high level
-var tests = []; // Automated unit tests of the core library TODO $ node load test
+var tests = []; // Automated unit tests of the core library TODO $ node load.js test
 
 // Prepare the single expose object that we'll pass into every container
 var expose = {};
@@ -208,8 +198,9 @@ expose.methodOnString    = function(l)       { makeMethods(l, String.prototype);
 expose.methodOnArray     = function(l)       { makeMethods(l, Array.prototype);   }
 expose.test              = function(n, f)    { exposeTest(n, f);                  }
 function contain(container) { container(expose); } // Pass the same expose object into each container
-expose.core({identity, required, arguments, contain, copyAllToEach, nameTest}); // Let all our code reach this useful stuff
-expose.core({runByNode, runByElectron, runByElectronMain, runByElectronRenderer});
+expose.core({runByNode, runByElectron, runByElectronMain, runByElectronRenderer}); // Let all our code reach this useful stuff
+expose.core({identity, required, arguments, contain, copyAllToEach, nameTest});
+//TODO maybe also expose {bluebird:required.bluebird, Vue:required.vue, fs:required.fs} not everything but the common ones so your code looks like snippets on the web
 
 // Load the containers in this file
 containers();
@@ -224,23 +215,25 @@ for (var i = 0; i < d.length; i++) { // Loop through each file name
 //TODO don't do this if all the code is bundeled into this single file
 
 // If Electron is running us, set it up
-if (runByElectron()) {
-	if (runByElectronMain()) {
-		if (mains["electron-main"]) mains["electron-main"](); // Electron, no page, run our function for that
-	} else {
-		if (mains["electron-renderer"]) mains["electron-renderer"](); // Electron, yes page, run our function for that
-	}
+if (runByElectronMain()) {
+	var win; // Keep a global reference to the window object so it's not garbage collected, which would close the window
+	required.electron.app.on("ready", function() { // Electron has finished starting and is ready to make windows
+		win = new required.electron.BrowserWindow({width: 900, height: 1100}); // Create the browser window
+		win.loadURL("file://" + __dirname + "/index.html"); // Load the page of the app
+		win.webContents.openDevTools(); // Open the developer tools
+		win.on("closed", function() { // The user closed the window
+			win = null; // Discard our reference to the window object
+		});
+	});
+	required.electron.app.on("window-all-closed", function() { // All the windows are closed
+		required.electron.app.quit();
+	});
 }
+//TODO previously, this was elsewhere, but always the code
 
 // Now that everything's loaded, run a main function, the entry point to the program this code is about
 if (runByNode() || runByElectronRenderer()) { // Do this if node is running us, or for the Electron process that has a page
-	if (mains["snip"]) { // If there's a main called "snip", run that snippet of code
-		mains["snip"]();
-	} else if (mains["main"]) { // If there's a main called "main", run that entry point
-		mains["main"]();
-	} else if (arguments.length > 2 && arguments[2] == "test") { // Run the tests for a command line $ node load test
-		mains["test"]();
-	} else if (arguments.length > 2 && arguments[2] == "main") { // Run the main named by the command $ node load main ~name~
+	if (arguments.length > 2 && arguments[2] == "main") { // Run the main named by the command $ node load.js main ~name~
 		if (arguments.length > 3 && mains[arguments[3]]) { // The name is the fourth argument, 3 arguments in from the start
 			var a = [];
 			for (var i = 4; i < arguments.length; i++) a.push(arguments[i]); // Collect any arguments from the command line after that
@@ -250,6 +243,7 @@ if (runByNode() || runByElectronRenderer()) { // Do this if node is running us, 
 		}
 	}
 }
+//TODO run the tests on $ node load.js test
 
 } // This is the end of the load() function we defined at the start of this file
 load(); // Now that we've defined it, run it

@@ -1,47 +1,219 @@
 //console.log("page main\\");
 contain(function(expose) {
 
+var Vue = required.vue;
+
+//make something, then change it's message
+expose.main("vue-update", function() {
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Change Message</button>
+				</p>
+				<p>{{ message }}</p>
+			</div>
+		`,
+		data: {
+			message: "starting message"
+		},
+		methods: {
+			method1() {
+				this.message = "updated message";
+			}
+		}
+	});
+});
+
+//same thing, with a component
+expose.main("vue-update-component", function() {
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Method 1</button>
+					<button v-on:click="method2">Method 2</button>
+					<button v-on:click="method3">Method 3</button>
+				</p>
+				<component-a v-bind:p="p1"></component-a>
+				<component-a v-bind:p="p2"></component-a>
+				<component-a v-bind:p="p2"></component-a>
+			</div>
+		`,
+		data: {
+			p1: {
+				message: "starting message 1"
+			},
+			p2: {
+				message: "starting message 2"
+			}
+		},
+		methods: {
+			method1() {
+				this.p1.message = "updated message 1";
+			},
+			method2() {
+				this.p2.message = "updated message 2";
+			},
+			method3() {
+				this.p1.message = "another update for 1";
+				this.p2.message = "another update for 2";
+			},
+		}
+	});
+});
+
+//make something, then hide and show it
+expose.main("vue-hide", function() {
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Show</button>
+					<button v-on:click="method2">Hide</button>
+				</p>
+				<p v-if="myShow">Here is a paragraph of text</p>
+			</div>
+		`,
+		data: {
+			myShow: true
+		},
+		methods: {
+			method1() {
+				this.myShow = true;
+			},
+			method2() {
+				this.myShow = false;
+			}
+		}
+	});
+});
+
+expose.main("vue-hide-component", function() {
+
+	Vue.component("component-a", {
+		props: ["p"],
+		template: `<div>This is a Component A with message "{{ p.message }}"</div>`
+	});
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Show 1</button>
+					<button v-on:click="method2">Show 2</button>
+					<button v-on:click="method3">Hide 1</button>
+					<button v-on:click="method4">Hide 2</button>
+				</p>
+				<component-a v-bind:p="p1" v-if="p1.myShow"></component-a>
+				<component-a v-bind:p="p2" v-if="p2.myShow"></component-a>
+				<component-a v-bind:p="p2" v-if="p2.myShow"></component-a>
+			</div>
+		`,
+		data: {
+			p1: {
+				message: "starting message 1",
+				myShow: true
+			},
+			p2: {
+				message: "starting message 2",
+				myShow: true
+			}
+		},
+		methods: {
+			method1() {
+				this.p1.myShow = true;
+			},
+			method2() {
+				this.p2.myShow = true;
+			},
+			method3() {
+				this.p1.myShow = false;
+			},
+			method4() {
+				this.p2.myShow = false;
+			}
+		}
+	});
+});
+
+//make a list of things, then add some more, then remove some
+expose.main("vue-grow", function() {
+
+	var page = new Vue({
+		el: '#page',
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button v-on:click="method1">Add 5</button>
+					<button v-on:click="method2">Remove Start</button>
+					<button v-on:click="method3">Remove Middle</button>
+					<button v-on:click="method4">Remove End</button>
+				</p>
+				<component-a v-for="p in myList" v-bind:key="p.id" v-bind:p="p"></component-a>
+			</div>
+		`,
+		data: {
+			myList: []
+		},
+		methods: {
+			method1() {
+				for (var i = 0; i < 5; i++) this.myList.push(makeComponent("hello there"));
+			},
+			method2() {
+				this.myList.splice(0, 1);
+			},
+			method3() {
+				this.myList.splice(this.myList.length / 2, 1);
+			},
+			method4() {
+				this.myList.splice(this.myList.length - 1, 1);
+			}
+		}
+	});
+
+	Vue.component("component-a", {
+		props: ["p"],
+		template: `<div>This is a Component A with id "{{ p.id }}", timestamp "{{ p.made }}", and message "{{ p.message }}"</div>`
+	});
+
+	function makeComponent(message) {
+		var p = {};
+		p.id = makeUnique();
+		p.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";
+		p.message = message;
+		return p;
+	}
+});
+
+//make a container of some other things
+expose.main("vue-contain", function() {
+});
+
 
 /*
-how this currently works (you'll probably change it)
+this is going really well
+next, do this:
+-combine them, have containers in containers, lists in containers, components in components
+-play around with scope, have them keep their own records, affect them from afar
+-make the counter, clock, and timer
 
-run by node:
-node runs 'snip2'
 
-run by electron:
-electron main runs 'electron-main', which creates the browser window
-electron renderer runs 'electron-renderer' and then 'snip2'
 */
 
-expose.main("electron-main", function() {
-	log("hi from electron-main");
-
-	var app = required.electron.app;
-	var win; // Keep a global reference to the window object so it's not garbage collected, which would close the window
-	app.on("ready", function() { // Electron has finished starting and is ready to make windows
-		win = new required.electron.BrowserWindow({width: 900, height: 1100}); // Create the browser window
-		win.loadURL("file://" + __dirname + "/index.html"); // Load the page of the app
-		win.webContents.openDevTools(); // Open the developer tools
-		win.on("closed", function() { // The user closed the window
-			win = null; // Discard our reference to the window object
-		});
-	});
-	app.on("window-all-closed", function() { // All the windows are closed
-		app.quit();
-	});
-});
-
-expose.main("electron-renderer", function() {
-	log("hi from electron-renderer");
-
-	//TODO do this with vue instead
-	/*
-	var $ = required.jquery;
-	$(document).ready(function() {
-		$("body").html('<input type="button" value="Refresh" onClick="window.location.reload()"/>');
-	});
-	*/	
-});
+//play around with 
 
 
 //you can define global vue components way early during load
@@ -71,7 +243,7 @@ expose.main("snip3", function(a, b, c) {
 		template: `
 			<div>
 				<p>this is a stick item, really there will only be one</p>
-				<p>{{  }}</p>
+				<p>{{ p.message }}</p>
 			</div>
 		`
 	});
@@ -88,12 +260,12 @@ expose.main("snip3", function(a, b, c) {
 				</p>
 				<p>hello snip three, where we will make simple local log and stick</p>
 				<log-item v-for="p in logItems" v-bind:key="p.id" v-bind:p="p"></log-item>
-				<stick-item></stick-item>
+				<stick-item v-bind:p="stickItem"></stick-item>
 			</div>
 		`,
 		data: {
 			logItems: [],
-			stickItem: {id: makeUnique()}
+			stickItem: {message: "starting stick message", id: makeUnique()}
 		},
 		methods: {
 			method1() {
@@ -119,6 +291,24 @@ expose.main("snip3", function(a, b, c) {
 });
 
 
+
+/*
+make some examples where you show how to do
+-one thing
+-a list of things
+and then
+-things that appear and hide
+-container things
+-that have contents that appear and hide, and grow and shrink
+
+
+
+
+*/
+
+expose.main("snip1", function(a, b, c) {
+	log("hello from snip1, which got #, #, and #".fill(a, b, c));
+});
 
 
 expose.main("snip2", function(a, b, c) {
@@ -200,7 +390,7 @@ expose.main("snip2", function(a, b, c) {
 		return o;
 	}
 
-	
+
 });
 
 
@@ -210,15 +400,6 @@ expose.main("snip2", function(a, b, c) {
 
 
 
-
-
-// Make a unique identifier for a new element on the page, from "idn1" through "idn9000000000000000" and then "idnn1", quick and infinite
-var unique_i, unique_s;
-function makeUnique() {
-	if (!unique_s) unique_s = "id"; // Starting prefix
-	if (!unique_i || unique_i > 9000000000000000) { unique_s += "n"; unique_i = 1; } // It's over nine thousand! actually quadrillion
-	return unique_s + unique_i++; // Increment number for next time
-}
 
 
 

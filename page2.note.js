@@ -197,14 +197,57 @@ right now, not attached to or interacting with the real stick and log
 
 
 
+expose.main("electron-renderer", function() {
+	log("hi from electron-renderer");
+
+	var $ = required.jquery;
+	$(document).ready(function() {
+		$("body").html('<input type="button" value="Refresh" onClick="window.location.reload()"/>');
+	});
+});
+/*
+in the days of jquery, you had document.ready
+do you need to do something like that for vue?
+*/
+
+
+
+/*
+simpler idea:
+$ node load.js snip7, runs snip7
+$ electron load.js snip7, electron main runs electron-main, then electron renderer runs snip7
+the earlier idea here was that everything was a main
+and that mains were coded to run in node or electron
+but in node, only one main can run at a time, and now in electron, you want to get many of them going at once
+so probably abandon node entirely, and just switch to electron
+*/
 
 
 
 
 
+/*
+what's the only thing the electron main process can do?
+if it's prompt system dialogs like file open, file save, maybe don't use those and then never use it
+
+completely forget about the commadn line, completely leave it behind
+if you want a command line interface to something later on, you'll code up a blessed ui for it
+
+maybe make the tabs at the top early on
+mains can become about:name in one of those tabs
+and from there you can start coding more sophisticated mains, run them at the same time
+
+alternatively to tabs, code up the command line
+$ is a prompt to start something
+but then it grows into html which continues to be interactive
+you can have as many as you want, all on top of one another
+
+ok once you've got all that running, command line arguments dont matter
+
+code up the clock, the timer, and the hasher
 
 
-
+*/
 
 
 
