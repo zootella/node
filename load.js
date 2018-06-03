@@ -67,7 +67,6 @@ identity["package.json"] = `
 		"blessed": "^0.1.81",
 		"charm": "^1.0.2",
 		"electron": "^1.8.6",
-		"handlebars": "^4.0.11",
 		"keypress": "^0.2.1",
 		"q": "^1.5.1"
 	}
@@ -103,7 +102,6 @@ required.util          = require("util");
 required.bignumber_js = require("bignumber.js");
 required.bluebird     = require("bluebird");
 required.chokidar     = require("chokidar");
-required.handlebars   = require("handlebars");
 required.vue          = require("vue/dist/vue.js"); // Reach the build of Vue with the template compiler
 
 // Load Electron and jQuery if this process can use them
@@ -173,14 +171,14 @@ function nameTest(n, o) {
 }
 
 // Get the command line arguments
-var arguments;
+var processArguments;
 if (runByNode()) {
-	arguments = process.argv;
+	processArguments = process.argv;
 } else if (runByElectronMain()) {
-	arguments = process.argv;
-	copyAllToEach({electronArguments:process.argv}, [global]); // Share the arguments through global so the code below can pick them up
+	processArguments = process.argv;
+	global.electronArguments = process.argv; // Share the arguments through global so the code below can pick them up
 } else if (runByElectronRenderer()) {
-	arguments = required.electron.remote.getGlobal("electronArguments"); // Get the shared arguments
+	processArguments = required.electron.remote.getGlobal("electronArguments"); // Get the shared arguments
 }
 //TODO maybe try to switch to index.html?arguments
 
@@ -199,8 +197,7 @@ expose.methodOnArray     = function(l)       { makeMethods(l, Array.prototype); 
 expose.test              = function(n, f)    { exposeTest(n, f);                  }
 function contain(container) { container(expose); } // Pass the same expose object into each container
 expose.core({runByNode, runByElectron, runByElectronMain, runByElectronRenderer}); // Let all our code reach this useful stuff
-expose.core({identity, required, arguments, contain, copyAllToEach, nameTest});
-//TODO maybe also expose {bluebird:required.bluebird, Vue:required.vue, fs:required.fs} not everything but the common ones so your code looks like snippets on the web
+expose.core({identity, required, processArguments, contain, copyAllToEach, nameTest});
 
 // Load the containers in this file
 containers();
@@ -233,13 +230,16 @@ if (runByElectronMain()) {
 
 // Now that everything's loaded, run a main function, the entry point to the program this code is about
 if (runByNode() || runByElectronRenderer()) { // Do this if node is running us, or for the Electron process that has a page
-	if (arguments.length > 2 && arguments[2] == "main") { // Run the main named by the command $ node load.js main ~name~
-		if (arguments.length > 3 && mains[arguments[3]]) { // The name is the fourth argument, 3 arguments in from the start
+	if (processArguments.length > 2 && processArguments[2] == "main") { // Run the main named by the command $ node load.js main ~name~
+		if (processArguments.length > 3 && mains[processArguments[3]]) { // The name is the fourth argument, 3 arguments in from the start
+			var mainName = processArguments[3];
 			var a = [];
-			for (var i = 4; i < arguments.length; i++) a.push(arguments[i]); // Collect any arguments from the command line after that
-			mains[arguments[3]].apply(this, a); // Call the main, giving it any additional arguments
+			for (var i = 4; i < processArguments.length; i++) a.push(processArguments[i]); // Collect any arguments from the command line after that
+			if (runByNode()) m();
+			else if (runByElectronRenderer()) required.jquery(document).ready(m()); // Wait for the DOM to be ready
+			function m() { mains[mainName].apply(this, a); } // Call the main, giving it any additional arguments
 		} else {
-			throw new Error("main not found: '" + arguments[3] + "'");
+			throw new Error("main not found: '" + processArguments[3] + "'");
 		}
 	}
 }

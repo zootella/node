@@ -1,7 +1,7 @@
 
 
 
-
+//you have so many old notes in load*.note.js and page*.note.js, go through and delete stuff you've done or don't need!
 
 
 

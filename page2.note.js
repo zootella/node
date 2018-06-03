@@ -152,7 +152,7 @@ and if you put those suffixes on them, it happens for you
 
 
 
-
+/*
 
 <input type="button" value="Refresh" onClick="window.location.reload()"/>
 <p>now let's try some components</p>
@@ -248,6 +248,65 @@ code up the clock, the timer, and the hasher
 
 
 */
+
+
+/*
+your system really only needs to do 3 things
+-never show down the core waiting for a return from a call into the gui
+-update the gui 60fps
+-measure how long that takes, and reduce to 10fps or even 1fps if there's so much on the page updating it takes a really long time
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

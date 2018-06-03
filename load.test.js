@@ -137,5 +137,80 @@ expose.test("load nameTest", function(ok, done) {
 
 
 
+
+//check which global names are already in use by node and electron
+expose.main("reserved", function() {
+	function check(n) {
+		if (undefined === global[n]) log("ok: '#'".fill(n));
+		else                         log("no: '#' is already a # that as text is: #".fill(n, typeof global[n], say(global[n]).pilcrow()));
+		log();
+	}
+
+	check("setTimeout");//obviously taken everywhere
+	check("_very_obscure_2");//probably not taken anywhere
+
+	check("File");//ok in node and electron browser, but not in electron renderer
+	check("Range");
+	check("close");
+
+	check("done");//ok each place
+	check("end");
+	check("shut");//this is why i had to rename close() to shut(), but the new name is shorter and more unique
+	check("free");
+});
+
+/*
+pass arguments to node, or through electron main to electron renderer
+$ node load.js main process-arguments apple banana carrot
+$ electron load.js main process-arguments apple banana carrot
+*/
+expose.main("process-arguments", function(a, b, c) {
+	log("process-arguments got '#', '#', and '#'".fill(a, b, c));
+});
+
+expose.test("load function arguments", function(ok, done) {
+
+	//two ways to get function arguments
+	function f(a, b, c) {
+		ok("# # #".fill(a, b, c) == "value1 value2 value3");//using named function parameters
+		ok("# # #".fill(arguments[0], arguments[1], arguments[2]) == "value1 value2 value3");//using the arguments array
+	};
+	f("value1", "value2", "value3");//call directly
+
+	//two ways to send function arguments
+	var r = ["value1", "value2", "value3"];//prepare an array of arguments
+	f.apply(this, r);//use apply to call, giving a this and the prepared array
+
+	//example of using apply
+	function f1(s) {//gets a function argument by naming it
+		ok(s == "value");
+	}
+	function f2() {//calls f1, giving it the same arguments, without naming any of them
+		f1.apply(this, arguments);
+	}
+	f1("value");
+	f2("value");
+
+	done();
+});
+//move that to wherever you put core javascript language things, actually
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 //console.log("load test/");
