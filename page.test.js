@@ -586,7 +586,6 @@ expose.main("page-form", function() {
 
 
 /*
-
 >page-reach
 make another one that demonstrates reaching into and out of things
 see if you can do all this without going global on the page object, for instance
@@ -600,9 +599,86 @@ as an example more than something to use
 
 
 
+/*
+now you can easily make the clock, stopwatch, and timer
+
+and log and stick
+
+and make the hasher
+and see if it's significantly slower to no-progress hashing in a few lines of node on the command line
+and see if getAnimationFrame makes it faster, yeah, those are the only 3 things you need to race
+*/
 
 
 
+
+
+/*
+three ideas that might be this side of the horizon, now
+
+a single component that becomes everything
+by containing a list of 0+ sub-things
+
+$ [text box]
+where you can enter a page
+like a main but electron only, and you can have more than one running at a time
+and then go back and convert some mains into pages this way
+
+a hyper-shorthand like [ text ] [Button]
+that becomes vue that becomes html
+
+log and stick for the web
+could you run existing command line mains on the page with very little modification?
+*/
+
+
+
+
+
+/*
+make dent(``) so that you can use that for outline, and so that html snippets in the chrome dev tools look nicer
+make it strict, too, throwing code if you give it something weird
+have it require commas, not spaces, etc
+*/
+
+
+
+
+
+
+
+
+
+
+/*
+you have so many old notes in:
+
+app/
+app2/
+load*.note.js
+page*.note.js
+
+go through and delete stuff you've done or don't need!
+*/
+
+
+
+
+
+/*
+simpler design for load and page
+leave the command line
+$ electron load.js
+pops the window, which looks like
+$
+type a dap there, which might take over the whole page
+or just render a div and give you another $
+this is a cool idea
+
+but you still need
+$ node load.js main name arg1
+for node, you also realize
+*/
 
 
 

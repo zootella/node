@@ -1,8 +1,0 @@
-{
-	"name": "v2adjust2",
-	"main": "main.js",
-	"scripts": {},
-	"dependencies": {
-		"vue": "^2.5.16"
-	}
-}

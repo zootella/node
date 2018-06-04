@@ -1,9 +1,8 @@
 
+
+
+
 /*
-
-
-
-
 use webpack to live reload a html page
 $ git clone https://github.com/zootella/reload
 $ cd reload
@@ -25,11 +24,6 @@ install node
 $ node --version
 $ npm --version
 $ npm install -g npm
-
-
-
-
-
 
 install electron globally
 $ npm install -g electron
@@ -63,490 +57,59 @@ run electron three ways, dirname is the same
 $ electron .
 $ npm run electron-here
 $ electron/win/electron.exe .
+*/
 
+/*
+update mistake 
 
+for promises and electron, understand and control the behavior of
+the system streams, like log and error
+exceptions, like {}.notHere.nope;
 
+write {}.notHere.nope; different places to see how it throws
+in node
+in electron main and renderer
+after setImmediate
+after promises
+and figure out where you want it to go
+probably not causing node to exit the process
+and not in a message box before the electron window shows up
+and not in command tools, either
+*/
 
-
-
-
-== how running electron the different ways works ==
+/*
+global electron works on windows, but not mac, fix your mac somehow
+electron interactive, the repl, works on mac but not windows, by design
 
 github wrote the electron repl -i to work on mac, but haven't made it work on widnows yet
 installing electron globally on windows works, and on your mac it doesn't, because your computer is messed up somehow
 npm gets windows electron on windows and mac electron on mac, so if you npm installed on windows, you can't npm run on mac
 if you unzip electron on mac, the binary executable Electron will have the last x bit set, and it works, not so from dropbox
 
-global or local might have better debugging information if electron really breaks, but manual is how your app will be used
-
-
-
-
-
-
-
-== how arguments work ==
-
-arguments work all three ways of running electron
-
-global
-$ electron . arg1 arg2
-e5vue main pid 7212, dirname C:\Documents\Dropbox\code\vue\e5vue
-main got 4 arguments:
-0	C:\Users\Kevin Faaborg\AppData\Roaming\npm\node_modules\electron\dist\electron.exe
-1	.
-2	arg1
-3	arg2
-
-local
-$ npm run electron-here arg1 arg2
-e5vue main pid 4336, dirname C:\Documents\Dropbox\code\vue\e5vue
-main got 4 arguments:
-0	C:\Documents\Dropbox\code\vue\e5vue\node_modules\electron\dist\electron.exe
-1	.
-2	arg1
-3	arg2
-
-manual
-$ electron/win/electron.exe . arg1 arg2
-e5vue main pid 8156, dirname C:\Documents\Dropbox\code\vue\e5vue
-main got 4 arguments:
-0	C:\Documents\Dropbox\code\vue\e5vue\electron\win\electron.exe
-1	.
-2	arg1
-3	arg2
-
-page always gets the same 18 arguments
-to see them, in the devtools console type process.argv
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-which of these work? how would you make them work?
-$ electron . arg1 arg2
-$ npm run electron-here arg1 arg2
-$ electron/win/electron.exe . arg1 arg2
-
-
-
-currently, e5vue has got main.js and page.js
-combine that into a single js, like you've done with node
-
-
-
-
-
-
-
-global electron works on windows, but not mac, fix your mac somehow
-electron interactive, the repl, works on mac but not windows, by design
-
-ways to code and run this include for development,
-the secure build for advanced computer users from a single text file,
-and the downloadable consumer packages that install normally mac/win/raspbian,
-and the portable usb version you can carry between mac/win/raspbian
-
-
-
-
+right now on windows, the electron in npm_modules is from mac, because dropbox brought it over
+and yet $ npm run electron-version still works somehow
+probably just because npm uses global before node_modules, maybe?
+*/
+
+/*
+ways to code and run this include:
+-for development,
+-the secure build for advanced computer users from a single text file,
+-and the downloadable consumer packages that install normally mac/win/raspbian,
+-and the portable usb version you can carry between mac/win/raspbian
 
 launch from usb key portable between mac and windows
 launch from installed location on windows, and a shortcut on the start menu
 launch from installed location on mac, dragged into the applications folder, then drag a document onto it
 and check command line arguments getting passed through with all that
+*/
 
-
-
-use repl on bash and in browser developer tools
-get system out and other standard streams
-
-
-
-have some broken code in main or page, see where the exception goes
-
-
-get vue in there, three options:
--script include from web address, works
--manual include locally
--npm, but not packaged webkit-style (try to do this one like everything else)
-
-have one
-
-
-
-
-
-
-add to tests alongside makeUnique
-ok(Number.MAX_SAFE_INTEGER+"" == "9007199254740991")
-
-
-
-
-
-yeah, the hacker setup should not use node or npm
-rather, everything -S will hopefully be available as a single file one of these sites
-https://unpkg.com/
-https://www.jsdelivr.com/
-see if this is the case for what you're using now
-and how much you really need all of those things
-
-
-
-
-
-
-
-
-
-
-
-
-runmac.sh
-runwin.lnk
-well those two dont work very well
-but maybe you don't really need them anyways, not for develop or deploy
-
-
-
-
-
-
-
-if you get translocated, are you read-only?
-https://github.com/potionfactory/LetsMove/issues/56
-private/var/folders/vy/b4zsvws528zdph8b8tktczp40000gn/T/AppTranslocation/C026834F-EE40-4301-9843-79B6CE94AA64/d/Electron.app/Contents/MacOS/Electron path-to-app
-
-
-
-
+/*
 a useful project would be:
 make a little notepad editor that edits a file it keeps in its folder
 package it as a portable application, and edit the file as you carry it from window, mac, and raspbian
 if you can do that, you can make all the installers, too
-
-
-
-
-next, get back into your 'node' project
-e5vue has got package.json requiring vue, but then the page gets vue from a script tag from 
-
-
-test out getting vue each way:
-e6web: web url (done)
-e7file: local single file
-e8module: package.json and node_modules
-
-and for these, do windows first and electron globally
-
-
-
-
-
-https://unpkg.com/
-https://www.jsdelivr.com/
-
-you're doing it wrong
-all the -D, like nodeunit, use npm and require() to develop, and leave behind to ship
-all the -S, like electron and vue, use script and unpkg to develop, and download minified to ship
-ok so right now, try setting that up in win vmware, and then try running it on mac
-
-b1single
-
-
-==
-you can ignore electron right now
-
-f1require - package.json, node_modules, and require()
-f2source - <script src=http://
-f3saved - works offline. do you use script src to a local file? require() even though there's no node? try out to find out
-
-page.html
-script.js
-
-unpkg dev vue, bignumber, bluebird, and chokidar
-really simple code in script.js that proves that you can load and use them all
-and then try to get that working offline
-
-do you require() these things, or do you script tag them?
-figure out the answer to that question
-best of all, you don't need vmware or mac
-
-
-
-npm install -S
-vue, 1 package
-bignumber.js, 1 package
-bluebird, 1 package
-
-chokidar, 140 packages
-
-ok, so the hacker install is probably going to have to include node and npm, then
-
-
-
-
-
-==
-
-
-
-in win7 vmware, try to run e3manual without node or npm every having been installed
-
-
-
-
-
-e10module - electron and vue are npm installed
-e20file - electron and vue are files nearby
-
-get them both working on windows
-then test e20file on vmware
-then try them out on mac
-
-
-
->save
-"bignumber.js": "^2.3.0",
-"bluebird": "^3.4.1",
-"chokidar": "^1.6.1",
-"vue"
-
->dev
-"charm": "^1.0.1",
-
->dev now but soon trash
-"handlebars": "^4.0.5",
-"jquery": "^3.1.0",
-"keypress": "^0.2.1",
-"q": "^1.4.1"
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>v2adjust2</title>
-	</head>
-	<body>
-		<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
-		<div id="app"></div>
-		<script type="text/javascript" src="page.js"></script>
-	</body>
-</html>
-
-works
-
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>v2concept3</title>
-		<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
-		<script type="text/javascript" src="page.js"></script>
-	</head>
-	<body>
-	</body>
-</html>
-
-you could probably also get working
-
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>v2concept4</title>
-		<script type="text/javascript" src="page.js"></script>
-	</head>
-	<body>
-	</body>
-</html>
-
-is more like what you currently have, but would require("vue") somehow, which really seems to be against the grain
-also against the grain would be using body, they want you to name a single div in there
-
-also, that last one, your page.js will have to wait until ondomready because when page.js runs, <body> doesn't exist yet
-
-
-
-
-also figure out how you're going to do css
-hopefully/probably have snippets of it alongside html snippets in the javascript code
-and without changing index.html
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>v2adjust2</title>
-	</head>
-	<body>
-		<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
-		<div id="page"></div>
-		<script type="text/javascript" src="load.js"></script>
-	</body>
-</html>
-
-hacked smaller maybe could be:
-
-<html>
-	<body>
-		<script src="node_modules/vue/dist/vue.js"/>
-		<div id="page"/>
-		<script src="load.js"/>
-	</body>
-</html>
-
-but not sure which one you like better
-and not sure if /> with the script and div works or is correct for that matter, either
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-what you are doing now
-
-v1source - start with your working e5vue example
-v2adjust - try to make index.html really small and the html in a long page.js
-v3unify - unify main.js and page.js to just index.js
-v4require - play around with require("vue") instead of <script src="vue.js">
-
-and then bring that back to your main node project, for great justice
-
-
-
-
-
-
-
-
-
-
-
-
-yeah, get jquery in here, you might need it to change the window title or set some css or something
-it doesn't matter if it's not standard if it works without errors
-
-
-get rid of the stuff in 'vue' and then 'app'
-
->notes about dependencies
-jquery, maybe just use vue
-q, switch to bluebird
-handlebars, switch to vue
-charm and keypress, switch to blessed or vue
-
-
 */
-
-
-
-/*
-in page.main.js you've got a main named snip2
-ways to run it, in global node, global electron, and module electron
-checked that these work on mac and windows
-
-$ node --version
-$ node load
-$ node load main snip2 apple banana carrot
-
-$ electron --version
-$ electron load
-$ electron load main snip2 apple banana carrot
-
-$ npm run electron-version
-$ npm run electron-load
-$ npm run electron-load main snip2 apple banana carrot
-*/
-
-
-/*
-Asteroid
-
-
-<script type="text/javascript" src="node_modules/vue/dist/vue.js"></script>
-*/
-
-
-
 
 
 

@@ -1,3 +1,19 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//notes about the anatomy of load and the single huge illustrated text file
 function load() {
 
 /*
@@ -53,32 +69,11 @@ from the { to the } and from the < to the >
 */
 
 identity["package.json"] = `
-{
-	"name": "zootella",
-	"main": "zootella.js",
-	"dependencies": {
-		"bignumber.js": "^2.3.0",
-		"bluebird": "^3.4.1",
-		"charm": "^1.0.1",
-		"chokidar": "^1.6.1",
-		"handlebars": "^4.0.5",
-		"jquery": "^3.1.0",
-		"keypress": "^0.2.1",
-	}
-}
+	...
 `;
 
 identity["index.html"] = `
-<!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>zootella</title>
-		<script type="text/javascript" src="zootella.js"></script>
-	</head>
-	<body>
-	</body>
-</html>
+	...
 `;
 
 /*
@@ -97,19 +92,7 @@ what files it makes while it's running
 how to carry it with you
 */
 
-
-
-
-
 //rest of load
-
-
-
-
-
-
-
-
 
 }
 load();
@@ -118,7 +101,11 @@ contain(function(expose) {
 
 //container contents
 
+});
 
+contain(function(expose) {
+
+//container contents
 
 });
 
@@ -126,42 +113,7 @@ contain(function(expose) {
 
 //container contents
 
-
-
 });
-
-contain(function(expose) {
-
-//container contents
-
-
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -175,10 +127,6 @@ contain(function(expose) {
 
 
 /*
-notes
-
-
-
 you figured out how to distribute the entire working application
 -as a single file
 -that resists tampering
@@ -203,20 +151,14 @@ there are headings and borders like gamefaqs
 
 there are contents and hyperlinks with control+f
 there could be a choose your own adventure book with control+f
+*/
 
-
-
-
-
-
+/*
 zootella.txt
 at the start are instructions for validating and assembly
+say, you can do this in x minutes with about x clicks
 change the top to xxxx
-then sha1 sum with a command like
-$
-have windows
-bash
-http://superuser.com/questions/245775/is-there-a-built-in-checksum-utility-on-windows-7/898377#898377
+then sha1 sum, find the command on windows, mac, and rasbperry pi
 
 check the hash
 do you trust the hash, search for the hash
@@ -224,58 +166,23 @@ read the news
 read the code
 diff the code
 
-say, you can do this in x minutes with about x clicks
-
-first, make sure no one has edit4ed this file
+first, make sure no one has edited this file
 then, decide if you trust that hash
 make some more files
 get electron
 get node modules
+*/
 
-maybe also, download artwork
-
-
-
-
-
-
-
-
-
+/*
 ways to get the program
 -download preassembeled from the website
 -download single file, follow assembly instructions
 -reproduction system: your friend clicks distribute in their running app, then ims you the zip file the program creates, and this contains a list of peers so it works without a central bootstrapping server running
-
-
-
-
-
-
 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
+in the huge text file of everything, double asterisk is a special code
 
-this is a special code
 in here, a postprocessor wraps neighboring lines
 
 #Header
@@ -285,53 +192,21 @@ and a bookreader app written within can pull these sections out, and turn them i
 there's no code in here, rather, code is between them
 this is how you make the demo sections, for instance
 
-
-
-
-
-
-
-
-
 [Data>] is a link, and
 [>Data] is a link target
 in the reader, these become wiki style hyperlinks
 but you can also just ctrl+f them
 [Google>http://www.google.com/] is how you'd do a web link, except you might not have any of those
-
-
-
-
-
-
-
-
-
-
-
 **/
 
-
-
-
-
-
-
-
-
-
-
-
-
 /*
-
-       .= .-_-. =.    
-      ((_/)o o(\_))   
-       `-'(. .)`-'    
-        /| \_/ |\     
-       ( | GNU | )    
-       /"\_____/"\    
-       \__)   (__/    
+ .= .-_-. =.
+((_/)o o(\_))
+ `-'(. .)`-'
+  /| \_/ |\
+ ( | GNU | )
+ /"\_____/"\
+ \__)   (__/
 
 format the gpl into two columns, with the gnu in the middle between them
 and lots of scallops and frames around the top and bottom
