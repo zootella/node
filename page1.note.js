@@ -4,83 +4,6 @@
 
 
 
-/*
-run the tests, run a demo, run in electron, run in nodemon
-
-$ ./node_modules/nodeunit/bin/nodeunit *_test.js
-$ nodeunit *_test.js
-$ node file.js demo name
-$ ./electron/win/electron.exe app-name/
-$ ./electron/mac/Electron.app/Contents/MacOS/Electron app-name/
-$ node node_modules/nodemon/bin/nodemon.js file.js demo name
-
-								node >           demo (works) $ node environment_test.js demo platform
-								node > nodemon > demo (works) $ node node_modules/nodemon/bin/nodemon.js environment_test.js demo platform
-									win electron > demo (works) $ electron/win/electron.exe environment_test.js demo platform
-									mac electron > demo (works) $ electron/mac/Electron.app/Contents/MacOS/Electron environment_test.js demo platform
-
-		 node >           nodeunit > test (works) $ node node_modules/nodeunit/bin/nodeunit text_test.js
-		 node > nodemon > nodeunit > test (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit text_test.js
-			 win electron > nodeunit > test (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit text_test.js
-			 mac electron > nodeunit > test (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit text_test.js
-
-node >           nodeunit > all tests (works) $ node node_modules/nodeunit/bin/nodeunit *_test.js
-node > nodemon > nodeunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js node_modules/nodeunit/bin/nodeunit *_test.js
-	win electron > nodeunit > all tests (works) $ electron/win/electron.exe node_modules/nodeunit/bin/nodeunit *_test.js
-	mac electron > nodeunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron node_modules/nodeunit/bin/nodeunit *_test.js
-
-			 node >           myunit > test (todo)  $ node myunit.js text_test.js
-			 node > nodemon > myunit > test (todo)  $ node node_modules/nodemon/bin/nodemon.js myunit.js text_test.js
-				 win electron > myunit > test (todo)  $ electron/win/electron.exe myunit.js text_test.js
-				 mac electron > myunit > test (todo)  $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js text_test.js
-
-	node >           myunit > all tests (works) $ node myunit.js *_test.js
-	node > nodemon > myunit > all tests (works) $ node node_modules/nodemon/bin/nodemon.js myunit.js *_test.js
-		win electron > myunit > all tests (works) $ electron/win/electron.exe myunit.js *_test.js
-		mac electron > myunit > all tests (works) $ electron/mac/Electron.app/Contents/MacOS/Electron myunit.js *_test.js
-
-									 win electron > app (works) $ electron/win/electron.exe app/hello
-									 mac electron > app (works) $ electron/mac/Electron.app/Contents/MacOS/Electron app/hello
-
->todo
-make the electron app named hello so the bottom two work
-improve myunit.js to take arguments like text_test.js and *_test.js
-make an electron app named "demo" that runs a demo the same way you can on the command line
-*/
-
-
-
-
-
-{
-	var t = dent(`
-		first line
-			line 1a
-			line 1b
-		second line
-		third line
-		fourth line
-	`);
-}
-/*
-maybe have an object that represents an array of strings, with methods on that to
-set the newline character if you want something different than the default, which should be windows on all platforms
-ask and set if there are starting, trailing, both of those, blank lines, remove all those
-detect and remove a global indent, and freak out if there's something that looks wrong with it
-say into a string
-loop by getting the array
-get size of number of lines
-
-and that's how you implement unindent, it goes into a Lines and back to a string again
-
-this is a cool idea and likely a good design for this problem with multiple lines that you've been thinking about since the start
-*/
-
-
-
-
-
-
 
 /*
 without style, what if you reinvented the repl
@@ -444,6 +367,369 @@ a text box that's the same height as normal text
 a text box that grows to hold the contents
 helvetica and circular fonts
 */
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+here's what your going to make with vue
+1 log and stick for exploringnode examples
+2 the visual repl and subapps in the running process for backup/everpipe/pchan
+3 the full ui for backup/everpipe/pchan
+*/
+
+
+
+
+
+
+
+/*
+>load steps
+you've got it so that the main doesn't run until $ says ready
+but you still need to get it to that it builds and shows the whole page, and then makes the window visible
+goals are to be snap-quick to not need a progress bar, but also not blink the screen which looks like a website not a client app
+if its not snap-quick, show electron rendering the password field or even just the background color, and then load everything after that
+
+right now both electron main and electron renderer load all your library code, *.core.js
+you'd like to keep everything in one electron renderer process
+if you accomplish that, and electron main doesn't do anything
+have electron main run a script without all those extra libraries and library code
+*/
+
+
+
+
+
+/*
+what's the only thing the electron main process can do?
+if it's prompt system dialogs like file open, file save, maybe don't use those and then never use it
+
+it's ok to leave the command line behind
+if you want a command line interface to something later on, you'll code up a blessed ui for it
+
+maybe make the tabs at the top early on
+mains can become about:name in one of those tabs
+and from there you can start coding more sophisticated mains, run them at the same time
+
+alternatively to tabs, code up the command line
+$ is a prompt to start something
+but then it grows into html which continues to be interactive
+you can have as many as you want, all on top of one another
+*/
+
+
+
+
+
+/*
+your page system really only needs to do 3 things
+-never slow down the core waiting for a return from a call into the gui
+-update the gui 60fps
+-measure how long that takes, and reduce to 10fps or even 1fps if there's so much on the page updating it takes a really long time
+
+additionally, hopefully vue is already doing all this for you, but find out and prove it somehow
+-don't double-change the page when the data underneath gets repeatedly set to the same current value
+-don't waste time trying to change the page faster than window.requestAnimationFrame
+-don't spend any time updating something that's hidden, or (harder) scrolled away (but what if it changes height to come partially into view)
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+vue
+try out tabs, and see if they keep the scroll position
+
+how will you keep the view separate from the data down below?
+for instance, imagining running the whole engine headless, because instead of a user here clicking a page, the same commands are arriving from a remote control
+
+you probably should never show 10k items, and instead have pagination and an instant filter style search box when that happens
+for a small list, render all the elements, and use show to hide the ones off page or filtered away
+but a big list might exist only in couch. there, you'll render just the elements on the page that match the filter
+*/
+
+/*
+stress test spin with hundreds of clocks
+figure out if vue is already using requestAnimationFrame
+*/
+
+/*
+instead of matching up idn7 numbers with data-specific ids, you can instead do this
+call idn() once for a list of items to get the prefix
+then add unique data-specific suffixes, like a file hash
+*/
+
+/*
+do more with button
+normal/hot/pressed/set
+
+try out checkbox and radio control
+
+try out image, actually
+*/
+
+/*
+in vue, some of the ideas from your own earlier design might make sense
+what if you designed it so that everything is a Thing
+and a Thing always has a unique id
+and a template
+and a div where a list of subthings can grow (or if this thing doesn't need subthings, then just leave it blank)
+so there's only one kind of thing
+and then here's where you start to wrap and simplify vue, i guess
+*/
+
+/*
+so how would you ship the hasher to a friend?
+do you use webpack to turn all your code and all the node_modules into a single huge file?
+figure this out, it's the non-hacker build
+
+maybe this is it
+https://github.com/electron-userland
+https://github.com/electron-userland/electron-webpack
+https://github.com/electron-userland/electron-webpack-quick-start
+*/
+
+/*
+you don't have to solve the 500 clocks slow down the page problem right now
+you do need to make sure that showing quick status doesn't slow down a single clock, or a single hash
+*/
+
+/*
+style for mac
+*/
+	appendHead(`
+		<style type="text/css">
+			div, p {
+				margin: 8px 0 8px 0;
+			}
+			button {
+				background-color: #ddd;
+				border: 1px solid #aaa;
+				font-size: 14px;
+				cursor: pointer;
+			}
+			button:hover {
+				border: 1px solid #888;
+			}
+			input[type = text] {
+				font-size: 14px;
+				width: 300px;
+			}
+			.box {
+				border: 1px solid #ccc;
+				padding: 8px;
+				background: #eee;
+				margin: 4px;
+			}
+		</style>
+	`).appendTo("head");
+
+/*
+you've got node and electron, now
+you've got library and tests and mains
+you don't have an application
+and you don't have the application's data, either a big javascript object or a collection of documents in CouchDB or something
+
+is 'var win' local in expose main electron-main good enough? probably also loadCopy that onto global to really pin it
+no, attach it to a program object that load already put on global
+*/
+
+/*
+try index.html?serialized js object of parameters so you don't have to transfer global arguments over ipc
+
+do real ipc with node core module and bluebird
+rather than all the synchronous electron cheats
+
+look at the ipc stuff you did a year ago
+update that with bluebird
+*/
+
+/*
+wait, does electron have child and modal windows now?
+https://github.com/electron/electron/blob/master/docs/api/browser-window.md
+try that out
+
+const {BrowserWindow} = require('electron')
+let top = new BrowserWindow()
+let child = new BrowserWindow({parent: top})
+child.show()
+top.show()
+
+how many processes is that?
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+make familiar, a little thing in the corner that runs all the tests when you change a file
+have it show log output, too
+to do this, probably, just run nodeunit in a separate process
+later on, it would be cool to run all the tests in the same process, dealing with tests that finish in the next event
+but now as you code, you'll actually run that as a separate process, using it rather than building it, even if both are coming from the same code
+*/
+
+/*
+make log and stick
+*/
+
+/*
+style to look like the terminal
+learn some css and see if you can make Brick
+*/
+div, p
+{
+	margin: 0;
+	font-family: "Consolas", "Andale Mono", sans-serif;
+	font-size: 10pt;
+}
+.line
+{
+	background-color: lightblue;
+	white-space: pre-wrap;
+}
+
+/*
+dialog, log, stick, and [Button]
+*/
+{
+	var d = Dialog();
+	d.log("log in a dialog");
+	d.stick("stick in a dialog with a [button] perhaps");
+}
+
+/*
+>is the keybaord focus, dont' worry about this for web
+
+Color:[blue]
+takes name and starting text
+you can get and set the text
+notifies on text change
+
+[Start]
+[~Start~]
+takes name
+
+before you write the whole ui language, make some simple examples using normal handlebars and jquery first
+think about what timer needs
+
+previous recorded durations in a log
+current time
+running or stopped timer
+[Start] which changes to Stop
+
+what does hasher need
+Path:[] [Open]
+
+yeah, make this really simple
+the goal is not to be complete, it's to make ui for demos really, really quickly
+there is no way to set buttons to set or unavailable
+the first letter presses that button, so just keep them unique
+
+TWO
+here's the first one you write
+you pressed a
+you pressed b
+you pressed c
+[A] [B] [C]
+and it works from clicking the buttons or pressing the keyboard keys
+write that first just in handlebasr and jquery
+and that's it, there is no button component, that's exactly what you're trying to avoid
+make it so you don't get all keystrokes, just the keystrokes for the buttons that you've put on the dialog
+
+THREE
+a simple one that introduces text box
+you entered 'your text'
+you entered 'your text'
+Box:[your text] [Enter]
+also, if you name a button [Enter] or [Esc], that key also hits it
+yes, this is the kind of stupid direct obviousness that you want, when you're doing anything real later you won't use it
+
+ONE, code this next with jquery and handlebars
+in jquery in the page, have some divs, have the color set to the one that has the focus, and log the keyboard keys that you press in them
+
+don't ahve a push button, that's what the checkbox is for
+make it all cool and mobile-like
+[off]Pause
+[on]Pause
+*/
+
+/*
+later, when you do more ui, here are some ideas
+
+[Button]  normal button
+~Button~  unavailable
+
+[x]Checkbox  checked
+[ ]Checkbox  unchecked
+
+Path:[default path]
+
+all radio options have to be touching
+(x)Red( )Green( )Blue
+
+make
+[Start] ~Stop~
+~Start~ [Stop]
+to demonstrate available and unavailable
+[x]Pause
+[ ]Pause
+is the other one
+*/
+
+function dream() {
+
+	var d = Dialog(f);
+	d.stick("[A] [B] [C]");
+	function f(e) {
+		if      (e == "[A]") d.log("you hit a");
+		else if (e == "[B]") d.log("you hit b");
+		else if (e == "[C]") d.log("you hit c");
+		else if (e == "[Esc]") d.log("you hit escape or control+c");//this one works even if you don't have a button
+	}
+
+	d.get("Path")//returns the current text or boolean contents
+	d.set("Button", false)//set the button unavailable
+	//or instead, just stick different text with ~Button~
+	//you can always use stick to totally change the ui, of course
+}
 
 
 

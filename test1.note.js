@@ -295,6 +295,80 @@ the electron command line ones work, but you have to control+c to close them
 
 
 
+expose.test("text words lines Lines dent", function(ok, done) {
+
+	log("hi");
+
+	done();
+});
+
+/*
+ok, no part of your actual code uses ripWords, ripLines, or rip
+comparing platform to custom is unnecessary
+and it doesn't do newlines correctly
+
+"a b c".words();
+returns an array
+never includes blank elements
+always splits and trims on text
+no additional options or features, do that custom and carefully
+
+`
+line1
+line2
+line3
+`.lines();
+splits on \r\n or \r or \n
+doesn't trim lines or exclude blank lines
+
+returns a Lines object with methods
+l.trimAll()
+l.skipBlanks()
+l.text() default platform separator, see how that works
+l.text("\r\n") custom separator
+
+dent(`
+	something
+	something
+		something
+	something
+`);
+returns an edited, but still multiline, single string
+removes starting and trailing blank lines
+doesn't remove internal blank lines
+removes whitespace from first line on all later lines, throws if not exactly the same whitespace (combination of spaces and tabs)
+(do this by trimming, then finding, then clipping, that's a cool idea)
+
+something\r\n
+something\r\n
+	something\r\n
+something\r\n
+
+actually, that's not going to work with ${} because those are going to hit first
+and then if one of them contains a newline
+dent is going to get something not indented
+so maybe it should ignore incorrectly indented lines instead of deindenting them
+
+or no, just use dent for Outline and not for Vue
+either way, this is enough to scare you away from working on words lines Lines and dent right now
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

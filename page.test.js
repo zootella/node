@@ -18,25 +18,25 @@ if (process.argv[1].endsWith("nodeunit")) { expose.test = function(n, f) { expor
 expose.main("page-update", function() {
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.method1">Change Message</button>
+					<button @click="m.method1">Change Message</button>
 				</p>
-				<p>{{ p.message }}</p>
+				<p>{{ m.message }}</p>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				message: "starting message",
 				method1() {
-					p.message = "updated message";
+					m.message = "updated message";
 				}
 			}
-			return p;
+			return m;
 		}
 	});
 
@@ -47,49 +47,49 @@ expose.main("page-update", function() {
 expose.main("page-update-component", function() {
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.m1">Method 1</button>
-					<button @click="p.m2">Method 2</button>
-					<button @click="p.m3">Method 3</button>
+					<button @click="m.method1">Method 1</button>
+					<button @click="m.method2">Method 2</button>
+					<button @click="m.method3">Method 3</button>
 				</p>
-				<itemTag :p="p.p1"></itemTag>
-				<itemTag :p="p.p2"></itemTag>
-				<itemTag :p="p.p2"></itemTag>
+				<itemTag :m="m.model1"></itemTag>
+				<itemTag :m="m.model2"></itemTag>
+				<itemTag :m="m.model2"></itemTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
-				p1: itemTag.make("starting message 1"),
-				p2: itemTag.make("starting message 2"),
-				m1() {
-					p.p1.message = "updated message 1";
+				model1: itemTag.make("starting message 1"),
+				model2: itemTag.make("starting message 2"),
+				method1() {
+					m.model1.message = "updated message 1";
 				},
-				m2() {
-					p.p2.message = "updated message 2";
+				method2() {
+					m.model2.message = "updated message 2";
 				},
-				m3() {
-					p.p1.message = "another update for 1";
-					p.p2.message = "another update for 2";
+				method3() {
+					m.model1.message = "another update for 1";
+					m.model2.message = "another update for 2";
 				}
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var itemTag = tag("<itemTag>", {
-		properties: ["p"],
-		template: `<div>This is an item with {{ p.id }} and message "{{ p.message }}"</div>`,
+		properties: ["m"],
+		template: `<div>This is an item with {{ m.id }} and message "{{ m.message }}"</div>`,
 		make(startingMessage) {
-			var p = {
+			var m = {
 				id: idn(),//TODO ids not unique, but also not used as ids on the page, so maybe that's ok
 				message: startingMessage
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -106,25 +106,25 @@ make an example where you render the same thing two places on the page, one mode
 expose.main("page-show", function() {
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.m1">Show</button>
-					<button @click="p.m2">Hide</button>
+					<button @click="m.method1">Show</button>
+					<button @click="m.method2">Hide</button>
 				</p>
-				<p v-show="p.show">Here is a paragraph of text</p>
+				<p v-show="m.show">Here is a paragraph of text</p>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				show: true,
-				m1() { p.show = true; },
-				m2() { p.show = false; }
+				method1() { m.show = true; },
+				method2() { m.show = false; }
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -135,49 +135,49 @@ expose.main("page-show", function() {
 expose.main("page-show-component", function() {
 
 	var aTag = tag("<aTag>", {
-		properties: ["p"],
-		template: `<div>This is a Component A with message "{{ p.message }}"</div>`,
+		properties: ["m"],
+		template: `<div>This is a Component A with message "{{ m.message }}"</div>`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.method1">Show 1</button>
-					<button @click="p.method2">Show 2</button>
-					<button @click="p.method3">Hide 1</button>
-					<button @click="p.method4">Hide 2</button>
+					<button @click="m.method1">Show 1</button>
+					<button @click="m.method2">Show 2</button>
+					<button @click="m.method3">Hide 1</button>
+					<button @click="m.method4">Hide 2</button>
 				</p>
-				<aTag :p="p.p1" v-show="p.p1.show"></aTag>
-				<aTag :p="p.p2" v-show="p.p2.show"></aTag>
-				<aTag :p="p.p2" v-show="p.p2.show"></aTag>
+				<aTag :m="m.model1" v-show="m.model1.show"></aTag>
+				<aTag :m="m.model2" v-show="m.model2.show"></aTag>
+				<aTag :m="m.model2" v-show="m.model2.show"></aTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
-				p1: {
+				model1: {
 					message: "starting message 1",
 					show: true
 				},
-				p2: {
+				model2: {
 					message: "starting message 2",
 					show: true
 				},
-				method1() { p.p1.show = true;  },
-				method2() { p.p2.show = true;  },
-				method3() { p.p1.show = false; },
-				method4() { p.p2.show = false; }
+				method1() { m.model1.show = true;  },
+				method2() { m.model2.show = true;  },
+				method3() { m.model1.show = false; },
+				method4() { m.model2.show = false; }
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -188,42 +188,42 @@ expose.main("page-show-component", function() {
 expose.main("page-grow", function() {
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.m1">Add 5</button>
-					<button @click="p.m2">Remove Start</button>
-					<button @click="p.m3">Remove Middle</button>
-					<button @click="p.m4">Remove End</button>
+					<button @click="m.method1">Add 5</button>
+					<button @click="m.method2">Remove Start</button>
+					<button @click="m.method3">Remove Middle</button>
+					<button @click="m.method4">Remove End</button>
 				</p>
-				<itemTag v-for="(q, index) in p.a" :key="q.id" :p="q" :i="index"></itemTag>
+				<itemTag v-for="(n, index) in m.a" :key="n.id" :m="n" :i="index"></itemTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				a: [],
-				m1() { for (var i = 0; i < 5; i++) p.a.push(itemTag.make("hello")); },
-				m2() { p.a.splice(0, 1); },
-				m3() { p.a.splice(p.a.length / 2, 1); },
-				m4() { p.a.splice(p.a.length - 1, 1); }
+				method1() { for (var i = 0; i < 5; i++) m.a.push(itemTag.make("hello")); },
+				method2() { m.a.splice(0, 1); },
+				method3() { m.a.splice(m.a.length / 2, 1); },
+				method4() { m.a.splice(m.a.length - 1, 1); }
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var itemTag = tag("<itemTag>", {
-		properties: ["p", "i"],
-		template: `<div>index{{ i }}: This is an item with id "{{ p.id }}", timestamp "{{ p.made }}", and message "{{ p.message }}"</div>`,
+		properties: ["m", "i"],
+		template: `<div>index{{ i }}: This is an item with id "{{ m.id }}", timestamp "{{ m.made }}", and message "{{ m.message }}"</div>`,
 		make(message) {
-			var p = {
+			var m = {
 				id: idn(),
 				made: sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s",
 				message: message
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -236,71 +236,71 @@ expose.main("page-contain", function() {
 	appendHead(`<style type="text/css"> .box { border: 1px solid #ccc; padding: 8px; background: #eee; margin: 4px; } </style>`);
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.outside.click">{{ p.outside.button }}</button>
-					<button @click="p.outside.inside.click">{{ p.outside.inside.button }}</button>
+					<button @click="m.outside.click">{{ m.outside.button }}</button>
+					<button @click="m.outside.inside.click">{{ m.outside.inside.button }}</button>
 				</p>
-				<outsideTag :p="p.outside" v-show="p.outside.show"></outsideTag>
+				<outsideTag :m="m.outside" v-show="m.outside.show"></outsideTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				outside: outsideTag.make()
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var outsideTag = tag("<outsideTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div class="box">
-				Outside container with message "{{ p.message }}"
-				<button @click="p.click">{{ p.button }}</button>
-				<insideTag :p="p.inside" v-show="p.inside.show"></insideTag>
+				Outside container with message "{{ m.message }}"
+				<button @click="m.click">{{ m.button }}</button>
+				<insideTag :m="m.inside" v-show="m.inside.show"></insideTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				message: "default outside message",
 				show: true,
 				button: "Hide Outside",
 				click() {
-					if (p.show) { p.show = false; p.button = "Show Outside"; }
-					else        { p.show = true;  p.button = "Hide Outside"; }
+					if (m.show) { m.show = false; m.button = "Show Outside"; }
+					else        { m.show = true;  m.button = "Hide Outside"; }
 				},
 				inside: insideTag.make()
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var insideTag = tag("<insideTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div class="box">
-				Inside component with message "{{ p.message }}"
-				<button @click="p.click">{{ p.button }}</button>
+				Inside component with message "{{ m.message }}"
+				<button @click="m.click">{{ m.button }}</button>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				message: "default inside message",
 				show: true,
 				button: "Hide Inside",
 				click() {
-					if (p.show) { p.show = false; p.button = "Show Inside"; }
-					else        { p.show = true;  p.button = "Hide Inside"; }
+					if (m.show) { m.show = false; m.button = "Show Inside"; }
+					else        { m.show = true;  m.button = "Hide Inside"; }
 				},
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -310,47 +310,47 @@ expose.main("page-contain", function() {
 expose.main("page-place", function() {
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 
 				<p>item0: always here</p>
-				<itemTag :key="p.item0.id" :p="p.item0"></itemTag>
+				<itemTag :key="m.item0.id" :m="m.item0"></itemTag>
 
-				<p><button @click="p.m1add">Add</button> <button @click="p.m1remove">Remove</button> item1: array that grows from empty and shrinks</p>
-				<itemTag v-for="q in p.item1" :key="q.id" :p="q"></itemTag>
+				<p><button @click="m.m1add">Add</button> <button @click="m.m1remove">Remove</button> item1: array that grows from empty and shrinks</p>
+				<itemTag v-for="n in m.item1" :key="n.id" :m="n"></itemTag>
 
-				<p><button @click="p.m2render">Render</button> <button @click="p.m2delete">Delete</button> item2: v-if to insert and remove from the dom</p>
-				<itemTag v-if="p.item2.render" :key="p.item2.id" :p="p.item2"></itemTag>
+				<p><button @click="m.m2render">Render</button> <button @click="m.m2delete">Delete</button> item2: v-if to insert and remove from the dom</p>
+				<itemTag v-if="m.item2.render" :key="m.item2.id" :m="m.item2"></itemTag>
 
-				<p><button @click="p.m3show">Show</button> <button @click="p.m3hide">Hide</button> item3: v-show to hide </p>
-				<itemTag v-show="p.item3.show" :key="p.item3.id" :p="p.item3"></itemTag>
+				<p><button @click="m.m3show">Show</button> <button @click="m.m3hide">Hide</button> item3: v-show to hide </p>
+				<itemTag v-show="m.item3.show" :key="m.item3.id" :m="m.item3"></itemTag>
 			</div>
 		`,
 		make() {
-			var p = {};
-			p.id = idn();
-			p.item0 = itemTag.make("hello zero");
-			p.item1 = [];
-			p.item2 = itemTag.make("hello 2");
-			p.item3 = itemTag.make("hello three three three");
+			var m = {};
+			m.id = idn();
+			m.item0 = itemTag.make("hello zero");
+			m.item1 = [];
+			m.item2 = itemTag.make("hello 2");
+			m.item3 = itemTag.make("hello three three three");
 
-			p.m1add = function() { p.item1.push(itemTag.make("hello one")); };
-			p.m1remove = function() { p.item1.splice(0, 1); };
+			m.m1add = function() { m.item1.push(itemTag.make("hello one")); };
+			m.m1remove = function() { m.item1.splice(0, 1); };
 
-			p.m2render = function() { p.item2.render = true; };
-			p.m2delete = function() { p.item2.render = false; };
+			m.m2render = function() { m.item2.render = true; };
+			m.m2delete = function() { m.item2.render = false; };
 
-			p.m3show = function() { p.item3.show = true; };
-			p.m3hide = function() { p.item3.show = false; };
-			return p;
+			m.m3show = function() { m.item3.show = true; };
+			m.m3hide = function() { m.item3.show = false; };
+			return m;
 		}
 	});
 
 	var itemTag = tag("<itemTag>", {
-		properties: ["p", "i"],
-		template: `<div>This is an item with id "{{ p.id }}" and message "{{ p.message }}"</div>`,
+		properties: ["m", "i"],
+		template: `<div>This is an item with id "{{ m.id }}" and message "{{ m.message }}"</div>`,
 		make(message) {
 			return {
 				id: idn(),
@@ -364,95 +364,88 @@ expose.main("page-place", function() {
 	var page = pageTag.make();
 });
 
-//how to use properties, index, event, and references
-expose.main("page-pier", function() {
+//how to use model, index, event, and references
+expose.main("page-mier", function() {
 
 	appendHead(`
 		<style type="text/css">
-			p {
-				margin: 0;
-			}
-			.box {
-				border: 1px solid #ccc;
-				padding: 2px;
-				background: #eee;
-				margin: 4px;
-			}
+			p { margin: 0; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
 		</style>
 	`);
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.m1">Add 5</button>
-					<button @click="p.m2">Remove Start</button>
-					<button @click="p.m3">Remove Middle</button>
-					<button @click="p.m4">Remove End</button>
-					<button @click="p.m5">Sort ▲</button>
-					<button @click="p.m6">Sort ▼</button>
+					<button @click="m.method1">Add 5</button>
+					<button @click="m.method2">Remove Start</button>
+					<button @click="m.method3">Remove Middle</button>
+					<button @click="m.method4">Remove End</button>
+					<button @click="m.method5">Sort ▲</button>
+					<button @click="m.method6">Sort ▼</button>
 				</p>
-				<itemTag v-for="(q, index) in p.a" :key="q.id" :p="q" :i="index"></itemTag>
+				<itemTag v-for="(n, index) in m.a" :key="n.id" :m="n" :i="index"></itemTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				a: [],
-				m1() { for (var i = 0; i < 5; i++) p.a.push(itemTag.make(p, "hello")); },
-				m2() { p.a.splice(0, 1); },
-				m3() { p.a.splice(p.a.length / 2, 1); },
-				m4() { p.a.splice(p.a.length - 1, 1); },
-				m5() { p.a.sort(function(a, b) { return a.count - b.count }); },
-				m6() { p.a.sort(function(a, b) { return b.count - a.count }); }
+				method1() { for (var i = 0; i < 5; i++) m.a.push(itemTag.make(m, "hello")); },
+				method2() { m.a.splice(0, 1); },
+				method3() { m.a.splice(m.a.length / 2, 1); },
+				method4() { m.a.splice(m.a.length - 1, 1); },
+				method5() { m.a.sort(function(a, b) { return a.count - b.count }); },
+				method6() { m.a.sort(function(a, b) { return b.count - a.count }); }
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var itemTag = tag("<itemTag>", {
-		properties: ["p", "i"],
+		properties: ["m", "i"],
 		template: `
 			<div class="box">
 				index{{ i }},
-				{{ p.id }},
+				{{ m.id }},
 
-				<button @click="p.remove(i)">Remove</button>,
-				{{ p.made }} <button @click="p.update">Update</button>,
-				{{ p.count }} <button @click="p.increment">Increment</button>,
+				<button @click="m.remove(i)">Remove</button>,
+				{{ m.made }} <button @click="m.update">Update</button>,
+				{{ m.count }} <button @click="m.increment">Increment</button>,
 
-				<input type="text" :value="p.inputCurrent" @input="p.onInput($event)" ref="inputReference"/>
-				<button @click="p.onSet($refs)">Set</button>
-				"{{ p.inputSet }}"
+				<input type="text" :value="m.inputCurrent" @input="m.onInput($event)" ref="inputReference"/>
+				<button @click="m.onSet($refs)">Set</button>
+				"{{ m.inputSet }}"
 			</div>
 		`,
 		make(up, inputArgument) {
-			var p = {
+			var m = {
 				id: idn(),
 				up: up,
 
-				remove(i) { up.a.splice(i, 1); },
+				remove(i) { m.up.a.splice(i, 1); },
 
 				made: sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s",
-				update() { p.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
 
 				count: 0,
-				increment() { p.count++; },
+				increment() { m.count++; },
 
 				inputCurrent: inputArgument,
 				inputSet: "",
 				onInput(e) {//called when the user types
 					var currentText = e.target.value;
-					p.inputCurrent = currentText;//manually update the model
+					m.inputCurrent = currentText;//manually update the model
 				},
 				onSet(r) {
 					var currentText = r.inputReference.value;
-					p.inputSet = currentText;
+					m.inputSet = currentText;
 				}
 			};
-			return p;
+			return m;
 		}
 	});
 
@@ -464,90 +457,83 @@ expose.main("page-form", function() {
 
 	appendHead(`
 		<style type="text/css">
-			p {
-				margin: 0;
-			}
-			.box {
-				border: 1px solid #ccc;
-				padding: 2px;
-				background: #eee;
-				margin: 4px;
-			}
+			p { margin: 0; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
 		</style>
 	`);
 
 	var pageTag = tag("<pageTag>", {
-		properties: ["p"],
+		properties: ["m"],
 		template: `
 			<div>
 				<input type="button" value="Refresh" onClick="window.location.reload()"/>
 				<p>
-					<button @click="p.m1(2)">Add Some</button>
-					<button @click="p.m2">Remove Start</button>
-					<button @click="p.m3">Remove Middle</button>
-					<button @click="p.m4">Remove End</button>
-					<button @click="p.m5">Sort ▲</button>
-					<button @click="p.m6">Sort ▼</button>
+					<button @click="m.method1(2)">Add Some</button>
+					<button @click="m.method2">Remove Start</button>
+					<button @click="m.method3">Remove Middle</button>
+					<button @click="m.method4">Remove End</button>
+					<button @click="m.method5">Sort ▲</button>
+					<button @click="m.method6">Sort ▼</button>
 				</p>
-				<itemTag v-for="(q, index) in p.a" :key="q.id" :p="q" :i="index"></itemTag>
+				<itemTag v-for="(n, index) in m.a" :key="n.id" :m="n" :i="index"></itemTag>
 			</div>
 		`,
 		make() {
-			var p = {
+			var m = {
 				id: idn(),
 				a: [],
-				m1(n) { for (var i = 0; i < n; i++) p.a.push(itemTag.make(p, "start 1", "start 2", "start 3")); },
-				m2() { p.a.splice(0, 1); },
-				m3() { p.a.splice(p.a.length / 2, 1); },
-				m4() { p.a.splice(p.a.length - 1, 1); },
-				m5() { p.a.sort(function(a, b) { return a.count - b.count }); },
-				m6() { p.a.sort(function(a, b) { return b.count - a.count }); }
+				method1(n) { for (var i = 0; i < n; i++) m.a.push(itemTag.make(m, "start 1", "start 2", "start 3")); },
+				method2() { m.a.splice(0, 1); },
+				method3() { m.a.splice(m.a.length / 2, 1); },
+				method4() { m.a.splice(m.a.length - 1, 1); },
+				method5() { m.a.sort(function(a, b) { return a.count - b.count }); },
+				method6() { m.a.sort(function(a, b) { return b.count - a.count }); }
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var itemTag = tag("<itemTag>", {
-		properties: ["p", "i"],
+		properties: ["m", "i"],
 		template: `
 			<div class="box">
 				<p>
 					index{{ i }},
-					{{ p.id }},
-					<button @click="p.remove(i)">Remove</button>,
-					{{ p.made }} <button @click="p.update">Update</button>,
-					{{ p.count }} <button @click="p.increment">Increment</button>
+					{{ m.id }},
+					<button @click="m.remove(i)">Remove</button>,
+					{{ m.made }} <button @click="m.update">Update</button>,
+					{{ m.count }} <button @click="m.increment">Increment</button>
 				</p>
 
 				<p>input1
-				<input type="text" v-model="p.input1model" @input="p.input1onInput" placeholder="placeholder 1"/>
-				"{{ p.input1model }}"</p>
+				<input type="text" v-model="m.input1model" @input="m.input1onInput" placeholder="placeholder 1"/>
+				"{{ m.input1model }}"</p>
 
 				<p>input2
-				<input type="text" :value="p.input2model" @input="p.input2onInput($event)" placeholder="placeholder 2"/>
-				"{{ p.input2model }}"</p>
+				<input type="text" :value="m.input2model" @input="m.input2onInput($event)" placeholder="placeholder 2"/>
+				"{{ m.input2model }}"</p>
 
 				<p>input3
-				<input type="text" :value="p.input3model" @input="p.input3onInput($event)" placeholder="placeholder 3" ref="input3reference"/>
-				"{{ p.input3model }}"
-				<button @click="p.input3onClick($refs)">Set</button>
-				"{{ p.input3set }}"</p>
+				<input type="text" :value="m.input3model" @input="m.input3onInput($event)" placeholder="placeholder 3" ref="input3reference"/>
+				"{{ m.input3model }}"
+				<button @click="m.input3onClick($refs)">Set</button>
+				"{{ m.input3set }}"</p>
 			</div>
 		`,
 		make(up, input1start, input2start, input3start) {
-			var p = {
+			var m = {
 				id: idn(),
 				up: up,
-				remove(i) { up.a.splice(i, 1); },
+				remove(i) { m.up.a.splice(i, 1); },
 				made: sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s",
-				update() { p.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
 				count: 0,
-				increment() { p.count++; },
+				increment() { m.count++; },
 
 				//input1: automatic model, stays in sync by itself, and we can still get called when it changes
 				input1model: input1start,
 				input1onInput() {
-					var s = p.input1model;
+					var s = m.input1model;
 					log(`input 1 current text "#"`.fill(s));
 				},
 
@@ -555,7 +541,7 @@ expose.main("page-form", function() {
 				input2model: input2start,
 				input2onInput(e) {//called when the user types
 					var s = e.target.value;
-					p.input2model = s;//manually update the model
+					m.input2model = s;//manually update the model
 				},
 
 				//input3: more like a traditional form with a Set button
@@ -563,19 +549,281 @@ expose.main("page-form", function() {
 				input3set: "",
 				input3onInput(e) {//called when the user types
 					var s = e.target.value;
-					p.input3model = s;//manually update the model
+					m.input3model = s;//manually update the model
 				},
 				input3onClick(r) {
 					var s = r.input3reference.value;
-					p.input3set = s;
+					m.input3set = s;
 				}
 			};
-			return p;
+			return m;
 		}
 	});
 
 	var page = pageTag.make();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+//spinners
+expose.main("page-spin", function() {
+
+	appendHead(`
+		<style type="text/css">
+			p { margin: 0; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
+		</style>
+	`);
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>New
+					<button @click="m.same">Same</button>
+					<button @click="m.clock">Look</button>
+					<button @click="m.watch">Spin</button>
+					<button @click="m.timer">Frame</button>
+				</p>
+				<sameTag  v-for="(n, index) in m.stamps"  :key="n.id" :m="n" :i="index"></sameTag>
+				<lookTag  v-for="(n, index) in m.clocks"  :key="n.id" :m="n" :i="index"></lookTag>
+				<spinTag  v-for="(n, index) in m.watches" :key="n.id" :m="n" :i="index"></spinTag>
+				<frameTag  v-for="(n, index) in m.timers"  :key="n.id" :m="n" :i="index"></frameTag>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				same:  [], same()  { m.stamps.push(stampTag.make(m));   },
+				clocks:  [], clock()  { m.clocks.push(clockTag.make(m));   },
+				watches: [], watch()  { m.watches.push(watchTag.make(m));  },
+				timers:  [], timer()  { m.timers.push(timerTag.make(m));   },
+				hashers: [], hasher() { m.hashers.push(hasherTag.make(m)); }
+				/*
+				same spin0 - setImmediate counts to the same total as fast as it can, tells Vue every time
+				look spin1 - setImmediate counts up as fast as it can, click to show the current total
+				spin spin2 - setImmediate counts up as fast as it can, tells Vue every time
+				frame spin3 - setImmediate counts up as fast as it can, tells Vue every requestAnimationFrame
+
+				have a text field where you say how many
+
+
+				and have buttons to make 500 of them, and to delete them all
+				*/
+			};
+			return m;
+		}
+	});
+
+	var stampTag = tag("<stampTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				stamp {{ m.made }} <button @click="m.update">Update</button>
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.stamps.splice(i, 1); },
+				made: "",
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+			};
+			m.update();
+			return m;
+		}
+	});
+
+	var clockTag = tag("<clockTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				clock {{ m.face }}
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
+				face: "",
+				update() { m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+			};
+			m.update();
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+
+
+//clocks and timers
+expose.main("page-clock", function() {
+
+	appendHead(`
+		<style type="text/css">
+			p { margin: 0; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
+		</style>
+	`);
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>New
+					<button @click="m.stamp">Stamp</button>
+					<button @click="m.clock">Clock</button>
+					<button @click="m.watch">Stopwatch</button>
+					<button @click="m.timer">Timer</button>
+					<button @click="m.hasher">Hasher</button>
+				</p>
+				<stampTag  v-for="(n, index) in m.stamps"  :key="n.id" :m="n" :i="index"></stampTag>
+				<clockTag  v-for="(n, index) in m.clocks"  :key="n.id" :m="n" :i="index"></clockTag>
+				<watchTag  v-for="(n, index) in m.watches" :key="n.id" :m="n" :i="index"></watchTag>
+				<timerTag  v-for="(n, index) in m.timers"  :key="n.id" :m="n" :i="index"></timerTag>
+				<hasherTag v-for="(n, index) in m.hashers" :key="n.id" :m="n" :i="index"></hasherTag>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				stamps:  [], stamp()  { m.stamps.push(stampTag.make(m));   },
+				clocks:  [], clock()  { m.clocks.push(clockTag.make(m));   },
+				watches: [], watch()  { m.watches.push(watchTag.make(m));  },
+				timers:  [], timer()  { m.timers.push(timerTag.make(m));   },
+				hashers: [], hasher() { m.hashers.push(hasherTag.make(m)); }
+				/*
+				spin1 - setImmediate counts up as fast as it can, click to show the current total
+				spin2 - setImmediate counts up as fast as it can, tells Vue every time
+				spin3 - setImmediate counts up as fast as it can, tells Vue every requestAnimationFrame
+				*/
+			};
+			return m;
+		}
+	});
+
+	var stampTag = tag("<stampTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				stamp {{ m.made }} <button @click="m.update">Update</button>
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.stamps.splice(i, 1); },
+				made: "",
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+			};
+			m.update();
+			return m;
+		}
+	});
+
+	var clockTag = tag("<clockTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				clock {{ m.face }}
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
+				face: "",
+				update() { m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+			};
+			m.update();
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+
+
+/*
+			// Vue setImmediate, update every animation frame
+			function spin17() {
+				var count = 0;
+				var start = Date.now();
+				f();
+				g();
+				function f() {
+					count++;
+					if (Date.now() < start + 1000) {
+						setImmediate(f);
+					}
+				}
+				function g() {
+					page.result17 = count;
+					if (Date.now() < start + 1000) {
+						window.requestAnimationFrame(g);
+					}
+				}
+			}
+
+
+			when the clock is destroyed, how do you keep code from still hitting window.requestAnimationFrame?
+			first, does it?
+
+
+			get page4 in here, actually
+
+
+
+			also do one where it updates to the same result over and over again, stress testing vue's output differ
+
+
+
+
+12. Vue synchronous loop, update once 17300621 frozen
+13. Vue synchronous loop, update every time 2466684 frozen
+14. Vue setImmediate, update once 94588 fluid
+15. Vue setImmediate, update every time 16996 fluid
+16. Vue window.requestAnimationFrame, update every time 62 fluid
+17. Vue setImmediate, update every animation frame 87273 fluid
+
+ok, so 87 is a lot better than 16, so you want to use every animation frame
+and a disaster would be even after a page element is destroyed, code is still updating it
+and an optimizatino would be if something is not being shown because it's not on the up tab, it doesn't get shown
+and another optimization would be, if the result is the same, it doesn't get updated
+and some of these vue might be doing, and others they're not
+
+
+
+
+>compare these three
+Vue setImmediate, update once (new one)
+Vue setImmediate, update every time 16879
+Vue setImmediate, update every animation frame 86676
+
+
+
+
+
+
+*/
+
+
+
+
+
+
 
 
 
@@ -647,24 +895,6 @@ have it require commas, not spaces, etc
 
 
 
-
-
-
-/*
-you have so many old notes in:
-
-app/
-app2/
-load*.note.js
-page*.note.js
-
-go through and delete stuff you've done or don't need!
-*/
-
-
-
-
-
 /*
 simpler design for load and page
 leave the command line
@@ -679,12 +909,6 @@ but you still need
 $ node load.js main name arg1
 for node, you also realize
 */
-
-
-
-
-
-
 
 
 

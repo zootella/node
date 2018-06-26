@@ -10,7 +10,7 @@ function appendHead(s) {
 	$(s).appendTo("head"); // Have jQuery add it to the end of what's inside <head>
 }
 
-// Register a new global Vue component from the given tag name like <someTag>, template text, and an object of properties and methods
+// Register a new global Vue component from the given tag name like <someTag>, template text, and a make method that creates a new model object of data and methods
 function tag(name, t) {
 
 	// Parse tag name like "<someTag>" into name like "someTag"
@@ -22,19 +22,20 @@ function tag(name, t) {
 
 	// If this is the root <pageTag>, add another step to its make() method to put it on the page
 	if (name == "<pageTag>") {
-		var m = t.make; // Point m at the pageTag.make() method
+		var make = t.make; // Point make at the pageTag.make() method
 		t.make = function() { // Replace it with this make() method instead
-			var p = m.apply(this, arguments); // Like var p = pageTag.make()
-			p.rootVueInstance = new Vue({ // All index.html has is <div id="page"></div>, create the root Vue instance there, and save it in p
+			var m = make.apply(this, arguments); // Make the component and get its model m
+
+			// All index.html has is <div id="page"></div>, create the root Vue instance there, and save it in m
+			m.rootVueInstance = new Vue({
 				el: '#page',
-				template: `<div id="page"><pageTag :key="p.id" :p="p"/></div>`, // All index.html has is 
-				data: { p: p }
+				template: `<div id="page"><pageTag :key="m.id" :m="m"/></div>`,
+				data: { m: m }
 			});
-			return p;
+			return m; // Return the model object we just made
 		}
 	}
-
-	return t;
+	return t; // Return the tag we made, use it like var m = t.make() to make a new instance of the tag and get it's model object
 }
 
 // Make a unique identifier for a new element on the page, from "idn1" through "idn9000000000000000" and then "idnn1", quick and infinite
