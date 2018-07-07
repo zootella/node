@@ -563,12 +563,364 @@ expose.main("page-form", function() {
 	var page = pageTag.make();
 });
 
+//different ways to slow an immediate loop down
+expose.main("page-speed", function() {
+
+	appendHead(`
+		<style type="text/css">
+			p { margin: 4px; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
+		</style>
+	`);
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<p><input type="button" value="Refresh" onClick="window.location.reload()"/></p>
+				<p>setImmediate:</p>
+				<p><button @click="m.runOnce">1. setImmediate, update once</button> {{ m.countOnce }}</p>
+				<p><button @click="m.runEvery">2. setImmediate, update every time</button> {{ m.countEvery }}</p>
+				<p><button @click="m.runFrame">3. setImmediate, update every requestAnimationFrame</button> {{ m.countFrame }}</p>
+				<p>clocks:</p>
+				<p><button @click="m.runThousand">4. millisecond clock, updates every time</button> {{ m.clockThousand }} {{ m.countThousand }}</p>
+				<p><button @click="m.runTenEvery">5. tenths of second clock, updates every time</button> {{ m.clockTenEvery }} {{ m.countTenEvery }}</p>
+				<p><button @click="m.runTenDifferent">6. tenths of second clock, updates when different</button> {{ m.clockTenDifferent }} {{ m.countTenDifferent }}</p>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+
+				// 1. setImmediate, update once
+				countOnce: 0, runOnce() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							count++;
+							setImmediate(f);
+						} else {
+							m.countOnce = count;
+						}
+					}
+				},
+
+				// 2. setImmediate, update every time
+				countEvery: 0, runEvery() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							count++;
+							m.countEvery = count+"";
+							setImmediate(f);
+						}
+					}
+				},
+
+				// 3. setImmediate, update every requestAnimationFrame
+				countFrame: 0, runFrame() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					g();
+					function f() {
+						count++;
+						if (Date.now() < start + 1000) {
+							setImmediate(f);
+						}
+					}
+					function g() {
+						m.countFrame = count;
+						if (Date.now() < start + 1000) {
+							window.requestAnimationFrame(g);
+						}
+					}
+				},
+
+				// 4. millisecond clock, updates every time
+				clockThousand: "", countThousand: 0, runThousand() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							m.clockThousand = (new Date()).getTime();
+							count++;
+							setImmediate(f);
+						} else {
+							m.countThousand = count;
+						}
+					}
+				},
+
+				// 5. tenths of second clock, updates every time
+				clockTenEvery: "", countTenEvery: 0, runTenEvery() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							m.clockTenEvery = ((new Date()).getTime()+"").slice(0, -2);
+							count++;
+							setImmediate(f);
+						} else {
+							m.countTenEvery = count;
+						}
+					}
+				},
+
+				// 6. tenths of second clock, updates when different
+				clockTenDifferent: "", countTenDifferent: 0, runTenDifferent() {
+					var count = 0;
+					var start = Date.now();
+					var onScreen = "";
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							var s = ((new Date()).getTime()+"").slice(0, -2);
+							if (onScreen != s) {
+								onScreen = s;
+								m.clockTenDifferent = s;
+							}
+							count++;
+							setImmediate(f);
+						} else {
+							m.countTenDifferent = count;
+						}
+					}
+				}
+
+				/*
+				1. setImmediate, update once                         97,035
+				2. setImmediate, update every time                   10,583
+				3. setImmediate, update every requestAnimationFrame  94,246
+
+				4. millisecond clock, updates every time             80,223
+				5. tenths of second clock, updates every time        93,968
+				6. tenths of second clock, updates when different    95,274
+
+				1 is how fast setImmediate can go when it doesn't touch Vue or the DOM at all
+				Only hitting Vue and the DOM on requestAnimationFrame, 3 is nearly as fast
+				2 is slow, so you do need to use requestAnimationFrame
+
+				4, 5, and 6 are all fast enough
+				You don't have to guard against repeatedly setting the same value into a variable Vue is watching
+
+				Why is 4 faster than 2?
+				2 sets a new value (a higher count) every time it runs
+				4 only has a new value (the time in milliseconds) 1000 times during the second it runs
+				*/
+			};
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+
+//many clocks slow down the page
+expose.main("page-clocks", function() {
+
+	var clockTag = tag("<clockTag>", {
+		properties: ["m", "i"],
+		template: `<span>[{{ m.face }}] </span>`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
+				face: "",
+				update() {
+					m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";
+				},
+			};
+			return m;
+		}
+	});
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<input type="text" value="50" ref="inputReference"/>
+					<button @click="m.more($refs)">More</button>
+					<button @click="m.demi">Demi</button>
+					<button @click="m.clear">Clear</button>
+					{{ m.clocks.length }} clocks, {{ m.duration }}ms to update, {{ m.between }}ms between updates
+				</p>
+				<clockTag v-for="(n, index) in m.clocks" :key="n.id" :m="n" :i="index"></clockTag>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				clocks: [],
+				duration: 0,
+				between: 0,
+				inputCurrent: 50,
+				more(r) {
+					var n = r.inputReference.value;
+					for (var i = 0; i < n; i++) m.clocks.push(clockTag.make());
+				},
+				demi() { m.clocks.splice(0, m.clocks.length / 2); },//half as many clocks
+				clear() { m.clocks = []; }//get rid of all the clocks
+			};
+			return m;
+		}
+	});
+
+	var previous, before, after;
+	function startUpdatePasses() {
+		function updatePass() {
+			before = Date.now();
+			for (var i = 0; i < page.clocks.length; i++) page.clocks[i].update();
+			after = Date.now();
+			page.duration = after - before;
+			page.between = after - previous;
+			previous = before;
+
+			window.requestAnimationFrame(updatePass);
+		}
+		window.requestAnimationFrame(updatePass);
+	}
+	startUpdatePasses();
+
+	var page = pageTag.make();
+});
+
+
+
+
+
+//bookmark
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+well, playing with this you can clearly see that you can slow it down
+can you detect this slowdown, and throttle back way beforehand?
+*/
+
+/*
+
+here's what 2 is doing
+it runs for 1 second
+in that second, it tries to update the dom every time
+it manages to do this 8,346 times
+
+here's what 4 is doing
+it runs for 1 second
+in that second, it actually only has different information to show 1,000 times
+so, it can run more, 84287
+
+
+
+
+
+Code node
+Ok, but what about unnecessary polling when stuff
+isn’t on the page,
+scrolled out of the window,
+or most importantly rarely changes.
+What if there were two kinds of elements, clocklike and nonclocklike.
+Imagine the fail of having a few hundred nonclocklike elements and polling on them all 60 times a second
+and also, polling is bad
+
+
+
+
+
+
+
+
+
+millisecond clock that updates every time
+tenths of second clock that updates every time
+tenths of second clock that updated only when we know the view will be different
+
+these three go as fast as setImmediate, not using requestAnimationFrame
+each clock runs for 1 second and counts how many times it can update
+
+
+
+
+make a clock that updates every time, showing milli
+
+
+
+
+
+have two more
+one that sets a string to the same string, but in a composed way, as quickly as possible
+in a var
+in a vue'd var
+see if there's any difference there
+
+
+ok, how do you do that?
+it's like the underlying data is milliseconds, but you're only showing seconds
+yeah, that's a simple but realistic sample
+
+
+
+get milliseconds
+trim it to tenths of seconds
+one group sets that to the vue every time
+the other group checks if its different, and only sets it to the vue if it is
+this is an interesting test
+
+write little blurbs in comments that explain to future you what you are showing here
+
+
+
+*/
+
+
+/*
+write a sample with a centralized requestAnimatFrame
+that updates all the clocks on the page
+and it shows how many clocks, and how long it takes to update them
+and there's a text box and button to add more, and another button to get rid of half
+
+this is a cool one to show
+
+
+*/
+
+
+/*
+what does it look like for two page elements to be driven by the same data
+do they share the same vue model object? according to vue, yes. according to what you build here, probably not
+and make sure they don't have the same idn number
+you've got an example above that already breaks all this
+
+
+*/
 
 
 
@@ -811,6 +1163,20 @@ and some of these vue might be doing, and others they're not
 Vue setImmediate, update once (new one)
 Vue setImmediate, update every time 16879
 Vue setImmediate, update every animation frame 86676
+
+
+
+
+
+ok, have a centralized ledger of ids on the page
+hook it up so when make() gets called, it calls idn(), and also adds it to thist list
+and then when an id is destroyed, it gets removed from the list
+and when the program closes as a whole, the list needs to be empty
+and you can see how many are in the list
+
+then, you can call requestAnimationFrame once and pass down the list
+you can see how many things are on the list
+you can measure how long it takes to update a pass down the list, and then slow down from 60fps to 6, for instance, if there are too many things or it gets too slow
 
 
 

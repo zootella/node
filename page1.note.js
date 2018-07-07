@@ -739,3 +739,140 @@ function dream() {
 
 
 
+
+
+
+/*
+should you code a global screen update list?
+
+a design might look like this
+-a little local object isolates setting the vars that vue is watching
+-and remembers what's on the screen
+-if you set it to something different, it adds itself, indexed by the vue variable, to the global update list
+-if you set it back to the same thing, it removes itself from the global update list
+-when the global update list has contents, the list requests the next animation frame, and updates everything at once
+-the list keeps track of how long the whole update takes, and throttles down the frame rate if it gets too big and slow
+
+ok, that sounds pretty good, but you're not ready yet, because
+-does showing hash or local loopback progress as fast and simple and dumb as you can slow the i/o down at all?
+-are you really going to have 10,000 clocks? even if you've got a tree of 10,000 files, how many are going to be in the dom at a time? how many are going to change constantly and quickly?
+-does a js object keyed to vars work, and is it fast
+-if not, can you make sure your idn()s are one per page text output (now one per component), and always unique (not in the current example of two views of the same model)
+-how are tabs going to work? switching back and forth probably hides dom elements, not adds and removes them
+-how is pagination going to work? here going to the next page probably generates new dom elements
+-how are trees going to work? imagine clicking through a file manager of a collection of 10,000 files nested in folders
+-how would two changes in the same update work when one depends on the other? imagine adding a new component to a list that needs to be filled out with nested sub components
+-and, of course, isn't this just the forbidden polling?
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+TODO design for and purpose of the Timer object
+
+it's easy to create an infinite loop of individual calls to setImmediate
+if you forget to stop it and just null your references to the object that was doing it, it won't get garbage collected or stop, and there will be no way for you to stop it!
+
+watch out for this on setImmediate, setTimeout, setInterval, process.nextTick, window.requestAnimationFrame
+and promises and async await and all that, too
+*/
+var count = 0;
+function f() {
+	count++;
+	setImmediate(f);//go again
+}
+setImmediate(f);//get started
+/*
+even though the 'get started' and 'go again' calls to setImmediate are separate, together, they create an infinite loop
+
+to notice this, make a Timer object that you have to shut(t)
+call t.immediate(f) instead of setImmediate(f)
+after shut(t), a call to t.immediate(f) on the ragged end won't do anything, ending the infinite loop
+*/
+var count = 0;
+var t = Timer();
+function f() {
+	count++;
+	t.immediate(f);//go again
+}
+t.immediate(f);//get started
+//later, when done with whatever thing this is inside and for
+shut(t);
+/*
+wrap all the time stuff that node and javascript can do in Timer
+*/
+window.setImmediate
+window.setTimeout
+window.setInterval
+window.requestAnimationFrame
+process.nextTick
+//Promise and async await stuff
+/*
+are there any others?
+which of these can you call without window. or process.
+*/
+var t = Timer();
+t.immediate(f);//uses setImmediate
+t.after(200, f);//uses setTimeout
+t.every(4*Time.second, f);//uses setInterval
+t.nextAnimationFrame(f);//uses requestAnimationFrame
+t.processNextTick(f);//uses process.nextTick
+shut(t);
+/*
+and once you start doing something with it, if there's a call to do something else with it, toss code
+
+let's say you call setImmediate twice in the same even on the same function
+who knows what setImmediate does
+Timer can only setImmediate once, and note a coding error when this happens
+*/
+t.immediate(f);
+t.immediate(f);//you could log this as a coding error, and only set it once
+/*
+let's say you've got some code where you know you're not using setImmediate in a loop
+it's really actually only going to happen one time
+*/
+//standard use
+var t = Timer();
+t.immediate(f);
+shut(t);
+//shortcut use
+var t = Timer();
+t.once(f);
+/*
+uses setImmediate(f) and shut(t) all in the once method
+also, could toss code if you try to do anything else with this t, instead of just not doing it
+not completely sure about having this shortcut, as now you don't have to simply look for a shut() after every Timer()
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
