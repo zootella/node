@@ -429,7 +429,7 @@ expose.main("page-mier", function() {
 				remove(i) { m.up.a.splice(i, 1); },
 
 				made: sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s",
-				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s"; },
 
 				count: 0,
 				increment() { m.count++; },
@@ -526,7 +526,7 @@ expose.main("page-form", function() {
 				up: up,
 				remove(i) { m.up.a.splice(i, 1); },
 				made: sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s",
-				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";},
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s"; },
 				count: 0,
 				increment() { m.count++; },
 
@@ -564,7 +564,7 @@ expose.main("page-form", function() {
 });
 
 //different ways to slow an immediate loop down
-expose.main("page-speed", function() {
+expose.main("page-spin", function() {
 
 	appendHead(`
 		<style type="text/css">
@@ -723,7 +723,7 @@ expose.main("page-speed", function() {
 });
 
 //many clocks slow down the page
-expose.main("page-clocks", function() {
+expose.main("page-many", function() {
 
 	var clockTag = tag("<clockTag>", {
 		properties: ["m", "i"],
@@ -796,231 +796,14 @@ expose.main("page-clocks", function() {
 
 
 
-//bookmark
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-well, playing with this you can clearly see that you can slow it down
-can you detect this slowdown, and throttle back way beforehand?
-*/
-
-/*
-
-here's what 2 is doing
-it runs for 1 second
-in that second, it tries to update the dom every time
-it manages to do this 8,346 times
-
-here's what 4 is doing
-it runs for 1 second
-in that second, it actually only has different information to show 1,000 times
-so, it can run more, 84287
-
-
-
-
-
-Code node
-Ok, but what about unnecessary polling when stuff
-isn’t on the page,
-scrolled out of the window,
-or most importantly rarely changes.
-What if there were two kinds of elements, clocklike and nonclocklike.
-Imagine the fail of having a few hundred nonclocklike elements and polling on them all 60 times a second
-and also, polling is bad
-
-
-
-
-
-
-
-
-
-millisecond clock that updates every time
-tenths of second clock that updates every time
-tenths of second clock that updated only when we know the view will be different
-
-these three go as fast as setImmediate, not using requestAnimationFrame
-each clock runs for 1 second and counts how many times it can update
-
-
-
-
-make a clock that updates every time, showing milli
-
-
-
-
-
-have two more
-one that sets a string to the same string, but in a composed way, as quickly as possible
-in a var
-in a vue'd var
-see if there's any difference there
-
-
-ok, how do you do that?
-it's like the underlying data is milliseconds, but you're only showing seconds
-yeah, that's a simple but realistic sample
-
-
-
-get milliseconds
-trim it to tenths of seconds
-one group sets that to the vue every time
-the other group checks if its different, and only sets it to the vue if it is
-this is an interesting test
-
-write little blurbs in comments that explain to future you what you are showing here
-
-
-
-*/
-
-
-/*
-write a sample with a centralized requestAnimatFrame
-that updates all the clocks on the page
-and it shows how many clocks, and how long it takes to update them
-and there's a text box and button to add more, and another button to get rid of half
-
-this is a cool one to show
-
-
-*/
-
-
-/*
-what does it look like for two page elements to be driven by the same data
-do they share the same vue model object? according to vue, yes. according to what you build here, probably not
-and make sure they don't have the same idn number
-you've got an example above that already breaks all this
-
-
-*/
-
-
-
-
-
-//spinners
-expose.main("page-spin", function() {
-
-	appendHead(`
-		<style type="text/css">
-			p { margin: 0; }
-			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
-		</style>
-	`);
-
-	var pageTag = tag("<pageTag>", {
-		properties: ["m"],
-		template: `
-			<div>
-				<input type="button" value="Refresh" onClick="window.location.reload()"/>
-				<p>New
-					<button @click="m.same">Same</button>
-					<button @click="m.clock">Look</button>
-					<button @click="m.watch">Spin</button>
-					<button @click="m.timer">Frame</button>
-				</p>
-				<sameTag  v-for="(n, index) in m.stamps"  :key="n.id" :m="n" :i="index"></sameTag>
-				<lookTag  v-for="(n, index) in m.clocks"  :key="n.id" :m="n" :i="index"></lookTag>
-				<spinTag  v-for="(n, index) in m.watches" :key="n.id" :m="n" :i="index"></spinTag>
-				<frameTag  v-for="(n, index) in m.timers"  :key="n.id" :m="n" :i="index"></frameTag>
-			</div>
-		`,
-		make() {
-			var m = {
-				id: idn(),
-				same:  [], same()  { m.stamps.push(stampTag.make(m));   },
-				clocks:  [], clock()  { m.clocks.push(clockTag.make(m));   },
-				watches: [], watch()  { m.watches.push(watchTag.make(m));  },
-				timers:  [], timer()  { m.timers.push(timerTag.make(m));   },
-				hashers: [], hasher() { m.hashers.push(hasherTag.make(m)); }
-				/*
-				same spin0 - setImmediate counts to the same total as fast as it can, tells Vue every time
-				look spin1 - setImmediate counts up as fast as it can, click to show the current total
-				spin spin2 - setImmediate counts up as fast as it can, tells Vue every time
-				frame spin3 - setImmediate counts up as fast as it can, tells Vue every requestAnimationFrame
-
-				have a text field where you say how many
-
-
-				and have buttons to make 500 of them, and to delete them all
-				*/
-			};
-			return m;
-		}
-	});
-
-	var stampTag = tag("<stampTag>", {
-		properties: ["m", "i"],
-		template: `
-			<div class="box">
-				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
-				stamp {{ m.made }} <button @click="m.update">Update</button>
-			</div>
-		`,
-		make(up) {
-			var m = {
-				id: idn(), up: up, remove(i) { m.up.stamps.splice(i, 1); },
-				made: "",
-				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
-			};
-			m.update();
-			return m;
-		}
-	});
-
-	var clockTag = tag("<clockTag>", {
-		properties: ["m", "i"],
-		template: `
-			<div class="box">
-				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
-				clock {{ m.face }}
-			</div>
-		`,
-		make(up) {
-			var m = {
-				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
-				face: "",
-				update() { m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
-			};
-			m.update();
-			return m;
-		}
-	});
-
-	var page = pageTag.make();
-});
 
 
 //clocks and timers
-expose.main("page-clock", function() {
+expose.main("page-clocks", function() {
 
 	appendHead(`
 		<style type="text/css">
@@ -1038,13 +821,11 @@ expose.main("page-clock", function() {
 					<button @click="m.stamp">Stamp</button>
 					<button @click="m.clock">Clock</button>
 					<button @click="m.watch">Stopwatch</button>
-					<button @click="m.timer">Timer</button>
 					<button @click="m.hasher">Hasher</button>
 				</p>
 				<stampTag  v-for="(n, index) in m.stamps"  :key="n.id" :m="n" :i="index"></stampTag>
 				<clockTag  v-for="(n, index) in m.clocks"  :key="n.id" :m="n" :i="index"></clockTag>
 				<watchTag  v-for="(n, index) in m.watches" :key="n.id" :m="n" :i="index"></watchTag>
-				<timerTag  v-for="(n, index) in m.timers"  :key="n.id" :m="n" :i="index"></timerTag>
 				<hasherTag v-for="(n, index) in m.hashers" :key="n.id" :m="n" :i="index"></hasherTag>
 			</div>
 		`,
@@ -1054,13 +835,7 @@ expose.main("page-clock", function() {
 				stamps:  [], stamp()  { m.stamps.push(stampTag.make(m));   },
 				clocks:  [], clock()  { m.clocks.push(clockTag.make(m));   },
 				watches: [], watch()  { m.watches.push(watchTag.make(m));  },
-				timers:  [], timer()  { m.timers.push(timerTag.make(m));   },
 				hashers: [], hasher() { m.hashers.push(hasherTag.make(m)); }
-				/*
-				spin1 - setImmediate counts up as fast as it can, click to show the current total
-				spin2 - setImmediate counts up as fast as it can, tells Vue every time
-				spin3 - setImmediate counts up as fast as it can, tells Vue every requestAnimationFrame
-				*/
 			};
 			return m;
 		}
@@ -1071,14 +846,14 @@ expose.main("page-clock", function() {
 		template: `
 			<div class="box">
 				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
-				stamp {{ m.made }} <button @click="m.update">Update</button>
+				Stamp [{{ m.made }}] <button @click="m.update">Update</button>
 			</div>
 		`,
 		make(up) {
 			var m = {
 				id: idn(), up: up, remove(i) { m.up.stamps.splice(i, 1); },
 				made: "",
-				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+				update() { m.made = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s"; }
 			};
 			m.update();
 			return m;
@@ -1090,16 +865,114 @@ expose.main("page-clock", function() {
 		template: `
 			<div class="box">
 				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
-				clock {{ m.face }}
+				Clock [{{ m.face }}]
 			</div>
 		`,
 		make(up) {
 			var m = {
-				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
+				id: idn(), up: up, running: true,
+				remove(i) {
+					m.up.clocks.splice(i, 1);
+					m.running = false;
+				},
 				face: "",
-				update() { m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";}
+				update() {
+					if (m.running) {
+						m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";
+						window.requestAnimationFrame(m.update);
+					}
+				}
 			};
 			m.update();
+			return m;
+		}
+	});
+
+	var watchTag = tag("<watchTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				Stopwatch [{{ m.face }}] <button @click="m.buttonClicked">{{ m.buttonTitle }}</button>
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, onThePage: true,
+				remove(i) {
+					m.up.watches.splice(i, 1);
+					m.onThePage = false;
+				},
+				update() {
+					if (m.onThePage) {
+						if (m.timeStarted && m.timeStopped) m.face = sayTime(m.timeStopped - m.timeStarted);
+						else if (m.timeStarted) m.face = sayTime(Date.now() - m.timeStarted);
+						else m.face = sayTime(0);
+						window.requestAnimationFrame(m.update);
+					}
+				},
+				timeStarted: 0,
+				timeStopped: 0,
+				face: "",
+				buttonTitle: "",
+				buttonClicked() {
+					if      (m.buttonTitle == "Start") m.goStart();
+					else if (m.buttonTitle == "Stop")  m.goStop();
+					else if (m.buttonTitle == "Reset") m.goReset();
+				},
+				goStart() {
+					m.buttonTitle = "Stop";
+					m.timeStarted = Date.now();
+					m.timeStopped = 0;
+				},
+				goStop() {
+					m.buttonTitle = "Reset";
+					m.timeStopped = Date.now();
+				},
+				goReset() {
+					m.buttonTitle = "Start";
+					m.timeStarted = 0;
+					m.timeStopped = 0;
+				}
+			};
+			m.goReset();
+			m.update();
+			return m;
+		}
+	});
+
+	var hasherTag = tag("<hasherTag>", {
+		properties: ["m", "i"],
+		template: `
+			<div class="box">
+				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
+				Hasher [{{ m.result }}] <button @click="m.clickedHash">Hash</button>
+			</div>
+		`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.hashers.splice(i, 1); },
+				result: "result goes here",
+
+
+
+
+				clickedHash() {
+
+					var fs = require("fs");
+					var crypto = require("crypto");
+
+					let h = crypto.createHash("sha1").setEncoding("hex");
+
+					fs.createReadStream("../../../program/big/diggnation.mp4")
+					.pipe(h)
+					.on('finish', function() {
+						log(h.read());
+					});
+
+
+				}
+			};
 			return m;
 		}
 	});
@@ -1108,94 +981,24 @@ expose.main("page-clock", function() {
 });
 
 
+
+
+
+
+
+
+
+
+
+
 /*
-			// Vue setImmediate, update every animation frame
-			function spin17() {
-				var count = 0;
-				var start = Date.now();
-				f();
-				g();
-				function f() {
-					count++;
-					if (Date.now() < start + 1000) {
-						setImmediate(f);
-					}
-				}
-				function g() {
-					page.result17 = count;
-					if (Date.now() < start + 1000) {
-						window.requestAnimationFrame(g);
-					}
-				}
-			}
-
-
-			when the clock is destroyed, how do you keep code from still hitting window.requestAnimationFrame?
-			first, does it?
-
-
-			get page4 in here, actually
-
-
-
-			also do one where it updates to the same result over and over again, stress testing vue's output differ
-
-
-
-
-12. Vue synchronous loop, update once 17300621 frozen
-13. Vue synchronous loop, update every time 2466684 frozen
-14. Vue setImmediate, update once 94588 fluid
-15. Vue setImmediate, update every time 16996 fluid
-16. Vue window.requestAnimationFrame, update every time 62 fluid
-17. Vue setImmediate, update every animation frame 87273 fluid
-
-ok, so 87 is a lot better than 16, so you want to use every animation frame
-and a disaster would be even after a page element is destroyed, code is still updating it
-and an optimizatino would be if something is not being shown because it's not on the up tab, it doesn't get shown
-and another optimization would be, if the result is the same, it doesn't get updated
-and some of these vue might be doing, and others they're not
-
-
-
-
->compare these three
-Vue setImmediate, update once (new one)
-Vue setImmediate, update every time 16879
-Vue setImmediate, update every animation frame 86676
-
-
-
-
-
-ok, have a centralized ledger of ids on the page
-hook it up so when make() gets called, it calls idn(), and also adds it to thist list
-and then when an id is destroyed, it gets removed from the list
-and when the program closes as a whole, the list needs to be empty
-and you can see how many are in the list
-
-then, you can call requestAnimationFrame once and pass down the list
-you can see how many things are on the list
-you can measure how long it takes to update a pass down the list, and then slow down from 60fps to 6, for instance, if there are too many things or it gets too slow
-
-
-
-
-
-
+speed test hasher, write here but add to spin
+1 $ time sha1sum, no progress
+2 $ node hasher.js file-to-hash, also no progress, try with external bash time and internal counting milliseconds
+and then here, trying out:
+-showing bytes/percent only
+-updating every stream chunk/every animation frame
 */
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1282,6 +1085,16 @@ for node, you also realize
 
 
 
+/*
+before you do async and await, just do promises
+before you do every way it can ever be done, just do bluebird promisify all
+before you do streams, just do callbacks
+
+particularly, code up now:
+-generate some random data
+-look at a path on the disk to see what's there
+-hash a short amount of data that's already in memory
+*/
 
 
 
@@ -1297,43 +1110,89 @@ for node, you also realize
 
 
 
+expose.main("page-flicker", function() {
+
+	var clockTag = tag("<clockTag>", {
+		properties: ["m", "i"],
+		template: `<span>[{{ m.face.v }}] </span>`,
+		make(up) {
+			var m = {
+				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
+				face: flicker(""),
+				update() {
+					m.face.frame(tick()+"");
+				},
+			};
+			return m;
+		}
+	});
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<input type="text" value="50" ref="inputReference"/>
+					<button @click="m.more($refs)">More</button>
+					<button @click="m.demi">Demi</button>
+					<button @click="m.clear">Clear</button>
+					{{ m.clocks.length }} clocks, {{ m.duration }}ms to update, {{ m.between }}ms between updates
+				</p>
+				<clockTag v-for="(n, index) in m.clocks" :key="n.id" :m="n" :i="index"></clockTag>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				clocks: [],
+				duration: 0,
+				between: 0,
+				inputCurrent: 50,
+				more(r) {
+					var n = r.inputReference.value;
+					for (var i = 0; i < n; i++) m.clocks.push(clockTag.make());
+				},
+				demi() { m.clocks.splice(0, m.clocks.length / 2); },//half as many clocks
+				clear() { m.clocks = []; }//get rid of all the clocks
+			};
+			return m;
+		}
+	});
+
+	var updateEvery = 10;
+	setTimeout(f, updateEvery);
+	function f() {
+
+		for (var i = 0; i < page.clocks.length; i++) page.clocks[i].update();
 
 
 
 
 
+		setTimeout(f, updateEvery);
+	}
 
+/*
+	var previous, before, after;
+	function startUpdatePasses() {
+		function updatePass() {
+			before = Date.now();
+			for (var i = 0; i < page.clocks.length; i++) page.clocks[i].update();
+			after = Date.now();
+			page.duration = after - before;
+			page.between = after - previous;
+			previous = before;
 
+			window.requestAnimationFrame(updatePass);
+		}
+		window.requestAnimationFrame(updatePass);
+	}
+	startUpdatePasses();
+*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	var page = pageTag.make();
+});
 
 
 

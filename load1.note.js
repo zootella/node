@@ -554,7 +554,17 @@ https://electronforge.io/
 
 
 
+/*
+once you get processes working, it'll be really interesting to see how exceptions come to the surface
+you only really need to figure this out in the electron renderer process, that's where you're going to do everything
 
+hasher will use the file open dialog box
+so you'll soon see if you need to go back to the electron main process to do this, and what that's like
+
+maybe the electron main process doesn't load all the core code
+instead, it does some custom minimum just to get the renderer process going
+and has other little islands where it gets messaged to perform tasks that only it can
+*/
 
 
 

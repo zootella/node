@@ -578,8 +578,6 @@ expose.core({sayFraction});
 
 
 
-//TODO change now() to just a number, eliminate When
-//TODO change this to When, you've already got time below
 
 //   _____ _                
 //  |_   _(_)_ __ ___   ___ 
@@ -604,15 +602,6 @@ function When(t) {
 	o.type = "When";
 	return Object.freeze(o);
 }
-/*
-TODO
-
-w = now()
-age(w)
-expired(w, t)
-sayDateAndTime(w)
-Duration(w)
-*/
 
 // Return the time that happened first, and is oldest
 function earlier(w1, w2) {
@@ -668,6 +657,38 @@ function Ago(i) {
 }
 
 expose.core({now, When, earlier, recent, Duration, Ago});
+
+/*
+//TODO change now() to just a number, eliminate When
+//TODO change this to When, you've already got time below
+
+w = now()
+age(w)
+expired(w, t)
+sayDateAndTime(w)
+Duration(w)
+
+getting started with that, naming them tick() and duration()
+rename tick() to now(), or maybe keep it, tick may be better
+maybe d.start and d.finish or d.s and d.f
+
+have a single object that gets returned from multiple constructor functions
+stripe
+s.a or s or s.start is the starting time or the distance to the left or close edge
+s.b or f or s.finish is the ending time or the distance from the origin to the right or distant edge
+s.w or s.width is the distance between them
+
+use a, b, w
+allow indefinite ranges, maybe
+have methods, maybe
+*/
+function stripe(a, b) {
+	return {a, b, w: b - a};//calculate width
+}
+expose.core({ tick: Date.now, stripe });
+
+
+
 
 
 
@@ -1201,7 +1222,6 @@ function dateParts(t) {
 expose.core({sayDate, sayDateAndTime, sayDayAndTime, sayDateTemplate, dateParts});
 
 //TODO split into * which is UTC, and *Local which is like they are now, just use Date.UTC() and Date()
-
 
 
 
