@@ -235,7 +235,52 @@ just log each loop to watch it inflate, and then circle around
 and load letters in then, A B C, like that, and log out the pairs it compares
 
 
+
+
+
+
 */
+
+
+/*
+$ npm run electron-load main name
+$ node load.js main name
+*/
+
+
+/*
+call ring() with a new value
+inside is a loop that compares all the neighboring pairs
+*/
+
+var capacity = 7;
+var oldest = -1;
+var ringArray = [];
+function ring(newValue) {
+	if (ringArray.length < capacity) {
+		ringArray.push(newValue);
+
+	} else {
+
+	}
+
+
+
+
+
+}
+
+
+//clocks and timers
+expose.main("ring", function() {
+
+	log("hi, we'll start testing the ring now");
+
+
+});
+
+
+
 
 
 

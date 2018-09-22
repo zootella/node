@@ -983,6 +983,63 @@ expose.main("page-clocks", function() {
 
 
 
+/*
+notes to do and move elsewhere
+
+later, you'll investigate every platform and pattern for async and streams
+but right now, you're ready to try out the one you'll likely use, which is bluebird's promiseify
+write these real ones
+-generate a random guid
+-get the type of this path from the disk
+-list the files in a folder
+
+here are the two important speed things to compare
+1
+flicker.frame() and flicker.force() is a great design
+and hopefully, you can prove that it can never slow you down, with this example
+control group setImmediate runs as fast as it can, and shows the count at the end of a second
+experiment group setImmediate runs as fast as it can, hitting .frame() each time
+2
+control group hash a file in electron, no progress at all, show the result in the dom when done
+experiment group hash a file in electron, .frame() shows progress at every stream event, .force() shows result in the dom when done
+
+
+
+
+here's how you do the path cache
+var disk = Disk();
+disk.lookPath()
+the cache lives in the disk var
+use it for a single thing, throw it out when you have a new thing
+so much better than it being global and time out after when?
+
+
+
+
+try hello web, bittorrent, ipfs, and dat
+
+12m https://www.npmjs.com/package/request
+ 4k https://www.npmjs.com/package/webtorrent
+ 3k https://www.npmjs.com/package/ipfs
+ 1k https://www.npmjs.com/package/dat-node
+
+can you download a really popular file?
+can you upload a file and get it on the other side?
+can you get progress, seeders, and eta information like you can see in a bittorrent client?
+
+hello, distributed web would also be a pretty good blog entry
+
+maybe also socket.io, webRTC
+
+toss in a 5gb test file and see where it gets mirrored locally
+link brewster kahle's article about wanting a new web
+http://brewster.kahle.org/2015/08/11/locking-the-web-open-a-call-for-a-distributed-web-2/
+
+
+
+
+*/
+
 
 
 

@@ -673,10 +673,6 @@ expose.methodOnString({parse, parseMatch});
 //    |_||_|  |_|_| |_| |_|
 //                         
 
-// Use JavaScript's s.trim() to remove whitespace characters from both ends of s
-function trimStart(s) { return s.trimLeft(); } // Remove whitespace characters from the start of s
-function trimEnd(s) { return s.trimRight(); } // Remove whitespace characters from the end of s
-
 // Confirm s starts or ends with tag, inserting it if necessary
 function onStart(s, tag)      { return _on(s, tag, true); }
 function onEnd(s, tag)        { return _on(s, tag, false); }
@@ -725,7 +721,7 @@ function off(s) {
 	return s;
 }
 
-expose.methodOnString({trimStart, trimEnd, onStart, onEnd, offStart, offEnd, off});
+expose.methodOnString({onStart, onEnd, offStart, offEnd, off});
 
 // Add tag to the start of s until it's w long, like "   1"
 function widenStart(s, w, tag) {

@@ -882,9 +882,6 @@ expose.test("text trim", function(ok, done) {
 	ok("\thi\t".trim() == "hi");//tabs
 	ok(" \t\r\nwords inside\r \n\t".trim() == "words inside");//everything
 
-	ok(" hi ".trimStart() == "hi ");
-	ok(" hi ".trimEnd()   == " hi");
-
 	done();
 });
 
