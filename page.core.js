@@ -5,6 +5,22 @@ contain(function(expose) {
 var $ = required.jquery;
 var Vue = required.vue;
 
+
+
+
+
+
+
+
+
+
+//   _____           
+//  |_   _|_ _  __ _ 
+//    | |/ _` |/ _` |
+//    | | (_| | (_| |
+//    |_|\__,_|\__, |
+//             |___/ 
+
 // Add the given CSS to the top of the HTML page Electron is showing
 function appendHead(s) {
 	$(s).appendTo("head"); // Have jQuery add it to the end of what's inside <head>
@@ -57,236 +73,141 @@ expose.core({appendHead, tag, idn});
 
 
 
+//   _____ _ _      _             
+//  |  ___| (_) ___| | _____ _ __ 
+//  | |_  | | |/ __| |/ / _ \ '__|
+//  |  _| | | | (__|   <  __/ |   
+//  |_|   |_|_|\___|_|\_\___|_|   
+//                                
 
+var slowAlarm = 25;  // Go slow if a frame arrives more than 25ms after the previous one, taking 1.5x as long as it should
+var slowDelay = 800; // While going slow, skip frames to only update .8 seconds later, still feels faster that a stopwatch
 
+/*
+Given some text for the page, make a flicker object
+Never touch f.v after handing it to Vue to watch
+For rare state change updates like "100% Done", call f.force(), we'll have Vue change the DOM now
+For frequent progress updates like "98%" and "99%", call f.frame(), we'll have Vue change the DOM on the next animation frame
+If DOM stress has caused a recent frame to arrive late, we'll do progress updates every 800ms rather than every frame
+*/
+function flicker(s) { // Take the starting text to show on the page
+	if (typeof s != "string") toss("code"); // Flicker is just for text, for objects use Vue directly
 
+	var f = {}; // Make the new flicker object to fill and return
+	f.vNext = s; // Current value that we'll get on the page soon
+	f.vPage = s; // Our record of what's on the page
+	f.v     = s; // Give v to Vue to watch, we'll change v and Vue will change the DOM
 
-
-
-
-
-
-
-
-//TODO change all these quick bad names to good names
-
-var slowAlarm = 25;//freak out if a frame arrives more than 25ms after the previous one, taking 1.5x what it should
-var slowDelay = 800;//when in slow mode, skip frames to only update every .8 seconds later
-var arrivalsSize = 60;//see 60 quick frames before going back to fast mode
-var arrivals = [];
-var whenLastUpdated = 0;//tick when the last frame arrived in which we did an update
-var arrivedToLog = 0;
-
-//TODO replace with shut() which 1 must be shut, 2 won't set when shut, 3 won't call when shut
-if (runByElectronRenderer()) window.requestAnimationFrame(watch);
-function watch() {
-	var now = tick();
-
-	arrivals.push(now);//record that this frame arrived now
-
-	if (true) {//true to see the time delays every 60 frames, around 1s if frames aren't delayed
-		arrivedToLog++;
-		if (arrivedToLog == 60) {
-			arrivedToLog = 0;
-			var s = "";
-			for (var i = 0; i < arrivals.length - 1; i++) {
-				var w = arrivals[i+1] - arrivals[i];
-				s += (arrivals[i] + slowAlarm < arrivals[i+1]) ? w+"<----slow! " : w+" ";
-			}
-			console.log(s);
-		}
-	}
-
-	if (arrivalsSize < arrivals.length) arrivals.splice(0, 1);//only keep the most recent 60
-	//TODO duh, make the array circular to grow it once and reuse it after that, duh duh duh
-
-	function allFast() {//loop for every pair of frame arrival times
-		for (var i = 0; i < arrivals.length - 1; i++) {//safe to compare the distance of arrivals[i] and arrivals[i + 1]
-			if (arrivals[i] + slowAlarm < arrivals[i+1]) return false;
-		}
-		return true;//no pairs yet, or all pairs are fast
-	}
-
-	//never updated before, or no pairs of frames yet, or last 1-59 pairs are all fast, or updated more than 800ms ago
-	if (!whenLastUpdated || allFast() || whenLastUpdated + slowDelay < now) {
-		whenLastUpdated = now;
-		updateAllTheScreens();
-	}
-
-	window.requestAnimationFrame(watch);
-}
-
-// vvvv
-
-//there's a frame we should paint on! maybe it's every frame! maybe it's a frame after skipping 800ms of them! doesn't matter, update away!
-function updateAllTheScreens() {
-	if (list) {
-		for (var i = 0; i < list.length; i++) {//make one pass down the list
-			var f = list[i];
-			if (f.vNext != f.vPage) f.force(f.vNext);//only update if necessary
-		}
-		list = null;//toss out the list, we build it up anew for every pass
-	}
-}
-
-// ^^^^
-
-var list;//the list for the next single animation frame pass
-function flicker(s) {//takes starting default value
-	if (typeof s != "string") toss("code");
-
-	var f = {};//make the new flicker object to fill and return
-	f.vNext = s;//upcoming value to set now or in the next frame
-	f.vPage = s;//our record of what we set and what is on screen
-	f.v     = s;//what vue will watch, change v and vue changes the dom
-
-	f.force = function(s) {//first, last, or important change, do it right now
+	f.force = function(s) { // First, last, or important change, update right now
 		if (typeof s != "string") toss("code");
-		if (s != f.vPage) {//reading v2 is a little faster than reading v, actually
-			f.vNext = s;//this replaces a previously set upcoming value
-			f.vPage = s;//keep a record of what we've got on the screen
-			f.v     = s;//for maximum performance, we never read v, and only set it here
+		if (s != f.vPage) { // Keep away from v to not bother Vue, reading vPage is actually faster
+			f.vNext = s; // Synchronize everything to s
+			f.vPage = s;
+			f.v     = s;
 		}
 	}
 
-	f.frame = function(s) {//another step along the progress bar, do it a little later on
+	f.frame = function(s) { // Just another tiny step along the progress bar, update later on
 		if (typeof s != "string") toss("code");
-		if (s != f.vNext) {//different than previously upcoming or set value
-			f.vNext = s;//make it upcoming
-			if (f.vNext != f.vPage) {//different than onscreen value, and we're not yet in the list to change the screen
-				list ? list.push(f) : list = [f];//add us to the list, or start a new list with us
-			}
+		f.vNext = s; // Replace a previously set upcoming value with this new most current one
+		if (!f.inList && f.vNext != f.vPage) { // We're not already in the update list, and have text to change on the page
+			frameList ? frameList.push(f) : frameList = [f]; // Add us to the list, or start a new list with us
+			f.inList = true; // Avoid double-adding, this flag is a lot faster than searching the list
 		}
 	}
 
+	f.inList = false;
 	return f;
 }
 
-expose.core({flicker});
+var frameList; // A list of flicker objects to update on a future animation frame
+var frameWhen; // Tick when we last did the list
 
-/*
-simple and drastic throttled and not throttled
-unless you make a mistake with the ui, it's never going to need to be throttled
-utorrent has the 1s drumbeat, make your throttled speed 800ms to feel faster than a stopwatch (write that into the comments)
+// If we have a web page, have this run on every animation frame, probably 60 times a second
+if (runByElectronRenderer()) window.requestAnimationFrame(frameArrived);
+function frameArrived() {
 
-the program is requesting every frame, even when it doesn't have anything to do
-if it gets a frame more then 20ms after the last one, something is wrong, now it skips painting until the frame after 800ms comes up
-it remembers what happened with all the frames in the last 1 to 2 seconds, using a simple two bucket system (you don't even need an array, just two vars)
-if all the frames in the last 1 to 2 seconds have arrived faster than 20ms, then it allows painting on every frame
+	var t = tick(); // Record that a new animation frame arrived now from the system
+	arrivalsAdd(t); // Add it to our circular array of the most recent arrival times
+	arrivalsLog();  // Call flickerLog() to see the most recent 59 delays when we have a fresh 60
 
-ok, could there be an oscillation where there are two quick frames followed by a slow one?
-no, because if always slow, there will be a slow frame every 800ms, it will always show up within the 1 to 2 second buckets, and throttling will stay on
-
-TODO get shut() in here, if this system is shut down, don't do anythign when the frame arrives, and don't set th enext frame, either
-*/
-
-
-
-
-/*
-here's the next example you make that can show all this and try it out
-
-[50] [More] [Less] [Demi] [Clear] [Simple (switch to composed)] [Frame (switch to force)]
-*/
-
-
-
-
-
-
-
-
-
-function circular() {
-	/*
-	imagine the ring is already inflated
-	length 60
-	index of first element 0, last element length-1
-	oldest points at the "start" of the array, where you do the first pair, what you replace with the new value
-
-
-	*/
-	var capacity = 60;
-	var oldest = 5;
-
-	ring[oldest] = now;
-	oldest++;
-	if (oldest == capacity) oldest = 0;//around the horn
-
-	//loop for each pair
-	var a = oldest;   if (a == capacity) a = 0;
-	var b = oldest+1; if (b == capacity) b = 0;
-	while (true) {
-		if (!fastEnough(ring[a], ring[b])) return false;//found a slow one
-
-
-		a++; if (a == capacity) a = 0;
-		b++; if (b == capacity) b = 0;
-		if (b == oldest) return true;//all fast enough
+	// Never updated on a frame before, or all recent frames arrived fast, or there was a slow one but time to update anyway
+	if (!frameWhen || !arrivalsSlow() || frameWhen + slowDelay < t) {
+		frameWhen = t;
+		frameUpdate();
 	}
 
-	//imagine the ring is already inflated, .length 60, indices 0 through length-1
-
+	window.requestAnimationFrame(frameArrived);
 }
 
-/*
-just log each loop to watch it inflate, and then circle around
-
-and load letters in then, A B C, like that, and log out the pairs it compares
-
-
-
-
-
-
-*/
-
-
-/*
-$ npm run electron-load main name
-$ node load.js main name
-*/
-
-
-/*
-call ring() with a new value
-inside is a loop that compares all the neighboring pairs
-*/
-
-var capacity = 7;
-var oldest = -1;
-var ringArray = [];
-function ring(newValue) {
-	if (ringArray.length < capacity) {
-		ringArray.push(newValue);
-
-	} else {
-
+function frameUpdate() { // Update all the flicker objects we've kept for this frame
+	if (frameList) {
+		for (var i = 0; i < frameList.length; i++) { // Make one pass down the list
+			var f = frameList[i];
+			if (f.vNext != f.vPage) f.force(f.vNext); // Only update if necessary, could have been f.frame("back to what's already on the page")
+			f.inList = false; // We're not in the list anymore, this list or the next one we build up
+		}
+		frameList = null; // Toss out the list, we build it up anew every time
 	}
-
-
-
-
-
 }
 
+var arrivalsCapacity = 60; // Keep a record of when the most recent 60 frames arrived
+var arrivals;              // A circular array to hold them
+var arrivalsCount;         // Current size, grows to 60 in the first second and stays there
+var arrivalsStart;         // Index to the oldest arrival time, scans forward and goes 'round the horn
 
-//clocks and timers
-expose.main("ring", function() {
+function arrivalsAdd(t) { // Add a new arrival time to our circular array
+	if (!arrivals) { // First one ever
+		arrivals = [t];
+		arrivalsStart = 0;
+		arrivalsCount = 1;
+	} else if (arrivalsCount < arrivalsCapacity) { // Still filling up
+		arrivals.push(t);
+		arrivalsCount++;
+	} else { // Full, replace the oldest one
+		arrivals[arrivalsStart] = t;
+		arrivalsStart++; if (arrivalsStart == arrivalsCapacity) arrivalsStart = 0; // Beyond the edge is the start
+	}
+}
 
-	log("hi, we'll start testing the ring now");
+function arrivalsSlow() { // True if we've got a pair of arrival times that are more than 25ms apart
+	if (arrivalsCount > 1) { // Need at least a pair of arrival times
+		var i = arrivalsStart;
+		var j = i+1; if (j == arrivalsCount) j = 0;
+		while (j != arrivalsStart) { // Loop for every pair of arrival times
+			if (arrivals[i] + slowAlarm < arrivals[j]) return true; // Found a slow pair
+			i++; if (i == arrivalsCount) i = 0; // Move on to the next pair
+			j++; if (j == arrivalsCount) j = 0;
+		}
+	}
+	return false; // No pairs yet, or all pairs are fast
+}
 
+function flickerLog() { flickerLogOn = !flickerLogOn; } // Just for testing, show what the last 60 arrival times looked like
+var flickerLogOn = false;
+function arrivalsLog() {
+	if (flickerLogOn) {
+		if (arrivalsStart == 0 && arrivalsCount == arrivalsCapacity) { // First 60, or a new 60 because we're back at the start
+			var s = "";
+			for (var i = 0; i < arrivalsCount - 1; i++) {
+				var w = arrivals[i+1] - arrivals[i];
+				s += (arrivals[i] + slowAlarm < arrivals[i+1]) ? w+"<----slow! " : w+" "; // Highlight the slow ones
+			}
+			console.log(s); // Shows up on the Console tab of Electron's Developer tools
+		}
+	}
+}
 
-});
+expose.core({flicker, flickerLog});
 
+/*
+TODO window.requestAnimationFrame above is an example of the infinite loop of individual events danger pattern
+the process does exit, but if these were timers instead of frames, it wouldn't
+code your new thing that connects the multiple successive calls to requestAnimationFrame with a single thing that must be shut()
+have it 1 not request the next event when shut, and 2 not call f when an event arrived but it's already been shut
+*/
 
-
-
-
-
-
-
-
+//TODO maybe rename to PageMessage(""), .set, .progress
 
 
 

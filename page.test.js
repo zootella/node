@@ -100,6 +100,7 @@ expose.main("page-update-component", function() {
 ids are not unique here
 but also, they're not used as ids on the page, so maybe that's ok
 make an example where you render the same thing two places on the page, one model drives both, but they've got different ids so they can appear in a list
+the todo here is to figure out how you want to have two views on the page update by the same data. maybe you do that entirely in a lower level, and they both have models at this level, but figure it out
 */
 
 //make something, then hide and show it
@@ -563,7 +564,7 @@ expose.main("page-form", function() {
 	var page = pageTag.make();
 });
 
-//different ways to slow an immediate loop down
+//different ways to slow an immediate loop down, not using flicker()
 expose.main("page-spin", function() {
 
 	appendHead(`
@@ -722,7 +723,7 @@ expose.main("page-spin", function() {
 	var page = pageTag.make();
 });
 
-//many clocks slow down the page
+//many clocks slow down the page, uses animation frame but not flicker
 expose.main("page-many", function() {
 
 	var clockTag = tag("<clockTag>", {
@@ -761,7 +762,6 @@ expose.main("page-many", function() {
 				clocks: [],
 				duration: 0,
 				between: 0,
-				inputCurrent: 50,
 				more(r) {
 					var n = r.inputReference.value;
 					for (var i = 0; i < n; i++) m.clocks.push(clockTag.make());
@@ -792,6 +792,152 @@ expose.main("page-many", function() {
 	var page = pageTag.make();
 });
 
+//still too many counters, but now we've got flicker, try out switching between frame and force
+expose.main("page-flicker", function() {
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<input type="text" value="50" ref="inputReference"/>
+					<button @click="m.more($refs)">More</button>
+					<button @click="m.less($refs)">Less</button>
+					<button @click="m.demi">Demi</button>
+					<button @click="m.clear">Clear</button>
+					<button @click="m.power">{{ m.powerButton.v }}</button>
+					<button @click="m.peek">Log (on/off)</button>
+				</p>
+				<p>
+					{{ m.counters.length }} counters:
+				</p>
+				<counterTag v-for="(n, index) in m.counters" :key="n.id" :m="n" :i="index"></counterTag>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				counters: [],
+				more(r) {//add more counters to the start
+					var n = r.inputReference.value;//get the number typed in the text field on the page
+					var a = [];
+					for (var i = 0; i < n; i++) a.push(counterTag.make());//array of new counters
+					m.counters = a.concat(m.counters);//add them to the start
+				},
+				less(r) {//remove counters from the middle
+					var n = r.inputReference.value;
+					remove(n);
+				},
+				demi() {//remove the middle half
+					var n = Math.floor(m.counters.length / 2);
+					if (n == 0) n = 1;
+					remove(n);
+				},
+				clear() {//get rid of all the counters
+					m.counters = [];
+				},
+
+				powerOption: false,//false is frame, true is force
+				powerButton: flicker("Frame (switch to force)"),
+				power() {
+					m.powerOption = !m.powerOption;
+					m.powerButton.force(m.powerOption ? "Force (switch to frame)" : "Frame (switch to force)");
+				},
+				peek() { flickerLog(); }
+			};
+			return m;
+		}
+	});
+
+	function remove(n) {//remove n counters from the middle
+		if (n >= page.counters.length) {
+			page.counters = [];
+		} else {
+			var start = Math.floor(n / 4);
+			page.counters.splice(start, n);
+		}
+	}
+
+	var counterTag = tag("<counterTag>", {
+		properties: ["m", "i"],
+		template: `<span>[{{ m.face.v }}] </span>`,
+		make(up) {
+			var m = {
+				id: idn(),
+				up: up,
+				count: 0,
+				face: flicker("0"),
+				increment() {
+					m.count++;
+					var s = m.count+"";
+					if (page.powerOption) m.face.force(s);
+					else                  m.face.frame(s);
+				},
+			};
+			return m;
+		}
+	});
+
+	//as fast as setImmediate can spin, increment all the counters in the array
+	function immediateLoop() {
+		for (var i = 0; i < page.counters.length; i++) page.counters[i].increment();
+		setImmediate(immediateLoop);
+	}
+
+	flickerLog();//see the first group of 60 frame arrival times in Console
+	var page = pageTag.make();
+	immediateLoop();
+
+	/*
+	Using .frame() keeps the page from slowing down the program as a whole
+	To see this in action, turn off the log, hide the developer tools, add 500 counters
+	On frame, you can count up with the thousands
+	On force, you can count up with the hundreds
+
+	The log only changes once a second, but this slows down the page and program as a whole
+	With around 600 counters, the first frame will always be slow, because the last log happened
+	So, turn off logging to see the real behavior
+
+	On frame, 800 counters are fast all the time, 1600 are slow all the time
+	Quantities in between exhibit oscillations between the two speeds
+
+	Updating 1600 counters causes the next frame to arrive in about 30ms
+	With the log on, using frame, you can see the frame every 800ms that takes this long
+	And since there's always one of those in the last second, the page stays in slow mode
+	Switch to force, every frame is a slow frame, and you can count with the tens!
+
+	Around 900 counters, you've seen a weird hiccup-step of two in a row (but not a burst of fast) followed by a correctly slow ones, which shouldn't be possible: bursts of fast admid slow are ok, but there shouldn't be a hiccup
+	*/
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -804,6 +950,8 @@ expose.main("page-many", function() {
 
 //clocks and timers
 expose.main("page-clocks", function() {
+
+	flickerLog();//turn the flicker log on
 
 	appendHead(`
 		<style type="text/css">
@@ -983,8 +1131,18 @@ expose.main("page-clocks", function() {
 
 
 
+
+
+
+
+
+
+
 /*
 notes to do and move elsewhere
+
+$ npm run electron-load main name
+$ node load.js main name
 
 later, you'll investigate every platform and pattern for async and streams
 but right now, you're ready to try out the one you'll likely use, which is bluebird's promiseify
@@ -997,11 +1155,30 @@ here are the two important speed things to compare
 1
 flicker.frame() and flicker.force() is a great design
 and hopefully, you can prove that it can never slow you down, with this example
-control group setImmediate runs as fast as it can, and shows the count at the end of a second
-experiment group setImmediate runs as fast as it can, hitting .frame() each time
+control group: setImmediate runs as fast as it can, and shows the count at the end of a second
+experiment group: setImmediate runs as fast as it can, hitting .frame() each time
 2
-control group hash a file in electron, no progress at all, show the result in the dom when done
-experiment group hash a file in electron, .frame() shows progress at every stream event, .force() shows result in the dom when done
+control group: hash a file in electron, no progress at all, show the result in the dom when done
+experiment group: hash a file in electron, .frame() shows progress at every stream event, .force() shows result in the dom when done
+
+
+
+
+
+
+these are your run commands now
+$ nodeunit *.test.js
+$ node load.js main some-name
+$ npm run electron-load main some-name
+
+here's what you want instead
+familiar spirit, runs in a separate process, from a double-click even
+$ node load.js      //runs expose.core({snip}), simple, easy to move around, make and delete, and has to be unique
+$ electron load.js  //runs electron, gives you $ for everything else
+
+
+
+
 
 
 
@@ -1162,94 +1339,6 @@ particularly, code up now:
 
 
 
-
-
-
-
-
-expose.main("page-flicker", function() {
-
-	var clockTag = tag("<clockTag>", {
-		properties: ["m", "i"],
-		template: `<span>[{{ m.face.v }}] </span>`,
-		make(up) {
-			var m = {
-				id: idn(), up: up, remove(i) { m.up.clocks.splice(i, 1); },
-				face: flicker(""),
-				update() {
-					m.face.frame(tick()+"");
-				},
-			};
-			return m;
-		}
-	});
-
-	var pageTag = tag("<pageTag>", {
-		properties: ["m"],
-		template: `
-			<div>
-				<input type="button" value="Refresh" onClick="window.location.reload()"/>
-				<p>
-					<input type="text" value="50" ref="inputReference"/>
-					<button @click="m.more($refs)">More</button>
-					<button @click="m.demi">Demi</button>
-					<button @click="m.clear">Clear</button>
-					{{ m.clocks.length }} clocks, {{ m.duration }}ms to update, {{ m.between }}ms between updates
-				</p>
-				<clockTag v-for="(n, index) in m.clocks" :key="n.id" :m="n" :i="index"></clockTag>
-			</div>
-		`,
-		make() {
-			var m = {
-				id: idn(),
-				clocks: [],
-				duration: 0,
-				between: 0,
-				inputCurrent: 50,
-				more(r) {
-					var n = r.inputReference.value;
-					for (var i = 0; i < n; i++) m.clocks.push(clockTag.make());
-				},
-				demi() { m.clocks.splice(0, m.clocks.length / 2); },//half as many clocks
-				clear() { m.clocks = []; }//get rid of all the clocks
-			};
-			return m;
-		}
-	});
-
-	var updateEvery = 10;
-	setTimeout(f, updateEvery);
-	function f() {
-
-		for (var i = 0; i < page.clocks.length; i++) page.clocks[i].update();
-
-
-
-
-
-		setTimeout(f, updateEvery);
-	}
-
-/*
-	var previous, before, after;
-	function startUpdatePasses() {
-		function updatePass() {
-			before = Date.now();
-			for (var i = 0; i < page.clocks.length; i++) page.clocks[i].update();
-			after = Date.now();
-			page.duration = after - before;
-			page.between = after - previous;
-			previous = before;
-
-			window.requestAnimationFrame(updatePass);
-		}
-		window.requestAnimationFrame(updatePass);
-	}
-	startUpdatePasses();
-*/
-
-	var page = pageTag.make();
-});
 
 
 
