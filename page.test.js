@@ -564,7 +564,7 @@ expose.main("page-form", function() {
 	var page = pageTag.make();
 });
 
-//different ways to slow an immediate loop down, not using flicker()
+//different ways to slow an immediate loop down
 expose.main("page-spin", function() {
 
 	appendHead(`
@@ -1334,7 +1334,17 @@ particularly, code up now:
 
 
 
+/*
 
+make a folder counter that shows
+number of files
+total size of files
+and watch how fast that looks on the page, use .frame() and still it should blur by faster than you can see
+compare that with .force() and .frame() to make sure they both appear equally fast
+
+
+
+*/
 
 
 

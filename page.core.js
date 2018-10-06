@@ -207,7 +207,15 @@ code your new thing that connects the multiple successive calls to requestAnimat
 have it 1 not request the next event when shut, and 2 not call f when an event arrived but it's already been shut
 */
 
-//TODO maybe rename to PageMessage(""), .set, .progress
+
+/*
+TODO
+
+flicker()    .force()  .frame()           is cool, but actually, rename to:
+PageText("") .update() .updateProgress()
+and the idea is that all text on the page that could change should be wrapped by PageText, and it only does strings
+
+*/
 
 
 

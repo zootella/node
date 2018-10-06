@@ -531,24 +531,6 @@ if you can do that, you can make all the installers, too
 
 
 
-/*
-
-all you want to do is run something that turns your code and node_modules code into a single really long file that isn't minified
-does that include webpack?
-
-you found:
-https://github.com/electron-userland/electron-webpack
-https://github.com/electron-userland/electron-webpack-quick-start
-
-reccomended:
-https://github.com/electron-userland/electron-forge
-https://electronforge.io/
-
-*/
-
-
-
-
 
 
 
@@ -578,6 +560,118 @@ and has other little islands where it gets messaged to perform tasks that only i
 
 
 
+
+
+
+
+/*
+
+all you want to do is run something that turns your code and node_modules code into a single really long file that isn't minified
+does that include webpack?
+
+you found:
+https://github.com/electron-userland/electron-webpack
+https://github.com/electron-userland/electron-webpack-quick-start
+
+reccomended:
+https://github.com/electron-userland/electron-forge
+https://electronforge.io/
+
+googled:
+https://electronjs.org/docs/tutorial/application-distribution
+"Apart from packaging your app manually, you can also choose to use third party packaging tools to do the work for you:
+electron-forge
+electron-builder
+electron-packager"
+
+forge is the umbrella
+packager is the part of forge that makes os-specific bundles
+builder, not sure, but mentions electron-webpack-quick-start
+
+trying forge first, see if you can ignore setup.exe and just get runnable folders for each platform from there
+https://electronforge.io/
+
+setup
+nodejs.org, current installer
+$ npm install -g npm
+$ npm install -g electron-forge
+
+                            win      mac
+$ node --version            10.11.0  10.11.0
+$ npm --version             6.4.1    6.4.1
+$ electron-forge --version  5.2.2    5.2.2
+
+creation
+$ electron-forge init forge1
+$ cd forge1
+$ electron-forge start
+$ electron-forge make .
+
+init sets up a lot of stuff: you have .git, package.json with my name and a MIT license, a node_modules folder with 728 modules in there, a src folder with
+
+start runs electron, doesn't do live reload, which is good
+
+make only builds for the platform you're on (which makes sense and is fine), is taking a long time
+/out
+
+
+
+
+forge should be using electron's default update system, so you'll have to figure that out well enough to disable it
+https://electronjs.org/docs/tutorial/updates
+but you can't find the "update-electron-app" module anywhere
+also can't find "update.electronjs.org" in any text file in the giant tree that forge makes
+
+
+here's what you want to do
+make a hello world electron app that shows versions
+have it contain chokidar, which requires a bunch of other things
+use forge or electron-webpack or whatever to build it for deployment
+see where your code, and chokidar, ended up
+
+see if you can drag one big file into a fresh electron download
+that would be interesting, too
+
+
+
+
+how are you going to do portable?
+maybe you keep not just electron separate, but node_modules, too
+portable is the three versions, in a folder, side-by-side
+the only thing they share is the application-specific configuration and data files
+
+>find in mac and windows
+binary
+node_modules
+asar
+app src, your code
+
+
+forge1-darwin-x64\forge1.app
+forge1-darwin-x64\forge1.app\Contents\Resources\app\src\index.html
+forge1-darwin-x64\forge1.app\Contents\Resources\app\src\index.js
+forge1-darwin-x64\forge1.app\Contents\Resources\app\node_modules
+forge1-darwin-x64\forge1.app\Contents\Resources\electron.asar
+forge1-darwin-x64\forge1.app\Contents\Resources\electron.icns
+
+forge1-win32-x64\forge1.exe
+forge1-win32-x64\Update.exe
+forge1-win32-x64\resources\electron.asar
+forge1-win32-x64\resources\app\node_modules
+forge1-win32-x64\resources\app\src\index.html
+forge1-win32-x64\resources\app\src\index.js
+forge1-win32-x64\resources\app\package.json
+
+
+
+do forge0 without chokidar
+and forge1 with chokidar and one file of your code: mycode.js
+build for windows and mac
+see where your code ended up
+and windiff them
+
+
+*/
 
 
 
