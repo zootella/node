@@ -686,7 +686,15 @@ function stripe(a, b) {
 	return {a, b, w: b - a};//calculate width
 }
 expose.core({ tick: Date.now, stripe });
+/*
+TODO refactor
 
+Date.now() --> tick()
+now().time --> tick()
+
+get rid of now() entirely
+get rid of When() entirely
+*/
 
 
 

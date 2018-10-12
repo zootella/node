@@ -888,7 +888,7 @@ function demoSpeed(method) {
 	function start() {
 		if      (method == "timeout")   setTimeout(end, 0);   //~64 timeouts/s
 		else if (method == "immediate") setImmediate(end);    //~480k immediates/s
-		else if (method == "tick")      process.nextTick(end);//node warning and error
+		else if (method == "tick")      process.nextTick(end);//node warning and error, now on node 10, 8 million ticks
 	}
 
 	function end() {
@@ -937,6 +937,487 @@ expose.main("speed-pulse", function() {
 	var callWhenDone = speedLoopNext("pulse", start, allDone);
 	start();
 });
+
+//   _____ _                     
+//  |_   _(_)_ __ ___   ___ _ __ 
+//    | | | | '_ ` _ \ / _ \ '__|
+//    | | | | | | | | |  __/ |   
+//    |_| |_|_| |_| |_|\___|_|   
+//                               
+
+/*
+runs in node and electron
+$ node load.js main speed-timer
+$ electron load.js main speed-timer
+in electron, see the results in developer tools, console
+*/
+expose.main("speed-timer", function() {
+	var start, count;
+
+	//empty, ~10 million
+	part1();
+	function part1() {
+		start = tick();
+		count = 0;
+		while (tick() < start + 1000) {
+			count++;
+		}
+		log(commas(count) + " empty loop");
+		part2();
+	}
+
+	//setImmediate, ~1 million
+	function part2() {
+		start = tick();
+		count = 0;
+		f2();
+		function f2() {
+			if (tick() < start + 1000) {
+				count++;
+				setImmediate(f2);
+			} else {
+				log(commas(count) + " setImmediate");
+				part3();
+			}
+		}
+	}
+
+	//setTimeout, ~500
+	function part3() {
+		start = tick();
+		count = 0;
+		f3();
+		function f3() {
+			if (tick() < start + 1000) {
+				count++;
+				setTimeout(f3, 0);
+			} else {
+				log(commas(count) + " setTimeout");
+				part4();
+			}
+		}
+	}
+
+	//setInterval, ~500
+	function part4() {
+		start = tick();
+		count = 0;
+		var interval = setInterval(f4, 0);
+		function f4() {
+			if (tick() < start + 1000) {
+				count++;
+			} else {
+				clearInterval(interval);
+				log(commas(count) + " setInterval");
+				part5();
+			}
+		}
+	}
+
+	//process.nextTick, ~7 million
+	function part5() {
+		start = tick();
+		count = 0;
+		f5();
+		function f5() {
+			if (tick() < start + 1000) {
+				count++;
+				process.nextTick(f5);
+			} else {
+				log(commas(count) + " process.nextTick");
+				part6();
+			}
+		}
+	}
+
+	//requestAnimationFrame, ~60
+	function part6() {
+		if (typeof requestAnimationFrame == "undefined") {
+			log("requestAnimationFrame is undefined");
+			part7();
+		} else {
+			start = tick();
+			count = 0;
+			f6();
+			function f6() {
+				if (tick() < start + 1000) {
+					count++;
+					requestAnimationFrame(f6);
+				} else {
+					log(commas(count) + " requestAnimationFrame");
+					part7();
+				}
+			}
+		}
+	}
+
+	//Timer's .immediate(), ~1 million
+	function part7() {
+		start = tick();
+		count = 0;
+		var timer7 = Timer();
+		timer7.immediate(f7);
+		function f7() {
+			if (tick() < start + 1000) {
+				count++;
+				timer7.immediate(f7);
+			} else {
+				log(commas(count) + " Timer's .immediate()");
+				shut(timer7);
+				part8();
+			}
+		}
+	}
+
+	function part8() {
+		log("all done");
+	}
+});
+
+//different ways to slow an immediate loop down
+expose.main("speed-page", function() {
+
+	appendHead(`
+		<style type="text/css">
+			p { margin: 4px; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
+		</style>
+	`);
+
+	var clockTimer = Timer();
+	clockTimer.every(77, function() {
+		page.clock.update(sayDateAndTime(tick()));
+	});
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<p><input type="button" value="Refresh" onClick="window.location.reload()"/></p>
+				<p>{{ m.clock.v }}</p>
+				<p><button @click="m.part1">1. empty loop</button>            {{ m.count1.v }}</p>
+				<p><button @click="m.part2">2. setImmediate</button>          {{ m.count2.v }}</p>
+				<p><button @click="m.part3">3. setTimeout</button>            {{ m.count3.v }}</p>
+				<p><button @click="m.part4">4. setInterval</button>           {{ m.count4.v }}</p>
+				<p><button @click="m.part5">5. process.nextTick</button>      {{ m.count5.v }}</p>
+				<p><button @click="m.part6">6. requestAnimationFrame</button> {{ m.count6.v }}</p>
+				<p><button @click="m.part7">7. Timer's .immediate()</button>  {{ m.count7.v }}</p>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				clock: PageText(sayDateAndTime(tick())),
+
+				// 1. empty loop
+				count1: PageText(""), part1() {
+					var start = tick();
+					var count = 0;
+					f1();
+					function f1() {
+						while (tick() < start + 1000) {
+							count++;
+							m.count1.updateProgress(count+"");
+						}
+					}
+				},
+
+				// 2. setImmediate
+				count2: PageText(""), part2() {
+					var start = tick();
+					var count = 0;
+					f2();
+					function f2() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count2.updateProgress(count+"");
+							setImmediate(f2);
+						}
+					}
+				},
+
+				// 3. setTimeout
+				count3: PageText(""), part3() {
+					var start = tick();
+					var count = 0;
+					f3();
+					function f3() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count3.updateProgress(count+"");
+							setTimeout(f3, 0);
+						}
+					}
+				},
+
+				// 4. setInterval
+				count4: PageText(""), part4() {
+					var start = tick();
+					var count = 0;
+					var interval = setInterval(f4, 0);
+					f4();
+					function f4() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count4.updateProgress(count+"");
+						} else {
+							clearInterval(interval);
+						}
+					}
+				},
+
+				// 5. process.nextTick
+				count5: PageText(""), part5() {
+					var start = tick();
+					var count = 0;
+					f5();
+					function f5() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count5.updateProgress(count+"");
+							process.nextTick(f5);
+						}
+					}
+				},
+
+				// 6. requestAnimationFrame
+				count6: PageText(""), part6() {
+					var start = tick();
+					var count = 0;
+					f6();
+					function f6() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count6.updateProgress(count+"");
+							requestAnimationFrame(f6);
+						}
+					}
+				},
+
+				// 7. Timer's .immediate()
+				count7: PageText(""), part7() {
+					var start = tick();
+					var count = 0;
+					var timer7 = Timer();
+					timer7.immediate(f7);
+					function f7() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count7.updateProgress(count+"");
+							timer7.immediate(f7);
+						} else {
+							shut(timer7);
+						}
+					}
+				}
+
+				/*
+				1. empty loop             2,188,356 but freezes
+				2. setImmediate              81,977 fastest that doesn't freeze the clock
+				3. setTimeout                   206
+				4. setInterval                  206
+				5. process.nextTick       1,466,490 but freezes
+				6. requestAnimationFrame         61
+				7. Timer's .setImmediate() same as setImmediate
+				*/
+			};
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+//TODO shut(clockTimer);
+
+expose.main("timer-platform", function() {
+	function space(s) { log(s+"\n"); }
+	space("");
+
+	//immediate, node and electron return an Immediate object
+	part1();
+	function part1() {
+		var flyingImmediate = setImmediate(f1);
+		space("setImmediate returned: " + inspect(flyingImmediate));
+		function f1() {
+			part2();
+		}
+	}
+
+	//timeout, node returns a Timeout, electron a number like 3
+	function part2() {
+		var flyingTimeout = setTimeout(f2, 0);
+		space("setTimeout returned: " + inspect(flyingTimeout));
+		function f2() {
+			part3();
+		}
+	}
+
+	//interval, node returns a Timeout, electron a number like 5
+	var count3 = 0;
+	function part3() {
+		var flyingInterval = setInterval(f3, 0);
+		space("setInterval returned: " + inspect(flyingInterval));
+		function f3() {
+			count3++;
+			if (count3 > 5) {//get several intervals before you go on, and no more after you clear the interval
+				space("clearInterval returned: " + clearInterval(flyingInterval));//returns undefined
+				part4();
+			}
+		}
+	}
+
+	//tick, returns undefined
+	function part4() {
+		var noTick = process.nextTick(f4);
+		space("process.nextTick returned: " + inspect(noTick));//returns undefined
+		function f4() {
+			part5();
+		}
+	}
+
+	//frame, only in electron, and returns a really low number like 5
+	function part5() {
+		if (typeof requestAnimationFrame == "undefined") {
+			space("requestAnimationFrame is undefined");
+			part6();
+		} else {
+			var flyingFrame = requestAnimationFrame(f5);
+			space("requestAnimationFrame returned: " + inspect(flyingFrame));
+			function f5() {
+				part6();
+			}
+		}
+	}
+
+	//set, but then cancel them all, and see if you get called
+	function part6() {
+		clearImmediate(setImmediate(f6));
+		clearTimeout(setTimeout(f6, 0));
+		clearInterval(setInterval(f6, 0));
+		//no way to stop a tick, so we won't start one here
+		if (typeof requestAnimationFrame != "undefined") cancelAnimationFrame(requestAnimationFrame(f6));
+		function f6() {
+			space("this should never get called!");
+		}
+		part7();
+	}
+
+	function part7() {
+		space("all done");
+	}
+});
+
+expose.main("timer-use", function() {
+	var t1 = Timer();
+	var t2 = Timer();
+	var t3 = Timer();
+	var t4 = Timer();
+	var t5 = Timer();
+	var t6 = Timer();
+	var t7 = Timer();
+	var t8 = Timer();
+	var t9 = Timer();
+
+	t1.immediate(f1);
+	function f1() {
+		log("1 immediate");
+		t2.everyImmediate(f2);
+	}
+	var count = 0;
+	function f2() {
+		count++;
+		if (count > 1000) {
+			log("2 everyImmediate");
+			shut(t2);
+			t3.after(10, f3);
+		}
+	}
+	function f3() {
+		log("3 after");
+		count = 0;
+		t4.every(10, f4);
+	}
+	function f4() {
+		count++;
+		if (count == 4) {
+			log("4 every");
+			shut(t4);
+			count = 0;
+			t5.immediateAndEvery(10, f5);
+		}
+	}
+	function f5() {
+		count++;
+		if (count == 5) {
+			log("5 immediateAndEvery");
+			shut(t5);
+			t6.processTick(f6);
+		}
+	}
+	function f6() {
+		log("6 processTick");
+		count = 0;
+		t7.everyProcessTick(f7);
+	}
+	function f7() {
+		count++;
+		if (count > 1000) {
+			log("7 everyProcessTick");
+			shut(t7);
+			if (runByElectronRenderer()) {
+				t8.animationFrame(f8);
+			} else {
+				f10();
+			}
+		}
+	}
+	function f8() {
+		log("8 animationFrame");
+		count = 0;
+		t9.everyAnimationFrame(f9);
+	}
+	function f9() {
+		count++;
+		if (count == 9) {
+			log("9 everyAnimationFrame");
+			shut(t9);
+			f10();
+		}
+	}
+	function f10() {
+		shut(t1, t2, t3, t4, t5, t6, t7, t8, t9);
+		log("all done");
+	}
+});
+
+expose.main("timer-twice", function() {
+
+	setImmediate(f1);//ask twice
+	setImmediate(f1);
+	function f1() {
+		log("immediate hits twice");//get twice
+	}
+
+	var t = Timer();
+	t.immediate(f2);//ask twice
+	t.immediate(f2);
+	function f2() {
+		log("Timer hits once");//get once
+		shut(t);
+	}
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

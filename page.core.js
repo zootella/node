@@ -70,35 +70,32 @@ expose.core({appendHead, tag, idn});
 
 
 
-
-
-
-//   _____ _ _      _             
-//  |  ___| (_) ___| | _____ _ __ 
-//  | |_  | | |/ __| |/ / _ \ '__|
-//  |  _| | | | (__|   <  __/ |   
-//  |_|   |_|_|\___|_|\_\___|_|   
-//                                
+//   ____                 _____         _   
+//  |  _ \ __ _  __ _  __|_   _|____  _| |_ 
+//  | |_) / _` |/ _` |/ _ \| |/ _ \ \/ / __|
+//  |  __/ (_| | (_| |  __/| |  __/>  <| |_ 
+//  |_|   \__,_|\__, |\___||_|\___/_/\_\\__|
+//              |___/                       
 
 var slowAlarm = 25;  // Go slow if a frame arrives more than 25ms after the previous one, taking 1.5x as long as it should
 var slowDelay = 800; // While going slow, skip frames to only update .8 seconds later, still feels faster that a stopwatch
 
 /*
-Given some text for the page, make a flicker object
+Given some text for the page, make a PageText object
 Never touch f.v after handing it to Vue to watch
-For rare state change updates like "100% Done", call f.force(), we'll have Vue change the DOM now
-For frequent progress updates like "98%" and "99%", call f.frame(), we'll have Vue change the DOM on the next animation frame
+For rare state change updates like "100% Done", call f.update(), we'll have Vue change the DOM now
+For frequent progress updates like "98%" and "99%", call f.updateProgress(), we'll have Vue change the DOM on the next animation frame
 If DOM stress has caused a recent frame to arrive late, we'll do progress updates every 800ms rather than every frame
 */
-function flicker(s) { // Take the starting text to show on the page
-	if (typeof s != "string") toss("code"); // Flicker is just for text, for objects use Vue directly
+function PageText(s) { // Take the starting text to show on the page
+	if (typeof s != "string") toss("code"); // PageText is just for text on the page, for objects use Vue directly
 
-	var f = {}; // Make the new flicker object to fill and return
+	var f = {}; // Make the new PageText object to fill and return
 	f.vNext = s; // Current value that we'll get on the page soon
 	f.vPage = s; // Our record of what's on the page
 	f.v     = s; // Give v to Vue to watch, we'll change v and Vue will change the DOM
 
-	f.force = function(s) { // First, last, or important change, update right now
+	f.update = function(s) { // First, last, or important change, force an update to Vue right now
 		if (typeof s != "string") toss("code");
 		if (s != f.vPage) { // Keep away from v to not bother Vue, reading vPage is actually faster
 			f.vNext = s; // Synchronize everything to s
@@ -107,7 +104,7 @@ function flicker(s) { // Take the starting text to show on the page
 		}
 	}
 
-	f.frame = function(s) { // Just another tiny step along the progress bar, update later on
+	f.updateProgress = function(s) { // Just another step along the progress bar, update in an animation frame later on
 		if (typeof s != "string") toss("code");
 		f.vNext = s; // Replace a previously set upcoming value with this new most current one
 		if (!f.inList && f.vNext != f.vPage) { // We're not already in the update list, and have text to change on the page
@@ -120,16 +117,16 @@ function flicker(s) { // Take the starting text to show on the page
 	return f;
 }
 
-var frameList; // A list of flicker objects to update on a future animation frame
+var frameList; // A list of PageText objects to update on a future animation frame
 var frameWhen; // Tick when we last did the list
 
 // If we have a web page, have this run on every animation frame, probably 60 times a second
-if (runByElectronRenderer()) window.requestAnimationFrame(frameArrived);
+if (runByElectronRenderer()) requestAnimationFrame(frameArrived);
 function frameArrived() {
 
 	var t = tick(); // Record that a new animation frame arrived now from the system
 	arrivalsAdd(t); // Add it to our circular array of the most recent arrival times
-	arrivalsLog();  // Call flickerLog() to see the most recent 59 delays when we have a fresh 60
+	arrivalsLog();  // Call logPageText() to see the most recent 59 delays when we have a fresh 60
 
 	// Never updated on a frame before, or all recent frames arrived fast, or there was a slow one but time to update anyway
 	if (!frameWhen || !arrivalsSlow() || frameWhen + slowDelay < t) {
@@ -137,14 +134,14 @@ function frameArrived() {
 		frameUpdate();
 	}
 
-	window.requestAnimationFrame(frameArrived);
+	requestAnimationFrame(frameArrived);
 }
 
-function frameUpdate() { // Update all the flicker objects we've kept for this frame
+function frameUpdate() { // Update all the PageText objects we've kept for this frame
 	if (frameList) {
 		for (var i = 0; i < frameList.length; i++) { // Make one pass down the list
 			var f = frameList[i];
-			if (f.vNext != f.vPage) f.force(f.vNext); // Only update if necessary, could have been f.frame("back to what's already on the page")
+			if (f.vNext != f.vPage) f.update(f.vNext); // Only update if necessary, could have been f.updateProgress("back to what's already on the page")
 			f.inList = false; // We're not in the list anymore, this list or the next one we build up
 		}
 		frameList = null; // Toss out the list, we build it up anew every time
@@ -183,10 +180,10 @@ function arrivalsSlow() { // True if we've got a pair of arrival times that are 
 	return false; // No pairs yet, or all pairs are fast
 }
 
-function flickerLog() { flickerLogOn = !flickerLogOn; } // Just for testing, show what the last 60 arrival times looked like
-var flickerLogOn = false;
+function logPageText() { logOn = !logOn; } // Just for testing, show what the last 60 arrival times looked like
+var logOn = false;
 function arrivalsLog() {
-	if (flickerLogOn) {
+	if (logOn) {
 		if (arrivalsStart == 0 && arrivalsCount == arrivalsCapacity) { // First 60, or a new 60 because we're back at the start
 			var s = "";
 			for (var i = 0; i < arrivalsCount - 1; i++) {
@@ -198,10 +195,10 @@ function arrivalsLog() {
 	}
 }
 
-expose.core({flicker, flickerLog});
+expose.core({PageText, logPageText});
 
 /*
-TODO window.requestAnimationFrame above is an example of the infinite loop of individual events danger pattern
+TODO requestAnimationFrame above is an example of the infinite loop of individual events danger pattern
 the process does exit, but if these were timers instead of frames, it wouldn't
 code your new thing that connects the multiple successive calls to requestAnimationFrame with a single thing that must be shut()
 have it 1 not request the next event when shut, and 2 not call f when an event arrived but it's already been shut

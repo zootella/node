@@ -587,6 +587,8 @@ expose.main("page-spin", function() {
 				<p><button @click="m.runThousand">4. millisecond clock, updates every time</button> {{ m.clockThousand }} {{ m.countThousand }}</p>
 				<p><button @click="m.runTenEvery">5. tenths of second clock, updates every time</button> {{ m.clockTenEvery }} {{ m.countTenEvery }}</p>
 				<p><button @click="m.runTenDifferent">6. tenths of second clock, updates when different</button> {{ m.clockTenDifferent }} {{ m.countTenDifferent }}</p>
+				<p>using PageText:</p>
+				<p><button @click="m.runProgress">7. setImmediate, update progress every time</button> {{ m.countProgress.v }}</p>
 			</div>
 		`,
 		make() {
@@ -637,7 +639,7 @@ expose.main("page-spin", function() {
 					function g() {
 						m.countFrame = count;
 						if (Date.now() < start + 1000) {
-							window.requestAnimationFrame(g);
+							requestAnimationFrame(g);
 						}
 					}
 				},
@@ -693,6 +695,20 @@ expose.main("page-spin", function() {
 							m.countTenDifferent = count;
 						}
 					}
+				},
+
+				// 7. setImmediate, update progress every time
+				countProgress: PageText(0+""), runProgress() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							count++;
+							m.countProgress.updateProgress(count+"");
+							setImmediate(f);
+						}
+					}
 				}
 
 				/*
@@ -704,6 +720,8 @@ expose.main("page-spin", function() {
 				5. tenths of second clock, updates every time        93,968
 				6. tenths of second clock, updates when different    95,274
 
+				7. setImmediate, update progress every time          90,988
+
 				1 is how fast setImmediate can go when it doesn't touch Vue or the DOM at all
 				Only hitting Vue and the DOM on requestAnimationFrame, 3 is nearly as fast
 				2 is slow, so you do need to use requestAnimationFrame
@@ -714,6 +732,9 @@ expose.main("page-spin", function() {
 				Why is 4 faster than 2?
 				2 sets a new value (a higher count) every time it runs
 				4 only has a new value (the time in milliseconds) 1000 times during the second it runs
+
+				7 only updates on a frame like 3, and only when different like 6
+				Using PageText's .updateProgress() the code is as simple as 2 without being much slower than 1
 				*/
 			};
 			return m;
@@ -723,7 +744,7 @@ expose.main("page-spin", function() {
 	var page = pageTag.make();
 });
 
-//many clocks slow down the page, uses animation frame but not flicker
+//many clocks slow down the page, uses animation frame but not PageText
 expose.main("page-many", function() {
 
 	var clockTag = tag("<clockTag>", {
@@ -783,16 +804,16 @@ expose.main("page-many", function() {
 			page.between = after - previous;
 			previous = before;
 
-			window.requestAnimationFrame(updatePass);
+			requestAnimationFrame(updatePass);
 		}
-		window.requestAnimationFrame(updatePass);
+		requestAnimationFrame(updatePass);
 	}
 	startUpdatePasses();
 
 	var page = pageTag.make();
 });
 
-//still too many counters, but now we've got flicker, try out switching between frame and force
+//still too many counters, but now we've got PageText, try out switching between frame and force
 expose.main("page-flicker", function() {
 
 	var pageTag = tag("<pageTag>", {
@@ -839,12 +860,12 @@ expose.main("page-flicker", function() {
 				},
 
 				powerOption: false,//false is frame, true is force
-				powerButton: flicker("Frame (switch to force)"),
+				powerButton: PageText("Frame (switch to force)"),
 				power() {
 					m.powerOption = !m.powerOption;
-					m.powerButton.force(m.powerOption ? "Force (switch to frame)" : "Frame (switch to force)");
+					m.powerButton.update(m.powerOption ? "Force (switch to frame)" : "Frame (switch to force)");
 				},
-				peek() { flickerLog(); }
+				peek() { logPageText(); }
 			};
 			return m;
 		}
@@ -867,12 +888,12 @@ expose.main("page-flicker", function() {
 				id: idn(),
 				up: up,
 				count: 0,
-				face: flicker("0"),
+				face: PageText("0"),
 				increment() {
 					m.count++;
 					var s = m.count+"";
-					if (page.powerOption) m.face.force(s);
-					else                  m.face.frame(s);
+					if (page.powerOption) m.face.update(s);
+					else                  m.face.updateProgress(s);
 				},
 			};
 			return m;
@@ -885,29 +906,35 @@ expose.main("page-flicker", function() {
 		setImmediate(immediateLoop);
 	}
 
-	flickerLog();//see the first group of 60 frame arrival times in Console
+	logPageText();//see the first group of 60 frame arrival times in Console
 	var page = pageTag.make();
 	immediateLoop();
 
 	/*
-	Using .frame() keeps the page from slowing down the program as a whole
-	To see this in action, turn off the log, hide the developer tools, add 500 counters
+	Using frame keeps the page from slowing down the program as a whole
+	To see this in action, turn off the log, hide the developer tools, add 50 counters
 	On frame, you can count up with the thousands
 	On force, you can count up with the hundreds
 
-	The log only changes once a second, but this slows down the page and program as a whole
-	With around 600 counters, the first frame will always be slow, because the last log happened
+	The log only changes once a second, but you've seen this slow down the page
+	With around 600 counters, the first frame in a new log may be repeatedly slow, because the last log happened
 	So, turn off logging to see the real behavior
 
 	On frame, 800 counters are fast all the time, 1600 are slow all the time
-	Quantities in between exhibit oscillations between the two speeds
+	Quantities in between exhibit transitions between the two speeds
 
 	Updating 1600 counters causes the next frame to arrive in about 30ms
 	With the log on, using frame, you can see the frame every 800ms that takes this long
 	And since there's always one of those in the last second, the page stays in slow mode
-	Switch to force, every frame is a slow frame, and you can count with the tens!
 
-	Around 900 counters, you've seen a weird hiccup-step of two in a row (but not a burst of fast) followed by a correctly slow ones, which shouldn't be possible: bursts of fast admid slow are ok, but there shouldn't be a hiccup
+	Around 900 counters, you've seen a weird hiccup-step
+	Two updates happen one quickly after the other (not a burst of fast), followed correctly by some slow mode
+	Bursts of fast admid slow are ok, but there shouldn't be a hiccup
+	So not sure what that is, but also not very important
+
+	Using frame, try clicking the taskbar to minimize and restore the window
+	Try dragging to change the width of the window, including just holding the mouse down as <-> without moving it
+	Interesting but not incorrect behaviors
 	*/
 });
 
@@ -940,18 +967,8 @@ expose.main("page-flicker", function() {
 
 
 
-
-
-
-
-
-
-
-
 //clocks and timers
 expose.main("page-clocks", function() {
-
-	flickerLog();//turn the flicker log on
 
 	appendHead(`
 		<style type="text/css">
@@ -1013,7 +1030,7 @@ expose.main("page-clocks", function() {
 		template: `
 			<div class="box">
 				index{{ i }}, {{ m.id }} <button @click="m.remove(i)">Remove</button>
-				Clock [{{ m.face }}]
+				Clock [{{ m.face.v }}]
 			</div>
 		`,
 		make(up) {
@@ -1023,11 +1040,11 @@ expose.main("page-clocks", function() {
 					m.up.clocks.splice(i, 1);
 					m.running = false;
 				},
-				face: "",
+				face: PageText(""),
 				update() {
 					if (m.running) {
-						m.face = sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s";
-						window.requestAnimationFrame(m.update);
+						m.face.updateProgress(sayDateTemplate(now().time, "dddHH12:MMaSS.TTT") + "s");
+						requestAnimationFrame(m.update);
 					}
 				}
 			};
@@ -1056,7 +1073,7 @@ expose.main("page-clocks", function() {
 						if (m.timeStarted && m.timeStopped) m.face = sayTime(m.timeStopped - m.timeStarted);
 						else if (m.timeStarted) m.face = sayTime(Date.now() - m.timeStarted);
 						else m.face = sayTime(0);
-						window.requestAnimationFrame(m.update);
+						requestAnimationFrame(m.update);
 					}
 				},
 				timeStarted: 0,
@@ -1135,7 +1152,17 @@ expose.main("page-clocks", function() {
 
 
 
+// bookmark plan for now v
 
+
+/*
+get shutCheck into electron browser and renderer
+have something that calls to you so you can call shut on X in these page mains
+have electron visably freak out if you forget to shut something, maybe by savign and shell opening a text file of complaining
+
+write the obligatory demos of getting warned when you mess it up, etc
+and go back at the previous shut check demos to update them for the new mostly electron world
+*/
 
 
 /*

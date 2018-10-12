@@ -3,6 +3,37 @@
 
 
 /*
+all you need to remember:
+
+$ nodeunit *.test.js
+$ node load.js main some-name-or-snip
+$ electron load.js main some-name-or-snip
+
+and if you can get electron installed globally on your mac, you don't need npm run at all
+and for the deploy, forge will bring electron, and platform shortcuts will start it
+now on to some earlier, way more complicated notes:
+*/
+
+/*
+bookmark here's the speed tour
+
+$ node load.js main speed-timer
+$ electron load.js main page-spin
+$ electron load.js main speed-page
+$ electron load.js main page-flicker
+
+to tell the story of
+-setImmediate is the fastest that doesn't freeze the page
+-only updating on frames and when different is a good idea
+-detecting a busy dom and dropping into slow mode
+*/
+
+
+
+
+
+
+/*
 run the tests, run a demo, run in electron, run in nodemon
 
 $ ./node_modules/nodeunit/bin/nodeunit *_test.js

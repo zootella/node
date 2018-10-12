@@ -351,6 +351,9 @@ function pulseScreen(p) { // Takes your object's pulseScreen method
 }
 
 expose.core({shut, canShut, mustShut, pulseScreen});
+//TODO move shutMethod and isShut from o to the canShut closure, better names and real privacy
+//TODO you've got promises, so you don't need pulse
+//TODO you've got Vue and PageText, so you don't need pulseScreen
 
 //   _     _     _   
 //  | |   (_)___| |_ 
@@ -488,6 +491,7 @@ function _pulse() {
 }
 
 expose.core({soon});
+//TODO archive a copy of this file, then get rid of ding, pulse, and soon because you've got promises and async and await now
 
 
 
@@ -676,6 +680,130 @@ function isProcessRunning(pid) {
 expose.core({isFork, isProcessRunning});
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ _____ _                     
+|_   _(_)_ __ ___   ___ _ __ 
+  | | | | '_ ` _ \ / _ \ '__|
+  | | | | | | | | |  __/ |   
+  |_| |_|_| |_| |_|\___|_|   
+                             
+Use a Timer instead of calling setImmediate, setTimeout, setInterval, requestAnimationFrame, or process.nextTick directly
+When you shut() it, it'll cancel anything in flight, and something that lands afterwards won't reach your code
+And like all objects that use shut(), you can notice if you forget to shut one
+t.after() and t.every() put the delay first, easier to read before a multiline function literal
+Setting twice in the same event is probably your mistake, but Timer will coalesce, calling you once later
+And using a single t instance two places can prevent an accidental infinite loop, like this:
+
+//bad: separate disconnected calls to setImmediate() create an infinite loop that's hard to detect and control
+function f() {
+	doSomething();
+	if (!shouldStop) setImmediate(f);//have to remember to stop, have to stop outside
+}
+setImmediate(f);
+
+//good: two method calls on the same Timer instance know they're in a loop, and enable you to stop it from inside f() or out
+var t = Timer();
+function f() {
+	doSomething();
+	t.immediate(f);
+}
+t.immediate(f);
+if (shouldStop) shut(t);//stop it whenever and whereever you want
+*/
+//TODO build these protections for promises and async and await, too
+function Timer() {
+
+	var flyingImmediate, flyingTimeout, flyingInterval, flyingFrame;
+
+	var t = mustShut(function() {
+		if (flyingImmediate) clearImmediate(flyingImmediate); // An Immediate arrives Once, we'll null it and for every, will set again
+		if (flyingTimeout) clearTimeout(flyingTimeout); // A Timeout arrives Once, we'll null it and won't set it again
+		if (flyingInterval) clearInterval(flyingInterval); // An Interval arrives Forever, we'll Keep it and won't set it again
+		if (flyingFrame) cancelAnimationFrame(flyingFrame); // An animation frame arrives Once, we'll null it and for every, will set again
+		// There's no documented return value from process.nextTick() to check or use to cancel
+	});
+
+	t.immediate = function(f1) {
+		if (t.isShut() || flyingImmediate) return;
+		flyingImmediate = setImmediate(g1);
+		function g1() { if (t.isShut()) return; flyingImmediate = null; f1(); /* Once */ }
+	}
+
+	t.everyImmediate = function(f2) {
+		if (t.isShut() || flyingImmediate) return;
+		flyingImmediate = setImmediate(g2);
+		function g2() { if (t.isShut()) return; flyingImmediate = null; f2(); flyingImmediate = setImmediate(g2); }
+	}
+
+	t.after = function(delay, f3) {
+		if (t.isShut() || flyingTimeout) return;
+		flyingTimeout = setTimeout(g3, delay);
+		function g3() { if (t.isShut()) return; flyingTimeout = null; f3(); /* Once */ }
+	}
+
+	t.every = function(delay, f4) {
+		if (t.isShut() || flyingInterval) return;
+		flyingInterval = setInterval(g4, delay);
+		function g4() { if (t.isShut()) return; /* Keep */ f4(); /* Forever */ }
+	}
+
+	t.immediateAndEvery = function(delay, f5) {
+		if (t.isShut() || flyingImmediate || flyingInterval) return;
+		flyingImmediate = setImmediate(g5);
+		flyingInterval = setInterval(g6, delay);
+		function g5() { if (t.isShut()) return; flyingImmediate = null; f5(); /* Once */ }
+		function g6() { if (t.isShut()) return; /* Keep */ f5(); /* Forever */ }
+	}
+
+	t.animationFrame = function(f7) {
+		if (t.isShut() || flyingFrame) return;
+		flyingFrame = requestAnimationFrame(g7);
+		function g7() { if (t.isShut()) return; flyingFrame = null; f7(); /* Once */ }
+	}
+
+	t.everyAnimationFrame = function(f8) {
+		if (t.isShut() || flyingFrame) return;
+		flyingFrame = requestAnimationFrame(g8);
+		function g8() { if (t.isShut()) return; flyingFrame = null; f8(); flyingFrame = requestAnimationFrame(g8); }
+	}
+
+	t.processTick = function(f9) {
+		if (t.isShut()) return;
+		process.nextTick(g9);
+		function g9() { if (t.isShut()) return; /* Cannot */ f9(); /* Once */ }
+	}
+
+	t.everyProcessTick = function(f10) {
+		if (t.isShut()) return;
+		process.nextTick(g10);
+		function g10() { if (t.isShut()) return; /* Cannot */ f10(); process.nextTick(g10); }
+	}
+
+	return t;
+}
+
+expose.core({Timer});
+
+/*
+TODO
+you'll likely need and could add the system where you subscribe your function to get called every interval
+like every 10ms to update a clock, or every 4s to check a socket
+instead of having node setup another timeout for everyone of those, make a system that has one, probably 10ms, and calls those that are up
+this will let you keep track of how many there are, shut down the timer when the last one gets shut, and so on
+*/
 
 
 

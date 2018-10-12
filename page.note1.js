@@ -438,7 +438,7 @@ your page system really only needs to do 3 things
 
 additionally, hopefully vue is already doing all this for you, but find out and prove it somehow
 -don't double-change the page when the data underneath gets repeatedly set to the same current value
--don't waste time trying to change the page faster than window.requestAnimationFrame
+-don't waste time trying to change the page faster than requestAnimationFrame
 -don't spend any time updating something that's hidden, or (harder) scrolled away (but what if it changes height to come partially into view)
 */
 
@@ -740,6 +740,40 @@ function dream() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//bookmark notes from flicker v
+
+
+
+
+
 /*
 what does it look like for two page elements to be driven by the same data
 do they share the same vue model object? according to vue, yes. according to what you build here, probably not
@@ -792,7 +826,7 @@ it's empty
 got some new progress to show the user? add your change to that
 a bunch of changes build up over the course of a short moment
 code might edit one already there, this works because they're keyed to the vued variable
-once the list gets its first item, code calls window.requestAnimationFrame
+once the list gets its first item, code calls requestAnimationFrame
 when that goes off, it goes down the list, telling vue about everything
 the items don't stay on the list, each pass clears it entirely
 if a pass takes to long or there are too many items, the system puts a delay before requesting the animation frame, throttling it down
@@ -834,7 +868,7 @@ function Flicker(vuedVar) {
 	f.delayed = function(delayedValue) {//another step along the progress bar, do it a little later on
 		if (!list) {//no list yet
 			list = [];//make it
-			window.requestAnimationFrame(updateTheList);//TODO run after an additional delay
+			requestAnimationFrame(updateTheList);//TODO run after an additional delay
 		}
 		if (!f.inTheList) {//we're not in the list yet
 			list.push(f);//add us
@@ -880,97 +914,6 @@ throw code if not typeof string
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-TODO design for and purpose of the Timer object
-
-it's easy to create an infinite loop of individual calls to setImmediate
-if you forget to stop it and just null your references to the object that was doing it, it won't get garbage collected or stop, and there will be no way for you to stop it!
-
-watch out for this on setImmediate, setTimeout, setInterval, process.nextTick, window.requestAnimationFrame
-and promises and async await and all that, too
-*/
-var count = 0;
-function f() {
-	count++;
-	setImmediate(f);//go again
-}
-setImmediate(f);//get started
-/*
-even though the 'get started' and 'go again' calls to setImmediate are separate, together, they create an infinite loop
-
-to notice this, make a Timer object that you have to shut(t)
-call t.immediate(f) instead of setImmediate(f)
-after shut(t), a call to t.immediate(f) on the ragged end won't do anything, ending the infinite loop
-*/
-var count = 0;
-var t = Timer();
-function f() {
-	count++;
-	t.immediate(f);//go again
-}
-t.immediate(f);//get started
-//later, when done with whatever thing this is inside and for
-shut(t);
-/*
-wrap all the time stuff that node and javascript can do in Timer
-*/
-window.setImmediate
-window.setTimeout
-window.setInterval
-window.requestAnimationFrame
-process.nextTick
-//Promise and async await stuff
-/*
-are there any others?
-which of these can you call without window. or process.
-*/
-var t = Timer();
-t.immediate(f);//uses setImmediate
-t.after(200, f);//uses setTimeout
-t.every(4*Time.second, f);//uses setInterval
-t.nextAnimationFrame(f);//uses requestAnimationFrame
-t.processNextTick(f);//uses process.nextTick
-shut(t);
-/*
-and once you start doing something with it, if there's a call to do something else with it, toss code
-
-let's say you call setImmediate twice in the same even on the same function
-who knows what setImmediate does
-Timer can only setImmediate once, and note a coding error when this happens
-*/
-t.immediate(f);
-t.immediate(f);//you could log this as a coding error, and only set it once
-/*
-let's say you've got some code where you know you're not using setImmediate in a loop
-it's really actually only going to happen one time
-*/
-//standard use
-var t = Timer();
-t.immediate(f);
-shut(t);
-//shortcut use
-var t = Timer();
-t.once(f);
-/*
-uses setImmediate(f) and shut(t) all in the once method
-also, could toss code if you try to do anything else with this t, instead of just not doing it
-not completely sure about having this shortcut, as now you don't have to simply look for a shut() after every Timer()
-*/
 
 
 
