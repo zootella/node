@@ -33,6 +33,7 @@ function wait(t, f) {
 }
 
 expose.core({wait});
+//TODO replace with Timer below
 
 
 
@@ -799,10 +800,24 @@ expose.core({Timer});
 
 /*
 TODO
+build these features and protections for promisese and async and await, too
+
+TODO
+now you should never use these directly:
+-setImmediate
+-setTimeout
+-setInterval
+-process.nextTick
+-requestAnimationFrame
+only have them around in the context of testing and measuring them to build Timer
+and get rid of wait(), that should be t.after()
+
+TODO
 you'll likely need and could add the system where you subscribe your function to get called every interval
 like every 10ms to update a clock, or every 4s to check a socket
-instead of having node setup another timeout for everyone of those, make a system that has one, probably 10ms, and calls those that are up
+instead of having node setup another timeout for each of those, make a system that has one, probably 10ms, and calls those that are up
 this will let you keep track of how many there are, shut down the timer when the last one gets shut, and so on
+or don't do this, actually, you've got Timer and having an instance per socket or stream is probably fine
 */
 
 
