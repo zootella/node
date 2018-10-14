@@ -948,6 +948,187 @@ expose.main("page-flicker", function() {
 
 
 
+//hash a file, and make sure showing progress doesn't slow it down
+
+
+/*
+$ node load.js main hash-speed ../folder/big-file-to-hash.bin
+*/
+
+expose.main("hash-speed", function() {
+	var path = process.argv[4];
+	log(path);
+	part1();
+	function part1() {
+		var count = 0;
+		var start = Date.now();
+		f1();
+		function f1() {
+			if (Date.now() < start + 1000) {
+				count++;
+				setImmediate(f1);
+			} else {
+				log("1. immediate, node: " + commas(count));
+				part2();
+			}
+		}
+	}
+	function part2() {
+		var fs = require("fs");
+		var crypto = require("crypto");
+		var start = Date.now();
+		let h = crypto.createHash("sha1").setEncoding("hex");
+		fs.createReadStream(path).pipe(h).on("finish", function() {
+			log("1. hash, node: # #ms".fill(h.read(), sayTime(Date.now() - start)));
+			part3();
+		});
+	}
+	function part3() {
+		log("all done");
+	}
+});
+
+expose.main("hash-speed-page", function() {
+
+	appendHead(`
+		<style type="text/css">
+			p { margin: 4px; }
+			.box { border: 1px solid #ccc; padding: 2px; background: #eee; margin: 4px; }
+		</style>
+	`);
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<p><input type="button" value="Refresh" onClick="window.location.reload()"/></p>
+				<p><button @click="m.part1">N. immediate, electron</button>           {{ m.count1   }}</p>
+				<p><button @click="m.part2">N. immediate, electron, progress</button> {{ m.count2.v }}</p>
+				<p><button @click="m.part3">N. hash, electron</button>                {{ m.count3   }}</p>
+				<p><button @click="m.part4">N. hash, electron, progress</button>      {{ m.count4.v }}</p>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+
+				// N. immediate, update once, use platform
+				count1: 0, part1() {
+					var count = 0;
+					var start = Date.now();
+					f();
+					function f() {
+						if (Date.now() < start + 1000) {
+							count++;
+							setImmediate(f);
+						} else {
+							m.count1 = commas(count);
+						}
+					}
+				},
+
+				// N. immediate, update progress every time, use library
+				count2: PageText(0+""), part2() {
+					var count = 0;
+					var start = tick();
+					var timer = Timer();
+					timer.everyImmediate(function() {
+						if (tick() < start + 1000) {
+							count++;
+							m.count2.updateProgress(commas(count));
+						} else {
+							shut(timer);
+						}
+					});
+				},
+
+				// N. hash, update once, use platform
+				count3: 0, part3() {
+					var path = "../../../program/big/diggnation.mp4";
+
+					var fs = require("fs");
+					var crypto = require("crypto");
+					var start = Date.now();
+					var streamR = fs.createReadStream(path);
+					var streamH = crypto.createHash("sha1").setEncoding("hex");
+					streamR.pipe(streamH).on("finish", function() {
+						m.count3 = "# hash, # duration".fill(streamH.read(), sayTime(tick() - start));
+					});
+				},
+
+				// N. hash, update progress every time, use library
+				count4: PageText(0+""), part4() {
+					var path = "../../../program/big/diggnation.mp4";
+
+					var fs = required.fs;
+					var crypto = required.crypto;
+					var stream = required.stream;
+
+					var start = tick();
+
+					var blocks = 0;
+					var size = 0;
+
+					var streamR = fs.createReadStream(path);
+					var streamT = new stream.Transform({
+						transform(block, encoding, next) {
+							blocks++;
+							size += Buffer.byteLength(block, encoding);
+							m.count4.updateProgress("# hash, # blocks, # bytes, # duration".fill("computing", commas(blocks), commas(size), sayTime(tick() - start)));
+							this.push(block); // Pass the block down the stream
+							next(); // Finished here for now
+						}
+					});
+					var streamH = crypto.createHash("sha1").setEncoding("hex");
+					streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+						m.count4.update("# hash, # blocks, # bytes, # duration".fill(streamH.read(), commas(blocks), commas(size), sayTime(tick() - start)));
+					});
+				}
+
+				/*
+				1. setImmediate, update once                         97,035
+				7. setImmediate, update progress every time          90,988
+
+				*/
+			};
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1154,15 +1335,94 @@ expose.main("page-clocks", function() {
 
 // bookmark plan for now v
 
+/*
+what's between you and hasher now?
+*/
+
+/*
+here are the two important speed things to compare
+$ page-race
+
+>immediate
+(written in page-spin, but do it again here, looks like it's 80% as fast)
+control group: setImmediate runs as fast as it can, and shows the count at the end of a second
+experiment group: setImmediate runs as fast as it can, hitting .updateProgress() each time
+
+>hasher
+1 $ time sha1sum, no progress
+2 $ node hasher.js file-to-hash, also no progress, try with external bash time and internal counting milliseconds
+3 in electron, no progress at all, show the hash and duration on the page when done
+4 in electron, calling .updateProgress() each time the stream tells you something, show exact bytes and compute percent and speed and eta
+*/
 
 /*
 get shutCheck into electron browser and renderer
 have something that calls to you so you can call shut on X in these page mains
-have electron visably freak out if you forget to shut something, maybe by savign and shell opening a text file of complaining
+have electron visably freak out if you forget to shut something, your idea to save and shell-open a .txt file to have notepad keep yelling after the process has exited, try that actually
 
 write the obligatory demos of getting warned when you mess it up, etc
 and go back at the previous shut check demos to update them for the new mostly electron world
+and try generating some exceptions and see where they go, if they close the process, etc.
 */
+
+/*
+later, you'll investigate every platform and pattern for async and streams
+but right now, you're ready to try out the one you'll likely use, which is bluebird's promiseify
+write these real ones
+-generate a random guid
+-get the type of this path from the disk
+-list the files in a folder
+*/
+
+/*
+now you can easily make the clock, stopwatch, and timer
+and log and stick
+and make the hasher
+*/
+
+/*
+before you do async and await, just do promises
+before you do every way it can ever be done, just do bluebird promisify all
+before you do streams, just do callbacks
+
+particularly, code up now:
+-generate some random data
+-look at a path on the disk to see what's there
+-hash a short amount of data that's already in memory
+*/
+
+/*
+make a folder counter that shows
+number of files
+total size of files
+and watch how fast that looks on the page, use .frame() and still it should blur by faster than you can see
+compare that with .force() and .frame() to make sure they both appear equally fast
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//later, get mastering/copyN, hasherN, streamN in here to make these examples quickly using your full library as a platform
+
+
 
 
 /*
@@ -1170,27 +1430,6 @@ notes to do and move elsewhere
 
 $ npm run electron-load main name
 $ node load.js main name
-
-later, you'll investigate every platform and pattern for async and streams
-but right now, you're ready to try out the one you'll likely use, which is bluebird's promiseify
-write these real ones
--generate a random guid
--get the type of this path from the disk
--list the files in a folder
-
-here are the two important speed things to compare
-1
-flicker.frame() and flicker.force() is a great design
-and hopefully, you can prove that it can never slow you down, with this example
-control group: setImmediate runs as fast as it can, and shows the count at the end of a second
-experiment group: setImmediate runs as fast as it can, hitting .frame() each time
-2
-control group: hash a file in electron, no progress at all, show the result in the dom when done
-experiment group: hash a file in electron, .frame() shows progress at every stream event, .force() shows result in the dom when done
-
-
-
-
 
 
 these are your run commands now
@@ -1204,20 +1443,12 @@ $ node load.js      //runs expose.core({snip}), simple, easy to move around, mak
 $ electron load.js  //runs electron, gives you $ for everything else
 
 
-
-
-
-
-
-
 here's how you do the path cache
 var disk = Disk();
 disk.lookPath()
 the cache lives in the disk var
 use it for a single thing, throw it out when you have a new thing
 so much better than it being global and time out after when?
-
-
 
 
 try hello web, bittorrent, ipfs, and dat
@@ -1238,28 +1469,11 @@ maybe also socket.io, webRTC
 toss in a 5gb test file and see where it gets mirrored locally
 link brewster kahle's article about wanting a new web
 http://brewster.kahle.org/2015/08/11/locking-the-web-open-a-call-for-a-distributed-web-2/
-
-
-
-
 */
 
 
 
 
-
-
-
-
-
-/*
-speed test hasher, write here but add to spin
-1 $ time sha1sum, no progress
-2 $ node hasher.js file-to-hash, also no progress, try with external bash time and internal counting milliseconds
-and then here, trying out:
--showing bytes/percent only
--updating every stream chunk/every animation frame
-*/
 
 
 
@@ -1277,14 +1491,26 @@ as an example more than something to use
 
 
 
+
+
+
+
 /*
-now you can easily make the clock, stopwatch, and timer
+lots of times you've got a few lines of code you want to run
+for instance, one that says what typeof window is, or logs out 20 guids
 
-and log and stick
+it's easy to code them for and run them on the node command line
+harder and longer to set them up in a page main like those above
+but what if it wasn't
 
-and make the hasher
-and see if it's significantly slower to no-progress hashing in a few lines of node on the command line
-and see if getAnimationFrame makes it faster, yeah, those are the only 3 things you need to race
+imagine you don't run individual mains from the command line
+rather you run electron once
+and the page has a $ on it
+type the name of a main there, and it sticks and logs and has page right there
+boxes allow you to close it, reload it, maybe without refreshing the whole page
+
+and imagine if these were also runnable by node on the real command line
+but that feature isn't necessary
 */
 
 
@@ -1342,36 +1568,6 @@ for node, you also realize
 
 
 
-
-
-
-
-/*
-before you do async and await, just do promises
-before you do every way it can ever be done, just do bluebird promisify all
-before you do streams, just do callbacks
-
-particularly, code up now:
--generate some random data
--look at a path on the disk to see what's there
--hash a short amount of data that's already in memory
-*/
-
-
-
-
-
-/*
-
-make a folder counter that shows
-number of files
-total size of files
-and watch how fast that looks on the page, use .frame() and still it should blur by faster than you can see
-compare that with .force() and .frame() to make sure they both appear equally fast
-
-
-
-*/
 
 
 

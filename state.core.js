@@ -26,16 +26,6 @@ var thisFile = "state.js"; // The name of this file
 
 
 
-// After a delay of t milliseconds, run the function f in a later event
-function wait(t, f) {
-	if (!t) setImmediate(f);  // Run f in the next event without any additional delay
-	else    setTimeout(f, t); // In t milliseconds, run f
-}
-
-expose.core({wait});
-//TODO replace with Timer below
-
-
 
 
 
@@ -724,7 +714,6 @@ function f() {
 t.immediate(f);
 if (shouldStop) shut(t);//stop it whenever and whereever you want
 */
-//TODO build these protections for promises and async and await, too
 function Timer() {
 
 	var flyingImmediate, flyingTimeout, flyingInterval, flyingFrame;
@@ -810,7 +799,7 @@ now you should never use these directly:
 -process.nextTick
 -requestAnimationFrame
 only have them around in the context of testing and measuring them to build Timer
-and get rid of wait(), that should be t.after()
+and get rid of wait() below, that should be t.after()
 
 TODO
 you'll likely need and could add the system where you subscribe your function to get called every interval
@@ -819,6 +808,15 @@ instead of having node setup another timeout for each of those, make a system th
 this will let you keep track of how many there are, shut down the timer when the last one gets shut, and so on
 or don't do this, actually, you've got Timer and having an instance per socket or stream is probably fine
 */
+
+// After a delay of t milliseconds, run the function f in a later event
+function wait(t, f) {
+	if (!t) setImmediate(f);  // Run f in the next event without any additional delay
+	else    setTimeout(f, t); // In t milliseconds, run f
+}
+
+expose.core({wait});
+
 
 
 

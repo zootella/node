@@ -768,10 +768,6 @@ function dream() {
 
 
 
-//bookmark notes from flicker v
-
-
-
 
 
 /*
@@ -781,141 +777,13 @@ and make sure they don't have the same idn number
 you've got an example above that already breaks all this
 */
 
-
-
-
-
 /*
-should you code a global screen update list?
-
-a design might look like this
--a little local object isolates setting the vars that vue is watching
--and remembers what's on the screen
--if you set it to something different, it adds itself, indexed by the vue variable, to the global update list
--if you set it back to the same thing, it removes itself from the global update list
--when the global update list has contents, the list requests the next animation frame, and updates everything at once
--the list keeps track of how long the whole update takes, and throttles down the frame rate if it gets too big and slow
-
-ok, that sounds pretty good, but you're not ready yet, because
--does showing hash or local loopback progress as fast and simple and dumb as you can slow the i/o down at all?
--are you really going to have 10,000 clocks? even if you've got a tree of 10,000 files, how many are going to be in the dom at a time? (with correct navigation/filter box/pagination, just a few dozen) how many are going to change constantly and quickly? (just those that are getting hashed/uploaded/downloaded right now, not all of them)
--does a js object keyed to vars work, and is it fast
--if not, can you make sure your idn()s are one per page text output (now one per component), and always unique (not in the current example of two views of the same model)
+-can you make sure your idn()s are one per page text output (now one per component), and always unique (not in the current example of two views of the same model)
 -how are tabs going to work? switching back and forth probably hides dom elements, not adds and removes them
 -how is pagination going to work? here going to the next page probably generates new dom elements
 -how are trees going to work? imagine clicking through a file manager of a collection of 10,000 files nested in folders
 -how would two changes in the same update work when one depends on the other? imagine adding a new component to a list that needs to be filled out with nested sub components
--and, of course, isn't this just the forbidden polling?
-
-other ideas and thoughts on this
--it's ok if progress takes 200ms to update, but a button you click should appear clicked immediately
--some elements are dependent on time, while others are dependent on state change (clocklike and non-clocklike)
--some updates are for your information only (97% to 98% done) while others are important changes of state (99% to 100%, now you can open it)
 */
-
-/*
-more ideas later
-
-make an animation frame system that's just for progress, not state
-'progress' is a few more bytes on a stream, hashing from 86 to 87%
-'state' is everything else, a button click, a folder listing, a close dialog, hashing to 100%
-state doesn't use the system at all, going right to vue and the variables it's watching
-
-inside the progress system, there's an object keyed on the vued-variable
-it's empty
-got some new progress to show the user? add your change to that
-a bunch of changes build up over the course of a short moment
-code might edit one already there, this works because they're keyed to the vued variable
-once the list gets its first item, code calls requestAnimationFrame
-when that goes off, it goes down the list, telling vue about everything
-the items don't stay on the list, each pass clears it entirely
-if a pass takes to long or there are too many items, the system puts a delay before requesting the animation frame, throttling it down
-
-ok, that isn't too complex
-but are you sure that 'state' code that affects vue directly and immediately can't get messed up with some 'progress' changes happening later, like even 200ms later?
-probably not, right, because if it's off the page vue will just not do anything about it
-and then your code won't give it another progress update later, the list gets cleared every pass, which should also be fast, it's built up, looked up, and then tossed entirely
-
-got a progress update? here's what you need to tell the system about
--vued variable, this is the key
--text currently on the screen right now, yeah, this is only for text
--new text you'd like to change it to, you've already composed this, if it's the same calling this will be a no-op, unless the vued variable is already there, then calling this will knock it off the list
-*/
-
-/*
-now you kind of want to build this
-
-w00t! here it is without any object lookups at all
-
-pushing f into the list, then setting direct so f.inTheList is false, then pushing again, you could get f in the list several places
-but even if you did, it would only actually get updated once, because nextValue != currentlyOnScreen once
-*/
-
-var list;//the list for the next single animation frame pass
-
-function Flicker(vuedVar) {
-
-	var f = {};//make the new flicker object to fill and return
-	f.pointAtVuedVar = vuedVar;//copies the reference because vuedVar is actually an object
-
-	f.direct = function(directValue) {//first, last, or important change, do it right now
-		f.pointAtVuedVar    = directValue;//sets the value
-		f.currentlyOnScreen = directValue;//remember what we've got on screen
-		f.nextValue         = directValue;//no need to change it right now
-		f.inTheList         = false;//if we are in the list, this will ignore it, faster than removing it from the list
-	}
-
-	f.delayed = function(delayedValue) {//another step along the progress bar, do it a little later on
-		if (!list) {//no list yet
-			list = [];//make it
-			requestAnimationFrame(updateTheList);//TODO run after an additional delay
-		}
-		if (!f.inTheList) {//we're not in the list yet
-			list.push(f);//add us
-			f.inTheList = true;//mark us as in there
-		}
-		f.nextValue = delayedValue;//another call to delayed right away will just do this line
-	}
-
-	f.direct(vuedVar);//the current value is the default and starting value
-	return f;
-}
-
-function updateTheList() {
-	//TODO measure how long this takes, setting an additional delay
-	for (var i = 0; i < list.length; i++) {//make one pass down the list
-		var f = list[i];
-		if (f.inTheList && f.nextValue != f.currentlyOnScreen) f.direct(f.nextValue);//only update if necessary
-	}
-	list = null;//toss out the list, we build it up anew for every pass
-}
-
-/*
-throw code if not typeof string
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
