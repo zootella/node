@@ -21,11 +21,15 @@ $ node load.js main speed-timer
 $ electron load.js main page-spin
 $ electron load.js main speed-page
 $ electron load.js main page-flicker
+$ time sha1sum ../folder/big-file-to-hash.bin
+$ node load.js main hash-speed ../folder/big-file-to-hash.bin
+$ electron load.js main hash-speed-page
 
 to tell the story of
 -setImmediate is the fastest that doesn't freeze the page
 -only updating on frames and when different is a good idea
 -detecting a busy dom and dropping into slow mode
+-hashing with electron, immediate and granular progress, and fancy functions slows the hashing down
 */
 
 

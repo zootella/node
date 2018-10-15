@@ -938,26 +938,9 @@ expose.main("page-flicker", function() {
 	*/
 });
 
-
-
-
-
-
-
-
-
-
-
-//hash a file, and make sure showing progress doesn't slow it down
-
-
-/*
-$ node load.js main hash-speed ../folder/big-file-to-hash.bin
-*/
-
+//hash a file, and determine how much showing progress slows the hashing down
 expose.main("hash-speed", function() {
 	var path = process.argv[4];
-	log(path);
 	part1();
 	function part1() {
 		var count = 0;
@@ -979,7 +962,7 @@ expose.main("hash-speed", function() {
 		var start = Date.now();
 		let h = crypto.createHash("sha1").setEncoding("hex");
 		fs.createReadStream(path).pipe(h).on("finish", function() {
-			log("1. hash, node: # #ms".fill(h.read(), sayTime(Date.now() - start)));
+			log("2. hash, node: # value, # duration".fill(h.read(), sayTime(Date.now() - start)));
 			part3();
 		});
 	}
@@ -997,98 +980,229 @@ expose.main("hash-speed-page", function() {
 		</style>
 	`);
 
+	var path = "../../../program/big/diggnation.mp4";
+
 	var pageTag = tag("<pageTag>", {
 		properties: ["m"],
 		template: `
 			<div>
 				<p><input type="button" value="Refresh" onClick="window.location.reload()"/></p>
-				<p><button @click="m.part1">N. immediate, electron</button>           {{ m.count1   }}</p>
-				<p><button @click="m.part2">N. immediate, electron, progress</button> {{ m.count2.v }}</p>
-				<p><button @click="m.part3">N. hash, electron</button>                {{ m.count3   }}</p>
-				<p><button @click="m.part4">N. hash, electron, progress</button>      {{ m.count4.v }}</p>
+				<p><button @click="m.part3">3. immediate, electron</button> {{ m.count3 }}</p>
+				<p><button @click="m.part4">4. immediate, electron, progress</button> {{ m.count4.v }}</p>
+				<p><button @click="m.part5">5. hash, direct pipe (add electron)</button></p><p>{{ m.count5.v }}</p>
+				<p><button @click="m.part6">6. transform stream (add the transform stream)</button></p><p>{{ m.count6.v }}</p>
+				<p><button @click="m.part7">7. simple percent (hit PageText every block and Vue 100 times)</button></p><p>{{ m.count7.v }}</p>
+				<p><button @click="m.part8">8. percent and size (hit PageText every block and Vue every frame)</button></p><p>{{ m.count8.v }}</p>
+				<p><button @click="m.part9">9. fancy percent (like 7, but use sayUnitPerUnit and Fraction)</button></p><p>{{ m.count9.v }}</p>
+				<p><button @click="m.part10">10. everything (use lots of fancy slow functions)</button></p><p>{{ m.count10.v }}</p>
 			</div>
 		`,
 		make() {
 			var m = {
 				id: idn(),
 
-				// N. immediate, update once, use platform
-				count1: 0, part1() {
+				count3: 0, part3() {
 					var count = 0;
 					var start = Date.now();
-					f();
-					function f() {
+					f3();
+					function f3() {
 						if (Date.now() < start + 1000) {
 							count++;
-							setImmediate(f);
+							setImmediate(f3);
 						} else {
-							m.count1 = commas(count);
+							m.count3 = commas(count);
 						}
 					}
 				},
 
-				// N. immediate, update progress every time, use library
-				count2: PageText(0+""), part2() {
+				count4: PageText(0+""), part4() {
 					var count = 0;
 					var start = tick();
 					var timer = Timer();
 					timer.everyImmediate(function() {
 						if (tick() < start + 1000) {
 							count++;
-							m.count2.updateProgress(commas(count));
+							m.count4.updateProgress(commas(count));
 						} else {
 							shut(timer);
 						}
 					});
 				},
 
-				// N. hash, update once, use platform
-				count3: 0, part3() {
-					var path = "../../../program/big/diggnation.mp4";
-
-					var fs = require("fs");
-					var crypto = require("crypto");
-					var start = Date.now();
-					var streamR = fs.createReadStream(path);
-					var streamH = crypto.createHash("sha1").setEncoding("hex");
+				count5: PageText(""), part5() {
+					var start = tick();
+					var streamR = required.fs.createReadStream(path);
+					var streamH = required.crypto.createHash("sha1").setEncoding("hex");
 					streamR.pipe(streamH).on("finish", function() {
-						m.count3 = "# hash, # duration".fill(streamH.read(), sayTime(tick() - start));
+						m.count5.update("# value, # duration".fill(streamH.read(), sayTime(tick() - start)));
 					});
 				},
 
-				// N. hash, update progress every time, use library
-				count4: PageText(0+""), part4() {
-					var path = "../../../program/big/diggnation.mp4";
-
-					var fs = required.fs;
-					var crypto = required.crypto;
-					var stream = required.stream;
-
-					var start = tick();
-
+				count6: PageText(""), part6() {
 					var blocks = 0;
-					var size = 0;
-
-					var streamR = fs.createReadStream(path);
-					var streamT = new stream.Transform({
-						transform(block, encoding, next) {
-							blocks++;
-							size += Buffer.byteLength(block, encoding);
-							m.count4.updateProgress("# hash, # blocks, # bytes, # duration".fill("computing", commas(blocks), commas(size), sayTime(tick() - start)));
-							this.push(block); // Pass the block down the stream
-							next(); // Finished here for now
-						}
+					var processedSize = 0;
+					var totalSize = 0;
+					var start = tick();
+					required.fs.stat(path, function(e, r) {
+						totalSize = r.size;
+						var streamR = required.fs.createReadStream(path);
+						var streamT = new required.stream.Transform({
+							transform(block, encoding, next) {
+								blocks++;
+								processedSize += Buffer.byteLength(block, encoding);
+								this.push(block);//pass the block down the stream
+								next();//finished here for now
+							}
+						});
+						var streamH = required.crypto.createHash("sha1").setEncoding("hex");
+						streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+							m.count6.update("# blocks, # bytes, # value, # duration".fill(
+								commas(blocks),
+								commas(processedSize),
+								streamH.read(),
+								sayTime(tick() - start)));
+						});
 					});
-					var streamH = crypto.createHash("sha1").setEncoding("hex");
-					streamR.pipe(streamT).pipe(streamH).on("finish", function() {
-						m.count4.update("# hash, # blocks, # bytes, # duration".fill(streamH.read(), commas(blocks), commas(size), sayTime(tick() - start)));
+				},
+
+				count7: PageText(""), part7() {
+					var blocks = 0;
+					var processedSize = 0;
+					var totalSize = 0;
+					var start = tick();
+					required.fs.stat(path, function(e, r) {
+						totalSize = r.size;
+						var streamR = required.fs.createReadStream(path);
+						var streamT = new required.stream.Transform({
+							transform(block, encoding, next) {
+								blocks++;
+								processedSize += Buffer.byteLength(block, encoding);
+								m.count7.updateProgress(Math.floor(100 * processedSize / totalSize) + "%");
+								this.push(block);//pass the block down the stream
+								next();//finished here for now
+							}
+						});
+						var streamH = required.crypto.createHash("sha1").setEncoding("hex");
+						streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+							m.count7.update("#%, # value, # duration".fill(
+								Math.floor(100 * processedSize / totalSize),
+								streamH.read(),
+								sayTime(tick() - start)));
+						});
+					});
+				},
+
+				count8: PageText(""), part8() {
+					var blocks = 0;
+					var processedSize = 0;
+					var totalSize = 0;
+					var start = tick();
+					required.fs.stat(path, function(e, r) {
+						totalSize = r.size;
+						var streamR = required.fs.createReadStream(path);
+						var streamT = new required.stream.Transform({
+							transform(block, encoding, next) {
+								blocks++;
+								processedSize += Buffer.byteLength(block, encoding);
+								m.count8.updateProgress(Math.floor(100 * processedSize / totalSize) + "% " + processedSize);
+								this.push(block);//pass the block down the stream
+								next();//finished here for now
+							}
+						});
+						var streamH = required.crypto.createHash("sha1").setEncoding("hex");
+						streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+							m.count8.update("#%, # bytes, # value, # duration".fill(
+								Math.floor(100 * processedSize / totalSize),
+								processedSize,
+								streamH.read(),
+								sayTime(tick() - start)));
+						});
+					});
+				},
+
+				count9: PageText(""), part9() {
+					var blocks = 0;
+					var processedSize = 0;
+					var totalSize = 0;
+					var start = tick();
+					required.fs.stat(path, function(e, r) {
+						totalSize = r.size;
+						var streamR = required.fs.createReadStream(path);
+						var streamT = new required.stream.Transform({
+							transform(block, encoding, next) {
+								blocks++;
+								processedSize += Buffer.byteLength(block, encoding);
+								m.count9.updateProgress("#, # value".fill(
+									sayUnitPerUnit(Fraction(processedSize, totalSize), "#%"),
+									"computing"));
+								this.push(block);//pass the block down the stream
+								next();//finished here for now
+							}
+						});
+						var streamH = required.crypto.createHash("sha1").setEncoding("hex");
+						streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+							m.count9.update("# (#/#) # value, # duration".fill(
+								sayUnitPerUnit(Fraction(processedSize, totalSize), "#%"),
+								commas(processedSize),
+								commas(totalSize),
+								streamH.read(),
+								sayTime(tick() - start)));
+						});
+					});
+				},
+
+				count10: PageText(""), part10() {
+					var blocks = 0;
+					var processedSize = 0;
+					var totalSize = 0;
+					var start = tick();
+					required.fs.stat(path, function(e, r) {
+						totalSize = r.size;
+						var streamR = required.fs.createReadStream(path);
+						var streamT = new required.stream.Transform({
+							transform(block, encoding, next) {
+								blocks++;
+								processedSize += Buffer.byteLength(block, encoding);
+								m.count10.updateProgress("# (#/#) # value, # duration".fill(
+									sayUnitPerUnit(Fraction(processedSize, totalSize), "#%"),
+									commas(processedSize),
+									commas(totalSize),
+									"computing",
+									sayTime(tick() - start)));
+								this.push(block);//pass the block down the stream
+								next();//finished here for now
+							}
+						});
+						var streamH = required.crypto.createHash("sha1").setEncoding("hex");
+						streamR.pipe(streamT).pipe(streamH).on("finish", function() {
+							m.count10.update("# (#/#) # value, # duration".fill(
+								sayUnitPerUnit(Fraction(processedSize, totalSize), "#%"),
+								commas(processedSize),
+								commas(totalSize),
+								streamH.read(),
+								sayTime(tick() - start)));
+						});
 					});
 				}
 
 				/*
-				1. setImmediate, update once                         97,035
-				7. setImmediate, update progress every time          90,988
+				$ time sha1sum ../folder/big-file-to-hash.bin
+				$ node load.js main hash-speed ../folder/big-file-to-hash.bin
+				$ electron load.js main hash-speed-page
 
+				1.  immediate, node:               1,484,616 immediates in one second
+				3.  immediate, electron:             100,381
+				4.  immediate, electron, progress:    81,708
+
+				    hash, sha1sum                        2.3 seconds to hash a file that's about a gigabyte big
+				2.  hash, node                           2.2
+				5.  hash, electron                       3.3
+				8.  hash, progress every frame           4.1
+				10. hash, fancy functions                4.7
+
+				Node can do a million immediates in a second, and is also the fastest at hashing
+				Adding Electron, granular progress, and fancy functions slows things down
+				But, no single ingredient hurts the performance, and it's still pretty fast
 				*/
 			};
 			return m;
@@ -1097,12 +1211,6 @@ expose.main("hash-speed-page", function() {
 
 	var page = pageTag.make();
 });
-
-
-
-
-
-
 
 
 
