@@ -1214,7 +1214,8 @@ expose.main("hash-speed-page", function() {
 
 
 
-
+//TODO have a path box instead of hardcoding the path, duh
+//and then next, head into promises, topple the pyramid of doom, decide bluebird or normal, don't do async await yet
 
 
 

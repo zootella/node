@@ -79,6 +79,7 @@ expose.core({appendHead, tag, idn});
 
 var slowAlarm = 25;  // Go slow if a frame arrives more than 25ms after the previous one, taking 1.5x as long as it should
 var slowDelay = 800; // While going slow, skip frames to only update .8 seconds later, still feels faster that a stopwatch
+//TODO probably change from 800 to 200 when you ship so it never looks frozen
 
 /*
 Given some text for the page, make a PageText object
@@ -204,15 +205,14 @@ code your new thing that connects the multiple successive calls to requestAnimat
 have it 1 not request the next event when shut, and 2 not call f when an event arrived but it's already been shut
 */
 
-
 /*
-TODO
-
-flicker()    .force()  .frame()           is cool, but actually, rename to:
-PageText("") .update() .updateProgress()
-and the idea is that all text on the page that could change should be wrapped by PageText, and it only does strings
-
+TODO let's say there's some io that leads to some text on the page
+combining and composing with say functions will actually slow down the io
+the text is on the page, but it might be on a not-clicked tab, inside a not expanded +, scrolled above or below the view, or the whole window might be minimized or closed
+what system keeps say from happening when the text isn't actually hitting pixels on the screen
 */
+
+
 
 
 
