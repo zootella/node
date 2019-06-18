@@ -527,7 +527,18 @@ expose.main("resolve", function() {
 
 
 
+/*
+2018oct
 
+ok, so js and node have unlimited size integers now, 9999999999999999999999999999999n
+and all the fs functions can use them, if you hand them an options object that says you're game
+
+but, why would you need to?
+isn't the largest hard drive possibly for sale still many orders of magnitute smaller than olde fashioned max integer?
+
+see if this is the case, and then use them normally, using int() backed by 9n just for math with the numbers you get from fs
+
+*/
 
 
 

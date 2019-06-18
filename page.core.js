@@ -210,6 +210,9 @@ TODO let's say there's some io that leads to some text on the page
 combining and composing with say functions will actually slow down the io
 the text is on the page, but it might be on a not-clicked tab, inside a not expanded +, scrolled above or below the view, or the whole window might be minimized or closed
 what system keeps say from happening when the text isn't actually hitting pixels on the screen
+
+drastic alternative design that does polling:
+every 200ms, scan the dom, if some progress text is pixels on the screen, look down and compose
 */
 
 

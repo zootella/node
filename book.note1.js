@@ -165,7 +165,7 @@ var email = getUser(name)
 //to see it, do
 email.then(console.log);//calls console.log(user.email)
 
-//bookmark at 20:50
+//marked your place at 20:50
 
 
 Promise.all//do a bunch of stuff all at the same time, tell me when it's all done

@@ -1415,6 +1415,122 @@ expose.main("timer-twice", function() {
 
 
 
+//bookmark simplify shut, archive pulse, and write dap
+
+
+
+/*
+looking for an example that uses pulseScreen
+this throws, it's been broken in there for who knows how long
+
+bookmark dap vision
+also, what would it take to make writing this as a dap easier than what you have here for the command line?
+and what would it take for it to work with both?
+*/
+expose.main("chance-crash", function(n, d) {
+
+	/*
+	var screen = pulseScreen(function() {
+		stick("chance # in # is #".fill(n, d, sayUnitPerUnit(Fraction(wins, rolls), "#.######% #/#")));
+	});
+
+	var wins = 0;
+	var rolls = 0;
+
+	var go = true;
+	f1();
+	function f1() {
+		if (go) {
+			rolls++;
+			if (chance(n, d)) wins++;
+			wait(0, f1);
+		}
+	}
+
+	keyboard("exit", function() {
+		go = false;//stop generating random data
+		shut(screen);
+		closeKeyboard();
+		shutCheck();
+	});
+	*/
+
+
+	log("hi from chance crash");
+
+
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

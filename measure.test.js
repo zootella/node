@@ -2648,5 +2648,45 @@ expose.test("measure chunk overflow", function(ok, done) {
 
 
 
+
+
+/*
+next for int
+
+now javascript has 9n
+try some multiplication and division with big but not huge numbers
+if n is just as fast as number, which it probably is
+have int() convert everything into n for simplicity
+this is a great idea
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 //console.log("measure test/");

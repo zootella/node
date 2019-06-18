@@ -212,5 +212,161 @@ expose.test("load function arguments", function(ok, done) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+expose.main("electron-x", function() {
+
+	var pageTag = tag("<pageTag>", {
+		properties: ["m"],
+		template: `
+			<div>
+				<input type="button" value="Refresh" onClick="window.location.reload()"/>
+				<p>
+					<button @click="m.method1">Method 1</button>
+				</p>
+				<p>{{ m.message }}</p>
+			</div>
+		`,
+		make() {
+			var m = {
+				id: idn(),
+				message: "starting message",
+				method1() {
+					log("hello from method 1");
+				}
+			}
+			return m;
+		}
+	});
+
+	var page = pageTag.make();
+});
+
+/*
+
+bookmark, electron X and notepad txt, or, everything you'll ever need to do with the window and application lifecycle
+try this out in a little side folder like you did when you started with electron
+
+how can you run your function on electron X
+and how can it write a .txt file, and open it in notepad to deliver a message on shutdown
+
+https://electronjs.org/docs/api/browser-window
+close
+closed
+session-end, windows only
+
+so far, you've got:
+
+var win; // Keep a reference to the window object so it's not garbage collected, which would close the window
+required.electron.app.on("ready", function() { // Electron has finished starting and is ready to make windows
+	win.loadURL("file://" + __dirname + "/index.html"); // Load the page of the app
+	win.on("closed", function() { // The user closed the window
+		win = null; // Discard our reference to the window object
+	});
+});
+required.electron.app.on("window-all-closed", function() { // All the windows are closed
+	required.electron.app.quit();
+});
+
+which is great, except, you're plan is to do everything from the renderer process
+so how do you detect close there
+
+if you want to right now write the little sample which is everything you'll ever need, it's this
+
+the renderer process does everything
+the main process doesn't even load the library, really short and simple in straight javascript (or maybe it does)
+
+adds a tray icon (windows only), clicking shows or brings forward window
+setting in code makes X and (red) quit instead of hiding
+you can save and pop a notepad/textedit note
+you can use the file open dialog (do you have to ipc back to main for this?)
+quit button on page
+you get events for window show, minimize, X, and quit
+second instance shows running window and exits (with notepad note)
+second instance gets the send-to path
+main passes to renderer with query string instead of ipc (can you never do ipc?)
+drop target on page
+
+
+"When a BrowserWindow closes, a series of events will fire. I am not 100% sure about the order, but it goes like this:
+
+onbeforeunload (renderer process)
+onunload (renderer process)
+close (main process on browserwindow)
+closed (main process on browserwindow)"
+
+so, just program a log that pops notepad
+log from browser process.txt
+log from renderer process.txt
+just see them update in sublime
+
+have everything try to listen to every event
+do tests on mac and win where you show and hide things and quit and whatnot
+and use that to guide a strategy, and google to see if that strategy is used
+
+
+
+
+
+program/tray
+following electron getting started
+not going to unify load.js
+
+https://electronjs.org/docs/tutorial/first-app
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 //console.log("load test/");
