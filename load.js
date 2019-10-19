@@ -215,7 +215,9 @@ for (var i = 0; i < d.length; i++) { // Loop through each file name
 if (runByElectronMain()) {
 	var win; // Keep a reference to the window object so it's not garbage collected, which would close the window
 	required.electron.app.on("ready", function() { // Electron has finished starting and is ready to make windows
-		win = new required.electron.BrowserWindow({width: 900, height: 1100}); // Create the browser window
+		win = new required.electron.BrowserWindow( // Create the browser window
+			{width: 900, height: 1100, webPreferences: {nodeIntegration: true}} // TODO determine the best way for pages to use Node safely
+		);
 		win.loadURL("file://" + __dirname + "/index.html"); // Load the page of the app
 		win.webContents.openDevTools(); // Open the developer tools
 		win.on("closed", function() { // The user closed the window
