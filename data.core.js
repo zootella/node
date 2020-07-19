@@ -627,6 +627,7 @@ function toBase62(d) {
 	}
 	return s; // Combine the characters in the array into a string
 }
+//TODO swap YZ with ji in the alphebet above so the only more common letters are as narrow as possible in pixels
 
 // Turn data into text using base 64
 function toBase64(d) { return d.buffer().toString("base64"); }
