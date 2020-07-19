@@ -2514,28 +2514,6 @@ expose.test("Data quote international", function(ok, done) {
 
 
 
-expose.test("snippet", function(ok, done) {
-
-
-	ok(true);
-	log("hello there");
-
-
-	var r = randomData(32);
-	log(r.base16());
-	log(r.base62());
-
-
-
-
-
-	done();
-});
-
-
-
-
-
 
 
 
